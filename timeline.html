@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏记录 - 时光轴</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.544.0/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+/* 导航栏响应式显示 - 不依赖 Tailwind CDN */
+.desktop-nav { display: none; }
+.mobile-nav { display: flex; }
+.mobile-menu { display: none; }
+@media (min-width: 768px) {
+    .desktop-nav { display: flex; }
+    .mobile-nav { display: none; }
+}
+        .timeline-filter-btn {
+            @apply px-4 py-2 rounded-full text-sm font-medium transition-all duration-300;
+        }
+        .timeline-filter-btn.active {
+            @apply bg-blue-500 text-white shadow-lg;
+        }
+        .timeline-filter-btn:not(.active) {
+            @apply bg-gray-100 text-gray-600 hover:bg-gray-200;
+        }
+        .icon-option {
+            @apply w-10 h-10 rounded-lg border-2 border-gray-200 flex items-center justify-center cursor-pointer transition-all hover:border-blue-400;
+        }
+        .icon-option.selected {
+            @apply border-blue-500 bg-blue-50;
+        }
+        .color-option {
+            @apply w-8 h-8 rounded-full cursor-pointer border-2 border-transparent transition-all;
+        }
+        .color-option.selected {
+            @apply border-gray-800 scale-110;
+        }
+        .export-menu {
+            @apply absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-100 py-2 z-50 hidden;
+        }
+        .export-menu.show {
+            @apply block;
+        }
+        .export-menu-item {
+            @apply px-4 py-2 hover:bg-gray-50 cursor-pointer flex items-center gap-2 text-sm;
+        }
+        .year-card {
+            @apply bg-gradient-to-br from-blue-500 to-purple-600 text-white rounded-2xl p-6 mb-6;
+        }
+        .stat-highlight {
+            @apply text-3xl font-bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <nav class="flex items-center justify-between py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] rounded-lg flex-shrink-0 flex items-center justify-center"><i data-lucide="gamepad-2" class="text-white w-5 h-5"></i></div>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] bg-clip-text text-transparent">
+                        游戏记录
+                    </h1>
+                </div>
+                
+                <div class="desktop-nav items-center space-x-3">
+                    <a href="index.html" class="nav-link">
+                        <i data-lucide="home" class="w-5 h-5 inline mr-2"></i>
+                        主页
+                    </a>
+                    <a href="profile.html" class="nav-link">
+                        <i data-lucide="user" class="w-5 h-5 inline mr-2"></i>
+                        个人简介
+                    </a>
+                    <a href="games.html" class="nav-link">
+                        <i data-lucide="gamepad-2" class="w-5 h-5 inline mr-2"></i>
+                        游戏收藏
+                    </a>
+                    <a href="achievements.html" class="nav-link">
+                        <i data-lucide="trophy" class="w-5 h-5 inline mr-2"></i>
+                        成就系统
+                    </a>
+                    <a href="stats.html" class="nav-link">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5 inline mr-2"></i>
+                        数据统计
+                    </a>
+                    <a href="report.html" class="nav-link">
+                        <i data-lucide="sparkles" class="w-5 h-5 inline mr-2"></i>
+                        年度报告
+                    </a>
+                    <a href="spending.html" class="nav-link">
+                        <i data-lucide="shopping-cart" class="w-5 h-5 inline mr-2"></i>
+                        消费统计
+                    </a>
+                    <div style="position:relative;" id="nav-more-wrap">
+                        <a href="#" class="nav-link active" id="nav-more-btn" onclick="event.preventDefault();document.getElementById('nav-more-menu').classList.toggle('hidden')">
+                            <i data-lucide="more-horizontal" class="w-5 h-5 inline mr-2"></i>
+                            更多
+                        </a>
+                        <div id="nav-more-menu" class="hidden" style="position:absolute;top:100%;right:0;background:var(--bg-card);border:1px solid var(--border-light);border-radius:0.75rem;box-shadow:0 8px 24px var(--shadow-color);z-index:60;min-width:160px;padding:0.5rem;">
+                            <a href="timeline.html" class="nav-link active" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="clock" class="w-4 h-4 inline mr-2"></i>时光轴
+                            </a>
+                            <a href="media.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体管理
+                            </a>
+                            <a href="wishlist.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单
+                            </a>
+                            <a href="reviews.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测
+                            </a>
+                            <a href="gallery.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="camera" class="w-4 h-4 inline mr-2"></i>截图墙
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="mobile-nav text-gray-700 hover:text-blue-500" id="mobile-menu-toggle">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </nav>
+            
+            <div class="mobile-menu" id="mobile-menu">
+                <div class="flex flex-col space-y-2 pb-2">
+                    <a href="index.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="home" class="w-4 h-4 inline mr-2"></i>主页</a>
+                    <a href="profile.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="user" class="w-4 h-4 inline mr-2"></i>个人简介</a>
+                    <a href="games.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="gamepad-2" class="w-4 h-4 inline mr-2"></i>游戏收藏</a>
+                    <a href="achievements.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="trophy" class="w-4 h-4 inline mr-2"></i>成就系统</a>
+                    <a href="stats.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="bar-chart-3" class="w-4 h-4 inline mr-2"></i>数据统计</a>
+                    <a href="report.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="sparkles" class="w-4 h-4 inline mr-2"></i>年度报告</a>
+                    <a href="spending.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="shopping-cart" class="w-4 h-4 inline mr-2"></i>消费统计</a>
+                    <a href="timeline.html" class="nav-link py-2 px-4 rounded-lg active"><i data-lucide="clock" class="w-4 h-4 inline mr-2"></i>时光轴</a>
+                    <a href="media.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体管理</a>
+                    <a href="wishlist.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单</a>
+                    <a href="reviews.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测</a>
+                    <a href="gallery.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="camera" class="w-4 h-4 inline mr-2"></i>截图墙</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-br from-blue-50 to-cyan-100 py-12 md:py-16">
+        <div class="container mx-auto px-4 text-center">
+            <div data-aos="fade-up">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
+                    游戏时光轴
+                </h1>
+                <p class="text-lg md:text-xl text-gray-700 mb-6 max-w-2xl mx-auto">
+                    记录每一个游戏瞬间，回顾精彩历程
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Year Summary Cards -->
+    <section class="py-8 bg-white border-b">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">年度回顾</h2>
+                <div class="flex gap-2">
+                    <select id="year-select" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="all">全部年份</option>
+                    </select>
+                    <button id="generate-year-summary" class="btn-primary">
+                        <i data-lucide="sparkles" class="w-4 h-4 inline mr-2"></i>
+                        生成年度总结
+                    </button>
+                </div>
+            </div>
+            <div id="year-summary-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Year summary cards will be loaded here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline Controls -->
+    <section class="py-6 bg-gray-50 border-b sticky top-16 z-40">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                <!-- Type Filters -->
+                <div class="flex flex-wrap gap-2">
+                    <button class="timeline-filter-btn active" data-filter="all">全部</button>
+                    <button class="timeline-filter-btn" data-filter="achievement">成就</button>
+                    <button class="timeline-filter-btn" data-filter="game">游戏</button>
+                    <button class="timeline-filter-btn" data-filter="milestone">里程碑</button>
+                    <button class="timeline-filter-btn" data-filter="custom">自定义</button>
+                </div>
+                
+                <!-- Date Range Filter -->
+                <div class="flex items-center gap-2">
+                    <input type="date" id="filter-start-date" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                    <span class="text-gray-500">至</span>
+                    <input type="date" id="filter-end-date" class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                    <button id="apply-date-filter" class="btn-secondary text-sm py-2">筛选</button>
+                    <button id="clear-date-filter" class="text-gray-500 hover:text-gray-700 text-sm">清除</button>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-2">
+                    <button id="add-event-btn" class="btn-primary">
+                        <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
+                        添加事件
+                    </button>
+                    <div class="relative">
+                        <button id="export-btn" class="btn-secondary">
+                            <i data-lucide="download" class="w-4 h-4 inline mr-2"></i>
+                            导出
+                        </button>
+                        <div id="export-menu" class="export-menu">
+                            <div class="export-menu-item" data-export="excel">
+                                <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                                导出 Excel
+                            </div>
+                            <div class="export-menu-item" data-export="image">
+                                <i data-lucide="image" class="w-4 h-4"></i>
+                                保存为图片
+                            </div>
+                            <div class="export-menu-item" data-export="json">
+                                <i data-lucide="file-json" class="w-4 h-4"></i>
+                                导出 JSON
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline Content -->
+    <section class="py-8 bg-gray-50 min-h-screen">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <!-- Stats Overview -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-white rounded-xl p-4 shadow-sm text-center">
+                        <div class="text-2xl font-bold text-blue-600" id="stat-total-events">0</div>
+                        <div class="text-sm text-gray-500">总事件</div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm text-center">
+                        <div class="text-2xl font-bold text-purple-600" id="stat-achievements">0</div>
+                        <div class="text-sm text-gray-500">成就</div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm text-center">
+                        <div class="text-2xl font-bold text-orange-600" id="stat-games">0</div>
+                        <div class="text-sm text-gray-500">游戏</div>
+                    </div>
+                    <div class="bg-white rounded-xl p-4 shadow-sm text-center">
+                        <div class="text-2xl font-bold text-green-600" id="stat-milestones">0</div>
+                        <div class="text-sm text-gray-500">里程碑</div>
+                    </div>
+                </div>
+
+                <!-- Timeline -->
+                <div class="relative" id="timeline-container">
+                    <div class="absolute left-4 md:left-1/2 top-0 bottom-0 w-0.5 bg-gray-300 transform md:-translate-x-1/2"></div>
+                    <div id="timeline-items">
+                        <!-- Timeline items will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Empty State -->
+                <div id="empty-state" class="text-center py-16 hidden">
+                    <i data-lucide="calendar-x" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
+                    <p class="text-gray-500 text-lg">暂无符合条件的事件</p>
+                    <button id="add-first-event" class="btn-primary mt-4">
+                        <i data-lucide="plus" class="w-4 h-4 inline mr-2"></i>
+                        添加第一个事件
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Add/Edit Event Modal -->
+    <div id="event-modal" class="modal hidden">
+        <div class="modal-content max-w-lg max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-gray-800" id="modal-title">添加事件</h3>
+                <button class="modal-close text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <form id="event-form" class="space-y-5">
+                <input type="hidden" id="event-id">
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">事件标题 *</label>
+                    <input type="text" id="event-title" required
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="例如：通关塞尔达传说">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">事件描述</label>
+                    <textarea id="event-description" rows="3"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="描述这个特别的时刻..."></textarea>
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">日期 *</label>
+                        <input type="date" id="event-date" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">类型 *</label>
+                        <select id="event-type" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="achievement">成就</option>
+                            <option value="game">游戏</option>
+                            <option value="milestone">里程碑</option>
+                            <option value="custom">自定义</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">选择图标</label>
+                    <div class="grid grid-cols-4 sm:grid-cols-7 gap-2" id="icon-selector">
+                        <!-- Icons will be generated by JS -->
+                    </div>
+                    <input type="hidden" id="event-icon" value="trophy">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">选择颜色</label>
+                    <div class="flex gap-3" id="color-selector">
+                        <div class="color-option bg-blue-500 selected" data-color="blue"></div>
+                        <div class="color-option bg-cyan-500" data-color="cyan"></div>
+                        <div class="color-option bg-green-500" data-color="green"></div>
+                        <div class="color-option bg-purple-500" data-color="purple"></div>
+                        <div class="color-option bg-pink-500" data-color="pink"></div>
+                        <div class="color-option bg-yellow-500" data-color="yellow"></div>
+                        <div class="color-option bg-red-500" data-color="red"></div>
+                    </div>
+                    <input type="hidden" id="event-color" value="blue">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">标签（用逗号分隔）</label>
+                    <input type="text" id="event-tags"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        placeholder="例如：RPG, 单机, 推荐">
+                </div>
+                
+                <div class="flex justify-end gap-3 pt-4 border-t">
+                    <button type="button" class="btn-secondary modal-close">取消</button>
+                    <button type="submit" class="btn-primary">
+                        <i data-lucide="save" class="w-4 h-4 inline mr-2"></i>
+                        保存
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Year Summary Modal -->
+    <div id="year-summary-modal" class="modal hidden">
+        <div class="modal-content max-w-2xl">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800" id="year-summary-title">2024年度游戏总结</h3>
+                <button class="modal-close text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <div id="year-summary-content" class="space-y-6">
+                <!-- Summary content will be generated -->
+            </div>
+            
+            <div class="flex justify-center gap-3 mt-6 pt-4 border-t">
+                <button id="save-summary-image" class="btn-primary">
+                    <i data-lucide="camera" class="w-4 h-4 inline mr-2"></i>
+                    保存为图片
+                </button>
+                <button id="share-summary" class="btn-secondary">
+                    <i data-lucide="share-2" class="w-4 h-4 inline mr-2"></i>
+                    分享
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-400">&copy; <span id="current-year"></span> 游戏记录. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Toast -->
+    <div id="toast" class="toast">
+        <span id="toast-message"></span>
+    </div>
+
+    <script>
+        // Initialize
+        lucide.createIcons();
+        AOS.init({ duration: 800, once: true });
+
+        // 动态年份
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+    <script src="js/timeline.js?v=2"></script>
+    <script src="js/sample-data-utils.js?v=1"></script>
+    <script src="theme.js?v=3"></script>
+    <script src="utils.js?v=2"></script>
+</body>
+</html>

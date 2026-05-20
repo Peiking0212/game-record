@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏记录 - 年度报告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.544.0/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+/* 导航栏响应式显示 - 不依赖 Tailwind CDN */
+.desktop-nav { display: none; }
+.mobile-nav { display: flex; }
+.mobile-menu { display: none; }
+@media (min-width: 768px) {
+    .desktop-nav { display: flex; }
+    .mobile-nav { display: none; }
+}
+        .slide-container {
+            position: relative;
+            overflow: hidden;
+            min-height: 80vh;
+        }
+        .slide-track {
+            display: flex;
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .slide {
+            min-width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1.5rem 4rem;
+            text-align: center;
+        }
+        .slide-year-badge {
+            display: inline-block;
+            padding: 0.3rem 1.5rem;
+            border-radius: 2rem;
+            background: linear-gradient(135deg, #52B6FF, #94D8FF);
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+        .slide-big-num {
+            font-size: 6rem;
+            font-weight: 900;
+            line-height: 1;
+            margin: 0.5rem 0;
+        }
+        .slide-big-num.gradient {
+            background: linear-gradient(135deg, #52B6FF, #f59e0b, #94D8FF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .slide-big-num.gold {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .slide-sub {
+            font-size: 1.1rem;
+            color: var(--text-gray);
+            max-width: 400px;
+        }
+        .report-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            width: 100%;
+            max-width: 600px;
+            margin-top: 1.5rem;
+        }
+        .report-grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .r-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 1.25rem;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            box-shadow: 0 4px 16px var(--shadow-color);
+        }
+        .r-card .r-val {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+        .r-card .r-label {
+            font-size: 0.75rem;
+            color: var(--text-gray);
+            margin-top: 0.2rem;
+        }
+        .top-game-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: var(--bg-card);
+            border-radius: 1rem;
+            width: 100%;
+            max-width: 500px;
+        }
+        .top-game-rank {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #52B6FF;
+            width: 36px;
+            text-align: center;
+        }
+        .top-game-rank.r1 { color: #f59e0b; }
+        .top-game-rank.r2 { color: #94a3b8; }
+        .top-game-rank.r3 { color: #d97706; }
+        .top-game-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 0.75rem;
+            object-fit: cover;
+        }
+        .top-game-info {
+            flex: 1;
+            text-align: left;
+        }
+        .top-game-name {
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+        .top-game-meta {
+            font-size: 0.75rem;
+            color: var(--text-gray);
+        }
+        .spend-bar-wrap {
+            width: 100%;
+            max-width: 500px;
+        }
+        .spend-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.6rem;
+        }
+        .spend-bar-name {
+            width: 90px;
+            text-align: right;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+        .spend-bar-track {
+            flex: 1;
+            height: 24px;
+            background: var(--border-light);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+        .spend-bar-fill {
+            height: 100%;
+            border-radius: 0.5rem;
+            transition: width 1.2s ease;
+        }
+        .spend-bar-val {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            min-width: 50px;
+        }
+        .report-ctrl {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.4rem;
+            z-index: 100;
+        }
+        .report-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--border-medium);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 0;
+        }
+        .report-dot.active {
+            background: #52B6FF;
+            transform: scale(1.4);
+        }
+        .report-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px var(--shadow-color);
+            transition: all 0.2s;
+            color: var(--text-gray);
+        }
+        .report-arrow:hover { color: #52B6FF; border-color: #52B6FF; }
+        .report-arrow.left { left: 1rem; }
+        .report-arrow.right { right: 1rem; }
+        @media (max-width: 640px) {
+            .report-arrow { display: none; }
+            .slide-big-num { font-size: 4rem; }
+            .report-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <nav class="flex items-center justify-between py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] rounded-lg flex-shrink-0 flex items-center justify-center"><i data-lucide="gamepad-2" class="text-white w-5 h-5"></i></div>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] bg-clip-text text-transparent">
+                        游戏记录
+                    </h1>
+                </div>
+                <div class="desktop-nav items-center space-x-3">
+                    <a href="index.html" class="nav-link">
+                        <i data-lucide="home" class="w-5 h-5 inline mr-2"></i>
+                        主页
+                    </a>
+                    <a href="profile.html" class="nav-link">
+                        <i data-lucide="user" class="w-5 h-5 inline mr-2"></i>
+                        个人简介
+                    </a>
+                    <a href="games.html" class="nav-link">
+                        <i data-lucide="gamepad-2" class="w-5 h-5 inline mr-2"></i>
+                        游戏收藏
+                    </a>
+                    <a href="achievements.html" class="nav-link">
+                        <i data-lucide="trophy" class="w-5 h-5 inline mr-2"></i>
+                        成就系统
+                    </a>
+                    <a href="stats.html" class="nav-link">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5 inline mr-2"></i>
+                        数据统计
+                    </a>
+                    <a href="report.html" class="nav-link active">
+                        <i data-lucide="sparkles" class="w-5 h-5 inline mr-2"></i>
+                        年度报告
+                    </a>
+                    <a href="spending.html" class="nav-link">
+                        <i data-lucide="shopping-cart" class="w-5 h-5 inline mr-2"></i>
+                        消费统计
+                    </a>
+                    <div style="position:relative;" id="nav-more-wrap">
+                        <a href="#" class="nav-link" id="nav-more-btn" onclick="event.preventDefault();document.getElementById('nav-more-menu').classList.toggle('hidden')">
+                            <i data-lucide="more-horizontal" class="w-5 h-5 inline mr-2"></i>
+                            更多
+                        </a>
+                        <div id="nav-more-menu" class="hidden" style="position:absolute;top:100%;right:0;background:var(--bg-card);border:1px solid var(--border-light);border-radius:0.75rem;box-shadow:0 8px 24px var(--shadow-color);z-index:60;min-width:160px;padding:0.5rem;">
+                            <a href="timeline.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="clock" class="w-4 h-4 inline mr-2"></i>时光轴
+                            </a>
+                            <a href="media.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体管理
+                            </a>
+                            <a href="wishlist.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单
+                            </a>
+                            <a href="reviews.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测
+                            </a>
+                            <a href="gallery.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="camera" class="w-4 h-4 inline mr-2"></i>截图墙
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <button class="mobile-nav text-gray-700 hover:text-blue-500" id="mobile-menu-toggle">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </nav>
+            <!-- Mobile Menu -->
+            <div class="mobile-menu" id="mobile-menu">
+                <div class="flex flex-col space-y-2 pb-2">
+                    <a href="index.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="home" class="w-4 h-4 inline mr-2"></i>主页</a>
+                    <a href="profile.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="user" class="w-4 h-4 inline mr-2"></i>个人简介</a>
+                    <a href="games.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="gamepad-2" class="w-4 h-4 inline mr-2"></i>游戏收藏</a>
+                    <a href="achievements.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="trophy" class="w-4 h-4 inline mr-2"></i>成就系统</a>
+                    <a href="stats.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="bar-chart-3" class="w-4 h-4 inline mr-2"></i>数据统计</a>
+                    <a href="report.html" class="nav-link py-2 px-4 rounded-lg active"><i data-lucide="sparkles" class="w-4 h-4 inline mr-2"></i>年度报告</a>
+                    <a href="spending.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="shopping-cart" class="w-4 h-4 inline mr-2"></i>消费统计</a>
+                    <a href="timeline.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="clock" class="w-4 h-4 inline mr-2"></i>时光轴</a>
+                    <a href="media.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体管理</a>
+                    <a href="wishlist.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单</a>
+                    <a href="reviews.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测</a>
+                    <a href="gallery.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="camera" class="w-4 h-4 inline mr-2"></i>截图墙</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Year Selector -->
+    <section class="bg-gradient-to-br from-[#52B6FF15] to-[#94D8FF15] py-6">
+        <div class="container mx-auto px-4 text-center">
+            <div class="inline-flex items-center gap-3 bg-white rounded-full px-5 py-2 shadow-md">
+                <i data-lucide="calendar" class="w-5 h-5 text-[#52B6FF]"></i>
+                <select id="report-year" class="text-lg font-bold bg-transparent border-none outline-none cursor-pointer text-gray-800">
+                    <option value="">选择年份</option>
+                </select>
+                <button id="generate-report" class="px-4 py-1.5 rounded-full text-white font-semibold text-sm cursor-pointer border-none" style="background:linear-gradient(135deg,#52B6FF,#94D8FF);">
+                    生成报告 ✨
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Report Slides -->
+    <section class="slide-container" id="report-container" style="display:none;">
+        <div class="slide-track" id="slide-track">
+            <!-- Slides will be dynamically generated -->
+        </div>
+        <button class="report-arrow left" id="slide-prev"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+        <button class="report-arrow right" id="slide-next"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+        <div class="report-ctrl" id="slide-dots"></div>
+    </section>
+
+    <!-- Empty State -->
+    <section class="py-20" id="report-empty">
+        <div class="container mx-auto px-4 text-center">
+            <i data-lucide="sparkles" class="w-20 h-20 text-gray-300 mx-auto mb-4"></i>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">年度游戏报告</h2>
+            <p class="text-gray-500 mb-6">选择年份，生成你的专属游戏年度报告 ✨</p>
+            <p class="text-gray-400 text-sm">像 Spotify Wrapped 一样，回顾你的游戏之旅</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-8 h-8 bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] rounded-lg flex items-center justify-center">
+                            <i data-lucide="gamepad-2" class="text-white w-5 h-5"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">游戏记录</h3>
+                    </div>
+                    <p class="text-gray-300">记录每一次游戏冒险，分享每一份游戏喜悦。</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">快速链接</h4>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="text-gray-300 hover:text-[#52B6FF]">主页</a></li>
+                        <li><a href="profile.html" class="text-gray-300 hover:text-[#52B6FF]">个人简介</a></li>
+                        <li><a href="games.html" class="text-gray-300 hover:text-[#52B6FF]">游戏收藏</a></li>
+                        <li><a href="achievements.html" class="text-gray-300 hover:text-[#52B6FF]">成就系统</a></li>
+                        <li><a href="stats.html" class="text-gray-300 hover:text-[#52B6FF]">数据统计</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">更多功能</h4>
+                    <ul class="space-y-2">
+                        <li><a href="wishlist.html" class="text-gray-300 hover:text-[#52B6FF]">游戏愿望单</a></li>
+                        <li><a href="reviews.html" class="text-gray-300 hover:text-[#52B6FF]">游戏评测</a></li>
+                        <li><a href="gallery.html" class="text-gray-300 hover:text-[#52B6FF]">截图墙</a></li>
+                        <li><a href="report.html" class="text-gray-300 hover:text-[#52B6FF]">年度报告</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">联系我</h4>
+                    <div class="space-y-2 text-gray-300">
+                        <div class="flex items-center"><i data-lucide="mail" class="w-4 h-4 mr-2"></i><span>gamer@example.com</span></div>
+                        <div class="flex items-center"><i data-lucide="message-circle" class="w-4 h-4 mr-2"></i><span>@游戏玩家</span></div>
+                        <div class="flex items-center"><i data-lucide="github" class="w-4 h-4 mr-2"></i><span>GitHub</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; <span id="current-year"></span> 游戏记录. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="toast" class="toast">
+        <span id="toast-message"></span>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        AOS.init({ duration: 800, once: true });
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+    <script src="js/time-utils.js?v=1"></script>
+    <script src="js/report.js?v=3"></script>
+    <script src="theme.js?v=3"></script>
+    <script src="utils.js?v=2"></script>
+</body>
+</html>
