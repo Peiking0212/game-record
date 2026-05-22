@@ -1,7 +1,7 @@
 // ========================================
 // Constants
 // ========================================
-var GAMES_KEY = 'games';
+var GAMES_KEY = window.GameData ? window.GameData.KEYS.GAMES : 'games';
 var BUCKET = 'media';
 var TABLE  = 'media';
 
@@ -9,6 +9,7 @@ var TABLE  = 'media';
 // Utility Functions
 // ========================================
 function getData(key, defaultValue) {
+    if (window.GameData) return window.GameData.get(key, defaultValue === undefined ? [] : defaultValue);
     if (defaultValue === undefined) defaultValue = [];
     var data = localStorage.getItem(key);
     return data ? JSON.parse(data) : defaultValue;
@@ -21,6 +22,7 @@ function saveData(key, data) {
             showToast('存储空间不足，请删除一些旧媒体', 'error');
             return false;
         }
+        if (window.GameData) return window.GameData.set(key, data);
         localStorage.setItem(key, json);
         return true;
     } catch (e) {
@@ -33,24 +35,15 @@ function saveData(key, data) {
 }
 
 function generateId() {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+    return window.generateId ? window.generateId() : (Date.now().toString(36) + Math.random().toString(36).substr(2, 9));
 }
 
 function formatDate(dateStr) {
-    if (!dateStr) return '';
-    var d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr;
-    var y = d.getFullYear();
-    var m = String(d.getMonth() + 1).padStart(2, '0');
-    var day = String(d.getDate()).padStart(2, '0');
-    return y + '-' + m + '-' + day;
+    return window.formatDateISO ? window.formatDateISO(dateStr) : dateStr;
 }
 
 function escapeHtml(text) {
-    if (!text) return '';
-    var div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
+    return window.escapeHtml ? window.escapeHtml(text) : String(text || '');
 }
 
 function showToast(message, type) {

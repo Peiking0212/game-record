@@ -39,16 +39,18 @@
             return result;
         }
     };
-    var SPENDING_KEY = 'game_record_spending';
+    var SPENDING_KEY = window.GameData ? window.GameData.KEYS.SPENDING : 'game_record_spending';
     var editingId = null;
     var charts = {};
 
     // ==================== 数据读写 ====================
     function getSpending() {
+        if (window.GameData) return window.GameData.get(SPENDING_KEY, []);
         try { return JSON.parse(localStorage.getItem(SPENDING_KEY) || '[]'); }
         catch (e) { return []; }
     }
     function saveSpending(data) {
+        if (window.GameData) { window.GameData.set(SPENDING_KEY, data); return; }
         localStorage.setItem(SPENDING_KEY, JSON.stringify(data));
     }
 

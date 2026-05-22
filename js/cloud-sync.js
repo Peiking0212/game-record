@@ -9,15 +9,12 @@
     var MEDIA_TABLE = 'media';
     var MEDIA_BUCKET = 'media';
 
-    var SYNC_KEYS = [
-        'games',
-        'achievements',
-        'profile',
-        'game_record_wishlist',
-        'game_record_reviews',
-        'game_record_spending',
-        'memos'
-    ];
+    function getSyncKeys() {
+        if (window.GameData && window.GameData.SYNC_KEYS) {
+            return window.GameData.SYNC_KEYS;
+        }
+        return ['games', 'achievements', 'profile', 'game_record_wishlist', 'game_record_reviews', 'game_record_spending', 'memos'];
+    }
 
     var pushTimers = {};
     var readyResolve;
@@ -128,7 +125,7 @@
             var self = this;
             Storage.prototype.setItem = function (key, value) {
                 orig.call(this, key, value);
-                if (self.enabled && SYNC_KEYS.indexOf(key) !== -1) {
+                if (self.enabled && getSyncKeys().indexOf(key) !== -1) {
                     self.schedulePush(key);
                 }
             };
@@ -143,8 +140,9 @@
         },
 
         pushAllLocal: async function () {
-            for (var i = 0; i < SYNC_KEYS.length; i++) {
-                await this.pushKey(SYNC_KEYS[i]);
+            var keys = getSyncKeys();
+            for (var i = 0; i < keys.length; i++) {
+                await this.pushKey(keys[i]);
             }
         },
 
@@ -154,7 +152,7 @@
             var rows = result.data || [];
 
             if (rows.length === 0) {
-                var hasLocal = SYNC_KEYS.some(function (key) {
+                var hasLocal = getSyncKeys().some(function (key) {
                     return localStorage.getItem(key) != null;
                 });
                 if (hasLocal) {
@@ -165,13 +163,13 @@
             }
 
             rows.forEach(function (row) {
-                if (SYNC_KEYS.indexOf(row.key) === -1) return;
+                if (getSyncKeys().indexOf(row.key) === -1) return;
                 localStorage.setItem(row.key, JSON.stringify(row.data));
             });
         },
 
         pushKey: async function (key) {
-            if (!window.SB || SYNC_KEYS.indexOf(key) === -1) return;
+            if (!window.SB || getSyncKeys().indexOf(key) === -1) return;
             var raw = localStorage.getItem(key);
             if (raw === null) return;
             try {

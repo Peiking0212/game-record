@@ -71,13 +71,90 @@
         };
     }
 
+    // ISO 日期 YYYY-MM-DD（列表、卡带等）
+    function formatDateISO(dateString) {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return String(dateString);
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return y + '-' + m + '-' + d;
+    }
+
+    // Tailwind 状态徽章 class
+    function getStatusBadgeClass(status) {
+        const map = {
+            playing: 'text-blue-600 bg-blue-100',
+            completed: 'text-green-600 bg-green-100',
+            paused: 'text-yellow-600 bg-yellow-100',
+            dropped: 'text-red-600 bg-red-100',
+            planned: 'text-purple-600 bg-purple-100'
+        };
+        return map[status] || 'text-gray-600 bg-gray-100';
+    }
+
+    function escapeHtml(str) {
+        if (str == null) return '';
+        const div = document.createElement('div');
+        div.textContent = String(str);
+        return div.innerHTML;
+    }
+
+    function defaultGameCover(seed) {
+        const text = String(seed || '');
+        let hash = 0;
+        for (let i = 0; i < text.length; i++) hash = ((hash << 5) - hash) + text.charCodeAt(i);
+        return Math.abs(hash) % 2 === 0
+            ? 'assets/default-cover-male.jpg'
+            : 'assets/default-cover-female.jpg';
+    }
+
+    function gameIconUrl(icon, name) {
+        return icon || defaultGameCover(name);
+    }
+
+    function safeLucideIcon(name) {
+        const n = String(name || 'trophy');
+        return /^[a-z0-9-]+$/.test(n) ? n : 'trophy';
+    }
+
+    function validateGameForm(formData) {
+        const name = (formData.get('name') || '').trim();
+        if (!name) return '请输入游戏名称';
+        const playtime = parseInt(formData.get('playtime'), 10);
+        if (isNaN(playtime) || playtime < 0) return '请输入有效的游戏时长';
+        const progress = parseInt(formData.get('progress'), 10);
+        if (isNaN(progress) || progress < 0 || progress > 100) return '进度需在 0–100 之间';
+        if (!formData.get('status')) return '请选择游戏状态';
+        if (!formData.get('type')) return '请选择游戏类型';
+        return null;
+    }
+
+    function imgWithFallback(src, alt, className) {
+        const safeSrc = escapeHtml(gameIconUrl(src, alt));
+        const safeAlt = escapeHtml(alt || '');
+        const cls = className ? ' class="' + escapeHtml(className) + '"' : '';
+        const fallback = escapeHtml(defaultGameCover(alt));
+        return '<img src="' + safeSrc + '" alt="' + safeAlt + '"' + cls +
+            ' onerror="this.onerror=null;this.src=\'' + fallback + '\'">';
+    }
+
     // 暴露全局函数
     window.formatDate = formatDate;
     window.formatDateShort = formatDateShort;
+    window.formatDateISO = formatDateISO;
     window.getStatusText = getStatusText;
     window.getStatusClass = getStatusClass;
+    window.getStatusBadgeClass = getStatusBadgeClass;
     window.generateId = generateId;
     window.debounce = debounce;
+    window.escapeHtml = escapeHtml;
+    window.defaultGameCover = defaultGameCover;
+    window.gameIconUrl = gameIconUrl;
+    window.imgWithFallback = imgWithFallback;
+    window.safeLucideIcon = safeLucideIcon;
+    window.validateGameForm = validateGameForm;
 
     // ==================== SVG 图标 ====================
     var ICONS = {
@@ -231,12 +308,6 @@
                 '</a>';
             }).join('');
         });
-    }
-
-    function escapeHtml(str) {
-        var div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
     }
 
     function highlightText(text, query) {
@@ -504,7 +575,8 @@
         // 导出
         document.getElementById('backup-export').addEventListener('click', function () {
             var data = {};
-            var keys = ['games', 'achievements', 'memos', 'game_record_theme', 'lock_password'];
+            var keys = (window.GameData && window.GameData.SYNC_KEYS) ? window.GameData.SYNC_KEYS.slice() : ['games', 'achievements', 'memos'];
+            keys.push('game_record_theme', 'lock_password', 'profile', 'game_record_wishlist', 'game_record_reviews', 'game_record_spending');
             keys.forEach(function (key) {
                 var val = localStorage.getItem(key);
                 if (val) {
@@ -543,7 +615,8 @@
                     }
                     if (!confirm('导入将覆盖当前所有数据，确定继续？')) return;
 
-                    var keys = ['games', 'achievements', 'memos', 'game_record_theme', 'lock_password'];
+                    var keys = (window.GameData && window.GameData.SYNC_KEYS) ? window.GameData.SYNC_KEYS.slice() : ['games', 'achievements', 'memos'];
+                    keys.push('game_record_theme', 'lock_password', 'profile', 'game_record_wishlist', 'game_record_reviews', 'game_record_spending');
                     keys.forEach(function (key) {
                         if (data[key] !== undefined) {
                             localStorage.setItem(key, typeof data[key] === 'string' ? data[key] : JSON.stringify(data[key]));
@@ -566,7 +639,8 @@
             if (!confirm('确定要清除所有数据吗？此操作不可撤销')) return;
             if (!confirm('再次确认：将要删除全部数据')) return;
 
-            var keys = ['games', 'achievements', 'memos', 'game_record_theme', 'lock_password', 'is_locked'];
+            var keys = (window.GameData && window.GameData.SYNC_KEYS) ? window.GameData.SYNC_KEYS.slice() : ['games', 'achievements', 'memos'];
+            keys.push('game_record_theme', 'lock_password', 'is_locked', 'profile', 'game_record_wishlist', 'game_record_reviews', 'game_record_spending');
             keys.forEach(function (key) { localStorage.removeItem(key); });
 
             showToast('数据已清除，页面将刷新');

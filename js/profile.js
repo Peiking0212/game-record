@@ -9,37 +9,15 @@ var SD = window.SampleDate || {
     }
 };
 
-function formatDate(dateStr) {
-    if (!dateStr) return '';
-    var d = new Date(dateStr);
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-}
-
-// Data storage
-const DEFAULT_PROFILE = {
-    name: '游戏玩家',
-    title: '热爱游戏的冒险者',
-    bio: '热爱游戏的冒险者，喜欢探索各种类型的游戏世界，记录每一次精彩的游戏体验。',
-    avatar: 'https://i.pravatar.cc/300',
-    tags: ['原神', '明日方舟', '王者荣耀', '闪耀暖暖'],
-    joinDate: SD.lastYearMonth(6, 15),
-    playStyle: {
-        singlePlayer: 80,
-        multiPlayer: 60,
-        pve: 90,
-        pvp: 40
-    },
-    favoriteGames: []
-};
-
-let profile = { ...DEFAULT_PROFILE };
+const GD = window.GameData;
+let profile = Object.assign({}, GD.DEFAULT_PROFILE);
 let games = [];
 let achievements = [];
 
 function loadProfileData() {
-    profile = JSON.parse(localStorage.getItem('profile')) || { ...DEFAULT_PROFILE, joinDate: SD.lastYearMonth(6, 15) };
-    games = JSON.parse(localStorage.getItem('games')) || [];
-    achievements = JSON.parse(localStorage.getItem('achievements')) || [];
+    profile = GD.getProfile();
+    games = GD.get(GD.KEYS.GAMES, []);
+    achievements = GD.migrateLegacyAchievements();
 }
 
 // Render profile info
@@ -72,7 +50,7 @@ function renderGameTags() {
     const gameTags = document.getElementById('game-tags');
     gameTags.innerHTML = profile.tags.map(tag => `
         <span class="badge badge-blue flex items-center">
-            ${tag}
+            ${escapeHtml(tag)}
             <button type="button" class="ml-1 text-xs" onclick="removeTag(this)">×</button>
         </span>
     `).join('');
@@ -104,7 +82,7 @@ function renderFavoriteGames() {
         <div class="flex items-center gap-4">
             <img src="${game.icon}" alt="${game.name}" class="w-12 h-12 rounded-lg object-cover">
             <div class="flex-1">
-                <h4 class="font-semibold text-gray-800">${game.name}</h4>
+                <h4 class="font-semibold text-gray-800">${escapeHtml(game.name)}</h4>
                 <p class="text-sm text-gray-600">${game.playtime} 小时</p>
             </div>
             <div class="text-yellow-500">
@@ -161,7 +139,7 @@ document.getElementById('avatar-input').addEventListener('change', (e) => {
         reader.onload = (e) => {
             profile.avatar = e.target.result;
             document.getElementById('profile-avatar').src = e.target.result;
-            localStorage.setItem('profile', JSON.stringify(profile));
+            GD.setProfile(profile);
             showToast('头像已更新', 'success');
         };
         reader.readAsDataURL(file);
@@ -176,7 +154,7 @@ document.getElementById('profile-form').addEventListener('submit', (e) => {
     profile.title = document.getElementById('title').value;
     profile.bio = document.getElementById('bio').value;
     
-    localStorage.setItem('profile', JSON.stringify(profile));
+    GD.setProfile(profile);
     renderProfile();
     showToast('个人信息已更新', 'success');
 });
@@ -188,7 +166,7 @@ function addTag() {
     
     if (tag && !profile.tags.includes(tag)) {
         profile.tags.push(tag);
-        localStorage.setItem('profile', JSON.stringify(profile));
+        GD.setProfile(profile);
         renderGameTags();
         newTagInput.value = '';
         showToast('标签已添加', 'success');
@@ -199,7 +177,7 @@ function addTag() {
 function removeTag(button) {
     const tag = button.parentElement.textContent.trim().replace('×', '').trim();
     profile.tags = profile.tags.filter(t => t !== tag);
-    localStorage.setItem('profile', JSON.stringify(profile));
+    GD.setProfile(profile);
     renderGameTags();
     showToast('标签已删除', 'success');
 }
@@ -220,8 +198,8 @@ function openEditModal(type) {
                     <div class="flex items-center">
                         <input type="checkbox" id="game-${game.id}" class="mr-3" ${favoriteGameIds.includes(game.id) ? 'checked' : ''}>
                         <label for="game-${game.id}" class="flex items-center gap-2 cursor-pointer">
-                            <img src="${game.icon}" alt="${game.name}" class="w-8 h-8 rounded" onerror="this.src='https://via.placeholder.com/32'">
-                            <span>${game.name}</span>
+                            ${imgWithFallback(game.icon, game.name, 'w-8 h-8 rounded')}
+                            <span>${escapeHtml(game.name)}</span>
                         </label>
                     </div>
                 `).join('')}
@@ -310,7 +288,7 @@ function saveFavoriteGames() {
 
     // 保存到profile
     profile.favoriteGames = selectedGames;
-    localStorage.setItem('profile', JSON.stringify(profile));
+    GD.setProfile(profile);
 
     // 重新渲染
     renderFavoriteGames();
@@ -326,7 +304,7 @@ function savePlayStyle() {
         pve: parseInt(document.getElementById('pve').value),
         pvp: parseInt(document.getElementById('pvp').value)
     };
-    localStorage.setItem('profile', JSON.stringify(profile));
+    GD.setProfile(profile);
     renderPlayStyle();
     closeEditModal();
     showToast('游戏风格已更新', 'success');

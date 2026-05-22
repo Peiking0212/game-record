@@ -13,80 +13,9 @@ var SD = window.SampleDate || {
     }
 };
 
-function formatDate(dateStr) {
-    if (!dateStr) return '';
-    var d = new Date(dateStr);
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-}
-
-function getStatusText(status) {
-    var texts = { playing: '正在玩', completed: '已完成', paused: '暂停中', dropped: '已放弃', planned: '计划中' };
-    return texts[status] || '未知';
-}
-
-// Data storage
+const GD = window.GameData;
 let games = [];
 let isEditMode = false;
-
-function seedGamesIfEmpty() {
-    games = JSON.parse(localStorage.getItem('games')) || [];
-    if (games.length > 0) return;
-    games = [
-        {
-            id: 1,
-            name: '原神',
-            icon: 'assets/default-cover-male.jpg',
-            playtime: 245,
-            progress: 75,
-            status: 'playing',
-            lastPlayed: SD.daysAgo(10),
-            type: '开放世界',
-            description: '一款开放世界冒险游戏，拥有精美的画面和丰富的剧情。',
-            screenshots: [],
-            videos: []
-        },
-        {
-            id: 2,
-            name: '明日方舟',
-            icon: 'assets/default-cover-female.jpg',
-            playtime: 180,
-            progress: 60,
-            status: 'playing',
-            lastPlayed: SD.daysAgo(12),
-            type: '策略',
-            description: '一款策略塔防游戏，拥有丰富的角色和策略玩法。',
-            screenshots: [],
-            videos: []
-        },
-        {
-            id: 3,
-            name: '王者荣耀',
-            icon: 'assets/default-cover-male.jpg',
-            playtime: 320,
-            progress: 85,
-            status: 'playing',
-            lastPlayed: SD.daysAgo(15),
-            type: 'MOBA',
-            description: '一款多人在线战术竞技游戏，拥有丰富的英雄和多样的玩法。',
-            screenshots: [],
-            videos: []
-        },
-        {
-            id: 4,
-            name: '闪耀暖暖',
-            icon: 'assets/default-cover-female.jpg',
-            playtime: 150,
-            progress: 90,
-            status: 'completed',
-            lastPlayed: SD.daysAgo(19),
-            type: '养成',
-            description: '一款女性向养成游戏，拥有精美的服装和剧情。',
-            screenshots: [],
-            videos: []
-        }
-    ];
-    localStorage.setItem('games', JSON.stringify(games));
-}
 
 // Render games list
 function renderGames() {
@@ -119,25 +48,25 @@ function renderGames() {
         emptyState.classList.add('hidden');
         
         gamesList.innerHTML = filteredGames.map(game => `
-            <div class="cassette-3d cassette-${game.status}" data-aos="fade-up">
+            <div class="cassette-3d cassette-${escapeHtml(game.status)}" data-aos="fade-up">
                 <div class="cassette-3d-inner">
                     <div class="cassette-3d-front">
                         <div class="cassette-cover">
                             <div class="cassette-ribbon"></div>
-                            <img src="${game.icon}" alt="${game.name}">
+                            ${imgWithFallback(game.icon, game.name, '')}
                         </div>
-                        <div class="cassette-label">${game.name}</div>
+                        <div class="cassette-label">${escapeHtml(game.name)}</div>
                     </div>
                     <div class="cassette-3d-back">
-                        <h4>${game.name}</h4>
-                        <div class="cassette-info-row"><span>类型</span><span>${game.type || '其他'}</span></div>
-                        <div class="cassette-info-row"><span>状态</span><span>${getStatusText(game.status)}</span></div>
-                        <div class="cassette-info-row"><span>时长</span><span>${game.playtime} 小时</span></div>
-                        <div class="cassette-info-row"><span>进度</span><span>${game.progress}%</span></div>
-                        <div class="cassette-info-row"><span>最近</span><span>${formatDate(game.lastPlayed)}</span></div>
+                        <h4>${escapeHtml(game.name)}</h4>
+                        <div class="cassette-info-row"><span>类型</span><span>${escapeHtml(game.type || '其他')}</span></div>
+                        <div class="cassette-info-row"><span>状态</span><span>${escapeHtml(getStatusText(game.status))}</span></div>
+                        <div class="cassette-info-row"><span>时长</span><span>${parseInt(game.playtime, 10) || 0} 小时</span></div>
+                        <div class="cassette-info-row"><span>进度</span><span>${parseInt(game.progress, 10) || 0}%</span></div>
+                        <div class="cassette-info-row"><span>最近</span><span>${formatDateISO(game.lastPlayed)}</span></div>
                         <div class="cassette-actions">
-                            <button class="cassette-btn-play" onclick="event.stopPropagation(); openGameDetailModal(${game.id})">查 看</button>
-                            <button class="cassette-btn-edit" onclick="event.stopPropagation(); openEditGameModal(${game.id})">编 辑</button>
+                            <button class="cassette-btn-play" onclick="event.stopPropagation(); openGameDetailModal(${parseInt(game.id, 10)})">查 看</button>
+                            <button class="cassette-btn-edit" onclick="event.stopPropagation(); openEditGameModal(${parseInt(game.id, 10)})">编 辑</button>
                         </div>
                     </div>
                 </div>
@@ -160,7 +89,7 @@ function renderRecentlyAdded() {
                 <h4 class="font-semibold text-gray-800">${game.name}</h4>
                 <p class="text-sm text-gray-600">${game.type}</p>
                 <div class="mt-2 text-xs text-gray-500">
-                    最近游玩: ${formatDate(game.lastPlayed)}
+                    最近游玩: ${formatDateISO(game.lastPlayed)}
                 </div>
             </div>
         </div>
@@ -172,22 +101,28 @@ document.getElementById('add-game-form').addEventListener('submit', (e) => {
     e.preventDefault();
     
     const formData = new FormData(e.target);
+    const err = validateGameForm(formData);
+    if (err) {
+        showToast(err, 'error');
+        return;
+    }
+    const iconRaw = (formData.get('icon') || '').trim();
     const newGame = {
         id: Date.now(),
-        name: formData.get('name'),
-        icon: formData.get('icon') || 'https://i.pravatar.cc/300',
-        playtime: parseInt(formData.get('playtime')),
-        progress: parseInt(formData.get('progress')),
+        name: formData.get('name').trim(),
+        icon: iconRaw || defaultGameCover(formData.get('name')),
+        playtime: parseInt(formData.get('playtime'), 10),
+        progress: parseInt(formData.get('progress'), 10),
         status: formData.get('status'),
         type: formData.get('type'),
-        description: formData.get('description') || '',
+        description: (formData.get('description') || '').trim(),
         lastPlayed: new Date().toISOString().split('T')[0],
         screenshots: [],
         videos: []
     };
     
     games.push(newGame);
-    localStorage.setItem('games', JSON.stringify(games));
+    GD.set(GD.KEYS.GAMES, games);
     renderGames();
     renderRecentlyAdded();
     closeAddGameModal();
@@ -199,23 +134,29 @@ document.getElementById('edit-game-form').addEventListener('submit', (e) => {
     e.preventDefault();
     
     const formData = new FormData(e.target);
-    const gameId = parseInt(document.getElementById('edit-game-id').value);
+    const err = validateGameForm(formData);
+    if (err) {
+        showToast(err, 'error');
+        return;
+    }
+    const gameId = parseInt(document.getElementById('edit-game-id').value, 10);
     const gameIndex = games.findIndex(game => game.id === gameId);
     
     if (gameIndex !== -1) {
+        const iconRaw = (formData.get('icon') || '').trim();
         games[gameIndex] = {
             ...games[gameIndex],
-            name: formData.get('name'),
-            icon: formData.get('icon') || 'https://i.pravatar.cc/300',
-            playtime: parseInt(formData.get('playtime')),
-            progress: parseInt(formData.get('progress')),
+            name: formData.get('name').trim(),
+            icon: iconRaw || defaultGameCover(formData.get('name')),
+            playtime: parseInt(formData.get('playtime'), 10),
+            progress: parseInt(formData.get('progress'), 10),
             status: formData.get('status'),
             type: formData.get('type'),
-            description: formData.get('description') || '',
+            description: (formData.get('description') || '').trim(),
             lastPlayed: new Date().toISOString().split('T')[0]
         };
         
-        localStorage.setItem('games', JSON.stringify(games));
+        GD.set(GD.KEYS.GAMES, games);
         renderGames();
         renderRecentlyAdded();
         closeEditGameModal();
@@ -227,7 +168,7 @@ document.getElementById('edit-game-form').addEventListener('submit', (e) => {
 function deleteGame(id) {
     if (confirm('确定要删除这款游戏吗？此操作不可撤销。')) {
         games = games.filter(game => game.id !== id);
-        localStorage.setItem('games', JSON.stringify(games));
+        GD.set(GD.KEYS.GAMES, games);
         renderGames();
         renderRecentlyAdded();
         showToast('游戏已删除', 'success');
@@ -268,7 +209,7 @@ function openGameDetailModal(id) {
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-600">最近游玩:</span>
-                                <span class="font-medium">${formatDate(game.lastPlayed)}</span>
+                                <span class="font-medium">${formatDateISO(game.lastPlayed)}</span>
                             </div>
                         </div>
                     </div>
@@ -437,7 +378,7 @@ function handleScreenshotUpload(gameId, files) {
             reader.onload = (e) => {
                 if (!game.screenshots) game.screenshots = [];
                 game.screenshots.push(e.target.result);
-                localStorage.setItem('games', JSON.stringify(games));
+                GD.set(GD.KEYS.GAMES, games);
                 openGameDetailModal(gameId); // Refresh modal
             };
             reader.readAsDataURL(file);
@@ -459,7 +400,7 @@ function handleVideoUpload(gameId, file) {
         reader.onload = (e) => {
             if (!game.videos) game.videos = [];
             game.videos.push(e.target.result);
-            localStorage.setItem('games', JSON.stringify(games));
+            GD.set(GD.KEYS.GAMES, games);
             openGameDetailModal(gameId); // Refresh modal
         };
         reader.readAsDataURL(file);
@@ -470,7 +411,7 @@ function removeScreenshot(gameId, index) {
     const game = games.find(game => game.id === gameId);
     if (game && game.screenshots) {
         game.screenshots.splice(index, 1);
-        localStorage.setItem('games', JSON.stringify(games));
+        GD.set(GD.KEYS.GAMES, games);
         openGameDetailModal(gameId); // Refresh modal
     }
 }
@@ -479,7 +420,7 @@ function removeVideo(gameId, index) {
     const game = games.find(game => game.id === gameId);
     if (game && game.videos) {
         game.videos.splice(index, 1);
-        localStorage.setItem('games', JSON.stringify(games));
+        GD.set(GD.KEYS.GAMES, games);
         openGameDetailModal(gameId); // Refresh modal
     }
 }
@@ -560,17 +501,6 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 
-// Helper functions
-function getStatusClass(status) {
-    switch (status) {
-        case 'playing': return 'text-blue-600 bg-blue-100';
-        case 'completed': return 'text-green-600 bg-green-100';
-        case 'paused': return 'text-yellow-600 bg-yellow-100';
-        case 'dropped': return 'text-red-600 bg-red-100';
-        default: return 'text-gray-600 bg-gray-100';
-    }
-}
-
 // Mobile menu toggle
 document.getElementById('mobile-menu-toggle').addEventListener('click', () => {
     const mobileMenu = document.getElementById('mobile-menu');
@@ -590,7 +520,7 @@ window.addEventListener('click', (e) => {
 // Initialize page
 document.addEventListener('DOMContentLoaded', async () => {
     await window.awaitGameCloud();
-    seedGamesIfEmpty();
+    games = await GD.seedGamesIfEmpty();
     renderGames();
     renderRecentlyAdded();
 });

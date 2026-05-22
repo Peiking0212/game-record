@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="记录游戏时光：游戏收藏、成就、数据统计与媒体库。">
+    <meta name="keywords" content="游戏记录,游戏收藏,成就,游戏统计,媒体库">
+    <meta property="og:title" content="游戏记录">
+    <meta property="og:description" content="记录每一次游戏冒险，分享每一份游戏喜悦。">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <title>游戏记录 - 媒体库</title>
     <style>
 /* 导航栏响应式显示 - 不依赖 Tailwind CDN */
@@ -275,9 +281,9 @@
                         <div id="crop-overlay" class="hidden">
                             <div class="absolute border-2 border-blue-500 bg-blue-500/10" id="crop-box"></div>
                             <div class="crop-handle top-0 left-0 -translate-x-1/2 -translate-y-1/2"></div>
-                            <div class="crop-handle top-0 right-0 translate-x/1/2 -translate-y-1/2"></div>
+                            <div class="crop-handle top-0 right-0 translate-x-1/2 -translate-y-1/2"></div>
                             <div class="crop-handle bottom-0 left-0 -translate-x-1/2 translate-y-1/2"></div>
-                            <div class="crop-handle bottom-0 right-0 translate-x/1/2 translate-y-1/2"></div>
+                            <div class="crop-handle bottom-0 right-0 translate-x-1/2 translate-y-1/2"></div>
                         </div>
                     </div>
                     <div class="mt-4 flex justify-center space-x-4">
@@ -447,10 +453,11 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>
-    <script src="js/cloud-sync.js?v=1"></script>
+    <script src="js/cloud-sync.js?v=2"></script>
+    <script src="js/sample-data-utils.js?v=1"></script>
+    <script src="js/data.js?v=1"></script>
+    <script src="utils.js?v=4"></script>
     <script src="js/gallery.js?v=3"></script>
-
     <script src="theme.js?v=3"></script>
-    <script src="utils.js?v=2"></script>
 </body>
 </html>

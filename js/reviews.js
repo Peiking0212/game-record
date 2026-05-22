@@ -17,27 +17,14 @@ var REVIEW_TAGS = [
 
 // ---------- 数据读写 ----------
 function getReviews() {
-  try {
-    var data = localStorage.getItem('game_record_reviews');
-    return data ? JSON.parse(data) : [];
-  } catch (e) {
-    return [];
-  }
+  return window.GameData.get(window.GameData.KEYS.REVIEWS, []);
 }
 
 function saveReviews(list) {
-  localStorage.setItem('game_record_reviews', JSON.stringify(list));
+  window.GameData.set(window.GameData.KEYS.REVIEWS, list);
 }
 
 // ---------- 工具函数 ----------
-function formatDate(dateStr) {
-  if (!dateStr) return '';
-  var d = new Date(dateStr);
-  var yyyy = d.getFullYear();
-  var mm = String(d.getMonth() + 1).padStart(2, '0');
-  var dd = String(d.getDate()).padStart(2, '0');
-  return yyyy + '-' + mm + '-' + dd;
-}
 
 function showToast(message) {
   var toast = document.getElementById('toast');
@@ -49,16 +36,6 @@ function showToast(message) {
   toast._timeout = setTimeout(function () {
     toast.classList.remove('show');
   }, 3000);
-}
-
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
 }
 
 // ---------- 星级评分交互 ----------

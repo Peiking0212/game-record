@@ -9,78 +9,9 @@ var SD = window.SampleDate || {
     }
 };
 
-function formatDate(dateStr) {
-    if (!dateStr) return '';
-    var d = new Date(dateStr);
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-}
-
-// Data storage
+const GD = window.GameData;
 let achievements = [];
 let games = [];
-
-function seedAchievementsIfEmpty() {
-    achievements = JSON.parse(localStorage.getItem('achievements')) || [];
-    games = JSON.parse(localStorage.getItem('games')) || [];
-    if (achievements.length > 0) return;
-    achievements = [
-        {
-            id: 1,
-            title: '初次相遇',
-            description: '完成新手教程',
-            gameName: '原神',
-            date: SD.daysAgo(10),
-            icon: 'trophy',
-            screenshot: null
-        },
-        {
-            id: 2,
-            title: '资深玩家',
-            description: '游戏时长达到100小时',
-            gameName: '原神',
-            date: SD.daysAgo(12),
-            icon: 'clock',
-            screenshot: null
-        },
-        {
-            id: 3,
-            title: '收集大师',
-            description: '收集所有角色',
-            gameName: '明日方舟',
-            date: SD.daysAgo(15),
-            icon: 'collection',
-            screenshot: null
-        },
-        {
-            id: 4,
-            title: 'MVP达人',
-            description: '获得10次MVP',
-            gameName: '王者荣耀',
-            date: SD.daysAgo(17),
-            icon: 'star',
-            screenshot: null
-        },
-        {
-            id: 5,
-            title: '时尚达人',
-            description: '解锁所有服装',
-            gameName: '闪耀暖暖',
-            date: SD.daysAgo(19),
-            icon: 'diamond',
-            screenshot: null
-        },
-        {
-            id: 6,
-            title: '探索者',
-            description: '探索所有地图区域',
-            gameName: '原神',
-            date: SD.daysAgo(22),
-            icon: 'map',
-            screenshot: null
-        }
-    ];
-    localStorage.setItem('achievements', JSON.stringify(achievements));
-}
 
 // Update achievement stats
 function updateAchievementStats() {
@@ -133,32 +64,32 @@ function renderAchievements() {
         filteredAchievements.sort((a, b) => new Date(b.date) - new Date(a.date));
         
         achievementsList.innerHTML = filteredAchievements.map(achievement => `
-            <div class="achievement-card cursor-pointer" data-aos="fade-up" onclick="openAchievementDetailModal(${achievement.id})">
+            <div class="achievement-card cursor-pointer" data-aos="fade-up" onclick="openAchievementDetailModal(${parseInt(achievement.id, 10)})">
                 <div class="p-6 bg-white rounded-lg shadow-lg border border-gray-100 h-full">
                     <div class="flex items-center gap-4 mb-4">
                         <div class="w-12 h-12 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400 flex items-center justify-center">
-                            <i data-lucide="${achievement.icon}" class="text-white w-6 h-6"></i>
+                            <i data-lucide="${safeLucideIcon(achievement.icon)}" class="text-white w-6 h-6"></i>
                         </div>
                         <div class="flex-1">
-                            <h4 class="font-bold text-gray-800">${achievement.title}</h4>
-                            <p class="text-sm text-gray-600">${achievement.gameName}</p>
+                            <h4 class="font-bold text-gray-800">${escapeHtml(achievement.title)}</h4>
+                            <p class="text-sm text-gray-600">${escapeHtml(achievement.gameName)}</p>
                         </div>
                         <div class="flex gap-2">
-                            <button class="text-blue-500 hover:text-blue-600" onclick="event.stopPropagation(); openEditAchievementModal(${achievement.id})">
+                            <button class="text-blue-500 hover:text-blue-600" onclick="event.stopPropagation(); openEditAchievementModal(${parseInt(achievement.id, 10)})">
                                 <i data-lucide="edit" class="w-4 h-4"></i>
                             </button>
-                            <button class="text-red-500 hover:text-red-600" onclick="event.stopPropagation(); deleteAchievement(${achievement.id})">
+                            <button class="text-red-500 hover:text-red-600" onclick="event.stopPropagation(); deleteAchievement(${parseInt(achievement.id, 10)})">
                                 <i data-lucide="trash-2" class="w-4 h-4"></i>
                             </button>
                         </div>
                     </div>
-                    <p class="text-gray-600 mb-3">${achievement.description}</p>
+                    <p class="text-gray-600 mb-3">${escapeHtml(achievement.description)}</p>
                     <div class="text-sm text-gray-500">
-                        获得时间: ${formatDate(achievement.date)}
+                        获得时间: ${formatDateISO(achievement.date)}
                     </div>
                     ${achievement.screenshot ? `
                         <div class="mt-4">
-                            <img src="${achievement.screenshot}" alt="${achievement.title}" class="w-full h-32 object-cover rounded-lg">
+                            <img src="${escapeHtml(achievement.screenshot)}" alt="${escapeHtml(achievement.title)}" class="w-full h-32 object-cover rounded-lg">
                         </div>
                     ` : ''}
                 </div>
@@ -179,17 +110,17 @@ function renderAchievementTimeline() {
             ${sortedAchievements.map(achievement => `
                 <div class="mb-8 relative" data-aos="fade-up">
                     <div class="absolute -left-[25px] w-6 h-6 rounded-full bg-yellow-100 border-4 border-white flex items-center justify-center">
-                        <i data-lucide="${achievement.icon}" class="w-3 h-3 text-yellow-500"></i>
+                        <i data-lucide="${safeLucideIcon(achievement.icon)}" class="w-3 h-3 text-yellow-500"></i>
                     </div>
                     <div class="bg-white p-6 rounded-lg shadow-lg">
                         <div class="flex items-center gap-2 mb-2">
-                            <i data-lucide="${achievement.icon}" class="w-5 h-5 text-yellow-500"></i>
-                            <h4 class="font-bold text-gray-800">${achievement.title}</h4>
+                            <i data-lucide="${safeLucideIcon(achievement.icon)}" class="w-5 h-5 text-yellow-500"></i>
+                            <h4 class="font-bold text-gray-800">${escapeHtml(achievement.title)}</h4>
                         </div>
-                        <p class="text-gray-600 mb-2">${achievement.description}</p>
+                        <p class="text-gray-600 mb-2">${escapeHtml(achievement.description)}</p>
                         <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-500">${formatDate(achievement.date)}</span>
-                            <span class="text-sm font-medium text-blue-600">${achievement.gameName}</span>
+                            <span class="text-sm text-gray-500">${formatDateISO(achievement.date)}</span>
+                            <span class="text-sm font-medium text-blue-600">${escapeHtml(achievement.gameName)}</span>
                         </div>
                     </div>
                 </div>
@@ -208,7 +139,7 @@ function updateGameFilter() {
     
     const gameNames = [...new Set(games.map(game => game.name))];
     
-    const options = gameNames.map(name => `<option value="${name}">${name}</option>`).join('');
+    const options = gameNames.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
     
     gameFilter.innerHTML = '<option value="all">全部游戏</option>' + options;
     editGameFilter.innerHTML = '<option value="">选择游戏</option>' + options;
@@ -247,7 +178,7 @@ document.getElementById('add-achievement-form').addEventListener('submit', (e) =
 // Save achievement
 function saveAchievement(achievement) {
     achievements.push(achievement);
-    localStorage.setItem('achievements', JSON.stringify(achievements));
+    GD.set(GD.KEYS.ACHIEVEMENTS, achievements);
     updateAchievementStats();
     renderAchievements();
     renderAchievementTimeline();
@@ -273,7 +204,7 @@ document.getElementById('edit-achievement-form').addEventListener('submit', (e) 
             icon: formData.get('icon')
         };
         
-        localStorage.setItem('achievements', JSON.stringify(achievements));
+        GD.set(GD.KEYS.ACHIEVEMENTS, achievements);
         updateAchievementStats();
         renderAchievements();
         renderAchievementTimeline();
@@ -286,7 +217,7 @@ document.getElementById('edit-achievement-form').addEventListener('submit', (e) 
 function deleteAchievement(id) {
     if (confirm('确定要删除这个成就吗？此操作不可撤销。')) {
         achievements = achievements.filter(achievement => achievement.id !== id);
-        localStorage.setItem('achievements', JSON.stringify(achievements));
+        GD.set(GD.KEYS.ACHIEVEMENTS, achievements);
         updateAchievementStats();
         renderAchievements();
         renderAchievementTimeline();
@@ -322,7 +253,7 @@ function openAchievementDetailModal(id) {
                 <div class="space-y-2 text-sm">
                     <div class="flex justify-between">
                         <span class="text-gray-600">获得日期:</span>
-                        <span class="font-medium">${formatDate(achievement.date)}</span>
+                        <span class="font-medium">${formatDateISO(achievement.date)}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-gray-600">所属游戏:</span>
@@ -427,7 +358,8 @@ window.addEventListener('click', (e) => {
 // Initialize page
 document.addEventListener('DOMContentLoaded', async () => {
     await window.awaitGameCloud();
-    seedAchievementsIfEmpty();
+    achievements = await GD.seedAchievementsIfEmpty();
+    games = GD.get(GD.KEYS.GAMES, []);
     updateAchievementStats();
     updateGameFilter();
     renderAchievements();

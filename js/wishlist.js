@@ -6,7 +6,7 @@
 // ---------- 数据读写 ----------
 function getWishlist() {
   try {
-    var data = localStorage.getItem('game_record_wishlist');
+    var data = localStorage.getItem(window.GameData.KEYS.WISHLIST);
     return data ? JSON.parse(data) : [];
   } catch (e) {
     return [];
@@ -14,18 +14,10 @@ function getWishlist() {
 }
 
 function saveWishlist(list) {
-  localStorage.setItem('game_record_wishlist', JSON.stringify(list));
+  window.GameData.set(window.GameData.KEYS.WISHLIST, list);
 }
 
 // ---------- 工具函数 ----------
-function formatDate(dateStr) {
-  if (!dateStr) return '';
-  var d = new Date(dateStr);
-  var yyyy = d.getFullYear();
-  var mm = String(d.getMonth() + 1).padStart(2, '0');
-  var dd = String(d.getDate()).padStart(2, '0');
-  return yyyy + '-' + mm + '-' + dd;
-}
 
 function showToast(message) {
   var toast = document.getElementById('toast');
@@ -39,24 +31,9 @@ function showToast(message) {
   }, 3000);
 }
 
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
 // ---------- 封面生成 ----------
 function getCoverHtml(url, name) {
-  var defaultCovers = ['assets/default-cover-male.jpg', 'assets/default-cover-female.jpg'];
-  var defaultCover = defaultCovers[Math.floor(Math.random() * defaultCovers.length)];
-  if (url && url.trim() !== '') {
-    return '<img src="' + escapeHtml(url) + '" alt="' + escapeHtml(name) + '" class="wishlist-cover-img" onerror="this.onerror=null;this.src=\'' + defaultCover + '\';">';
-  }
-  return '<img src="' + defaultCover + '" alt="' + escapeHtml(name) + '" class="wishlist-cover-img">';
+  return imgWithFallback(url, name, 'wishlist-cover-img');
 }
 
 // ---------- 星级渲染（卡片展示用） ----------

@@ -1,0 +1,112 @@
+{
+  "games": [
+    {
+      "id": 1,
+      "name": "原神",
+      "icon": "assets/default-cover-male.jpg",
+      "playtime": 245,
+      "progress": 75,
+      "status": "playing",
+      "lastPlayedDaysAgo": 10,
+      "type": "开放世界",
+      "description": "一款开放世界冒险游戏，拥有精美的画面和丰富的剧情。",
+      "screenshots": [],
+      "videos": []
+    },
+    {
+      "id": 2,
+      "name": "明日方舟",
+      "icon": "assets/default-cover-female.jpg",
+      "playtime": 180,
+      "progress": 60,
+      "status": "playing",
+      "lastPlayedDaysAgo": 12,
+      "type": "策略",
+      "description": "一款策略塔防游戏，拥有丰富的角色和策略玩法。",
+      "screenshots": [],
+      "videos": []
+    },
+    {
+      "id": 3,
+      "name": "王者荣耀",
+      "icon": "assets/default-cover-male.jpg",
+      "playtime": 320,
+      "progress": 85,
+      "status": "playing",
+      "lastPlayedDaysAgo": 15,
+      "type": "MOBA",
+      "description": "一款多人在线战术竞技游戏，拥有丰富的英雄和多样的玩法。",
+      "screenshots": [],
+      "videos": []
+    },
+    {
+      "id": 4,
+      "name": "闪耀暖暖",
+      "icon": "assets/default-cover-female.jpg",
+      "playtime": 150,
+      "progress": 90,
+      "status": "completed",
+      "lastPlayedDaysAgo": 19,
+      "type": "养成",
+      "description": "一款女性向养成游戏，拥有精美的服装和剧情。",
+      "screenshots": [],
+      "videos": []
+    }
+  ],
+  "achievements": [
+    {
+      "id": 1,
+      "title": "初次相遇",
+      "description": "完成新手教程",
+      "gameName": "原神",
+      "dateDaysAgo": 10,
+      "icon": "trophy",
+      "screenshot": null
+    },
+    {
+      "id": 2,
+      "title": "资深玩家",
+      "description": "游戏时长达到100小时",
+      "gameName": "原神",
+      "dateDaysAgo": 12,
+      "icon": "clock",
+      "screenshot": null
+    },
+    {
+      "id": 3,
+      "title": "收集大师",
+      "description": "收集所有角色",
+      "gameName": "明日方舟",
+      "dateDaysAgo": 15,
+      "icon": "collection",
+      "screenshot": null
+    },
+    {
+      "id": 4,
+      "title": "MVP达人",
+      "description": "获得10次MVP",
+      "gameName": "王者荣耀",
+      "dateDaysAgo": 17,
+      "icon": "star",
+      "screenshot": null
+    },
+    {
+      "id": 5,
+      "title": "时尚达人",
+      "description": "解锁所有服装",
+      "gameName": "闪耀暖暖",
+      "dateDaysAgo": 19,
+      "icon": "diamond",
+      "screenshot": null
+    },
+    {
+      "id": 6,
+      "title": "探索者",
+      "description": "探索所有地图区域",
+      "gameName": "原神",
+      "dateDaysAgo": 22,
+      "icon": "map",
+      "screenshot": null
+    }
+  ]
+}

@@ -1,59 +1,14 @@
-// Data storage keys (aligned with games.html / achievements.html)
-const GAMES_KEY = 'games';
-const ACHIEVEMENTS_KEY = 'achievements';
-const LEGACY_ACHIEVEMENTS_KEY = 'game_record_achievements';
-const MEDIA_KEY = 'game_record_media';
+const GD = window.GameData;
+const MEDIA_KEY = GD.KEYS.MEDIA;
 const HOME_MEDIA_LIMIT = 6;
 
-function getData(key, defaultValue = []) {
-    const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : defaultValue;
-}
-
-function saveData(key, data) {
-    localStorage.setItem(key, JSON.stringify(data));
-}
-
-/** Read achievements; migrate legacy key once if needed */
-function getAchievements() {
-    let list = getData(ACHIEVEMENTS_KEY);
-    if (list.length > 0) return list;
-
-    const legacy = getData(LEGACY_ACHIEVEMENTS_KEY);
-    if (legacy.length === 0) return list;
-
-    list = legacy
-        .filter(function (a) { return a.unlocked !== false; })
-        .map(function (a, i) {
-            return {
-                id: a.id != null ? a.id : Date.now() + i,
-                title: a.title || a.name || '未知成就',
-                gameName: a.gameName || a.game || '',
-                description: a.description || '',
-                date: a.date || '',
-                icon: a.icon || 'trophy',
-                screenshot: a.screenshot || null
-            };
-        });
-
-    if (list.length > 0) {
-        saveData(ACHIEVEMENTS_KEY, list);
-        localStorage.removeItem(LEGACY_ACHIEVEMENTS_KEY);
-    }
-    return list;
-}
-
 function achievementDateMs(a) {
-    if (!a.date) return 0;
-    var m = String(a.date).match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-    if (m) return new Date(+m[1], +m[2] - 1, +m[3]).getTime();
-    var d = new Date(a.date);
-    return isNaN(d.getTime()) ? 0 : d.getTime();
+    return GD.achievementDateMs(a);
 }
 
 function loadStats() {
-    const games = getData(GAMES_KEY);
-    const achievements = getAchievements();
+    const games = GD.get(GD.KEYS.GAMES, []);
+    const achievements = GD.migrateLegacyAchievements();
 
     document.getElementById('total-games').textContent = games.length || 0;
 
@@ -70,7 +25,7 @@ function loadStats() {
 }
 
 function loadRecentGames() {
-    const games = getData(GAMES_KEY);
+    const games = GD.get(GD.KEYS.GAMES, []);
     const container = document.getElementById('recent-games');
 
     if (games.length === 0) {
@@ -92,13 +47,13 @@ function loadRecentGames() {
     container.innerHTML = recent.map(game => `
         <div class="bg-white rounded-lg shadow-lg overflow-hidden" data-aos="fade-up">
             <div class="h-32 bg-gradient-to-br from-blue-50 to-cyan-100 flex items-center justify-center">
-                <img src="${game.icon || (Math.random() > 0.5 ? 'assets/default-cover-male.jpg' : 'assets/default-cover-female.jpg')}" alt="${game.name}" class="w-20 h-20 rounded-lg object-cover shadow-md">
+                ${imgWithFallback(game.icon, game.name, 'w-20 h-20 rounded-lg object-cover shadow-md')}
             </div>
             <div class="p-4">
-                <h4 class="font-semibold text-gray-800 truncate">${game.name}</h4>
-                <p class="text-sm text-gray-600">${game.type || '其他'} · ${game.playtime || 0}小时</p>
+                <h4 class="font-semibold text-gray-800 truncate">${escapeHtml(game.name)}</h4>
+                <p class="text-sm text-gray-600">${escapeHtml(game.type || '其他')} · ${parseInt(game.playtime, 10) || 0}小时</p>
                 <div class="mt-2">
-                    <span class="text-xs px-2 py-1 rounded-full ${getStatusClass(game.status)}">${getStatusText(game.status)}</span>
+                    <span class="text-xs px-2 py-1 rounded-full ${getStatusBadgeClass(game.status)}">${escapeHtml(getStatusText(game.status))}</span>
                 </div>
             </div>
         </div>
@@ -146,7 +101,7 @@ async function loadRecentMedia() {
 
     const media = window.GameCloud && window.GameCloud.enabled
         ? await window.GameCloud.fetchMedia()
-        : getData(MEDIA_KEY);
+        : GD.get(MEDIA_KEY, []);
     if (media.length === 0) {
         section.classList.add('hidden');
         container.innerHTML = '';
@@ -181,7 +136,7 @@ async function loadRecentMedia() {
             <a href="gallery.html" class="home-media-preview-item group" title="${escapeAttr(label)}">
                 ${mediaInner}
                 ${badge}
-                <div class="home-media-preview-overlay">${escapeAttr(label)}</div>
+                <div class="home-media-preview-overlay">${escapeHtml(label)}</div>
             </a>
         `;
     }).join('');
@@ -190,7 +145,7 @@ async function loadRecentMedia() {
 }
 
 function loadRecentAchievements() {
-    const achievements = getAchievements();
+    const achievements = GD.migrateLegacyAchievements();
     const container = document.getElementById('recent-achievements');
 
     if (achievements.length === 0) {
@@ -212,11 +167,11 @@ function loadRecentAchievements() {
     container.innerHTML = recent.map(ach => `
         <div class="achievement-card flex items-start gap-4" data-aos="fade-up">
             <div class="w-12 h-12 rounded-lg bg-yellow-100 flex items-center justify-center flex-shrink-0">
-                <i data-lucide="${ach.icon || 'trophy'}" class="w-6 h-6 text-yellow-500"></i>
+                <i data-lucide="${safeLucideIcon(ach.icon)}" class="w-6 h-6 text-yellow-500"></i>
             </div>
             <div class="flex-1">
-                <h4 class="font-bold text-gray-800">${ach.title || '未知成就'}</h4>
-                <p class="text-sm text-gray-500">${ach.gameName || '未知游戏'} · ${ach.description || ''}</p>
+                <h4 class="font-bold text-gray-800">${escapeHtml(ach.title || '未知成就')}</h4>
+                <p class="text-sm text-gray-500">${escapeHtml(ach.gameName || '未知游戏')} · ${escapeHtml(ach.description || '')}</p>
             </div>
         </div>
     `).join('');
@@ -276,21 +231,21 @@ async function handleFiles(files, type) {
         return;
     }
 
-    const media = getData(MEDIA_KEY);
+    const media = GD.get(MEDIA_KEY, []);
     let pending = list.length;
 
     list.forEach(file => {
         const reader = new FileReader();
         reader.onload = (e) => {
             media.push({
-                id: 'm_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9),
+                id: generateId(),
                 type: type,
                 url: e.target.result,
                 name: file.name,
                 gameName: '',
                 time: new Date().toISOString()
             });
-            saveData(MEDIA_KEY, media);
+            GD.set(MEDIA_KEY, media);
             pending -= 1;
             if (pending === 0) {
                 loadRecentMedia();
@@ -311,26 +266,6 @@ function showToast(message, type = 'info') {
     setTimeout(() => {
         toast.classList.remove('show');
     }, 3000);
-}
-
-function getStatusClass(status) {
-    switch (status) {
-        case 'playing': return 'text-blue-600 bg-blue-100';
-        case 'completed': return 'text-green-600 bg-green-100';
-        case 'paused': return 'text-yellow-600 bg-yellow-100';
-        case 'dropped': return 'text-red-600 bg-red-100';
-        default: return 'text-gray-600 bg-gray-100';
-    }
-}
-
-function getStatusText(status) {
-    switch (status) {
-        case 'playing': return '正在玩';
-        case 'completed': return '已完成';
-        case 'paused': return '暂停中';
-        case 'dropped': return '已放弃';
-        default: return '未知';
-    }
 }
 
 document.getElementById('mobile-menu-toggle').addEventListener('click', () => {

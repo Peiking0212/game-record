@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="记录游戏时光：游戏收藏、成就、数据统计与媒体库。">
+    <meta name="keywords" content="游戏记录,游戏收藏,成就,游戏统计,媒体库">
+    <meta property="og:title" content="游戏记录">
+    <meta property="og:description" content="记录每一次游戏冒险，分享每一份游戏喜悦。">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <title>游戏记录 - 首页</title>
     <style>
 /* 导航栏响应式显示 - 不依赖 Tailwind CDN */
@@ -75,8 +81,6 @@
                             <a href="reviews.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
                                 <i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测
                             </a>
-                            <a href="gallery.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
-                                <i data-lucide="camera" class="w-4 h-4 inline mr-2"></i>截图墙</a>
                         </div>
                     </div>
                 </div>
@@ -100,7 +104,6 @@
                     <a href="gallery.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体库</a>
                     <a href="wishlist.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单</a>
                     <a href="reviews.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测</a>
-                    <a href="gallery.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="camera" class="w-4 h-4 inline mr-2"></i>截图墙</a>
                 </div>
             </div>
         </div>
@@ -331,11 +334,12 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>
-    <script src="js/cloud-sync.js?v=1"></script>
-    <script src="js/index.js?v=6"></script>
-
+    <script src="js/cloud-sync.js?v=2"></script>
+    <script src="js/sample-data-utils.js?v=1"></script>
+    <script src="js/data.js?v=1"></script>
+    <script src="utils.js?v=4"></script>
+    <script src="js/index.js?v=7"></script>
     <script src="theme.js?v=3"></script>
-    <script src="utils.js?v=2"></script>
 </body>
 </html>
 

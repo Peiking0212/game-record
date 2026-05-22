@@ -15,5 +15,4 @@
         'sb_publishable_qbbNn-xDvSJ3luS7D60ulw_15r6HwCX'
     );
 
-    console.log('Supabase 云存储已连接');
 })();

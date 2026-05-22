@@ -6,22 +6,10 @@ var SD = window.SampleDate || {
         return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     }
 };
+const GD = window.GameData;
 let games = [];
 let achievements = [];
 let charts = {};
-
-function seedStatsData() {
-    games = JSON.parse(localStorage.getItem('games')) || [];
-    achievements = JSON.parse(localStorage.getItem('achievements')) || [];
-    if (games.length > 0) return;
-    games = [
-        { id: 1, name: '原神', icon: 'assets/default-cover-male.jpg', playtime: 245, progress: 75, status: 'playing', lastPlayed: SD.daysAgo(10), type: '开放世界' },
-        { id: 2, name: '明日方舟', icon: 'assets/default-cover-female.jpg', playtime: 180, progress: 60, status: 'playing', lastPlayed: SD.daysAgo(12), type: '策略' },
-        { id: 3, name: '王者荣耀', icon: 'assets/default-cover-male.jpg', playtime: 320, progress: 85, status: 'playing', lastPlayed: SD.daysAgo(15), type: 'MOBA' },
-        { id: 4, name: '闪耀暖暖', icon: 'assets/default-cover-female.jpg', playtime: 150, progress: 90, status: 'completed', lastPlayed: SD.daysAgo(19), type: '养成' }
-    ];
-    localStorage.setItem('games', JSON.stringify(games));
-}
 
 // Initialize year filter
 function initYearFilter() {
@@ -71,49 +59,28 @@ function updateTable() {
         <tr class="hover:bg-gray-50 transition-colors">
             <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
-                    <img src="${game.icon}" alt="${game.name}" class="w-10 h-10 rounded-lg object-cover">
-                    <span class="font-medium text-gray-800">${game.name}</span>
+                    ${imgWithFallback(game.icon, game.name, 'w-10 h-10 rounded-lg object-cover')}
+                    <span class="font-medium text-gray-800">${escapeHtml(game.name)}</span>
                 </div>
             </td>
             <td class="px-6 py-4">
-                <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-sm">${game.type}</span>
+                <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-sm">${escapeHtml(game.type)}</span>
             </td>
             <td class="px-6 py-4">
-                <span class="px-2 py-1 rounded text-sm ${getStatusClass(game.status)}">${getStatusText(game.status)}</span>
+                <span class="px-2 py-1 rounded text-sm ${getStatusBadgeClass(game.status)}">${escapeHtml(getStatusText(game.status))}</span>
             </td>
-            <td class="px-6 py-4 text-gray-700">${game.playtime} 小时</td>
+            <td class="px-6 py-4 text-gray-700">${parseInt(game.playtime, 10) || 0} 小时</td>
             <td class="px-6 py-4">
                 <div class="flex items-center gap-2">
                     <div class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div class="h-full bg-blue-500 rounded-full" style="width: ${game.progress}%"></div>
+                        <div class="h-full bg-blue-500 rounded-full" style="width: ${Math.min(100, parseInt(game.progress, 10) || 0)}%"></div>
                     </div>
-                    <span class="text-sm text-gray-600">${game.progress}%</span>
+                    <span class="text-sm text-gray-600">${parseInt(game.progress, 10) || 0}%</span>
                 </div>
             </td>
-            <td class="px-6 py-4 text-gray-600">${formatDate(game.lastPlayed)}</td>
+            <td class="px-6 py-4 text-gray-600">${formatDateISO(game.lastPlayed)}</td>
         </tr>
     `).join('');
-}
-
-function getStatusClass(status) {
-    const classes = {
-        playing: 'bg-blue-100 text-blue-700',
-        completed: 'bg-green-100 text-green-700',
-        planned: 'bg-gray-100 text-gray-700',
-        dropped: 'bg-red-100 text-red-700'
-    };
-    return classes[status] || classes.planned;
-}
-
-function getStatusText(status) {
-    const texts = { playing: '正在玩', completed: '已完成', planned: '计划中', dropped: '已放弃' };
-    return texts[status] || '未知';
-}
-
-function formatDate(dateStr) {
-    if (!dateStr) return '';
-    var d = new Date(dateStr);
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 
 // Chart colors
@@ -352,7 +319,8 @@ document.getElementById('mobile-menu-toggle').addEventListener('click', () => {
 // Initialize
 (async function initStatsPage() {
     await window.awaitGameCloud();
-    seedStatsData();
+    games = await GD.seedGamesIfEmpty();
+    achievements = GD.migrateLegacyAchievements();
     initYearFilter();
     updateStats();
     updateTable();

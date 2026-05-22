@@ -4,10 +4,10 @@ var currentSlide = 0;
 var totalSlides = 0;
 var reportYearData = {};
 
-function getGames() { return JSON.parse(localStorage.getItem('games') || '[]'); }
-function getAchievements() { return JSON.parse(localStorage.getItem('achievements') || '[]'); }
-function getReviews() { return JSON.parse(localStorage.getItem('game_record_reviews') || '[]'); }
-function getSpending() { return JSON.parse(localStorage.getItem('game_record_spending') || '[]'); }
+function getGames() { return window.GameData.get(window.GameData.KEYS.GAMES, []); }
+function getAchievements() { return window.GameData.migrateLegacyAchievements(); }
+function getReviews() { return window.GameData.get(window.GameData.KEYS.REVIEWS, []); }
+function getSpending() { return window.GameData.get(window.GameData.KEYS.SPENDING, []); }
 
 // ==================== 年份选择器 ====================
 function initYearSelector() {
@@ -187,10 +187,12 @@ function buildTopGamesSlide(d) {
     var top3 = sorted.slice(0, 3);
     var rc = ['r1','r2','r3'];
     var topHtml = top3.length > 0 ? top3.map(function (g, i) {
+        var cover = typeof gameIconUrl === 'function' ? gameIconUrl(g.icon, g.name) : (g.icon || 'assets/default-cover-male.jpg');
+        var fallback = typeof defaultGameCover === 'function' ? defaultGameCover(g.name) : 'assets/default-cover-male.jpg';
         return '<div class="top-game-row">' +
             '<span class="top-game-rank ' + rc[i] + '">#' + (i + 1) + '</span>' +
-            '<img class="top-game-img" src="' + (g.icon || (Math.random() > 0.5 ? 'assets/default-cover-male.jpg' : 'assets/default-cover-female.jpg')) + '" alt="' + g.name + '" onerror="this.src=\'' + (Math.random() > 0.5 ? 'assets/default-cover-male.jpg' : 'assets/default-cover-female.jpg') + '\'">' +
-            '<div class="top-game-info"><div class="top-game-name">' + g.name + '</div><div class="top-game-meta">' + (parseInt(g.playtime) || 0) + ' 小时 · 进度 ' + (g.progress || 0) + '%</div></div>' +
+            '<img class="top-game-img" src="' + escapeHtml(cover) + '" alt="' + escapeHtml(g.name) + '" onerror="this.onerror=null;this.src=\'' + escapeHtml(fallback) + '\'">' +
+            '<div class="top-game-info"><div class="top-game-name">' + escapeHtml(g.name) + '</div><div class="top-game-meta">' + (parseInt(g.playtime, 10) || 0) + ' 小时 · 进度 ' + (parseInt(g.progress, 10) || 0) + '%</div></div>' +
         '</div>';
     }).join('') : '<p style="color:var(--text-gray);">暂无游戏时长记录</p>';
     return '<div class="slide" style="background:' + SLIDE_BGS[5] + '">' +
