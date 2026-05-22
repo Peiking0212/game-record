@@ -58,3 +58,8 @@ CREATE POLICY "匿名用户可读取" ON storage.objects
 CREATE POLICY "匿名用户可删除" ON storage.objects
     FOR DELETE
     USING (bucket_id = 'media');
+
+CREATE POLICY "匿名用户可更新" ON storage.objects
+    FOR UPDATE
+    USING (bucket_id = 'media')
+    WITH CHECK (bucket_id = 'media');
