@@ -4,6 +4,8 @@
 -- ========================================
 
 -- 0. 站点 JSON 数据（游戏、成就、简介等，所有人共享）
+-- 个人简介保存在 key = 'profile' 的行，data 为 JSON（name/title/bio/tags/avatar 等）
+-- 在 Table Editor 中筛选 key = profile 即可查看是否已同步
 CREATE TABLE IF NOT EXISTS site_data (
     key         TEXT PRIMARY KEY,
     data        JSONB NOT NULL,

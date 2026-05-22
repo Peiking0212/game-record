@@ -20,6 +20,30 @@ function loadProfileData() {
     achievements = GD.migrateLegacyAchievements();
 }
 
+async function persistProfile(successMessage) {
+    var toSave = Object.assign({}, profile);
+    if (window.GameCloud && typeof window.GameCloud.prepareProfileForCloud === 'function') {
+        toSave = await window.GameCloud.prepareProfileForCloud(toSave);
+        profile = toSave;
+    }
+    if (!GD.setProfile(toSave)) {
+        showToast('保存失败：头像或数据过大，请换一张较小的图片', 'error');
+        return false;
+    }
+    renderProfile();
+    if (window.GameCloud && window.GameCloud.enabled) {
+        var ok = await window.GameCloud.pushKey('profile');
+        if (!ok) {
+            showToast('已保存到本机，但同步到云端失败，请检查网络或 Supabase', 'error');
+            return false;
+        }
+        showToast(successMessage || '个人信息已保存并同步到云端', 'success');
+        return true;
+    }
+    showToast(successMessage || '个人信息已更新', 'success');
+    return true;
+}
+
 // Render profile info
 function renderProfile() {
     document.getElementById('profile-name').textContent = profile.name;
@@ -132,31 +156,27 @@ function renderPlayStyle() {
 }
 
 // Avatar upload
-document.getElementById('avatar-input').addEventListener('change', (e) => {
+document.getElementById('avatar-input').addEventListener('change', async (e) => {
     const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            profile.avatar = e.target.result;
-            document.getElementById('profile-avatar').src = e.target.result;
-            GD.setProfile(profile);
-            showToast('头像已更新', 'success');
-        };
-        reader.readAsDataURL(file);
-    }
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+        profile.avatar = ev.target.result;
+        document.getElementById('profile-avatar').src = ev.target.result;
+        await persistProfile('头像已更新并同步');
+    };
+    reader.readAsDataURL(file);
 });
 
 // Profile form submission
-document.getElementById('profile-form').addEventListener('submit', (e) => {
+document.getElementById('profile-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     profile.name = document.getElementById('name').value;
     profile.title = document.getElementById('title').value;
     profile.bio = document.getElementById('bio').value;
-    
-    GD.setProfile(profile);
-    renderProfile();
-    showToast('个人信息已更新', 'success');
+
+    await persistProfile('个人信息已保存并同步到云端');
 });
 
 // Add tag
@@ -166,10 +186,9 @@ function addTag() {
     
     if (tag && !profile.tags.includes(tag)) {
         profile.tags.push(tag);
-        GD.setProfile(profile);
         renderGameTags();
         newTagInput.value = '';
-        showToast('标签已添加', 'success');
+        persistProfile('标签已添加');
     }
 }
 
@@ -177,9 +196,8 @@ function addTag() {
 function removeTag(button) {
     const tag = button.parentElement.textContent.trim().replace('×', '').trim();
     profile.tags = profile.tags.filter(t => t !== tag);
-    GD.setProfile(profile);
     renderGameTags();
-    showToast('标签已删除', 'success');
+    persistProfile('标签已删除');
 }
 
 // Modal functions
@@ -288,12 +306,10 @@ function saveFavoriteGames() {
 
     // 保存到profile
     profile.favoriteGames = selectedGames;
-    GD.setProfile(profile);
 
-    // 重新渲染
     renderFavoriteGames();
     closeEditModal();
-    showToast('最喜欢的游戏已更新', 'success');
+    persistProfile('最喜欢的游戏已更新');
 }
 
 function savePlayStyle() {
@@ -304,10 +320,9 @@ function savePlayStyle() {
         pve: parseInt(document.getElementById('pve').value),
         pvp: parseInt(document.getElementById('pvp').value)
     };
-    GD.setProfile(profile);
     renderPlayStyle();
     closeEditModal();
-    showToast('游戏风格已更新', 'success');
+    persistProfile('游戏风格已更新');
 }
 
 // Toast notification

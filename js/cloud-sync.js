@@ -168,20 +168,59 @@
             });
         },
 
+        prepareProfileForCloud: async function (profile) {
+            if (!profile || typeof profile !== 'object') return profile;
+            var p = Object.assign({}, profile);
+            var av = p.avatar;
+            if (!av || typeof av !== 'string') return p;
+            if (av.indexOf('http://') === 0 || av.indexOf('https://') === 0) return p;
+            if (av.indexOf('data:image') !== 0 && av.indexOf('assets/') === 0) return p;
+
+            if (!window.SB) {
+                if (av.indexOf('data:image') === 0) {
+                    p.avatar = await compressImage(av, 256, 0.82);
+                }
+                return p;
+            }
+
+            try {
+                var small = await compressImage(av, 512, 0.85);
+                var blob = dataURLtoBlob(small);
+                var path = 'avatars/profile.jpg';
+                var up = await window.SB.storage.from(MEDIA_BUCKET).upload(path, blob, {
+                    contentType: 'image/jpeg',
+                    upsert: true
+                });
+                if (up.error) throw up.error;
+                p.avatar = window.SB.storage.from(MEDIA_BUCKET).getPublicUrl(path).data.publicUrl;
+            } catch (e) {
+                console.warn('头像上传云端失败，改用压缩图保存:', e);
+                if (av.indexOf('data:image') === 0) {
+                    p.avatar = await compressImage(av, 256, 0.82);
+                }
+            }
+            return p;
+        },
+
         pushKey: async function (key) {
-            if (!window.SB || getSyncKeys().indexOf(key) === -1) return;
+            if (!window.SB || getSyncKeys().indexOf(key) === -1) return false;
             var raw = localStorage.getItem(key);
-            if (raw === null) return;
+            if (raw === null) return false;
             try {
                 var payload = parseJson(raw, null);
+                if (key === 'profile' && payload) {
+                    payload = await this.prepareProfileForCloud(payload);
+                }
                 var upsert = await window.SB.from(SITE_TABLE).upsert({
                     key: key,
                     data: payload,
                     updated_at: new Date().toISOString()
                 }, { onConflict: 'key' });
                 if (upsert.error) throw upsert.error;
+                return true;
             } catch (e) {
                 console.error('云端保存失败:', key, e);
+                return false;
             }
         },
 

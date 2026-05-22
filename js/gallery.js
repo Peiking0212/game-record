@@ -5,6 +5,35 @@ var GAMES_KEY = window.GameData ? window.GameData.KEYS.GAMES : 'games';
 var BUCKET = 'media';
 var TABLE  = 'media';
 
+var IMAGE_EXT_RE = /\.(jpe?g|png|gif|webp|bmp|heic|heif|svg)(\?|#|$)/i;
+var VIDEO_EXT_RE = /\.(mp4|webm|mov|m4v|avi|mkv)(\?|#|$)/i;
+
+function compareMediaId(a, b) {
+    return String(a) === String(b);
+}
+
+/** 纠正误标为 video 的图片（上传时 pendingFileType 被提前清空会导致此问题） */
+function normalizeMediaType(item) {
+    if (!item) return 'image';
+    var t = (item.type || '').toLowerCase();
+    var name = (item.name || '').toLowerCase();
+    var url = (item.url || '').toLowerCase();
+    if (t === 'image') return 'image';
+    if (IMAGE_EXT_RE.test(name) || IMAGE_EXT_RE.test(url)) return 'image';
+    if (t === 'video' || VIDEO_EXT_RE.test(name) || VIDEO_EXT_RE.test(url)) return 'video';
+    return t || 'image';
+}
+
+function isImageFile(file) {
+    if (file.type && file.type.indexOf('image/') === 0) return true;
+    return IMAGE_EXT_RE.test(file.name || '');
+}
+
+function isVideoFile(file) {
+    if (file.type && file.type.indexOf('video/') === 0) return true;
+    return VIDEO_EXT_RE.test(file.name || '');
+}
+
 // ========================================
 // Utility Functions
 // ========================================
@@ -250,7 +279,7 @@ async function fetchMediaFromCloud() {
         if (result.error) throw result.error;
         // 映射字段：created_at → time, game_name → gameName
         return (result.data || []).map(function(row) {
-            return {
+            var item = {
                 id: row.id,
                 type: row.type,
                 url: row.url,
@@ -259,6 +288,8 @@ async function fetchMediaFromCloud() {
                 time: row.created_at,
                 thumbnail: row.thumbnail || null
             };
+            item.type = normalizeMediaType(item);
+            return item;
         });
     } catch (e) {
         console.error('获取媒体失败:', e);
@@ -354,6 +385,7 @@ async function renderGallery() {
     emptyState.classList.add('hidden');
 
     grid.innerHTML = filteredMedia.map(function (item) {
+        item.type = normalizeMediaType(item);
         var thumbnailUrl = item.thumbnail || item.url;
         var displayName = item.gameName ? window.escapeHtml(item.gameName) : '';
         var displayDate = item.time ? window.formatDateISO(item.time) : '';
@@ -405,8 +437,9 @@ function openLightbox(id) {
 }
 
 function showLightbox(allMedia, id) {
-    var item = allMedia.find(function (m) { return m.id === id; });
+    var item = allMedia.find(function (m) { return compareMediaId(m.id, id); });
     if (!item) return;
+    item.type = normalizeMediaType(item);
 
     var lightbox = document.getElementById('lightbox');
     var container = document.getElementById('lightbox-media-container');
@@ -493,9 +526,7 @@ document.getElementById('gallery-upload-input').addEventListener('change', funct
     if (files.length === 0) return;
 
     // Filter only image files
-    pendingFiles = files.filter(function (f) {
-        return f.type.startsWith('image/');
-    });
+    pendingFiles = files.filter(isImageFile);
 
     if (pendingFiles.length === 0) {
         showToast('请选择图片文件', 'error');
@@ -512,9 +543,7 @@ document.getElementById('video-upload-input').addEventListener('change', functio
     var files = Array.from(e.target.files);
     if (files.length === 0) return;
 
-    pendingFiles = files.filter(function (f) {
-        return f.type.startsWith('video/');
-    });
+    pendingFiles = files.filter(isVideoFile);
 
     if (pendingFiles.length === 0) {
         showToast('请选择视频文件', 'error');
@@ -582,10 +611,12 @@ async function confirmTypeUpload() {
     var select = document.getElementById('upload-type-game-select');
     var gameName = select.value;
 
-    if (pendingFiles.length === 0) {
+    if (pendingFiles.length === 0 || !pendingFileType) {
         showToast('没有选择文件', 'error');
         return;
     }
+
+    var uploadType = pendingFileType;
 
     var loadedCount = 0;
     var errorCount = 0;
@@ -609,16 +640,16 @@ async function confirmTypeUpload() {
             var file = pendingFiles[i];
             try {
                 if (health.ok) {
-                    await uploadFileToCloud(file, gameName);
+                    await uploadFileToCloud(file, gameName, uploadType);
                 } else {
-                    await saveMediaLocally(file, gameName, pendingFileType);
+                    await saveMediaLocally(file, gameName, uploadType);
                 }
                 loadedCount++;
             } catch (err) {
                 lastError = formatSupabaseError(err);
                 console.error('上传失败:', file.name, err);
                 try {
-                    await saveMediaLocally(file, gameName, pendingFileType);
+                    await saveMediaLocally(file, gameName, uploadType);
                     loadedCount++;
                     errorCount++;
                 } catch (localErr) {
@@ -636,16 +667,16 @@ async function confirmTypeUpload() {
                 var dataUrl = await readFile(file);
                 var item = {
                     id: window.generateId(),
-                    type: pendingFileType,
+                    type: uploadType,
                     url: dataUrl,
                     name: file.name,
                     gameName: gameName || '',
                     time: new Date().toISOString()
                 };
-                if (pendingFileType === 'image') {
+                if (uploadType === 'image') {
                     item.url = await compressImage(dataUrl, 1920, 0.9);
                     item.thumbnail = await generateThumbnail(item.url);
-                } else if (pendingFileType === 'video') {
+                } else if (uploadType === 'video') {
                     // 本地模式也尝试生成视频封面
                     try {
                         item.thumbnail = await generateVideoCover(file);
@@ -663,11 +694,10 @@ async function confirmTypeUpload() {
         saveData('game_record_media', allMedia);
     }
 
+    var typeName = uploadType === 'image' ? '截图' : '视频';
     closeUploadTypeModal();
     populateGameFilter();
     renderGallery();
-
-    var typeName = pendingFileType === 'image' ? '截图' : '视频';
     if (loadedCount > 0) {
         showToast('成功上传 ' + loadedCount + ' 个' + typeName, 'success');
     }
@@ -679,14 +709,14 @@ async function confirmTypeUpload() {
     btn.disabled = false;
 }
 
-// 上传单个文件到 Supabase
-async function uploadFileToCloud(file, gameName) {
+// 上传单个文件到 Supabase（fileType 必须为 'image' 或 'video'，勿依赖全局 pendingFileType）
+async function uploadFileToCloud(file, gameName, fileType) {
     var id = window.generateId();
     var ext = file.name.split('.').pop() || 'jpg';
     var storagePath = id + '.' + ext;
 
     // 处理图片：压缩后上传
-    if (pendingFileType === 'image') {
+    if (fileType === 'image') {
         var dataUrl = await readFile(file);
         var compressed = await compressImage(dataUrl, 1920, 0.9);
         var thumb = await generateThumbnail(compressed);
@@ -805,8 +835,16 @@ function openImageEditor(id) {
 }
 
 function openEditorWithData(allMedia, id) {
-    var item = allMedia.find(function (m) { return m.id === id; });
-    if (!item || item.type === 'video') return;
+    var item = allMedia.find(function (m) { return compareMediaId(m.id, id); });
+    if (!item) {
+        showToast('找不到该媒体', 'error');
+        return;
+    }
+    item.type = normalizeMediaType(item);
+    if (item.type === 'video') {
+        showToast('视频暂不支持编辑', 'info');
+        return;
+    }
 
     var modal = document.getElementById('image-editor-modal');
     var canvas = document.getElementById('editor-canvas');
@@ -815,21 +853,15 @@ function openEditorWithData(allMedia, id) {
     currentImageData = item;
     currentFilters = { brightness: 100, contrast: 100, saturation: 100, filter: 'none' };
 
-    // Reset sliders
     document.getElementById('brightness-slider').value = 100;
     document.getElementById('brightness-value').textContent = '100%';
     document.getElementById('contrast-slider').value = 100;
     document.getElementById('contrast-value').textContent = '100%';
     document.getElementById('saturation-slider').value = 100;
     document.getElementById('saturation-value').textContent = '100%';
-
-    // Reset filter buttons
     document.querySelectorAll('.filter-item').forEach(function(el) { el.classList.remove('active'); });
 
-    // Load image
-    var img = new Image();
-    img.onload = function() {
-        // Resize canvas to fit container with max dimensions
+    function finishEditorSetup(img) {
         var maxWidth = 600;
         var maxHeight = 400;
         var width = img.width;
@@ -848,19 +880,56 @@ function openEditorWithData(allMedia, id) {
         canvas.height = height;
         ctx.drawImage(img, 0, 0, width, height);
 
-        // Store original
-        originalImageData = ctx.getImageData(0, 0, width, height);
+        try {
+            originalImageData = ctx.getImageData(0, 0, width, height);
+        } catch (e) {
+            originalImageData = null;
+            console.warn('[媒体库] 无法读取像素数据，滤镜可能受限', e);
+        }
 
-        modal.classList.remove('hidden');
         modal.classList.add('active');
-    };
-    img.src = item.url;
+    }
+
+    function loadViaImage(src, useCors) {
+        var img = new Image();
+        if (useCors) img.crossOrigin = 'anonymous';
+        img.onload = function() { finishEditorSetup(img); };
+        img.onerror = function() {
+            if (useCors) {
+                loadViaImage(src, false);
+            } else {
+                showToast('无法加载图片进行编辑', 'error');
+            }
+        };
+        img.src = src;
+    }
+
+    fetch(item.url, { mode: 'cors' })
+        .then(function(res) {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.blob();
+        })
+        .then(function(blob) {
+            var objectUrl = URL.createObjectURL(blob);
+            var img = new Image();
+            img.onload = function() {
+                finishEditorSetup(img);
+                URL.revokeObjectURL(objectUrl);
+            };
+            img.onerror = function() {
+                URL.revokeObjectURL(objectUrl);
+                loadViaImage(item.url, true);
+            };
+            img.src = objectUrl;
+        })
+        .catch(function() {
+            loadViaImage(item.url, true);
+        });
 }
 
 // 关闭图片编辑器
 function closeImageEditor() {
     document.getElementById('image-editor-modal').classList.remove('active');
-    document.getElementById('image-editor-modal').classList.add('hidden');
     currentImageData = null;
     originalImageData = null;
     cropMode = false;
@@ -1100,7 +1169,7 @@ document.addEventListener('keydown', function(e) {
         if (document.getElementById('lightbox').classList.contains('open')) {
             closeLightbox();
         }
-        if (document.getElementById('upload-type-modal') && !document.getElementById('upload-type-modal').classList.contains('hidden')) {
+        if (document.getElementById('upload-type-modal') && document.getElementById('upload-type-modal').classList.contains('active')) {
             closeUploadTypeModal();
         }
         if (document.getElementById('image-editor-modal') && document.getElementById('image-editor-modal').classList.contains('active')) {
