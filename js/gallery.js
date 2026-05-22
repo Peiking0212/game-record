@@ -34,17 +34,7 @@ function saveData(key, data) {
     }
 }
 
-function generateId() {
-    return window.generateId ? window.generateId() : (Date.now().toString(36) + Math.random().toString(36).substr(2, 9));
-}
-
-function formatDate(dateStr) {
-    return window.formatDateISO ? window.formatDateISO(dateStr) : dateStr;
-}
-
-function escapeHtml(text) {
-    return window.escapeHtml ? window.escapeHtml(text) : String(text || '');
-}
+/* 勿在此文件声明 escapeHtml / generateId / formatDate，否则会覆盖 utils.js 挂到 window 上的同名函数导致死循环 */
 
 function showToast(message, type) {
     if (type === undefined) type = 'info';
@@ -70,7 +60,7 @@ async function saveMediaLocally(file, gameName, type) {
     var allMedia = getData('game_record_media');
     var dataUrl = await readFile(file);
     var item = {
-        id: generateId(),
+        id: window.generateId(),
         type: type,
         url: dataUrl,
         name: file.name,
@@ -365,8 +355,8 @@ async function renderGallery() {
 
     grid.innerHTML = filteredMedia.map(function (item) {
         var thumbnailUrl = item.thumbnail || item.url;
-        var displayName = item.gameName ? escapeHtml(item.gameName) : '';
-        var displayDate = item.time ? formatDate(item.time) : '';
+        var displayName = item.gameName ? window.escapeHtml(item.gameName) : '';
+        var displayDate = item.time ? window.formatDateISO(item.time) : '';
         var nameHtml = displayName ? '<span class="text-sm font-medium">' + displayName + '</span>' : '';
 
         // 根据类型显示不同图标
@@ -429,8 +419,8 @@ function showLightbox(allMedia, id) {
         container.innerHTML = '<img id="lightbox-image" src="' + item.url + '" alt="' + (item.gameName || '图片') + '" class="max-w-full max-h-[70vh] rounded-lg">';
     }
 
-    var nameText = item.gameName ? escapeHtml(item.gameName) : '未指定游戏';
-    var dateText = item.time ? formatDate(item.time) : '';
+    var nameText = item.gameName ? window.escapeHtml(item.gameName) : '未指定游戏';
+    var dateText = item.time ? window.formatDateISO(item.time) : '';
     var typeText = item.type === 'video' ? '视频' : '截图';
     info.innerHTML = '<p class="text-lg font-medium">' + nameText + '</p>' +
         '<p class="text-sm text-gray-300 mt-1">' + typeText + '</p>' +
@@ -645,7 +635,7 @@ async function confirmTypeUpload() {
             try {
                 var dataUrl = await readFile(file);
                 var item = {
-                    id: generateId(),
+                    id: window.generateId(),
                     type: pendingFileType,
                     url: dataUrl,
                     name: file.name,
@@ -691,7 +681,7 @@ async function confirmTypeUpload() {
 
 // 上传单个文件到 Supabase
 async function uploadFileToCloud(file, gameName) {
-    var id = generateId();
+    var id = window.generateId();
     var ext = file.name.split('.').pop() || 'jpg';
     var storagePath = id + '.' + ext;
 
@@ -1018,7 +1008,7 @@ async function saveEditedImage() {
         try {
             var id = currentImageData.id;
             var ext = 'jpg';
-            var storagePath = 'edited_' + generateId() + '.' + ext;
+            var storagePath = 'edited_' + window.generateId() + '.' + ext;
             var blob = dataURLtoBlob(editedDataUrl);
             var uploadResult = await window.SB.storage.from(BUCKET).upload(storagePath, blob, {
                 contentType: 'image/jpeg',
