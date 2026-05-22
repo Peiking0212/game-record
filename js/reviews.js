@@ -61,13 +61,47 @@ function escapeHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
+// ---------- 星级评分交互 ----------
+function setAddRating(val) {
+  var hiddenInput = document.getElementById('add-review-rating');
+  if (hiddenInput) hiddenInput.value = val;
+  var stars = document.querySelectorAll('#add-rating-select .add-rating-star');
+  for (var i = 0; i < stars.length; i++) {
+    var starVal = parseInt(stars[i].getAttribute('data-value'));
+    if (starVal <= val) {
+      stars[i].style.color = '#f59e0b';
+      stars[i].style.fill = '#f59e0b';
+    } else {
+      stars[i].style.color = '#9ca3af';
+      stars[i].style.fill = 'none';
+    }
+  }
+}
+
+function setEditRating(val) {
+  var hiddenInput = document.getElementById('edit-review-rating');
+  if (hiddenInput) hiddenInput.value = val;
+  var stars = document.querySelectorAll('#edit-rating-select .edit-rating-star');
+  for (var i = 0; i < stars.length; i++) {
+    var starVal = parseInt(stars[i].getAttribute('data-value'));
+    if (starVal <= val) {
+      stars[i].style.color = '#f59e0b';
+      stars[i].style.fill = '#f59e0b';
+    } else {
+      stars[i].style.color = '#9ca3af';
+      stars[i].style.fill = 'none';
+    }
+  }
+}
+
 // ---------- 封面生成 ----------
 function getReviewCoverHtml(url, name) {
+  var defaultCovers = ['assets/default-cover-male.jpg', 'assets/default-cover-female.jpg'];
+  var defaultCover = defaultCovers[Math.floor(Math.random() * defaultCovers.length)];
   if (url && url.trim() !== '') {
-    return '<img src="' + escapeHtml(url) + '" alt="' + escapeHtml(name) + '" class="review-cover-img" onerror="this.onerror=null;this.src=\'https://api.dicebear.com/7.x/shapes/svg?seed=' + encodeURIComponent(name) + '\';">';
+    return '<img src="' + escapeHtml(url) + '" alt="' + escapeHtml(name) + '" class="review-cover-img" onerror="this.onerror=null;this.src=\'' + defaultCover + '\';">';
   }
-  var dicebearUrl = 'https://api.dicebear.com/7.x/shapes/svg?seed=' + encodeURIComponent(name || 'game');
-  return '<img src="' + dicebearUrl + '" alt="' + escapeHtml(name) + '" class="review-cover-img">';
+  return '<img src="' + defaultCover + '" alt="' + escapeHtml(name) + '" class="review-cover-img">';
 }
 
 // ---------- 星级渲染 ----------
@@ -259,7 +293,7 @@ function renderReviews() {
   var deleteBtns = container.querySelectorAll('.btn-delete-review');
   for (var k = 0; k < deleteBtns.length; k++) {
     deleteBtns[k].addEventListener('click', function () {
-      openReviewDeleteModal(this.getAttribute('data-id'));
+      openDeleteModal(this.getAttribute('data-id'));
     });
   }
 }
@@ -278,9 +312,13 @@ function openAddReviewModal() {
   for (var i = 0; i < tagCheckboxes.length; i++) {
     tagCheckboxes[i].checked = false;
   }
-  // 默认3星
-  var defaultStar = document.querySelector('#add-review-form input[name="add-review-rating"][value="3"]');
-  if (defaultStar) { defaultStar.checked = true; }
+  // 重置标签视觉样式
+  var tagOptions = document.querySelectorAll('#add-review-form .tag-option');
+  for (var k = 0; k < tagOptions.length; k++) {
+    tagOptions[k].classList.remove('active');
+  }
+  // 默认3星 - 使用 hidden input + 星星交互
+  setAddRating(3);
 }
 
 function closeAddReviewModal() {
@@ -299,8 +337,8 @@ function handleAddReviewSubmit(e) {
     return;
   }
 
-  var coverUrlInput = document.querySelector('#add-review-form [name="coverUrl"]');
-  var ratingInput = document.querySelector('#add-review-form input[name="add-review-rating"]:checked');
+  var coverInput = document.querySelector('#add-review-form [name="cover"]');
+  var ratingInput = document.getElementById('add-review-rating');
   var reviewInput = document.querySelector('#add-review-form [name="review"]');
   var playtimeInput = document.querySelector('#add-review-form [name="playtime"]');
   var notesInput = document.querySelector('#add-review-form [name="notes"]');
@@ -315,7 +353,7 @@ function handleAddReviewSubmit(e) {
   var newItem = {
     id: 'rv_' + Date.now(),
     name: name,
-    coverUrl: coverUrlInput ? coverUrlInput.value.trim() : '',
+    coverUrl: coverInput ? coverInput.value.trim() : '',
     rating: ratingInput ? parseInt(ratingInput.value) : 3,
     tags: tags,
     review: reviewInput ? reviewInput.value.trim() : '',
@@ -350,28 +388,36 @@ function openEditReviewModal(id) {
   modal.setAttribute('data-edit-id', id);
 
   var nameInput = document.querySelector('#edit-review-form [name="name"]');
-  var coverUrlInput = document.querySelector('#edit-review-form [name="coverUrl"]');
+  var coverInput = document.querySelector('#edit-review-form [name="cover"]');
   var reviewInput = document.querySelector('#edit-review-form [name="review"]');
   var playtimeInput = document.querySelector('#edit-review-form [name="playtime"]');
   var notesInput = document.querySelector('#edit-review-form [name="notes"]');
 
   if (nameInput) nameInput.value = item.name;
-  if (coverUrlInput) coverUrlInput.value = item.coverUrl || '';
+  if (coverInput) coverInput.value = item.coverUrl || '';
   if (reviewInput) reviewInput.value = item.review || '';
   if (playtimeInput) playtimeInput.value = item.playtime || '';
   if (notesInput) notesInput.value = item.notes || '';
 
-  // 星级
-  var ratingInputs = document.querySelectorAll('#edit-review-form input[name="edit-review-rating"]');
-  for (var j = 0; j < ratingInputs.length; j++) {
-    ratingInputs[j].checked = (parseInt(ratingInputs[j].value) === (item.rating || 3));
-  }
+  // 星级 - 使用 hidden input + 星星交互
+  var rating = item.rating || 3;
+  setEditRating(rating);
 
   // 标签复选框
   var tagCheckboxes = document.querySelectorAll('#edit-review-form input[name="tags"]');
   var itemTags = item.tags || [];
   for (var k = 0; k < tagCheckboxes.length; k++) {
     tagCheckboxes[k].checked = (itemTags.indexOf(tagCheckboxes[k].value) !== -1);
+  }
+  // 同步标签视觉样式
+  var tagOptions = document.querySelectorAll('#edit-review-form .tag-option');
+  for (var m = 0; m < tagOptions.length; m++) {
+    var cb = tagOptions[m].querySelector('input[name="tags"]');
+    if (cb && cb.checked) {
+      tagOptions[m].classList.add('active');
+    } else {
+      tagOptions[m].classList.remove('active');
+    }
   }
 }
 
@@ -395,8 +441,8 @@ function handleEditReviewSubmit(e) {
     return;
   }
 
-  var coverUrlInput = document.querySelector('#edit-review-form [name="coverUrl"]');
-  var ratingInput = document.querySelector('#edit-review-form input[name="edit-review-rating"]:checked');
+  var coverInput = document.querySelector('#edit-review-form [name="cover"]');
+  var ratingInput = document.getElementById('edit-review-rating');
   var reviewInput = document.querySelector('#edit-review-form [name="review"]');
   var playtimeInput = document.querySelector('#edit-review-form [name="playtime"]');
   var notesInput = document.querySelector('#edit-review-form [name="notes"]');
@@ -411,7 +457,7 @@ function handleEditReviewSubmit(e) {
   for (var j = 0; j < list.length; j++) {
     if (list[j].id === id) {
       list[j].name = name;
-      list[j].coverUrl = coverUrlInput ? coverUrlInput.value.trim() : '';
+      list[j].coverUrl = coverInput ? coverInput.value.trim() : '';
       list[j].rating = ratingInput ? parseInt(ratingInput.value) : 3;
       list[j].tags = tags;
       list[j].review = reviewInput ? reviewInput.value.trim() : '';
@@ -430,21 +476,21 @@ function handleEditReviewSubmit(e) {
 // ============================================================
 // Modal: 删除确认
 // ============================================================
-function openReviewDeleteModal(id) {
-  var modal = document.getElementById('review-delete-modal');
+function openDeleteModal(id) {
+  var modal = document.getElementById('delete-modal');
   if (!modal) return;
   modal.style.display = 'flex';
   modal.setAttribute('data-delete-id', id);
 }
 
-function closeReviewDeleteModal() {
-  var modal = document.getElementById('review-delete-modal');
+function closeDeleteModal() {
+  var modal = document.getElementById('delete-modal');
   if (!modal) return;
   modal.style.display = 'none';
 }
 
-function handleReviewDeleteConfirm() {
-  var modal = document.getElementById('review-delete-modal');
+function handleDeleteConfirm() {
+  var modal = document.getElementById('delete-modal');
   var id = modal ? modal.getAttribute('data-delete-id') : '';
   if (!id) return;
 
@@ -456,7 +502,7 @@ function handleReviewDeleteConfirm() {
     }
   }
   saveReviews(newList);
-  closeReviewDeleteModal();
+  closeDeleteModal();
   renderReviews();
   showToast('评测已删除');
 }
@@ -480,7 +526,8 @@ function createTagCheckboxesHtml(prefix, selectedTags) {
 // ============================================================
 // 事件绑定 & 初始化
 // ============================================================
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
+  await window.awaitGameCloud();
   // 初始渲染
   renderReviews();
 
@@ -519,9 +566,9 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   // 删除确认按钮
-  var confirmDeleteBtn = document.getElementById('review-confirm-delete-btn');
+  var confirmDeleteBtn = document.getElementById('confirm-delete-btn');
   if (confirmDeleteBtn) {
-    confirmDeleteBtn.addEventListener('click', handleReviewDeleteConfirm);
+    confirmDeleteBtn.addEventListener('click', handleDeleteConfirm);
   }
 
   // Modal 关闭按钮

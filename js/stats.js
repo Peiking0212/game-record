@@ -1,16 +1,24 @@
 // Data
-var SD = window.SampleDate;
-let games = JSON.parse(localStorage.getItem('games')) || [];
-let achievements = JSON.parse(localStorage.getItem('achievements')) || [];
+var SD = window.SampleDate || {
+    daysAgo: function (n) {
+        var d = new Date();
+        d.setDate(d.getDate() - parseInt(n, 10));
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+};
+let games = [];
+let achievements = [];
 let charts = {};
 
-// Sample data
-if (games.length === 0) {
+function seedStatsData() {
+    games = JSON.parse(localStorage.getItem('games')) || [];
+    achievements = JSON.parse(localStorage.getItem('achievements')) || [];
+    if (games.length > 0) return;
     games = [
-        { id: 1, name: '原神', icon: 'https://api.dicebear.com/7.x/identicon/svg?seed=genshin&backgroundColor=b6e3f4', playtime: 245, progress: 75, status: 'playing', lastPlayed: SD.daysAgo(10), type: '开放世界' },
-        { id: 2, name: '明日方舟', icon: 'https://api.dicebear.com/7.x/identicon/svg?seed=arknights&backgroundColor=c0aede', playtime: 180, progress: 60, status: 'playing', lastPlayed: SD.daysAgo(12), type: '策略' },
-        { id: 3, name: '王者荣耀', icon: 'https://api.dicebear.com/7.x/identicon/svg?seed=honor&backgroundColor=ffdfbf', playtime: 320, progress: 85, status: 'playing', lastPlayed: SD.daysAgo(15), type: 'MOBA' },
-        { id: 4, name: '闪耀暖暖', icon: 'https://api.dicebear.com/7.x/identicon/svg?seed=shining&backgroundColor=ffd5dc', playtime: 150, progress: 90, status: 'completed', lastPlayed: SD.daysAgo(19), type: '养成' }
+        { id: 1, name: '原神', icon: 'assets/default-cover-male.jpg', playtime: 245, progress: 75, status: 'playing', lastPlayed: SD.daysAgo(10), type: '开放世界' },
+        { id: 2, name: '明日方舟', icon: 'assets/default-cover-female.jpg', playtime: 180, progress: 60, status: 'playing', lastPlayed: SD.daysAgo(12), type: '策略' },
+        { id: 3, name: '王者荣耀', icon: 'assets/default-cover-male.jpg', playtime: 320, progress: 85, status: 'playing', lastPlayed: SD.daysAgo(15), type: 'MOBA' },
+        { id: 4, name: '闪耀暖暖', icon: 'assets/default-cover-female.jpg', playtime: 150, progress: 90, status: 'completed', lastPlayed: SD.daysAgo(19), type: '养成' }
     ];
     localStorage.setItem('games', JSON.stringify(games));
 }
@@ -342,7 +350,11 @@ document.getElementById('mobile-menu-toggle').addEventListener('click', () => {
 });
 
 // Initialize
-initYearFilter();
-updateStats();
-updateTable();
-updateCharts();
+(async function initStatsPage() {
+    await window.awaitGameCloud();
+    seedStatsData();
+    initYearFilter();
+    updateStats();
+    updateTable();
+    updateCharts();
+})();

@@ -6,7 +6,6 @@ var reportYearData = {};
 
 function getGames() { return JSON.parse(localStorage.getItem('games') || '[]'); }
 function getAchievements() { return JSON.parse(localStorage.getItem('achievements') || '[]'); }
-function getTimeline() { return JSON.parse(localStorage.getItem('timeline') || '[]'); }
 function getReviews() { return JSON.parse(localStorage.getItem('game_record_reviews') || '[]'); }
 function getSpending() { return JSON.parse(localStorage.getItem('game_record_spending') || '[]'); }
 
@@ -17,7 +16,6 @@ function initYearSelector() {
     var years = TU.collectYears([
         { items: getGames(), dateKey: 'lastPlayed' },
         { items: getAchievements(), dateKey: 'date' },
-        { items: getTimeline(), dateKey: 'date' },
         { items: getReviews(), dateKey: 'date' },
         { items: getSpending(), dateKey: 'date' },
     ]);
@@ -38,10 +36,9 @@ function generateReport() {
 
     var games = TU.filterByYear(getGames(), year, 'lastPlayed');
     var achievements = TU.filterByYear(getAchievements(), year, 'date');
-    var timeline = TU.filterByYear(getTimeline(), year, 'date');
     var spending = TU.filterByYear(getSpending(), year, 'date');
 
-    if (games.length === 0 && achievements.length === 0 && timeline.length === 0) {
+    if (games.length === 0 && achievements.length === 0) {
         showToast(year + ' 年暂无游戏数据');
         return;
     }
@@ -50,7 +47,6 @@ function generateReport() {
         year: year,
         games: games,
         achievements: achievements,
-        timeline: timeline,
         spending: spending,
         totalHours: games.reduce(function (s, g) { return s + (parseInt(g.playtime) || 0); }, 0),
         totalSpent: spending.reduce(function (s, sp) { return s + (parseFloat(sp.amount) || 0); }, 0),
@@ -128,7 +124,6 @@ function buildOverviewSlide(d) {
             '<div class="r-card"><div class="r-val">' + d.achievements.length + '</div><div class="r-label">解锁成就</div></div>' +
             '<div class="r-card"><div class="r-val">' + completed + '</div><div class="r-label">已通关</div></div>' +
             '<div class="r-card"><div class="r-val">' + playing + '</div><div class="r-label">进行中</div></div>' +
-            '<div class="r-card"><div class="r-val">' + d.timeline.length + '</div><div class="r-label">时间线事件</div></div>' +
         '</div></div>';
 }
 
@@ -194,7 +189,7 @@ function buildTopGamesSlide(d) {
     var topHtml = top3.length > 0 ? top3.map(function (g, i) {
         return '<div class="top-game-row">' +
             '<span class="top-game-rank ' + rc[i] + '">#' + (i + 1) + '</span>' +
-            '<img class="top-game-img" src="' + (g.icon || 'https://api.dicebear.com/7.x/shapes/svg?seed=' + encodeURIComponent(g.name)) + '" alt="' + g.name + '" onerror="this.src=\'https://api.dicebear.com/7.x/shapes/svg?seed=' + encodeURIComponent(g.name) + '\'">' +
+            '<img class="top-game-img" src="' + (g.icon || (Math.random() > 0.5 ? 'assets/default-cover-male.jpg' : 'assets/default-cover-female.jpg')) + '" alt="' + g.name + '" onerror="this.src=\'' + (Math.random() > 0.5 ? 'assets/default-cover-male.jpg' : 'assets/default-cover-female.jpg') + '\'">' +
             '<div class="top-game-info"><div class="top-game-name">' + g.name + '</div><div class="top-game-meta">' + (parseInt(g.playtime) || 0) + ' 小时 · 进度 ' + (g.progress || 0) + '%</div></div>' +
         '</div>';
     }).join('') : '<p style="color:var(--text-gray);">暂无游戏时长记录</p>';
@@ -224,7 +219,8 @@ function goToSlide(index) {
 }
 
 // 事件监听器在 DOM 加载后绑定
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
+    await window.awaitGameCloud();
     var generateBtn = document.getElementById('generate-report');
     var slidePrev = document.getElementById('slide-prev');
     var slideNext = document.getElementById('slide-next');

@@ -1,336 +1,1075 @@
 // ========================================
-        // Constants
-        // ========================================
-        const MEDIA_KEY = 'game_record_media';
-        const GAMES_KEY = 'games';
+// Constants
+// ========================================
+var GAMES_KEY = 'games';
+var BUCKET = 'media';
+var TABLE  = 'media';
 
-        // ========================================
-        // Utility Functions
-        // ========================================
-        function getData(key, defaultValue) {
-            if (defaultValue === undefined) defaultValue = [];
-            var data = localStorage.getItem(key);
-            return data ? JSON.parse(data) : defaultValue;
+// ========================================
+// Utility Functions
+// ========================================
+function getData(key, defaultValue) {
+    if (defaultValue === undefined) defaultValue = [];
+    var data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : defaultValue;
+}
+
+function saveData(key, data) {
+    try {
+        var json = JSON.stringify(data);
+        if (json.length > 4 * 1024 * 1024) {
+            showToast('存储空间不足，请删除一些旧媒体', 'error');
+            return false;
         }
-
-        function saveData(key, data) {
-            localStorage.setItem(key, JSON.stringify(data));
+        localStorage.setItem(key, json);
+        return true;
+    } catch (e) {
+        console.error('存储失败:', e);
+        if (e.name === 'QuotaExceededError') {
+            showToast('存储空间已满！请删除一些旧媒体后重试', 'error');
         }
+        return false;
+    }
+}
 
-        function generateId() {
-            return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
-        }
+function generateId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+}
 
-        function formatDate(dateStr) {
-            if (!dateStr) return '';
-            var d = new Date(dateStr);
-            if (isNaN(d.getTime())) return dateStr;
-            var y = d.getFullYear();
-            var m = String(d.getMonth() + 1).padStart(2, '0');
-            var day = String(d.getDate()).padStart(2, '0');
-            return y + '-' + m + '-' + day;
-        }
+function formatDate(dateStr) {
+    if (!dateStr) return '';
+    var d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    var y = d.getFullYear();
+    var m = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+}
 
-        function escapeHtml(text) {
-            if (!text) return '';
-            var div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
+function escapeHtml(text) {
+    if (!text) return '';
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 
-        function showToast(message, type) {
-            if (type === undefined) type = 'info';
-            var toast = document.getElementById('toast');
-            var toastMessage = document.getElementById('toast-message');
-            toastMessage.textContent = message;
-            toast.className = 'toast ' + type + ' show';
-            setTimeout(function () {
-                toast.classList.remove('show');
-            }, 3000);
-        }
+function showToast(message, type) {
+    if (type === undefined) type = 'info';
+    var toast = document.getElementById('toast');
+    var toastMessage = document.getElementById('toast-message');
+    toastMessage.textContent = message;
+    toast.className = 'toast ' + type + ' show';
+    setTimeout(function () {
+        toast.classList.remove('show');
+    }, 3000);
+}
 
-        // ========================================
-        // Get screenshots from game_record_media
-        // ========================================
-        function getScreenshots() {
-            var allMedia = getData(MEDIA_KEY);
-            return allMedia.filter(function (item) {
-                return item.type === 'image';
-            });
-        }
+// ========================================
+// Clear All Media
+// ========================================
+async function clearAllMedia() {
+    if (!confirm('确定要清空所有媒体文件吗？此操作不可恢复！')) return;
 
-        // ========================================
-        // Get game names from games data
-        // ========================================
-        function getGameNames() {
-            var games = getData(GAMES_KEY);
-            var names = [];
-            games.forEach(function (g) {
-                if (g.name && names.indexOf(g.name) === -1) {
-                    names.push(g.name);
-                }
-            });
-            return names.sort();
-        }
-
-        // ========================================
-        // Populate game filter dropdown
-        // ========================================
-        function populateGameFilter() {
-            var select = document.getElementById('game-filter');
-            var gameNames = getGameNames();
-            var currentVal = select.value;
-
-            // Keep first option
-            while (select.options.length > 1) {
-                select.remove(1);
+    if (window.SB) {
+        try {
+            var result = await window.SB.from(TABLE).select('id');
+            if (result.data && result.data.length > 0) {
+                var ids = result.data.map(function(r) { return r.id; });
+                // 删除存储文件
+                await window.SB.storage.from(BUCKET).remove(ids);
+                // 删除数据库记录
+                await window.SB.from(TABLE).delete().neq('id', '_placeholder_');
             }
-
-            gameNames.forEach(function (name) {
-                var opt = document.createElement('option');
-                opt.value = name;
-                opt.textContent = name;
-                select.appendChild(opt);
-            });
-
-            select.value = currentVal;
-        }
-
-        // ========================================
-        // Render Gallery
-        // ========================================
-        function renderGallery() {
-            var screenshots = getScreenshots();
-            var grid = document.getElementById('gallery-grid');
-            var emptyState = document.getElementById('empty-state');
-            var countEl = document.getElementById('total-count');
-
-            // Get filter & sort values
-            var searchTerm = document.getElementById('search-input').value.trim().toLowerCase();
-            var gameFilter = document.getElementById('game-filter').value;
-            var sortOrder = document.getElementById('sort-order').value;
-
-            // Apply filters
-            if (searchTerm) {
-                screenshots = screenshots.filter(function (item) {
-                    return (item.gameName || '').toLowerCase().indexOf(searchTerm) !== -1;
-                });
-            }
-            if (gameFilter && gameFilter !== 'all') {
-                screenshots = screenshots.filter(function (item) {
-                    return item.gameName === gameFilter;
-                });
-            }
-
-            // Sort
-            screenshots.sort(function (a, b) {
-                var timeA = a.time ? new Date(a.time).getTime() : 0;
-                var timeB = b.time ? new Date(b.time).getTime() : 0;
-                return sortOrder === 'newest' ? timeB - timeA : timeA - timeB;
-            });
-
-            // Update count
-            countEl.textContent = screenshots.length;
-
-            if (screenshots.length === 0) {
-                grid.innerHTML = '';
-                emptyState.classList.remove('hidden');
-                return;
-            }
-
-            emptyState.classList.add('hidden');
-
-            grid.innerHTML = screenshots.map(function (item) {
-                var thumbnailUrl = item.thumbnail || item.url;
-                var displayName = item.gameName ? escapeHtml(item.gameName) : '';
-                var displayDate = item.time ? formatDate(item.time) : '';
-                var nameHtml = displayName ? '<span class="text-sm font-medium">' + displayName + '</span>' : '';
-
-                return '<div class="gallery-item" data-id="' + item.id + '" onclick="openLightbox(\'' + item.id + '\')">' +
-                    '<img src="' + thumbnailUrl + '" alt="' + (displayName || '截图') + '" loading="lazy" onerror="this.src=\'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect fill="%23E8F0F8" width="400" height="300"/><text x="200" y="150" text-anchor="middle" dy=".3em" fill="%2394A3B8" font-size="16">图片加载失败</text></svg>') + '">' +
-                    '<div class="gallery-actions" onclick="event.stopPropagation()">' +
-                        '<button class="gallery-btn" onclick="openLightbox(\'' + item.id + '\')" title="查看">' +
-                            '<i data-lucide="eye" class="w-4 h-4"></i>' +
-                        '</button>' +
-                        '<button class="gallery-btn gallery-btn-danger" onclick="deleteScreenshot(\'' + item.id + '\')" title="删除">' +
-                            '<i data-lucide="trash-2" class="w-4 h-4"></i>' +
-                        '</button>' +
-                    '</div>' +
-                    '<div class="gallery-overlay">' +
-                        nameHtml +
-                        (displayDate ? '<span class="text-xs opacity-80 block mt-1">' + displayDate + '</span>' : '') +
-                    '</div>' +
-                '</div>';
-            }).join('');
-
-            lucide.createIcons();
-        }
-
-        // ========================================
-        // Lightbox
-        // ========================================
-        function openLightbox(id) {
-            var screenshots = getScreenshots();
-            var item = screenshots.find(function (s) { return s.id === id; });
-            if (!item) return;
-
-            var lightbox = document.getElementById('lightbox');
-            var img = document.getElementById('lightbox-image');
-            var info = document.getElementById('lightbox-info');
-
-            img.src = item.url;
-            var nameText = item.gameName ? escapeHtml(item.gameName) : '未指定游戏';
-            var dateText = item.time ? formatDate(item.time) : '';
-            info.innerHTML = '<p class="text-lg font-medium">' + nameText + '</p>' +
-                (dateText ? '<p class="text-sm text-gray-300 mt-1">上传于 ' + dateText + '</p>' : '');
-
-            lightbox.classList.add('open');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeLightbox() {
-            document.getElementById('lightbox').classList.remove('open');
-            document.body.style.overflow = '';
-        }
-
-        // ========================================
-        // Delete Screenshot
-        // ========================================
-        function deleteScreenshot(id) {
-            if (!confirm('确定要删除这张截图吗？')) return;
-
-            var allMedia = getData(MEDIA_KEY);
-            allMedia = allMedia.filter(function (item) {
-                return item.id !== id;
-            });
-            saveData(MEDIA_KEY, allMedia);
             renderGallery();
-            showToast('截图已删除', 'success');
+            showToast('已清空所有媒体', 'success');
+        } catch (e) {
+            console.error('清空失败:', e);
+            showToast('清空失败', 'error');
+        }
+    } else {
+        saveData('game_record_media', []);
+        renderGallery();
+        showToast('已清空所有媒体', 'success');
+    }
+}
+
+// ========================================
+// Compression & Thumbnail Functions
+// ========================================
+
+// 压缩图片以节省空间
+function compressImage(dataUrl, maxWidth, quality) {
+    return new Promise(function(resolve) {
+        var img = new Image();
+        img.onload = function() {
+            var canvas = document.createElement('canvas');
+            var ctx = canvas.getContext('2d');
+
+            // 计算新尺寸
+            var width = img.width;
+            var height = img.height;
+            if (width > maxWidth) {
+                height = (maxWidth / width) * height;
+                width = maxWidth;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // 压缩为 JPEG
+            var compressed = canvas.toDataURL('image/jpeg', quality);
+            resolve(compressed);
+        };
+        img.src = dataUrl;
+    });
+}
+
+// 生成缩略图（保持比例，最大宽度 1080px）
+function generateThumbnail(imageUrl, maxWidth) {
+    if (!maxWidth) maxWidth = 1080;
+    return new Promise(function(resolve) {
+        var img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = function() {
+            var canvas = document.createElement('canvas');
+            
+            // 保持原始比例
+            var scale = Math.min(1, maxWidth / img.width);
+            var width = img.width * scale;
+            var height = img.height * scale;
+            
+            canvas.width = width;
+            canvas.height = height;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.92));
+        };
+        img.onerror = function() {
+            resolve(imageUrl);
+        };
+        img.src = imageUrl;
+    });
+}
+
+// 生成视频缩略图（使用 SVG 占位图）- 本地模式用
+function generateVideoThumbnail() {
+    return 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150"><rect fill="%231a2744" width="150" height="150"/><rect fill="%23f0c040" x="55" y="50" width="40" height="40" rx="6"/><polygon fill="%231a2744" points="65,60 85,70 65,80"/></svg>');
+}
+
+// 截取视频第一帧作为封面（云存储模式用）
+function generateVideoCover(file) {
+    return new Promise(function(resolve, reject) {
+        var video = document.createElement('video');
+        var canvas = document.createElement('canvas');
+        var ctx = canvas.getContext('2d');
+        
+        video.preload = 'metadata';
+        video.crossOrigin = 'anonymous';
+        video.muted = true;
+        video.playsInline = true;
+        
+        video.onloadedmetadata = function() {
+            // 设置 canvas 尺寸（保持比例，最大宽度 1080）
+            var maxWidth = 1080;
+            var scale = Math.min(1, maxWidth / video.videoWidth);
+            canvas.width = video.videoWidth * scale;
+            canvas.height = video.videoHeight * scale;
+            
+            video.currentTime = 0.1; // 跳到第一帧附近
+        };
+        
+        video.onseeked = function() {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            var dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+            URL.revokeObjectURL(video.src);
+            resolve(dataUrl);
+        };
+        
+        video.onerror = function(e) {
+            URL.revokeObjectURL(video.src);
+            reject(e);
+        };
+        
+        // 创建 blob URL 来加载视频
+        video.src = URL.createObjectURL(file);
+    });
+}
+
+// ========================================
+// Get all media from game_record_media
+// ========================================
+function getAllMedia() {
+    if (window.SB) {
+        return fetchMediaFromCloud();
+    }
+    return getData('game_record_media');
+}
+
+// 从 Supabase 获取媒体列表
+async function fetchMediaFromCloud() {
+    try {
+        var result = await window.SB
+            .from(TABLE)
+            .select('*')
+            .order('created_at', { ascending: false });
+        if (result.error) throw result.error;
+        // 映射字段：created_at → time, game_name → gameName
+        return (result.data || []).map(function(row) {
+            return {
+                id: row.id,
+                type: row.type,
+                url: row.url,
+                name: row.name,
+                gameName: row.game_name || '',
+                time: row.created_at,
+                thumbnail: row.thumbnail || null
+            };
+        });
+    } catch (e) {
+        console.error('获取媒体失败:', e);
+        return [];
+    }
+}
+
+// Get game names from games data
+function getGameNames() {
+    var games = getData(GAMES_KEY);
+    var names = [];
+    games.forEach(function (g) {
+        if (g.name && names.indexOf(g.name) === -1) {
+            names.push(g.name);
+        }
+    });
+    return names.sort();
+}
+
+// ========================================
+// Populate game filter dropdown
+// ========================================
+function populateGameFilter() {
+    var select = document.getElementById('game-filter');
+    var gameNames = getGameNames();
+    var currentVal = select.value;
+
+    // Keep first option
+    while (select.options.length > 1) {
+        select.remove(1);
+    }
+
+    gameNames.forEach(function (name) {
+        var opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        select.appendChild(opt);
+    });
+
+    select.value = currentVal;
+}
+
+// ========================================
+// Render Gallery
+// ========================================
+async function renderGallery() {
+    var allMedia = await getAllMedia();
+    var grid = document.getElementById('gallery-grid');
+    var emptyState = document.getElementById('empty-state');
+    var countEl = document.getElementById('total-count');
+
+    // Get filter & sort values
+    var searchTerm = document.getElementById('search-input').value.trim().toLowerCase();
+    var gameFilter = document.getElementById('game-filter').value;
+    var typeFilter = document.getElementById('media-type-filter') ? document.getElementById('media-type-filter').value : 'all';
+    var sortOrder = document.getElementById('sort-order').value;
+
+    // Apply filters
+    var filteredMedia = allMedia;
+
+    if (searchTerm) {
+        filteredMedia = filteredMedia.filter(function (item) {
+            return (item.gameName || '').toLowerCase().indexOf(searchTerm) !== -1;
+        });
+    }
+    if (gameFilter && gameFilter !== 'all') {
+        filteredMedia = filteredMedia.filter(function (item) {
+            return item.gameName === gameFilter;
+        });
+    }
+    if (typeFilter && typeFilter !== 'all') {
+        filteredMedia = filteredMedia.filter(function (item) {
+            return item.type === typeFilter;
+        });
+    }
+
+    // Sort
+    filteredMedia.sort(function (a, b) {
+        var timeA = a.time ? new Date(a.time).getTime() : 0;
+        var timeB = b.time ? new Date(b.time).getTime() : 0;
+        return sortOrder === 'newest' ? timeB - timeA : timeA - timeB;
+    });
+
+    // Update count
+    countEl.textContent = filteredMedia.length;
+
+    if (filteredMedia.length === 0) {
+        grid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+    }
+
+    emptyState.classList.add('hidden');
+
+    grid.innerHTML = filteredMedia.map(function (item) {
+        var thumbnailUrl = item.thumbnail || item.url;
+        var displayName = item.gameName ? escapeHtml(item.gameName) : '';
+        var displayDate = item.time ? formatDate(item.time) : '';
+        var nameHtml = displayName ? '<span class="text-sm font-medium">' + displayName + '</span>' : '';
+
+        // 根据类型显示不同图标
+        var typeIcon = '';
+        if (item.type === 'video') {
+            typeIcon = '<div class="absolute top-2 right-2 bg-purple-500 text-white p-1 rounded"><i data-lucide="video" class="w-4 h-4"></i></div>';
         }
 
-        // ========================================
-        // Upload Screenshots
-        // ========================================
-        var pendingFiles = [];
+        var actionButtons = '';
+        if (item.type === 'video') {
+            actionButtons = '<button class="gallery-btn" onclick="openLightbox(\'' + item.id + '\')" title="播放">' +
+                '<i data-lucide="play" class="w-4 h-4"></i></button>';
+        } else {
+            actionButtons = '<button class="gallery-btn" onclick="openLightbox(\'' + item.id + '\')" title="查看">' +
+                '<i data-lucide="eye" class="w-4 h-4"></i></button>' +
+                '<button class="gallery-btn" onclick="openImageEditor(\'' + item.id + '\')" title="编辑">' +
+                '<i data-lucide="edit" class="w-4 h-4"></i></button>';
+        }
 
-        document.getElementById('gallery-upload-input').addEventListener('change', function (e) {
-            var files = Array.from(e.target.files);
-            if (files.length === 0) return;
+        return '<div class="gallery-item" data-id="' + item.id + '" onclick="openLightbox(\'' + item.id + '\')">' +
+            '<img src="' + thumbnailUrl + '" alt="' + (displayName || '媒体') + '" loading="lazy" onerror="this.src=\'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect fill="%23E8F0F8" width="400" height="300"/><text x="200" y="150" text-anchor="middle" dy=".3em" fill="%2394A3B8" font-size="16">图片加载失败</text></svg>') + '\'">' +
+            typeIcon +
+            '<div class="gallery-actions" onclick="event.stopPropagation()">' +
+            actionButtons +
+            '<button class="gallery-btn gallery-btn-danger" onclick="deleteMedia(\'' + item.id + '\')" title="删除">' +
+            '<i data-lucide="trash-2" class="w-4 h-4"></i></button></div>' +
+            '<div class="gallery-overlay">' +
+            nameHtml +
+            (displayDate ? '<span class="text-xs opacity-80 block mt-1">' + displayDate + '</span>' : '') +
+            '</div></div>';
+    }).join('');
 
-            // Filter only image files
-            pendingFiles = files.filter(function (f) {
-                return f.type.startsWith('image/');
-            });
+    lucide.createIcons();
+}
 
-            if (pendingFiles.length === 0) {
-                showToast('请选择图片文件', 'error');
-                return;
+// ========================================
+// Lightbox
+// ========================================
+function openLightbox(id) {
+    var allMedia = getAllMedia();
+    if (window.SB) {
+        allMedia.then(function(media) { showLightbox(media, id); });
+        return;
+    }
+    showLightbox(allMedia, id);
+}
+
+function showLightbox(allMedia, id) {
+    var item = allMedia.find(function (m) { return m.id === id; });
+    if (!item) return;
+
+    var lightbox = document.getElementById('lightbox');
+    var container = document.getElementById('lightbox-media-container');
+    var info = document.getElementById('lightbox-info');
+
+    // 根据类型渲染不同的内容
+    if (item.type === 'video') {
+        container.innerHTML = '<video src="' + item.url + '" controls class="max-w-full max-h-[70vh] rounded-lg"></video>';
+    } else {
+        container.innerHTML = '<img id="lightbox-image" src="' + item.url + '" alt="' + (item.gameName || '图片') + '" class="max-w-full max-h-[70vh] rounded-lg">';
+    }
+
+    var nameText = item.gameName ? escapeHtml(item.gameName) : '未指定游戏';
+    var dateText = item.time ? formatDate(item.time) : '';
+    var typeText = item.type === 'video' ? '视频' : '截图';
+    info.innerHTML = '<p class="text-lg font-medium">' + nameText + '</p>' +
+        '<p class="text-sm text-gray-300 mt-1">' + typeText + '</p>' +
+        (dateText ? '<p class="text-sm text-gray-300 mt-1">上传于 ' + dateText + '</p>' : '');
+
+    lightbox.classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+    // 停止视频播放
+    var video = document.querySelector('#lightbox-media-container video');
+    if (video) {
+        video.pause();
+    }
+}
+
+// ========================================
+// Delete Media
+// ========================================
+function deleteMedia(id) {
+    if (confirm('确定要删除这个媒体文件吗？')) {
+        if (window.SB) {
+            deleteFromCloud(id);
+            return;
+        }
+        deleteFromLocal(id);
+    }
+}
+
+async function deleteFromCloud(id) {
+    try {
+        // 删除数据库记录
+        var dbResult = await window.SB.from(TABLE).delete().eq('id', id);
+        if (dbResult.error) console.error('删除数据库记录失败:', dbResult.error);
+        // 删除存储文件
+        var storageResult = await window.SB.storage.from(BUCKET).remove([id]);
+        if (storageResult.error) console.error('删除存储文件失败:', storageResult.error);
+        renderGallery();
+        showToast('媒体已删除', 'success');
+    } catch (e) {
+        console.error('删除失败:', e);
+        deleteFromLocal(id);
+    }
+}
+
+function deleteFromLocal(id) {
+    var allMedia = getAllMedia();
+    allMedia = allMedia.filter(function (item) {
+        return item.id !== id;
+    });
+    saveData('game_record_media', allMedia);
+    renderGallery();
+    showToast('媒体已删除', 'success');
+}
+
+// ========================================
+// Upload Functions
+// ========================================
+
+// 待上传的文件队列
+var pendingFiles = [];
+var pendingFileType = ''; // 'image', 'video'
+
+// 截图上传处理
+document.getElementById('gallery-upload-input').addEventListener('change', function (e) {
+    var files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    // Filter only image files
+    pendingFiles = files.filter(function (f) {
+        return f.type.startsWith('image/');
+    });
+
+    if (pendingFiles.length === 0) {
+        showToast('请选择图片文件', 'error');
+        return;
+    }
+
+    pendingFileType = 'image';
+    showUploadModal();
+    this.value = '';
+});
+
+// 视频上传处理
+document.getElementById('video-upload-input').addEventListener('change', function (e) {
+    var files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    pendingFiles = files.filter(function (f) {
+        return f.type.startsWith('video/');
+    });
+
+    if (pendingFiles.length === 0) {
+        showToast('请选择视频文件', 'error');
+        return;
+    }
+
+    // 检查文件大小
+    var validFiles = pendingFiles.filter(function(f) {
+        if (f.size > 50 * 1024 * 1024) {
+            showToast(f.name + ' 太大，已跳过（最大 50MB）', 'warning');
+            return false;
+        }
+        return true;
+    });
+
+    if (validFiles.length === 0) {
+        pendingFiles = [];
+        return;
+    }
+
+    pendingFiles = validFiles;
+    pendingFileType = 'video';
+    showUploadModal();
+    this.value = '';
+});
+
+// 显示上传弹窗
+function showUploadModal() {
+    var select = document.getElementById('upload-type-game-select');
+    var gameNames = getGameNames();
+
+    while (select.options.length > 1) {
+        select.remove(1);
+    }
+    gameNames.forEach(function (name) {
+        var opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        select.appendChild(opt);
+    });
+    select.value = '';
+
+    // 显示上传类型和数量
+    var typeLabel = document.getElementById('upload-type-label');
+    var uploadCount = document.getElementById('upload-count');
+    var btnText = document.getElementById('upload-btn-text');
+
+    var typeName = pendingFileType === 'image' ? '截图' : '视频';
+    typeLabel.textContent = typeName;
+    uploadCount.textContent = pendingFiles.length;
+    btnText.textContent = '确认上传 ' + pendingFiles.length + ' 个' + typeName;
+
+    document.getElementById('upload-type-modal').classList.add('active');
+}
+
+// 关闭上传弹窗
+function closeUploadTypeModal() {
+    document.getElementById('upload-type-modal').classList.remove('active');
+    pendingFiles = [];
+    pendingFileType = '';
+}
+
+// 确认上传
+async function confirmTypeUpload() {
+    var select = document.getElementById('upload-type-game-select');
+    var gameName = select.value;
+
+    if (pendingFiles.length === 0) {
+        showToast('没有选择文件', 'error');
+        return;
+    }
+
+    var loadedCount = 0;
+    var errorCount = 0;
+    var total = pendingFiles.length;
+
+    var btnText = document.getElementById('upload-btn-text');
+    var btn = document.getElementById('confirm-upload-type-btn');
+    btnText.textContent = '上传中...';
+    btn.disabled = true;
+
+    if (window.SB) {
+        // 云上传
+        for (var i = 0; i < pendingFiles.length; i++) {
+            var file = pendingFiles[i];
+            try {
+                await uploadFileToCloud(file, gameName);
+                loadedCount++;
+            } catch (err) {
+                console.error('上传失败:', file.name, err);
+                errorCount++;
             }
-
-            // Populate game select in modal
-            var select = document.getElementById('upload-game-select');
-            var gameNames = getGameNames();
-            while (select.options.length > 1) {
-                select.remove(1);
-            }
-            gameNames.forEach(function (name) {
-                var opt = document.createElement('option');
-                opt.value = name;
-                opt.textContent = name;
-                select.appendChild(opt);
-            });
-            select.value = '';
-
-            // Show modal
-            document.getElementById('upload-game-modal').classList.remove('hidden');
-            document.getElementById('upload-game-modal').classList.add('active');
-
-            // Reset input
-            this.value = '';
-        });
-
-        function confirmUpload() {
-            var select = document.getElementById('upload-game-select');
-            var gameName = select.value;
-
-            if (pendingFiles.length === 0) return;
-
-            var allMedia = getData(MEDIA_KEY);
-            var loadedCount = 0;
-
-            pendingFiles.forEach(function (file) {
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    var item = {
-                        id: generateId(),
-                        type: 'image',
-                        url: e.target.result,
-                        name: file.name,
-                        gameName: gameName || '',
-                        time: new Date().toISOString()
-                    };
-                    allMedia.push(item);
-                    loadedCount++;
-
-                    if (loadedCount === pendingFiles.length) {
-                        saveData(MEDIA_KEY, allMedia);
-                        closeUploadModal();
-                        renderGallery();
-                        showToast('成功上传 ' + loadedCount + ' 张截图', 'success');
-                    }
+        }
+    } else {
+        // 本地存储
+        var allMedia = await getAllMedia();
+        for (var i = 0; i < pendingFiles.length; i++) {
+            var file = pendingFiles[i];
+            try {
+                var dataUrl = await readFile(file);
+                var item = {
+                    id: generateId(),
+                    type: pendingFileType,
+                    url: dataUrl,
+                    name: file.name,
+                    gameName: gameName || '',
+                    time: new Date().toISOString()
                 };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        function closeUploadModal() {
-            document.getElementById('upload-game-modal').classList.remove('active');
-            document.getElementById('upload-game-modal').classList.add('hidden');
-            pendingFiles = [];
-        }
-
-        document.getElementById('upload-modal-close').addEventListener('click', closeUploadModal);
-
-        // ========================================
-        // Event Listeners
-        // ========================================
-        document.getElementById('search-input').addEventListener('input', renderGallery);
-        document.getElementById('game-filter').addEventListener('change', renderGallery);
-        document.getElementById('sort-order').addEventListener('change', renderGallery);
-
-        // Lightbox close
-        document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
-        document.getElementById('lightbox').addEventListener('click', function (e) {
-            if (e.target === this) closeLightbox();
-        });
-
-        // ESC key closes lightbox
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') {
-                if (document.getElementById('lightbox').classList.contains('open')) {
-                    closeLightbox();
+                if (pendingFileType === 'image') {
+                    item.url = await compressImage(dataUrl, 1920, 0.9);
+                    item.thumbnail = await generateThumbnail(item.url);
+                } else if (pendingFileType === 'video') {
+                    // 本地模式也尝试生成视频封面
+                    try {
+                        item.thumbnail = await generateVideoCover(file);
+                    } catch (e) {
+                        item.thumbnail = generateVideoThumbnail(); // 失败用占位图
+                    }
                 }
-                if (document.getElementById('upload-game-modal').classList.contains('active')) {
-                    closeUploadModal();
-                }
+                allMedia.push(item);
+                loadedCount++;
+            } catch (err) {
+                console.error('上传失败:', file.name, err);
+                errorCount++;
             }
+        }
+        saveData('game_record_media', allMedia);
+    }
+
+    closeUploadTypeModal();
+    populateGameFilter();
+    renderGallery();
+
+    var typeName = pendingFileType === 'image' ? '截图' : '视频';
+    if (loadedCount > 0) {
+        showToast('成功上传 ' + loadedCount + ' 个' + typeName, 'success');
+    }
+    if (errorCount > 0) {
+        showToast(errorCount + ' 个文件失败', 'error');
+    }
+    btnText.textContent = '确认上传';
+    btn.disabled = false;
+}
+
+// 上传单个文件到 Supabase
+async function uploadFileToCloud(file, gameName) {
+    var id = generateId();
+    var ext = file.name.split('.').pop() || 'jpg';
+    var storagePath = id + '.' + ext;
+
+    // 处理图片：压缩后上传
+    if (pendingFileType === 'image') {
+        var dataUrl = await readFile(file);
+        var compressed = await compressImage(dataUrl, 1920, 0.9);
+        var thumb = await generateThumbnail(compressed);
+
+        // 上传原图
+        var blob = dataURLtoBlob(compressed);
+        var uploadResult = await window.SB.storage.from(BUCKET).upload(storagePath, blob, {
+            contentType: 'image/jpeg',
+            upsert: true
+        });
+        if (uploadResult.error) throw uploadResult.error;
+
+        // 上传缩略图
+        var thumbBlob = dataURLtoBlob(thumb);
+        var thumbPath = 'thumb_' + id + '.jpg';
+        await window.SB.storage.from(BUCKET).upload(thumbPath, thumbBlob, {
+            contentType: 'image/jpeg',
+            upsert: true
         });
 
-        // Click outside modal to close
-        document.getElementById('upload-game-modal').addEventListener('click', function (e) {
-            if (e.target === this) closeUploadModal();
+        // 获取公开 URL
+        var publicUrl = window.SB.storage.from(BUCKET).getPublicUrl(storagePath).data.publicUrl;
+        var thumbUrl = window.SB.storage.from(BUCKET).getPublicUrl(thumbPath).data.publicUrl;
+
+        // 插入数据库
+        var insertResult = await window.SB.from(TABLE).insert({
+            id: id,
+            type: 'image',
+            url: publicUrl,
+            thumbnail: thumbUrl,
+            name: file.name,
+            game_name: gameName || ''
+        });
+        if (insertResult.error) throw insertResult.error;
+    } else {
+        // 视频：先生成封面缩略图，再上传
+        var videoThumb = await generateVideoCover(file);
+        
+        // 上传视频
+        var uploadResult = await window.SB.storage.from(BUCKET).upload(storagePath, file, {
+            contentType: file.type,
+            upsert: true
+        });
+        if (uploadResult.error) throw uploadResult.error;
+
+        // 上传封面缩略图
+        var thumbPath = 'thumb_' + id + '.jpg';
+        var thumbBlob = dataURLtoBlob(videoThumb);
+        await window.SB.storage.from(BUCKET).upload(thumbPath, thumbBlob, {
+            contentType: 'image/jpeg',
+            upsert: true
         });
 
-        // Mobile menu toggle
-        document.getElementById('mobile-menu-toggle').addEventListener('click', function () {
-            var mobileMenu = document.getElementById('mobile-menu');
-            mobileMenu.classList.toggle('hidden');
-        });
+        var publicUrl = window.SB.storage.from(BUCKET).getPublicUrl(storagePath).data.publicUrl;
+        var thumbUrl = window.SB.storage.from(BUCKET).getPublicUrl(thumbPath).data.publicUrl;
 
-        // ========================================
-        // Initialize
-        // ========================================
-        document.addEventListener('DOMContentLoaded', function () {
-            populateGameFilter();
+        var insertResult = await window.SB.from(TABLE).insert({
+            id: id,
+            type: 'video',
+            url: publicUrl,
+            thumbnail: thumbUrl,
+            name: file.name,
+            game_name: gameName || ''
+        });
+        if (insertResult.error) throw insertResult.error;
+    }
+}
+
+// 将 dataURL 转换为 Blob
+function dataURLtoBlob(dataUrl) {
+    var parts = dataUrl.split(',');
+    var mime = parts[0].match(/:(.*?);/)[1];
+    var bstr = atob(parts[1]);
+    var n = bstr.length;
+    var u8arr = new Uint8Array(n);
+    for (var i = 0; i < n; i++) {
+        u8arr[i] = bstr.charCodeAt(i);
+    }
+    return new Blob([u8arr], { type: mime });
+}
+
+function readFile(file) {
+    return new Promise(function(resolve, reject) {
+        var reader = new FileReader();
+        reader.onload = function(e) { resolve(e.target.result); };
+        reader.onerror = function(e) { reject(e); };
+        reader.readAsDataURL(file);
+    });
+}
+
+// ========================================
+// Image Editor Functions
+// ========================================
+
+var currentImageData = null;
+var originalImageData = null;
+var currentFilters = {
+    brightness: 100,
+    contrast: 100,
+    saturation: 100,
+    filter: 'none'
+};
+var cropMode = false;
+var cropArea = { x: 0, y: 0, width: 200, height: 200 };
+
+// 打开图片编辑器
+function openImageEditor(id) {
+    var allMedia = getAllMedia();
+    if (window.SB) {
+        allMedia.then(function(media) { openEditorWithData(media, id); });
+        return;
+    }
+    openEditorWithData(allMedia, id);
+}
+
+function openEditorWithData(allMedia, id) {
+    var item = allMedia.find(function (m) { return m.id === id; });
+    if (!item || item.type === 'video') return;
+
+    var modal = document.getElementById('image-editor-modal');
+    var canvas = document.getElementById('editor-canvas');
+    var ctx = canvas.getContext('2d');
+
+    currentImageData = item;
+    currentFilters = { brightness: 100, contrast: 100, saturation: 100, filter: 'none' };
+
+    // Reset sliders
+    document.getElementById('brightness-slider').value = 100;
+    document.getElementById('brightness-value').textContent = '100%';
+    document.getElementById('contrast-slider').value = 100;
+    document.getElementById('contrast-value').textContent = '100%';
+    document.getElementById('saturation-slider').value = 100;
+    document.getElementById('saturation-value').textContent = '100%';
+
+    // Reset filter buttons
+    document.querySelectorAll('.filter-item').forEach(function(el) { el.classList.remove('active'); });
+
+    // Load image
+    var img = new Image();
+    img.onload = function() {
+        // Resize canvas to fit container with max dimensions
+        var maxWidth = 600;
+        var maxHeight = 400;
+        var width = img.width;
+        var height = img.height;
+
+        if (width > maxWidth) {
+            height = (maxWidth / width) * height;
+            width = maxWidth;
+        }
+        if (height > maxHeight) {
+            width = (maxHeight / height) * width;
+            height = maxHeight;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Store original
+        originalImageData = ctx.getImageData(0, 0, width, height);
+
+        modal.classList.remove('hidden');
+        modal.classList.add('active');
+    };
+    img.src = item.url;
+}
+
+// 关闭图片编辑器
+function closeImageEditor() {
+    document.getElementById('image-editor-modal').classList.remove('active');
+    document.getElementById('image-editor-modal').classList.add('hidden');
+    currentImageData = null;
+    originalImageData = null;
+    cropMode = false;
+    document.getElementById('crop-overlay').classList.add('hidden');
+}
+
+// 应用滤镜
+function applyFilter(filter) {
+    currentFilters.filter = filter;
+    document.querySelectorAll('.filter-item').forEach(function(el) { el.classList.remove('active'); });
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
+    applyFiltersToCanvas();
+}
+
+// 应用滤镜到画布
+function applyFiltersToCanvas() {
+    if (!originalImageData) return;
+
+    var canvas = document.getElementById('editor-canvas');
+    var ctx = canvas.getContext('2d');
+
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw original image
+    ctx.putImageData(originalImageData, 0, 0);
+
+    // Build filter string
+    var filterString = '';
+    filterString += 'brightness(' + currentFilters.brightness + '%) ';
+    filterString += 'contrast(' + currentFilters.contrast + '%) ';
+    filterString += 'saturate(' + currentFilters.saturation + '%) ';
+
+    switch (currentFilters.filter) {
+        case 'grayscale':
+            filterString += 'grayscale(100%) ';
+            break;
+        case 'sepia':
+            filterString += 'sepia(80%) ';
+            break;
+        case 'cool':
+            filterString += 'hue-rotate(180deg) saturate(120%) ';
+            break;
+        case 'warm':
+            filterString += 'hue-rotate(-15deg) saturate(110%) ';
+            break;
+        case 'vintage':
+            filterString += 'sepia(40%) contrast(90%) brightness(95%) ';
+            break;
+        case 'vivid':
+            filterString += 'saturate(150%) contrast(110%) ';
+            break;
+        case 'bright':
+            filterString += 'brightness(115%) contrast(105%) ';
+            break;
+    }
+
+    ctx.filter = filterString;
+
+    // Redraw with filters
+    ctx.drawImage(canvas, 0, 0);
+    ctx.filter = 'none';
+}
+
+// 切换裁剪模式
+function toggleCropMode() {
+    cropMode = !cropMode;
+    var overlay = document.getElementById('crop-overlay');
+
+    if (cropMode) {
+        overlay.classList.remove('hidden');
+        var canvas = document.getElementById('editor-canvas');
+        cropArea = {
+            x: Math.max(0, (canvas.width - 200) / 2),
+            y: Math.max(0, (canvas.height - 200) / 2),
+            width: 200,
+            height: 200
+        };
+        updateCropBox();
+    } else {
+        overlay.classList.add('hidden');
+    }
+}
+
+// 更新裁剪框
+function updateCropBox() {
+    var cropBox = document.getElementById('crop-box');
+    cropBox.style.left = cropArea.x + 'px';
+    cropBox.style.top = cropArea.y + 'px';
+    cropBox.style.width = cropArea.width + 'px';
+    cropBox.style.height = cropArea.height + 'px';
+
+    // Update handles position
+    var handles = document.querySelectorAll('.crop-handle');
+    if (handles.length >= 4) {
+        handles[0].style.left = cropArea.x + 'px';
+        handles[0].style.top = cropArea.y + 'px';
+        handles[1].style.left = (cropArea.x + cropArea.width) + 'px';
+        handles[1].style.top = cropArea.y + 'px';
+        handles[2].style.left = cropArea.x + 'px';
+        handles[2].style.top = (cropArea.y + cropArea.height) + 'px';
+        handles[3].style.left = (cropArea.x + cropArea.width) + 'px';
+        handles[3].style.top = (cropArea.y + cropArea.height) + 'px';
+    }
+}
+
+// 重置图片
+function resetImage() {
+    currentFilters = { brightness: 100, contrast: 100, saturation: 100, filter: 'none' };
+
+    document.getElementById('brightness-slider').value = 100;
+    document.getElementById('brightness-value').textContent = '100%';
+    document.getElementById('contrast-slider').value = 100;
+    document.getElementById('contrast-value').textContent = '100%';
+    document.getElementById('saturation-slider').value = 100;
+    document.getElementById('saturation-value').textContent = '100%';
+
+    document.querySelectorAll('.filter-item').forEach(function(el) { el.classList.remove('active'); });
+
+    applyFiltersToCanvas();
+}
+
+// 保存编辑后的图片
+async function saveEditedImage() {
+    var canvas = document.getElementById('editor-canvas');
+    var thumbnailSize = parseInt(document.getElementById('thumbnail-size').value);
+
+    // 获取裁剪或完整的图片
+    var editedDataUrl;
+    if (cropMode) {
+        var tempCanvas = document.createElement('canvas');
+        tempCanvas.width = cropArea.width;
+        tempCanvas.height = cropArea.height;
+        var tempCtx = tempCanvas.getContext('2d');
+        tempCtx.drawImage(canvas, cropArea.x, cropArea.y, cropArea.width, cropArea.height, 0, 0, cropArea.width, cropArea.height);
+        editedDataUrl = tempCanvas.toDataURL('image/jpeg', 0.9);
+    } else {
+        editedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+    }
+
+    if (window.SB) {
+        // 云存储：重新上传编辑后的图片
+        try {
+            var id = currentImageData.id;
+            var ext = 'jpg';
+            var storagePath = 'edited_' + generateId() + '.' + ext;
+            var blob = dataURLtoBlob(editedDataUrl);
+            var uploadResult = await window.SB.storage.from(BUCKET).upload(storagePath, blob, {
+                contentType: 'image/jpeg',
+                upsert: true
+            });
+            if (uploadResult.error) throw uploadResult.error;
+
+            var thumb = await generateThumbnail(editedDataUrl, thumbnailSize);
+            var thumbBlob = dataURLtoBlob(thumb);
+            var thumbPath = 'thumb_' + id + '.jpg';
+            await window.SB.storage.from(BUCKET).upload(thumbPath, thumbBlob, {
+                contentType: 'image/jpeg',
+                upsert: true
+            });
+
+            var publicUrl = window.SB.storage.from(BUCKET).getPublicUrl(storagePath).data.publicUrl;
+            var thumbUrl = window.SB.storage.from(BUCKET).getPublicUrl(thumbPath).data.publicUrl;
+
+            var updateResult = await window.SB.from(TABLE).update({
+                url: publicUrl,
+                thumbnail: thumbUrl
+            }).eq('id', id);
+            if (updateResult.error) throw updateResult.error;
+
+            closeImageEditor();
             renderGallery();
-        });
+            showToast('图片编辑保存成功', 'success');
+        } catch (e) {
+            console.error('保存失败:', e);
+            showToast('保存失败，请重试', 'error');
+        }
+    } else {
+        // 本地存储
+        var allMedia = await getAllMedia();
+        var index = allMedia.findIndex(function(item) { return item.id === currentImageData.id; });
+        if (index !== -1) {
+            allMedia[index].url = editedDataUrl;
+            allMedia[index].thumbnail = await generateThumbnail(editedDataUrl, thumbnailSize);
+            saveData('game_record_media', allMedia);
+            closeImageEditor();
+            renderGallery();
+            showToast('图片编辑保存成功', 'success');
+        }
+    }
+}
+
+// ========================================
+// Setup Image Editor Sliders
+// ========================================
+function setupImageEditor() {
+    document.getElementById('brightness-slider').addEventListener('input', function(e) {
+        currentFilters.brightness = e.target.value;
+        document.getElementById('brightness-value').textContent = e.target.value + '%';
+        applyFiltersToCanvas();
+    });
+
+    document.getElementById('contrast-slider').addEventListener('input', function(e) {
+        currentFilters.contrast = e.target.value;
+        document.getElementById('contrast-value').textContent = e.target.value + '%';
+        applyFiltersToCanvas();
+    });
+
+    document.getElementById('saturation-slider').addEventListener('input', function(e) {
+        currentFilters.saturation = e.target.value;
+        document.getElementById('saturation-value').textContent = e.target.value + '%';
+        applyFiltersToCanvas();
+    });
+}
+
+// ========================================
+// Event Listeners
+// ========================================
+
+// Search and filter
+document.getElementById('search-input').addEventListener('input', renderGallery);
+document.getElementById('game-filter').addEventListener('change', renderGallery);
+document.getElementById('media-type-filter').addEventListener('change', renderGallery);
+document.getElementById('sort-order').addEventListener('change', renderGallery);
+
+// Lightbox close
+document.getElementById('lightbox-close').addEventListener('click', closeLightbox);
+document.getElementById('lightbox').addEventListener('click', function(e) {
+    if (e.target === this) closeLightbox();
+});
+
+// ESC key closes modals
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        if (document.getElementById('lightbox').classList.contains('open')) {
+            closeLightbox();
+        }
+        if (document.getElementById('upload-type-modal') && !document.getElementById('upload-type-modal').classList.contains('hidden')) {
+            closeUploadTypeModal();
+        }
+        if (document.getElementById('image-editor-modal') && document.getElementById('image-editor-modal').classList.contains('active')) {
+            closeImageEditor();
+        }
+    }
+});
+
+// Click outside modal to close
+document.getElementById('upload-type-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeUploadTypeModal();
+});
+
+// Mobile menu toggle
+document.getElementById('mobile-menu-toggle').addEventListener('click', function() {
+    var mobileMenu = document.getElementById('mobile-menu');
+    mobileMenu.classList.toggle('hidden');
+});
+
+// ========================================
+// Initialize
+// ========================================
+document.addEventListener('DOMContentLoaded', async function () {
+    await window.awaitGameCloud();
+    populateGameFilter();
+    setupImageEditor();
+    renderGallery();
+});

@@ -25,16 +25,17 @@ function getStatusText(status) {
 }
 
 // Data storage
-let games = JSON.parse(localStorage.getItem('games')) || [];
+let games = [];
 let isEditMode = false;
 
-// Sample data if no data exists
-if (games.length === 0) {
+function seedGamesIfEmpty() {
+    games = JSON.parse(localStorage.getItem('games')) || [];
+    if (games.length > 0) return;
     games = [
         {
             id: 1,
             name: '原神',
-            icon: 'https://api.dicebear.com/7.x/identicon/svg?seed=genshin&backgroundColor=b6e3f4',
+            icon: 'assets/default-cover-male.jpg',
             playtime: 245,
             progress: 75,
             status: 'playing',
@@ -47,7 +48,7 @@ if (games.length === 0) {
         {
             id: 2,
             name: '明日方舟',
-            icon: 'https://api.dicebear.com/7.x/identicon/svg?seed=arknights&backgroundColor=c0aede',
+            icon: 'assets/default-cover-female.jpg',
             playtime: 180,
             progress: 60,
             status: 'playing',
@@ -60,7 +61,7 @@ if (games.length === 0) {
         {
             id: 3,
             name: '王者荣耀',
-            icon: 'https://api.dicebear.com/7.x/identicon/svg?seed=honor&backgroundColor=ffdfbf',
+            icon: 'assets/default-cover-male.jpg',
             playtime: 320,
             progress: 85,
             status: 'playing',
@@ -73,7 +74,7 @@ if (games.length === 0) {
         {
             id: 4,
             name: '闪耀暖暖',
-            icon: 'https://api.dicebear.com/7.x/identicon/svg?seed=shining&backgroundColor=ffd5dc',
+            icon: 'assets/default-cover-female.jpg',
             playtime: 150,
             progress: 90,
             status: 'completed',
@@ -587,7 +588,9 @@ window.addEventListener('click', (e) => {
 });
 
 // Initialize page
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await window.awaitGameCloud();
+    seedGamesIfEmpty();
     renderGames();
     renderRecentlyAdded();
 });

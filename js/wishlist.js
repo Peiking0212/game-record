@@ -51,11 +51,12 @@ function escapeHtml(str) {
 
 // ---------- 封面生成 ----------
 function getCoverHtml(url, name) {
+  var defaultCovers = ['assets/default-cover-male.jpg', 'assets/default-cover-female.jpg'];
+  var defaultCover = defaultCovers[Math.floor(Math.random() * defaultCovers.length)];
   if (url && url.trim() !== '') {
-    return '<img src="' + escapeHtml(url) + '" alt="' + escapeHtml(name) + '" class="wishlist-cover-img" onerror="this.onerror=null;this.src=\'https://api.dicebear.com/7.x/shapes/svg?seed=' + encodeURIComponent(name) + '\';">';
+    return '<img src="' + escapeHtml(url) + '" alt="' + escapeHtml(name) + '" class="wishlist-cover-img" onerror="this.onerror=null;this.src=\'' + defaultCover + '\';">';
   }
-  var dicebearUrl = 'https://api.dicebear.com/7.x/shapes/svg?seed=' + encodeURIComponent(name || 'game');
-  return '<img src="' + dicebearUrl + '" alt="' + escapeHtml(name) + '" class="wishlist-cover-img">';
+  return '<img src="' + defaultCover + '" alt="' + escapeHtml(name) + '" class="wishlist-cover-img">';
 }
 
 // ---------- 星级渲染（卡片展示用） ----------
@@ -248,27 +249,29 @@ function renderWishlist() {
     html += '<div class="wishlist-card wishlist-priority-' + pClass + '" data-id="' + item.id + '">';
     html += '  <div class="wishlist-cover">' + getCoverHtml(item.cover, item.name) + '</div>';
     html += '  <div class="wishlist-info">';
-    html += '    <h3 class="wishlist-name">' + escapeHtml(item.name) + '</h3>';
+    html += '    <div class="wishlist-info-header">';
+    html += '      <h3 class="wishlist-name">' + escapeHtml(item.name) + '</h3>';
+    html += '      <div class="wishlist-actions">';
+    html += '        <button class="btn-edit-wishlist" data-id="' + item.id + '" title="编辑"><i data-lucide="pencil"></i></button>';
+    html += '        <button class="btn-delete-wishlist" data-id="' + item.id + '" title="删除"><i data-lucide="trash-2"></i></button>';
+    html += '      </div>';
+    html += '    </div>';
     html += '    <div class="wishlist-meta">';
     if (item.platform) {
       html += '      <span class="wishlist-platform">' + escapeHtml(item.platform) + '</span>';
     }
     html += '      <span class="wishlist-stars">' + renderStars(item.rating || 0) + '</span>';
-    html += '      <span class="wishlist-priority-tag">' + getPriorityLabel(item.priority) + '</span>';
-    html += '    </div>';
-    html += '    <div class="wishlist-details">';
+    if (item.priority) {
+      html += '      <span class="wishlist-priority-tag">' + getPriorityLabel(item.priority) + '</span>';
+    }
     if (item.price !== undefined && item.price !== null && item.price !== '') {
       html += '      <span class="wishlist-price">&yen;' + escapeHtml(String(item.price)) + '</span>';
     }
-    if (item.notes) {
-      html += '      <p class="wishlist-notes">' + escapeHtml(item.notes) + '</p>';
-    }
     html += '    </div>';
+    if (item.notes) {
+      html += '    <p class="wishlist-notes">' + escapeHtml(item.notes) + '</p>';
+    }
     html += '    <div class="wishlist-date">' + formatDate(item.date) + '</div>';
-    html += '  </div>';
-    html += '  <div class="wishlist-actions">';
-    html += '    <button class="btn-edit-wishlist" data-id="' + item.id + '" title="编辑"><i data-lucide="pencil"></i></button>';
-    html += '    <button class="btn-delete-wishlist" data-id="' + item.id + '" title="删除"><i data-lucide="trash-2"></i></button>';
     html += '  </div>';
     html += '</div>';
   }
@@ -298,7 +301,7 @@ function renderWishlist() {
 function openAddWishlistModal() {
   var modal = document.getElementById('add-wishlist-modal');
   if (!modal) return;
-  modal.style.display = 'flex';
+  modal.classList.add('active');
   // 清空表单
   var form = document.getElementById('add-wishlist-form');
   if (form) { form.reset(); }
@@ -311,7 +314,7 @@ function openAddWishlistModal() {
 function closeAddWishlistModal() {
   var modal = document.getElementById('add-wishlist-modal');
   if (!modal) return;
-  modal.style.display = 'none';
+  modal.classList.remove('active');
 }
 
 // ---------- 添加提交 ----------
@@ -373,7 +376,7 @@ function openEditWishlistModal(id) {
   }
   if (!item) return;
 
-  modal.style.display = 'flex';
+  modal.classList.add('active');
 
   // 填充表单字段
   var nameInput = document.getElementById('edit-wish-name');
@@ -405,7 +408,7 @@ function openEditWishlistModal(id) {
 function closeEditWishlistModal() {
   var modal = document.getElementById('edit-wishlist-modal');
   if (!modal) return;
-  modal.style.display = 'none';
+  modal.classList.remove('active');
 }
 
 function handleEditWishlistSubmit(e) {
@@ -462,14 +465,14 @@ function handleEditWishlistSubmit(e) {
 function openDeleteConfirmModal(id) {
   var modal = document.getElementById('delete-modal');
   if (!modal) return;
-  modal.style.display = 'flex';
+  modal.classList.add('active');
   modal.setAttribute('data-delete-id', id);
 }
 
 function closeDeleteModal() {
   var modal = document.getElementById('delete-modal');
   if (!modal) return;
-  modal.style.display = 'none';
+  modal.classList.remove('active');
 }
 
 function handleDeleteConfirm() {
@@ -493,7 +496,8 @@ function handleDeleteConfirm() {
 // ============================================================
 // 事件绑定 & 初始化
 // ============================================================
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
+  await window.awaitGameCloud();
   // 初始渲染
   renderWishlist();
 

@@ -394,7 +394,8 @@
         if (mt && mm) mt.addEventListener('click', function () { mm.classList.toggle('hidden'); });
     }
 
-    function init() {
+    async function init() {
+        await window.awaitGameCloud();
         bindEvents(); initYearFilter();
         renderTable('all'); updateStats('all'); updateCharts('all');
     }

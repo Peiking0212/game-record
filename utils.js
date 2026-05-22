@@ -207,14 +207,6 @@
                 }
             });
 
-            // 搜索时间线
-            var timeline = JSON.parse(localStorage.getItem('timeline') || '[]');
-            timeline.forEach(function (t) {
-                if ((t.title + (t.description || '') + (t.tags || '')).toLowerCase().indexOf(query) !== -1) {
-                    items.push({ title: t.title, desc: (t.description || '').substring(0, 40) + ' · ' + (t.date || ''), badge: '时间线', badgeColor: '#4ecdc4', icon: ICONS.clock, href: 'timeline.html' });
-                }
-            });
-
             // 搜索备忘录
             var memos = JSON.parse(localStorage.getItem('memos') || '[]');
             memos.forEach(function (m) {
@@ -335,26 +327,6 @@
         renderMemos();
     }
 
-    function addMemoToTimeline(id) {
-        var memos = getMemos();
-        var memo = memos.find(function (m) { return m.id === id; });
-        if (!memo) return;
-
-        var timeline = JSON.parse(localStorage.getItem('timeline') || '[]');
-        timeline.unshift({
-            id: Date.now(),
-            type: 'custom',
-            title: '备忘录 · ' + memo.text.substring(0, 20),
-            description: memo.text,
-            date: new Date().toISOString().split('T')[0],
-            icon: 'note',
-            color: 'purple',
-            tags: '备忘录'
-        });
-        localStorage.setItem('timeline', JSON.stringify(timeline));
-        showToast('已添加到时间线');
-    }
-
     function renderMemos() {
         var list = document.getElementById('memo-list');
         if (!list) return;
@@ -370,7 +342,6 @@
                 '<div class="memo-item-header">' +
                     '<span class="memo-item-time">' + m.date + '</span>' +
                     '<div class="memo-item-actions">' +
-                        '<button class="memo-to-timeline" data-id="' + m.id + '" title="添加到时间线">' + ICONS.plus + '</button>' +
                         '<button class="memo-delete" data-id="' + m.id + '" title="删除">' + ICONS.trash + '</button>' +
                     '</div>' +
                 '</div>' +
@@ -381,9 +352,6 @@
         // 绑定事件
         list.querySelectorAll('.memo-delete').forEach(function (btn) {
             btn.addEventListener('click', function () { deleteMemo(Number(this.dataset.id)); });
-        });
-        list.querySelectorAll('.memo-to-timeline').forEach(function (btn) {
-            btn.addEventListener('click', function () { addMemoToTimeline(Number(this.dataset.id)); });
         });
     }
 
@@ -536,7 +504,7 @@
         // 导出
         document.getElementById('backup-export').addEventListener('click', function () {
             var data = {};
-            var keys = ['games', 'achievements', 'timeline', 'memos', 'game_record_theme', 'lock_password'];
+            var keys = ['games', 'achievements', 'memos', 'game_record_theme', 'lock_password'];
             keys.forEach(function (key) {
                 var val = localStorage.getItem(key);
                 if (val) {
@@ -575,7 +543,7 @@
                     }
                     if (!confirm('导入将覆盖当前所有数据，确定继续？')) return;
 
-                    var keys = ['games', 'achievements', 'timeline', 'memos', 'game_record_theme', 'lock_password'];
+                    var keys = ['games', 'achievements', 'memos', 'game_record_theme', 'lock_password'];
                     keys.forEach(function (key) {
                         if (data[key] !== undefined) {
                             localStorage.setItem(key, typeof data[key] === 'string' ? data[key] : JSON.stringify(data[key]));
@@ -598,7 +566,7 @@
             if (!confirm('确定要清除所有数据吗？此操作不可撤销')) return;
             if (!confirm('再次确认：将要删除全部数据')) return;
 
-            var keys = ['games', 'achievements', 'timeline', 'memos', 'game_record_theme', 'lock_password', 'is_locked'];
+            var keys = ['games', 'achievements', 'memos', 'game_record_theme', 'lock_password', 'is_locked'];
             keys.forEach(function (key) { localStorage.removeItem(key); });
 
             showToast('数据已清除，页面将刷新');

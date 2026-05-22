@@ -1,6 +1,7 @@
 /**
  * sample-data-utils.js — 示例数据日期工具
  * 所有 sample / mock 数据中不再硬编码年份，统一用"今天"为锚点动态偏移
+ * 须在 games / achievements / stats / profile 等业务脚本之前加载
  */
 (function (root) {
     'use strict';

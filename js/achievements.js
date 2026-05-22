@@ -1,4 +1,13 @@
-var SD = window.SampleDate;
+var SD = window.SampleDate || {
+    daysAgo: function (n) {
+        var d = new Date();
+        d.setDate(d.getDate() - parseInt(n, 10));
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    },
+    lastYearMonth: function (month, day) {
+        return (new Date().getFullYear() - 1) + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+    }
+};
 
 function formatDate(dateStr) {
     if (!dateStr) return '';
@@ -7,11 +16,13 @@ function formatDate(dateStr) {
 }
 
 // Data storage
-let achievements = JSON.parse(localStorage.getItem('achievements')) || [];
-let games = JSON.parse(localStorage.getItem('games')) || [];
+let achievements = [];
+let games = [];
 
-// Sample data if no data exists
-if (achievements.length === 0) {
+function seedAchievementsIfEmpty() {
+    achievements = JSON.parse(localStorage.getItem('achievements')) || [];
+    games = JSON.parse(localStorage.getItem('games')) || [];
+    if (achievements.length > 0) return;
     achievements = [
         {
             id: 1,
@@ -414,7 +425,9 @@ window.addEventListener('click', (e) => {
 });
 
 // Initialize page
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await window.awaitGameCloud();
+    seedAchievementsIfEmpty();
     updateAchievementStats();
     updateGameFilter();
     renderAchievements();

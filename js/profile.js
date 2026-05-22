@@ -1,4 +1,13 @@
-var SD = window.SampleDate;
+var SD = window.SampleDate || {
+    daysAgo: function (n) {
+        var d = new Date();
+        d.setDate(d.getDate() - parseInt(n, 10));
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    },
+    lastYearMonth: function (month, day) {
+        return (new Date().getFullYear() - 1) + '-' + String(month).padStart(2, '0') + '-' + String(day).padStart(2, '0');
+    }
+};
 
 function formatDate(dateStr) {
     if (!dateStr) return '';
@@ -7,7 +16,7 @@ function formatDate(dateStr) {
 }
 
 // Data storage
-let profile = JSON.parse(localStorage.getItem('profile')) || {
+const DEFAULT_PROFILE = {
     name: '游戏玩家',
     title: '热爱游戏的冒险者',
     bio: '热爱游戏的冒险者，喜欢探索各种类型的游戏世界，记录每一次精彩的游戏体验。',
@@ -23,9 +32,15 @@ let profile = JSON.parse(localStorage.getItem('profile')) || {
     favoriteGames: []
 };
 
-let games = JSON.parse(localStorage.getItem('games')) || [];
-let achievements = JSON.parse(localStorage.getItem('achievements')) || [];
-let timeline = JSON.parse(localStorage.getItem('timeline')) || [];
+let profile = { ...DEFAULT_PROFILE };
+let games = [];
+let achievements = [];
+
+function loadProfileData() {
+    profile = JSON.parse(localStorage.getItem('profile')) || { ...DEFAULT_PROFILE, joinDate: SD.lastYearMonth(6, 15) };
+    games = JSON.parse(localStorage.getItem('games')) || [];
+    achievements = JSON.parse(localStorage.getItem('achievements')) || [];
+}
 
 // Render profile info
 function renderProfile() {
@@ -138,75 +153,6 @@ function renderPlayStyle() {
     `;
 }
 
-// Render gaming timeline
-function renderGamingTimeline() {
-    const gamingTimeline = document.getElementById('gaming-timeline');
-    const sortedTimeline = timeline.sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-    gamingTimeline.innerHTML = `
-        <div class="relative pl-8 border-l-2 border-blue-200">
-            ${sortedTimeline.map(item => `
-                <div class="mb-8 relative" data-aos="fade-up">
-                    <div class="absolute -left-[25px] w-6 h-6 rounded-full bg-${getColorClass(item.type)} border-4 border-white flex items-center justify-center">
-                        <i data-lucide="${getIconClass(item.type)}" class="w-3 h-3 text-${getTextColorClass(item.type)}"></i>
-                    </div>
-                    <div class="bg-white p-6 rounded-lg shadow-lg">
-                        <div class="flex items-center gap-2 mb-2">
-                            <i data-lucide="${getIconClass(item.type)}" class="w-5 h-5 text-${getTextColorClass(item.type)}"></i>
-                            <h4 class="font-bold text-gray-800">${item.title}</h4>
-                        </div>
-                        <p class="text-gray-600 mb-2">${item.description}</p>
-                        <div class="text-sm text-gray-500">${formatDate(item.date)}</div>
-                        <div class="mt-3 flex gap-2">
-                            <button class="text-sm text-blue-500 hover:text-blue-600" onclick="editTimelineItem(${item.id})">
-                                <i data-lucide="edit" class="w-4 h-4 inline mr-1"></i>
-                                编辑
-                            </button>
-                            <button class="text-sm text-red-500 hover:text-red-600" onclick="deleteTimelineItem(${item.id})">
-                                <i data-lucide="trash-2" class="w-4 h-4 inline mr-1"></i>
-                                删除
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `).join('')}
-        </div>
-    `;
-    
-    lucide.createIcons();
-}
-
-// Helper functions for timeline
-function getColorClass(type) {
-    switch (type) {
-        case 'milestone': return 'blue-50';
-        case 'game': return 'cyan-50';
-        case 'achievement': return 'purple-50';
-        case 'event': return 'teal-50';
-        default: return 'blue-50';
-    }
-}
-
-function getTextColorClass(type) {
-    switch (type) {
-        case 'milestone': return 'blue-500';
-        case 'game': return 'cyan-500';
-        case 'achievement': return 'purple-500';
-        case 'event': return 'teal-500';
-        default: return 'blue-500';
-    }
-}
-
-function getIconClass(type) {
-    switch (type) {
-        case 'milestone': return 'star';
-        case 'game': return 'gamepad-2';
-        case 'achievement': return 'trophy';
-        case 'event': return 'calendar';
-        default: return 'star';
-    }
-}
-
 // Avatar upload
 document.getElementById('avatar-input').addEventListener('change', (e) => {
     const file = e.target.files[0];
@@ -257,26 +203,6 @@ function removeTag(button) {
     renderGameTags();
     showToast('标签已删除', 'success');
 }
-
-// Timeline form submission
-document.getElementById('timeline-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    
-    const formData = new FormData(e.target);
-    const newItem = {
-        id: Date.now(),
-        title: formData.get('title'),
-        description: formData.get('description'),
-        date: formData.get('date'),
-        type: formData.get('type')
-    };
-    
-    timeline.push(newItem);
-    localStorage.setItem('timeline', JSON.stringify(timeline));
-    renderGamingTimeline();
-    closeAddTimelineModal();
-    showToast('游戏历程已添加', 'success');
-});
 
 // Modal functions
 function openEditModal(type) {
@@ -371,15 +297,6 @@ function closeEditModal() {
     document.getElementById('edit-modal').classList.remove('active');
 }
 
-function openAddTimelineModal() {
-    document.getElementById('add-timeline-modal').classList.add('active');
-    document.getElementById('timeline-date').value = new Date().toISOString().split('T')[0];
-}
-
-function closeAddTimelineModal() {
-    document.getElementById('add-timeline-modal').classList.remove('active');
-}
-
 // Save functions
 function saveFavoriteGames() {
     // 获取所有选中的游戏ID
@@ -415,21 +332,6 @@ function savePlayStyle() {
     showToast('游戏风格已更新', 'success');
 }
 
-// Timeline item functions
-function editTimelineItem(id) {
-    // Implement edit timeline item logic
-    showToast('编辑功能开发中', 'info');
-}
-
-function deleteTimelineItem(id) {
-    if (confirm('确定要删除这条记录吗？')) {
-        timeline = timeline.filter(item => item.id !== id);
-        localStorage.setItem('timeline', JSON.stringify(timeline));
-        renderGamingTimeline();
-        showToast('记录已删除', 'success');
-    }
-}
-
 // Toast notification
 function showToast(message, type = 'info') {
     const toast = document.getElementById('toast');
@@ -460,9 +362,10 @@ window.addEventListener('click', (e) => {
 });
 
 // Initialize page
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await window.awaitGameCloud();
+    loadProfileData();
     renderProfile();
     renderFavoriteGames();
     renderPlayStyle();
-    renderGamingTimeline();
 });
