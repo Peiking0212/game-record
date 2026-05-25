@@ -73,12 +73,7 @@ function setEditRating(val) {
 
 // ---------- 封面生成 ----------
 function getReviewCoverHtml(url, name) {
-  var defaultCovers = ['assets/default-cover-male.jpg', 'assets/default-cover-female.jpg'];
-  var defaultCover = defaultCovers[Math.floor(Math.random() * defaultCovers.length)];
-  if (url && url.trim() !== '') {
-    return '<img src="' + escapeHtml(url) + '" alt="' + escapeHtml(name) + '" class="review-cover-img" onerror="this.onerror=null;this.src=\'' + defaultCover + '\';">';
-  }
-  return '<img src="' + defaultCover + '" alt="' + escapeHtml(name) + '" class="review-cover-img">';
+  return imgWithFallback(url, name, 'review-cover-img');
 }
 
 // ---------- 星级渲染 ----------
@@ -126,18 +121,17 @@ function getAllUsedTags() {
 
 // ---------- 更新标签筛选下拉 ----------
 function updateTagFilter() {
-  var tagFilter = document.getElementById('filter-tag');
+  var tagFilter = document.getElementById('tag-filter');
   if (!tagFilter) return;
 
   var usedTags = getAllUsedTags();
   var currentVal = tagFilter.value;
 
-  var html = '<option value="">全部标签</option>';
+  var html = '<option value="all">全部标签</option>';
   for (var i = 0; i < REVIEW_TAGS.length; i++) {
     var selected = REVIEW_TAGS[i] === currentVal ? ' selected' : '';
     html += '<option value="' + escapeHtml(REVIEW_TAGS[i]) + '"' + selected + '>' + escapeHtml(REVIEW_TAGS[i]) + '</option>';
   }
-  // 追加用户自定义标签（不在预设中的）
   for (var j = 0; j < usedTags.length; j++) {
     if (REVIEW_TAGS.indexOf(usedTags[j]) === -1) {
       var sel2 = usedTags[j] === currentVal ? ' selected' : '';
@@ -151,12 +145,12 @@ function updateTagFilter() {
 // ---------- 渲染评测列表 ----------
 function renderReviews() {
   var container = document.getElementById('reviews-list');
+  var emptyState = document.getElementById('empty-state');
   if (!container) return;
 
   var list = getReviews();
 
-  // 搜索
-  var searchInput = document.getElementById('search-review');
+  var searchInput = document.getElementById('search');
   if (searchInput && searchInput.value.trim() !== '') {
     var keyword = searchInput.value.trim().toLowerCase();
     list = list.filter(function (item) {
@@ -164,26 +158,23 @@ function renderReviews() {
     });
   }
 
-  // 评分筛选
-  var ratingFilter = document.getElementById('filter-rating');
-  if (ratingFilter && ratingFilter.value) {
-    var ratingVal = parseInt(ratingFilter.value);
+  var ratingFilter = document.getElementById('rating-filter');
+  if (ratingFilter && ratingFilter.value && ratingFilter.value !== 'all') {
+    var ratingVal = parseInt(ratingFilter.value, 10);
     list = list.filter(function (item) {
       return (item.rating || 0) === ratingVal;
     });
   }
 
-  // 标签筛选
-  var tagFilter = document.getElementById('filter-tag');
-  if (tagFilter && tagFilter.value) {
+  var tagFilter = document.getElementById('tag-filter');
+  if (tagFilter && tagFilter.value && tagFilter.value !== 'all') {
     var tagVal = tagFilter.value;
     list = list.filter(function (item) {
       return item.tags && item.tags.indexOf(tagVal) !== -1;
     });
   }
 
-  // 排序
-  var sortSelect = document.getElementById('sort-reviews');
+  var sortSelect = document.getElementById('sort-by');
   if (sortSelect && sortSelect.value) {
     var sortVal = sortSelect.value;
     list.sort(function (a, b) {
@@ -196,62 +187,61 @@ function renderReviews() {
           return (b.rating || 0) - (a.rating || 0);
         case 'rating-asc':
           return (a.rating || 0) - (b.rating || 0);
-        case 'playtime-desc':
-          return (parseFloat(b.playtime) || 0) - (parseFloat(a.playtime) || 0);
-        case 'playtime-asc':
-          return (parseFloat(a.playtime) || 0) - (parseFloat(b.playtime) || 0);
+        case 'hours-desc':
+          return (parseFloat(b.playtime || b.hours) || 0) - (parseFloat(a.playtime || a.hours) || 0);
+        case 'hours-asc':
+          return (parseFloat(a.playtime || a.hours) || 0) - (parseFloat(b.playtime || b.hours) || 0);
         default:
           return 0;
       }
     });
   }
 
-  // 更新标签筛选（每次渲染都更新动态标签）
   updateTagFilter();
 
-  // 空状态
   if (list.length === 0) {
-    container.innerHTML =
-      '<div class="reviews-empty">' +
-      '  <i data-lucide="message-square" class="empty-icon"></i>' +
-      '  <p class="empty-text">还没有游戏评测</p>' +
-      '  <button id="empty-add-review-btn" class="btn btn-primary">添加评测</button>' +
-      '</div>';
-    if (window.lucide) { lucide.createIcons(); }
-    var emptyBtn = document.getElementById('empty-add-review-btn');
-    if (emptyBtn) {
-      emptyBtn.addEventListener('click', openAddReviewModal);
-    }
+    container.innerHTML = '';
+    container.classList.add('hidden');
+    if (emptyState) emptyState.classList.remove('hidden');
     return;
   }
+
+  container.classList.remove('hidden');
+  if (emptyState) emptyState.classList.add('hidden');
 
   var html = '';
   for (var i = 0; i < list.length; i++) {
     var item = list[i];
+    var reviewText = item.review || item.comment || '';
+    var playtime = item.playtime !== undefined && item.playtime !== null && item.playtime !== ''
+      ? item.playtime
+      : item.hours;
     html += '<div class="review-card" data-id="' + item.id + '">';
-    html += '  <div class="review-cover">' + getReviewCoverHtml(item.coverUrl, item.name) + '</div>';
+    html += '  <div class="review-cover">' + getReviewCoverHtml(item.coverUrl || item.cover, item.name) + '</div>';
     html += '  <div class="review-info">';
-    html += '    <h3 class="review-name">' + escapeHtml(item.name) + '</h3>';
+    html += '    <div class="review-info-header">';
+    html += '      <h3 class="review-name">' + escapeHtml(item.name) + '</h3>';
+    html += '      <div class="review-actions">';
+    html += '        <button class="btn-edit-review" data-id="' + item.id + '" title="编辑"><i data-lucide="pencil"></i></button>';
+    html += '        <button class="btn-delete-review" data-id="' + item.id + '" title="删除"><i data-lucide="trash-2"></i></button>';
+    html += '      </div>';
+    html += '    </div>';
     html += '    <div class="review-stars">' + renderStars(item.rating || 0) + '</div>';
     if (item.tags && item.tags.length > 0) {
       html += '    <div class="review-tags">' + renderTags(item.tags) + '</div>';
     }
-    if (item.review) {
-      html += '    <p class="review-text">' + escapeHtml(item.review) + '</p>';
+    if (reviewText) {
+      html += '    <p class="review-text">' + escapeHtml(reviewText) + '</p>';
     }
     html += '    <div class="review-meta">';
-    if (item.playtime !== undefined && item.playtime !== null && item.playtime !== '') {
-      html += '      <span class="review-playtime">时长: ' + escapeHtml(String(item.playtime)) + ' 小时</span>';
+    if (playtime !== undefined && playtime !== null && playtime !== '') {
+      html += '      <span class="review-playtime">时长: ' + escapeHtml(String(playtime)) + ' 小时</span>';
     }
     html += '      <span class="review-date">' + formatDate(item.date) + '</span>';
     html += '    </div>';
     if (item.notes) {
       html += '    <p class="review-notes">' + escapeHtml(item.notes) + '</p>';
     }
-    html += '  </div>';
-    html += '  <div class="review-actions">';
-    html += '    <button class="btn-edit-review" data-id="' + item.id + '" title="编辑"><i data-lucide="pencil"></i></button>';
-    html += '    <button class="btn-delete-review" data-id="' + item.id + '" title="删除"><i data-lucide="trash-2"></i></button>';
     html += '  </div>';
     html += '</div>';
   }
@@ -284,8 +274,7 @@ function openAddReviewModal() {
   modal.style.display = 'flex';
   var form = document.getElementById('add-review-form');
   if (form) { form.reset(); }
-  // 清空标签复选框
-  var tagCheckboxes = document.querySelectorAll('#add-review-form input[name="tags"]');
+  var tagCheckboxes = document.querySelectorAll('#add-tags-group .tag-checkbox');
   for (var i = 0; i < tagCheckboxes.length; i++) {
     tagCheckboxes[i].checked = false;
   }
@@ -316,12 +305,11 @@ function handleAddReviewSubmit(e) {
 
   var coverInput = document.querySelector('#add-review-form [name="cover"]');
   var ratingInput = document.getElementById('add-review-rating');
-  var reviewInput = document.querySelector('#add-review-form [name="review"]');
-  var playtimeInput = document.querySelector('#add-review-form [name="playtime"]');
+  var reviewInput = document.querySelector('#add-review-form [name="comment"]');
+  var playtimeInput = document.querySelector('#add-review-form [name="hours"]');
   var notesInput = document.querySelector('#add-review-form [name="notes"]');
 
-  // 收集选中的标签
-  var tagCheckboxes = document.querySelectorAll('#add-review-form input[name="tags"]:checked');
+  var tagCheckboxes = document.querySelectorAll('#add-tags-group .tag-checkbox:checked');
   var tags = [];
   for (var i = 0; i < tagCheckboxes.length; i++) {
     tags.push(tagCheckboxes[i].value);
@@ -366,22 +354,20 @@ function openEditReviewModal(id) {
 
   var nameInput = document.querySelector('#edit-review-form [name="name"]');
   var coverInput = document.querySelector('#edit-review-form [name="cover"]');
-  var reviewInput = document.querySelector('#edit-review-form [name="review"]');
-  var playtimeInput = document.querySelector('#edit-review-form [name="playtime"]');
+  var reviewInput = document.querySelector('#edit-review-form [name="comment"]');
+  var playtimeInput = document.querySelector('#edit-review-form [name="hours"]');
   var notesInput = document.querySelector('#edit-review-form [name="notes"]');
 
   if (nameInput) nameInput.value = item.name;
-  if (coverInput) coverInput.value = item.coverUrl || '';
-  if (reviewInput) reviewInput.value = item.review || '';
-  if (playtimeInput) playtimeInput.value = item.playtime || '';
+  if (coverInput) coverInput.value = item.coverUrl || item.cover || '';
+  if (reviewInput) reviewInput.value = item.review || item.comment || '';
+  if (playtimeInput) playtimeInput.value = item.playtime || item.hours || '';
   if (notesInput) notesInput.value = item.notes || '';
 
-  // 星级 - 使用 hidden input + 星星交互
   var rating = item.rating || 3;
   setEditRating(rating);
 
-  // 标签复选框
-  var tagCheckboxes = document.querySelectorAll('#edit-review-form input[name="tags"]');
+  var tagCheckboxes = document.querySelectorAll('#edit-tags-group .tag-checkbox');
   var itemTags = item.tags || [];
   for (var k = 0; k < tagCheckboxes.length; k++) {
     tagCheckboxes[k].checked = (itemTags.indexOf(tagCheckboxes[k].value) !== -1);
@@ -420,11 +406,11 @@ function handleEditReviewSubmit(e) {
 
   var coverInput = document.querySelector('#edit-review-form [name="cover"]');
   var ratingInput = document.getElementById('edit-review-rating');
-  var reviewInput = document.querySelector('#edit-review-form [name="review"]');
-  var playtimeInput = document.querySelector('#edit-review-form [name="playtime"]');
+  var reviewInput = document.querySelector('#edit-review-form [name="comment"]');
+  var playtimeInput = document.querySelector('#edit-review-form [name="hours"]');
   var notesInput = document.querySelector('#edit-review-form [name="notes"]');
 
-  var tagCheckboxes = document.querySelectorAll('#edit-review-form input[name="tags"]:checked');
+  var tagCheckboxes = document.querySelectorAll('#edit-tags-group .tag-checkbox:checked');
   var tags = [];
   for (var i = 0; i < tagCheckboxes.length; i++) {
     tags.push(tagCheckboxes[i].value);
@@ -515,17 +501,14 @@ document.addEventListener('DOMContentLoaded', async function () {
   }
 
   // 搜索
-  var searchInput = document.getElementById('search-review');
+  var searchInput = document.getElementById('search');
   if (searchInput) {
-    searchInput.addEventListener('input', function () {
-      renderReviews();
-    });
+    searchInput.addEventListener('input', renderReviews);
   }
 
-  // 筛选 & 排序
-  var ratingFilter = document.getElementById('filter-rating');
-  var tagFilter = document.getElementById('filter-tag');
-  var sortSelect = document.getElementById('sort-reviews');
+  var ratingFilter = document.getElementById('rating-filter');
+  var tagFilter = document.getElementById('tag-filter');
+  var sortSelect = document.getElementById('sort-by');
   if (ratingFilter) { ratingFilter.addEventListener('change', renderReviews); }
   if (tagFilter) { tagFilter.addEventListener('change', renderReviews); }
   if (sortSelect) { sortSelect.addEventListener('change', renderReviews); }
@@ -565,12 +548,4 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
   }
 
-  // Mobile menu toggle
-  var menuToggle = document.querySelector('.mobile-menu-toggle');
-  var navMenu = document.querySelector('.main-nav');
-  if (menuToggle && navMenu) {
-    menuToggle.addEventListener('click', function () {
-      navMenu.classList.toggle('active');
-    });
-  }
 });

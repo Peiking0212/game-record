@@ -106,8 +106,8 @@
         let hash = 0;
         for (let i = 0; i < text.length; i++) hash = ((hash << 5) - hash) + text.charCodeAt(i);
         return Math.abs(hash) % 2 === 0
-            ? 'assets/default-cover-male.jpg'
-            : 'assets/default-cover-female.jpg';
+            ? 'assets/default-cover-male.svg'
+            : 'assets/default-cover-female.svg';
     }
 
     function gameIconUrl(icon, name) {
@@ -188,7 +188,7 @@
             '<button class="utils-toolbar-btn" id="btn-lock" title="锁屏 / 访客模式">' + ICONS.unlock + '</button>';
 
         // 插入到导航栏
-        var desktopNav = nav.querySelector('.hidden.md\\:flex');
+        var desktopNav = nav.querySelector('.desktop-nav');
         if (desktopNav) {
             desktopNav.appendChild(toolbar);
         }

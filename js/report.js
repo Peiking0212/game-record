@@ -187,8 +187,8 @@ function buildTopGamesSlide(d) {
     var top3 = sorted.slice(0, 3);
     var rc = ['r1','r2','r3'];
     var topHtml = top3.length > 0 ? top3.map(function (g, i) {
-        var cover = typeof gameIconUrl === 'function' ? gameIconUrl(g.icon, g.name) : (g.icon || 'assets/default-cover-male.jpg');
-        var fallback = typeof defaultGameCover === 'function' ? defaultGameCover(g.name) : 'assets/default-cover-male.jpg';
+        var cover = typeof gameIconUrl === 'function' ? gameIconUrl(g.icon, g.name) : (g.icon || 'assets/default-cover-male.svg');
+        var fallback = typeof defaultGameCover === 'function' ? defaultGameCover(g.name) : 'assets/default-cover-male.svg';
         return '<div class="top-game-row">' +
             '<span class="top-game-rank ' + rc[i] + '">#' + (i + 1) + '</span>' +
             '<img class="top-game-img" src="' + escapeHtml(cover) + '" alt="' + escapeHtml(g.name) + '" onerror="this.onerror=null;this.src=\'' + escapeHtml(fallback) + '\'">' +
@@ -226,19 +226,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     var generateBtn = document.getElementById('generate-report');
     var slidePrev = document.getElementById('slide-prev');
     var slideNext = document.getElementById('slide-next');
-    var mobileToggle = document.getElementById('mobile-menu-toggle');
     var reportContainer = document.getElementById('report-container');
     
     if (generateBtn) generateBtn.addEventListener('click', generateReport);
     if (slidePrev) slidePrev.addEventListener('click', function () { goToSlide(currentSlide - 1); });
     if (slideNext) slideNext.addEventListener('click', function () { goToSlide(currentSlide + 1); });
-    
-    if (mobileToggle) {
-        mobileToggle.addEventListener('click', function () {
-            var mobileMenu = document.getElementById('mobile-menu');
-            if (mobileMenu) mobileMenu.classList.toggle('hidden');
-        });
-    }
     
     if (reportContainer) {
         var stX = 0;

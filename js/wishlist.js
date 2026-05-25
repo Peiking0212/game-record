@@ -533,12 +533,4 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
   }
 
-  // Mobile menu toggle
-  var menuToggle = document.getElementById('mobile-menu-toggle');
-  var mobileMenu = document.getElementById('mobile-menu');
-  if (menuToggle && mobileMenu) {
-    menuToggle.addEventListener('click', function () {
-      mobileMenu.classList.toggle('hidden');
-    });
-  }
 });

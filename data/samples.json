@@ -3,7 +3,7 @@
     {
       "id": 1,
       "name": "原神",
-      "icon": "assets/default-cover-male.jpg",
+      "icon": "assets/default-cover-male.svg",
       "playtime": 245,
       "progress": 75,
       "status": "playing",
@@ -16,7 +16,7 @@
     {
       "id": 2,
       "name": "明日方舟",
-      "icon": "assets/default-cover-female.jpg",
+      "icon": "assets/default-cover-female.svg",
       "playtime": 180,
       "progress": 60,
       "status": "playing",
@@ -29,7 +29,7 @@
     {
       "id": 3,
       "name": "王者荣耀",
-      "icon": "assets/default-cover-male.jpg",
+      "icon": "assets/default-cover-male.svg",
       "playtime": 320,
       "progress": 85,
       "status": "playing",
@@ -42,7 +42,7 @@
     {
       "id": 4,
       "name": "闪耀暖暖",
-      "icon": "assets/default-cover-female.jpg",
+      "icon": "assets/default-cover-female.svg",
       "playtime": 150,
       "progress": 90,
       "status": "completed",

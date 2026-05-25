@@ -11,13 +11,30 @@ let games = [];
 let achievements = [];
 let charts = {};
 
-// Initialize year filter
+function getCurrentYear() {
+    return new Date().getFullYear();
+}
+
+function ensureYearFilterOption(select, year) {
+    const value = String(year);
+    if ([...select.options].some(o => o.value === value)) return;
+    const opt = document.createElement('option');
+    opt.value = value;
+    opt.textContent = `${year}年`;
+    select.appendChild(opt);
+}
+
+// Initialize year filter — default to current year
 function initYearFilter() {
     const select = document.getElementById('filter-year');
-    const years = [...new Set(games.map(g => new Date(g.lastPlayed).getFullYear()))].sort((a, b) => b - a);
+    const currentYear = getCurrentYear();
+    const years = [...new Set(games.map(g => new Date(g.lastPlayed).getFullYear()))];
+    if (!years.includes(currentYear)) years.push(currentYear);
+    years.sort((a, b) => b - a);
     years.forEach(year => {
         select.innerHTML += `<option value="${year}">${year}年</option>`;
     });
+    select.value = String(currentYear);
 }
 
 // Get filtered games
@@ -78,7 +95,6 @@ function updateTable() {
                     <span class="text-sm text-gray-600">${parseInt(game.progress, 10) || 0}%</span>
                 </div>
             </td>
-            <td class="px-6 py-4 text-gray-600">${formatDateISO(game.lastPlayed)}</td>
         </tr>
     `).join('');
 }
@@ -116,15 +132,21 @@ function updateCharts() {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
     });
     
-    // Monthly Chart
+    // Monthly Chart — aggregate playtime by lastPlayed month
     const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+    const monthlyData = Array(12).fill(0);
+    filtered.forEach(g => {
+        const d = new Date(g.lastPlayed);
+        if (isNaN(d.getTime())) return;
+        monthlyData[d.getMonth()] += parseInt(g.playtime, 10) || 0;
+    });
     charts.monthly = new Chart(document.getElementById('monthlyPlaytimeChart'), {
         type: 'line',
         data: {
             labels: months,
             datasets: [{
                 label: '游戏时长(小时)',
-                data: months.map(() => Math.floor(Math.random() * 100) + 20),
+                data: monthlyData,
                 borderColor: '#3b82f6',
                 backgroundColor: 'rgba(59, 130, 246, 0.1)',
                 fill: true,
@@ -242,8 +264,7 @@ function exportToExcel() {
         '类型': g.type,
         '状态': getStatusText(g.status),
         '游戏时长(小时)': g.playtime,
-        '进度(%)': g.progress,
-        '最后游玩': g.lastPlayed
+        '进度(%)': g.progress
     }));
     
     const ws = XLSX.utils.json_to_sheet(data);
@@ -272,10 +293,28 @@ function exportToImage() {
     });
 }
 
-// Year Summary
-function generateYearSummary() {
+function resolveSummaryYear(forYear) {
+    if (forYear !== undefined && forYear !== null && forYear !== '') {
+        return parseInt(forYear, 10);
+    }
     const year = document.getElementById('filter-year').value;
-    const yearNum = year === 'all' ? new Date().getFullYear() : parseInt(year);
+    return year === 'all' ? getCurrentYear() : parseInt(year, 10);
+}
+
+function openYearSummary(forYear) {
+    const yearNum = resolveSummaryYear(forYear);
+    const select = document.getElementById('filter-year');
+    ensureYearFilterOption(select, yearNum);
+    select.value = String(yearNum);
+    updateStats();
+    updateTable();
+    updateCharts();
+    generateYearSummary(yearNum);
+}
+
+// Year Summary
+function generateYearSummary(forYear) {
+    const yearNum = resolveSummaryYear(forYear);
     const yearGames = games.filter(g => new Date(g.lastPlayed).getFullYear() === yearNum);
     
     document.getElementById('year-summary-title').textContent = `${yearNum}年度游戏总结`;
@@ -289,7 +328,7 @@ function generateYearSummary() {
     const topGames = [...yearGames].sort((a, b) => b.playtime - a.playtime).slice(0, 3);
     document.getElementById('summary-top-games').innerHTML = topGames.map((g, i) => `
         <div class="flex items-center gap-3">
-            <span class="text-2xl">${['?', '?', '?'][i]}</span>
+            <span class="text-2xl">${['🥇', '🥈', '🥉'][i]}</span>
             <div>
                 <div class="font-medium">${g.name}</div>
                 <div class="text-sm opacity-80">${g.playtime} 小时</div>
@@ -313,7 +352,7 @@ function generateYearSummary() {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
     });
     
-    document.getElementById('year-summary-modal').classList.remove('hidden');
+    document.getElementById('year-summary-modal').classList.add('active');
 }
 
 function saveSummaryImage() {
@@ -362,18 +401,19 @@ document.getElementById('clear-filters').addEventListener('click', () => {
 
 document.getElementById('export-excel').addEventListener('click', exportToExcel);
 document.getElementById('export-image').addEventListener('click', exportToImage);
-document.getElementById('year-summary-btn').addEventListener('click', generateYearSummary);
+document.getElementById('year-summary-btn').addEventListener('click', () => openYearSummary(getCurrentYear()));
 document.getElementById('save-summary-image').addEventListener('click', saveSummaryImage);
 document.getElementById('export-summary-excel').addEventListener('click', exportToExcel);
 
 document.querySelectorAll('.modal-close').forEach(btn => {
     btn.addEventListener('click', () => {
-        document.getElementById('year-summary-modal').classList.add('hidden');
+        document.getElementById('year-summary-modal').classList.remove('active');
     });
 });
 
-document.getElementById('mobile-menu-toggle').addEventListener('click', () => {
-    document.getElementById('mobile-menu').classList.toggle('hidden');
+window.addEventListener('click', (e) => {
+    const modal = document.getElementById('year-summary-modal');
+    if (e.target === modal) modal.classList.remove('active');
 });
 
 // Initialize

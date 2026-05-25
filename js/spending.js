@@ -390,10 +390,6 @@
                 if (modal && modal.classList.contains('active')) closeModal();
             }
         });
-
-        var mt = document.getElementById('mobile-menu-toggle');
-        var mm = document.getElementById('mobile-menu');
-        if (mt && mm) mt.addEventListener('click', function () { mm.classList.toggle('hidden'); });
     }
 
     async function init() {

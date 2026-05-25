@@ -17,7 +17,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2">
     <style>
 /* 导航栏响应式显示 - 不依赖 Tailwind CDN */
 .desktop-nav { display: none; }
@@ -282,7 +282,6 @@
                             <th class="px-6 py-4 font-semibold text-gray-700">状态</th>
                             <th class="px-6 py-4 font-semibold text-gray-700">游戏时长</th>
                             <th class="px-6 py-4 font-semibold text-gray-700">进度</th>
-                            <th class="px-6 py-4 font-semibold text-gray-700">最后游玩</th>
                         </tr>
                     </thead>
                     <tbody id="games-table-body" class="divide-y divide-gray-100">
@@ -294,7 +293,7 @@
     </section>
 
     <!-- Year Summary Modal -->
-    <div id="year-summary-modal" class="modal hidden">
+    <div id="year-summary-modal" class="modal">
         <div class="modal-content max-w-3xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-2xl font-bold text-gray-800" id="year-summary-title">年度游戏总结</h3>
@@ -432,8 +431,8 @@
     <script src="js/cloud-sync.js?v=2"></script>
     <script src="js/sample-data-utils.js?v=1"></script>
     <script src="js/data.js?v=1"></script>
-    <script src="utils.js?v=4"></script>
-    <script src="js/stats.js?v=5"></script>
-    <script src="theme.js?v=3"></script>
+    <script src="utils.js?v=5"></script>
+    <script src="js/stats.js?v=8"></script>
+    <script src="theme.js?v=5"></script>
 </body>
 </html>

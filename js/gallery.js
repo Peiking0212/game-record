@@ -1183,12 +1183,6 @@ document.getElementById('upload-type-modal').addEventListener('click', function(
     if (e.target === this) closeUploadTypeModal();
 });
 
-// Mobile menu toggle
-document.getElementById('mobile-menu-toggle').addEventListener('click', function() {
-    var mobileMenu = document.getElementById('mobile-menu');
-    mobileMenu.classList.toggle('hidden');
-});
-
 // ========================================
 // Initialize
 // ========================================

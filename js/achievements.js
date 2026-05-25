@@ -339,11 +339,6 @@ function showToast(message, type = 'info') {
     }, 3000);
 }
 
-// Mobile menu toggle
-document.getElementById('mobile-menu-toggle').addEventListener('click', () => {
-    const mobileMenu = document.getElementById('mobile-menu');
-    mobileMenu.classList.toggle('hidden');
-});
 
 // Close modals when clicking outside
 window.addEventListener('click', (e) => {
