@@ -9,13 +9,13 @@
     <meta property="og:description" content="记录每一次游戏冒险，分享每一份游戏喜悦。">
     <meta property="og:type" content="website">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <title>游戏记录 - 消费统计</title>
+    <title>游戏记录 - 消费记录</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/lucide@0.544.0/dist/umd/lucide.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=11">
     <style>
 /* 导航栏响应式显示 - 不依赖 Tailwind CDN */
 .desktop-nav { display: none; }
@@ -105,6 +105,7 @@
             background: var(--badge-bg-blue);
             color: var(--badge-text-blue);
         }
+        .spending-platform-badge.platform-pc { background: #eef2ff; color: #4338ca; }
         .spending-platform-badge.platform-steam { background: #e8f4ff; color: #1a9fff; }
         .spending-platform-badge.platform-ps { background: #e8f0ff; color: #5271ff; }
         .spending-platform-badge.platform-nintendo { background: #ffe8f0; color: #e60050; }
@@ -134,6 +135,28 @@
         .spending-action-btn.delete-btn:hover {
             color: #ef4444;
             background: #fef2f2;
+        }
+        .spending-type-badge {
+            display: inline-block;
+            padding: 0.15rem 0.55rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .spending-type-purchase {
+            background: #fce7f3;
+            color: #be185d;
+        }
+        .spending-type-recharge {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+        .spending-link-help {
+            font-size: 0.75rem;
+            color: var(--text-gray, #6b7280);
+            margin-top: 0.35rem;
+            line-height: 1.4;
         }
     </style>
 </head>
@@ -176,7 +199,7 @@
                     </a>
                     <a href="spending.html" class="nav-link active">
                         <i data-lucide="shopping-cart" class="w-5 h-5 inline mr-2"></i>
-                        消费统计
+                        消费记录
                     </a>
                     <div style="position:relative;" id="nav-more-wrap">
                         <a href="#" class="nav-link" id="nav-more-btn" onclick="event.preventDefault();document.getElementById('nav-more-menu').classList.toggle('hidden')">
@@ -211,7 +234,7 @@
                     <a href="achievements.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="trophy" class="w-4 h-4 inline mr-2"></i>成就系统</a>
                     <a href="stats.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="bar-chart-3" class="w-4 h-4 inline mr-2"></i>数据统计</a>
                     <a href="report.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="sparkles" class="w-4 h-4 inline mr-2"></i>年度报告</a>
-                    <a href="spending.html" class="nav-link py-2 px-4 rounded-lg active"><i data-lucide="shopping-cart" class="w-4 h-4 inline mr-2"></i>消费统计</a>
+                    <a href="spending.html" class="nav-link py-2 px-4 rounded-lg active"><i data-lucide="shopping-cart" class="w-4 h-4 inline mr-2"></i>消费记录</a>
                     <a href="gallery.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体库</a>
                     <a href="wishlist.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单</a>
                     <a href="reviews.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测</a>
@@ -224,10 +247,11 @@
     <section class="bg-gradient-to-br from-[#52B6FF15] to-[#94D8FF15] py-14">
         <div class="container mx-auto px-4 text-center" data-aos="fade-up">
             <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
-                消费统计
+                消费记录
             </h1>
             <p class="text-lg text-gray-600 mb-6 max-w-xl mx-auto">
-                记录你的游戏花费，理性消费            </p>
+                记录你的游戏花费，理性消费
+            </p>
             <div class="inline-flex items-center gap-3 bg-white rounded-full px-5 py-2 shadow-md">
                 <i data-lucide="calendar" class="w-5 h-5 text-[#52B6FF]"></i>
                 <select id="filter-year" class="text-base font-bold bg-transparent border-none outline-none cursor-pointer text-gray-800">
@@ -237,36 +261,89 @@
         </div>
     </section>
 
+    <!-- Add Spending Record -->
+    <section class="py-10 bg-white" id="add-spending-section">
+        <div class="container mx-auto px-4 max-w-6xl">
+            <div class="chart-card" data-aos="fade-up">
+                <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2 mb-6">
+                    <i data-lucide="plus-circle" class="w-6 h-6 text-[#52B6FF]"></i>
+                    添加消费记录
+                </h2>
+                <form id="spending-add-form" class="space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label for="add-spending-record-type" class="block text-sm font-medium text-gray-700 mb-2">消费类型</label>
+                            <select id="add-spending-record-type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="purchase">购买游戏</option>
+                                <option value="recharge">账户充值</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="add-spending-link-select" class="block text-sm font-medium text-gray-700 mb-2">关联项目</label>
+                            <select id="add-spending-link-select" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></select>
+                            <p id="add-spending-link-help" class="spending-link-help">购买游戏：从愿望单选择要购买的游戏，记录会显示在愿望单页面。</p>
+                        </div>
+                        <div>
+                            <label for="add-spending-amount" class="block text-sm font-medium text-gray-700 mb-2">金额 (¥)</label>
+                            <input type="number" id="add-spending-amount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required step="0.01" min="0" placeholder="例如：298.00">
+                        </div>
+                        <div>
+                            <label for="add-spending-date" class="block text-sm font-medium text-gray-700 mb-2">消费日期</label>
+                            <input type="date" id="add-spending-date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        </div>
+                        <div>
+                            <label for="add-spending-platform" class="block text-sm font-medium text-gray-700 mb-2">平台</label>
+                            <select id="add-spending-platform" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required></select>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="add-spending-note" class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+                        <textarea id="add-spending-note" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="例如：预购豪华版、DLC、游戏内购、Steam 钱包充值..."></textarea>
+                    </div>
+                    <div class="flex gap-3 pt-2">
+                        <button type="submit" class="btn-primary">
+                            <i data-lucide="save" class="w-5 h-5 inline mr-2"></i>
+                            添加记录
+                        </button>
+                        <button type="reset" class="btn-secondary">
+                            重置
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
     <!-- Stats Row -->
-    <section class="py-10 bg-white">
+    <section class="py-10 bg-gray-50">
         <div class="container mx-auto px-4">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto" data-aos="fade-up">
                 <div class="stat-card-spending">
                     <div class="stat-icon-wrap" style="background:#FEF3C7;">
                         <i data-lucide="dollar-sign" class="w-5 h-5 text-[#f59e0b]"></i>
                     </div>
-                    <div class="stat-value" id="stat-total">楼0</div>
+                    <div class="stat-value" id="stat-total">¥0</div>
                     <div class="stat-label">总花费</div>
                 </div>
                 <div class="stat-card-spending">
                     <div class="stat-icon-wrap" style="background:#E8F4FF;">
-                        <i data-lucide="gamepad-2" class="w-5 h-5 text-[#52B6FF]"></i>
+                        <i data-lucide="receipt" class="w-5 h-5 text-[#52B6FF]"></i>
                     </div>
                     <div class="stat-value" id="stat-games">0</div>
-                    <div class="stat-label">璐拱游戏鏁</div>
+                    <div class="stat-label">消费笔数<span id="stat-games-breakdown" class="block text-xs font-normal text-gray-400 mt-1"></span></div>
                 </div>
                 <div class="stat-card-spending">
                     <div class="stat-icon-wrap" style="background:#D1FAE5;">
                         <i data-lucide="calculator" class="w-5 h-5 text-[#10b981]"></i>
                     </div>
-                    <div class="stat-value" id="stat-avg">楼0</div>
-                    <div class="stat-label">平均每款成本</div>
+                    <div class="stat-value" id="stat-avg">¥0</div>
+                    <div class="stat-label">平均每笔消费</div>
                 </div>
                 <div class="stat-card-spending">
                     <div class="stat-icon-wrap" style="background:#EDE9FE;">
                         <i data-lucide="trending-up" class="w-5 h-5 text-[#8b5cf6]"></i>
                     </div>
-                    <div class="stat-value" id="stat-monthly">楼0</div>
+                    <div class="stat-value" id="stat-monthly">¥0</div>
                     <div class="stat-label">月均消费</div>
                 </div>
             </div>
@@ -302,17 +379,13 @@
     </section>
 
     <!-- Spending Records Table -->
-    <section class="py-10 bg-gray-50">
+    <section class="py-10 bg-white">
         <div class="container mx-auto px-4 max-w-6xl">
-            <div class="flex items-center justify-between mb-6" data-aos="fade-up">
+            <div class="mb-6" data-aos="fade-up">
                 <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
                     <i data-lucide="list" class="w-6 h-6 text-[#52B6FF]"></i>
-                    消费记录
+                    消费记录列表
                 </h2>
-                <button id="add-spending-btn" class="btn-primary">
-                    <i data-lucide="plus" class="w-5 h-5 inline mr-2"></i>
-                    添加记录
-                </button>
             </div>
 
             <div class="overflow-x-auto" data-aos="fade-up">
@@ -320,12 +393,13 @@
                     <table class="spending-table">
                         <thead>
                             <tr>
-                                <th>游戏名</th>
-                                <th>閲戦 (楼)</th>
+                                <th>类型</th>
+                                <th>项目</th>
+                                <th>金额 (¥)</th>
                                 <th>日期</th>
                                 <th>平台</th>
                                 <th>备注</th>
-                                <th>鎿嶄綔</th>
+                                <th>操作</th>
                             </tr>
                         </thead>
                         <tbody id="spending-table-body">
@@ -336,7 +410,7 @@
                 <div id="spending-empty" class="text-center py-16 hidden">
                     <i data-lucide="shopping-cart" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
                     <h3 class="text-xl font-bold text-gray-700 mb-2">暂无消费记录</h3>
-                    <p class="text-gray-500 mb-4">点击「添加记录」按钮开始记录游戏消费</p>
+                    <p class="text-gray-500 mb-4">在上方表单添加你的第一条消费记录吧</p>
                 </div>
             </div>
         </div>
@@ -369,7 +443,7 @@
                     <h4 class="text-lg font-semibold mb-4 text-white">更多功能</h4>
                     <ul class="space-y-2">
                         <li><a href="wishlist.html" class="text-gray-300 hover:text-[#52B6FF]">游戏愿望单</a></li>
-                        <li><a href="spending.html" class="text-gray-300 hover:text-[#52B6FF]">消费统计</a></li>
+                        <li><a href="spending.html" class="text-gray-300 hover:text-[#52B6FF]">消费记录</a></li>
                         <li><a href="reviews.html" class="text-gray-300 hover:text-[#52B6FF]">游戏评测</a></li>
                         <li><a href="report.html" class="text-gray-300 hover:text-[#52B6FF]">年度报告</a></li>
                     </ul>
@@ -398,36 +472,37 @@
                 <input type="hidden" id="spending-id">
 
                 <div>
-                    <label for="spending-game" class="block text-sm font-medium text-gray-700 mb-2">游戏名称</label>
-                    <input type="text" id="spending-game" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required placeholder="例如：塞尔达传说">
+                    <label for="spending-record-type" class="block text-sm font-medium text-gray-700 mb-2">消费类型</label>
+                    <select id="spending-record-type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="purchase">购买游戏</option>
+                        <option value="recharge">账户充值</option>
+                    </select>
                 </div>
 
                 <div>
-                    <label for="spending-amount" class="block text-sm font-medium text-gray-700 mb-2">閲戦 (楼)</label>
+                    <label for="spending-link-select" class="block text-sm font-medium text-gray-700 mb-2">关联项目</label>
+                    <select id="spending-link-select" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></select>
+                    <p id="spending-link-help" class="spending-link-help">购买游戏：从愿望单选择要购买的游戏，记录会显示在愿望单页面。</p>
+                </div>
+
+                <div>
+                    <label for="spending-amount" class="block text-sm font-medium text-gray-700 mb-2">金额 (¥)</label>
                     <input type="number" id="spending-amount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required step="0.01" min="0" placeholder="例如：298.00">
                 </div>
 
                 <div>
-                    <label for="spending-date" class="block text-sm font-medium text-gray-700 mb-2">璐拱日期</label>
+                    <label for="spending-date" class="block text-sm font-medium text-gray-700 mb-2">消费日期</label>
                     <input type="date" id="spending-date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
                 </div>
 
                 <div>
                     <label for="spending-platform" class="block text-sm font-medium text-gray-700 mb-2">平台</label>
-                    <select id="spending-platform" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
-                        <option value="Steam">Steam</option>
-                        <option value="PS Store">PS Store</option>
-                        <option value="Nintendo eShop">Nintendo eShop</option>
-                        <option value="Xbox">Xbox</option>
-                        <option value="Epic">Epic</option>
-                        <option value="手机">手机</option>
-                        <option value="其他">其他</option>
-                    </select>
+                    <select id="spending-platform" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required></select>
                 </div>
 
                 <div>
                     <label for="spending-note" class="block text-sm font-medium text-gray-700 mb-2">备注</label>
-                    <textarea id="spending-note" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="例如：预购豪华版、DLC、游戏内购..."></textarea>
+                    <textarea id="spending-note" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="例如：预购豪华版、DLC、游戏内购、Steam 钱包充值..."></textarea>
                 </div>
 
                 <div class="flex gap-3 pt-2">
@@ -455,13 +530,13 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>
-    <script src="js/cloud-sync.js?v=2"></script>
     <script src="js/sample-data-utils.js?v=1"></script>
-    <script src="js/data.js?v=1"></script>
+    <script src="js/data.js?v=2"></script>
+    <script src="js/cloud-sync.js?v=3"></script>
     <script src="js/time-utils.js?v=1"></script>
-    <script src="utils.js?v=5"></script>
-    <script src="js/spending.js?v=4"></script>
-    <script src="theme.js?v=5"></script>
+    <script src="utils.js?v=8"></script>
+    <script src="js/spending.js?v=10"></script>
+    <script src="theme.js?v=9"></script>
 </body>
 </html>
 

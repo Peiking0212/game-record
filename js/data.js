@@ -21,9 +21,15 @@
         WISHLIST: 'game_record_wishlist',
         REVIEWS: 'game_record_reviews',
         SPENDING: 'game_record_spending',
-        MEMOS: 'memos'
+        MEMOS: 'memos',
+        THEME: 'game_record_theme',
+        MASCOT_QUOTES: 'mascot_quotes',
+        MASCOT_ENABLED: 'mascot_enabled',
+        AUTO_TIME_BG: 'auto_time_bg',
+        SITE_VIDEO_BG: 'site_video_bg'
     };
 
+    /** 参与 Supabase site_data 同步的键（不含媒体表、密码锁、超大背景图） */
     var SYNC_KEYS = [
         KEYS.GAMES,
         KEYS.ACHIEVEMENTS,
@@ -31,7 +37,30 @@
         KEYS.WISHLIST,
         KEYS.REVIEWS,
         KEYS.SPENDING,
+        KEYS.MEMOS,
+        KEYS.THEME,
+        KEYS.MASCOT_QUOTES,
+        KEYS.MASCOT_ENABLED,
+        KEYS.AUTO_TIME_BG,
+        KEYS.SITE_VIDEO_BG
+    ];
+
+    var ARRAY_SYNC_KEYS = [
+        KEYS.GAMES,
+        KEYS.ACHIEVEMENTS,
+        KEYS.WISHLIST,
+        KEYS.REVIEWS,
+        KEYS.SPENDING,
         KEYS.MEMOS
+    ];
+
+    var OBJECT_SYNC_KEYS = [KEYS.PROFILE, KEYS.THEME];
+
+    /** localStorage 存 plain string，非 JSON.stringify 包裹 */
+    var RAW_STRING_SYNC_KEYS = [
+        KEYS.MASCOT_ENABLED,
+        KEYS.AUTO_TIME_BG,
+        KEYS.SITE_VIDEO_BG
     ];
 
     var samplesCache = null;
@@ -171,6 +200,9 @@
     window.GameData = {
         KEYS: KEYS,
         SYNC_KEYS: SYNC_KEYS,
+        ARRAY_SYNC_KEYS: ARRAY_SYNC_KEYS,
+        OBJECT_SYNC_KEYS: OBJECT_SYNC_KEYS,
+        RAW_STRING_SYNC_KEYS: RAW_STRING_SYNC_KEYS,
         get: get,
         set: set,
         remove: remove,

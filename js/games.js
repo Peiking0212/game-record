@@ -50,7 +50,7 @@ function renderGames() {
         gamesList.innerHTML = filteredGames.map(game => `
             <div class="cassette-3d cassette-${escapeHtml(game.status)}" data-aos="fade-up">
                 <div class="cassette-3d-inner">
-                    <div class="cassette-3d-front">
+                    <div class="cassette-3d-front" style="cursor:pointer" onclick="window.location.href=gameDetailUrl(${parseInt(game.id, 10)})" title="查看 ${escapeHtml(game.name)} 详情">
                         <div class="cassette-cover">
                             <div class="cassette-ribbon"></div>
                             ${imgWithFallback(game.icon, game.name, '')}
@@ -63,9 +63,8 @@ function renderGames() {
                         <div class="cassette-info-row"><span>状态</span><span>${escapeHtml(getStatusText(game.status))}</span></div>
                         <div class="cassette-info-row"><span>时长</span><span>${parseInt(game.playtime, 10) || 0} 小时</span></div>
                         <div class="cassette-info-row"><span>进度</span><span>${parseInt(game.progress, 10) || 0}%</span></div>
-                        <div class="cassette-info-row"><span>最近</span><span>${formatDateISO(game.lastPlayed)}</span></div>
                         <div class="cassette-actions">
-                            <button class="cassette-btn-play" onclick="event.stopPropagation(); openGameDetailModal(${parseInt(game.id, 10)})">查 看</button>
+                            <button class="cassette-btn-play" onclick="event.stopPropagation(); window.location.href=gameDetailUrl(${parseInt(game.id, 10)})">查 看</button>
                             <button class="cassette-btn-edit" onclick="event.stopPropagation(); openEditGameModal(${parseInt(game.id, 10)})">编 辑</button>
                         </div>
                     </div>
@@ -83,16 +82,13 @@ function renderRecentlyAdded() {
     const sortedGames = games.sort((a, b) => new Date(b.lastPlayed) - new Date(a.lastPlayed)).slice(0, 4);
     
     recentlyAdded.innerHTML = sortedGames.map(game => `
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden" data-aos="fade-up">
-            <img src="${game.icon}" alt="${game.name}" class="w-full h-32 object-cover">
+        <a href="${gameDetailUrl(game.id)}" class="bg-white rounded-lg shadow-lg overflow-hidden block hover:shadow-xl transition-shadow" data-aos="fade-up">
+            <img src="${gameIconUrl(game.icon, game.name)}" alt="${escapeHtml(game.name)}" class="w-full h-32 object-cover">
             <div class="p-4">
-                <h4 class="font-semibold text-gray-800">${game.name}</h4>
-                <p class="text-sm text-gray-600">${game.type}</p>
-                <div class="mt-2 text-xs text-gray-500">
-                    最近游玩: ${formatDateISO(game.lastPlayed)}
-                </div>
+                <h4 class="font-semibold text-gray-800">${escapeHtml(game.name)}</h4>
+                <p class="text-sm text-gray-600">${escapeHtml(game.type)}</p>
             </div>
-        </div>
+        </a>
     `).join('');
 }
 
@@ -206,10 +202,6 @@ function openGameDetailModal(id) {
                             <div class="flex justify-between">
                                 <span class="text-gray-600">完成进度:</span>
                                 <span class="font-medium">${game.progress}%</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">最近游玩:</span>
-                                <span class="font-medium">${formatDateISO(game.lastPlayed)}</span>
                             </div>
                         </div>
                     </div>

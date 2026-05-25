@@ -140,6 +140,20 @@
             ' onerror="this.onerror=null;this.src=\'' + fallback + '\'">';
     }
 
+    /** 游戏详情页 URL：优先 id，其次 name */
+    function gameDetailUrl(gameOrId, name) {
+        if (gameOrId != null && typeof gameOrId === 'object') {
+            return 'game.html?id=' + encodeURIComponent(gameOrId.id);
+        }
+        if (gameOrId != null && gameOrId !== '') {
+            return 'game.html?id=' + encodeURIComponent(gameOrId);
+        }
+        if (name) {
+            return 'game.html?name=' + encodeURIComponent(name);
+        }
+        return 'games.html';
+    }
+
     // 暴露全局函数
     window.formatDate = formatDate;
     window.formatDateShort = formatDateShort;
@@ -155,6 +169,7 @@
     window.imgWithFallback = imgWithFallback;
     window.safeLucideIcon = safeLucideIcon;
     window.validateGameForm = validateGameForm;
+    window.gameDetailUrl = gameDetailUrl;
 
     // ==================== SVG 图标 ====================
     var ICONS = {
@@ -272,7 +287,7 @@
             games.forEach(function (g) {
                 if ((g.name + (g.type || '') + (g.description || '')).toLowerCase().indexOf(query) !== -1) {
                     var statusText = g.status === 'playing' ? '正在玩' : g.status === 'completed' ? '已完成' : g.status || '';
-                    items.push({ title: g.name, desc: (g.type || '') + ' · ' + statusText, badge: '游戏', badgeColor: '#52B6FF', icon: ICONS.gamepad, href: 'games.html' });
+                    items.push({ title: g.name, desc: (g.type || '') + ' · ' + statusText, badge: '游戏', badgeColor: '#52B6FF', icon: ICONS.gamepad, href: gameDetailUrl(g.id) });
                 }
             });
 
@@ -575,8 +590,10 @@
         // 导出
         document.getElementById('backup-export').addEventListener('click', function () {
             var data = {};
-            var keys = (window.GameData && window.GameData.SYNC_KEYS) ? window.GameData.SYNC_KEYS.slice() : ['games', 'achievements', 'memos'];
-            keys.push('game_record_theme', 'lock_password', 'profile', 'game_record_wishlist', 'game_record_reviews', 'game_record_spending');
+            var keys = (window.GameData && window.GameData.SYNC_KEYS)
+                ? window.GameData.SYNC_KEYS.slice()
+                : ['games', 'achievements', 'memos', 'profile', 'game_record_wishlist', 'game_record_reviews', 'game_record_spending'];
+            keys.push('lock_password', 'is_locked', 'site_bg_image', 'mascot_image');
             keys.forEach(function (key) {
                 var val = localStorage.getItem(key);
                 if (val) {
@@ -615,8 +632,10 @@
                     }
                     if (!confirm('导入将覆盖当前所有数据，确定继续？')) return;
 
-                    var keys = (window.GameData && window.GameData.SYNC_KEYS) ? window.GameData.SYNC_KEYS.slice() : ['games', 'achievements', 'memos'];
-                    keys.push('game_record_theme', 'lock_password', 'profile', 'game_record_wishlist', 'game_record_reviews', 'game_record_spending');
+                    var keys = (window.GameData && window.GameData.SYNC_KEYS)
+                        ? window.GameData.SYNC_KEYS.slice()
+                        : ['games', 'achievements', 'memos', 'profile', 'game_record_wishlist', 'game_record_reviews', 'game_record_spending'];
+                    keys.push('lock_password', 'is_locked', 'site_bg_image', 'mascot_image');
                     keys.forEach(function (key) {
                         if (data[key] !== undefined) {
                             localStorage.setItem(key, typeof data[key] === 'string' ? data[key] : JSON.stringify(data[key]));
@@ -639,8 +658,10 @@
             if (!confirm('确定要清除所有数据吗？此操作不可撤销')) return;
             if (!confirm('再次确认：将要删除全部数据')) return;
 
-            var keys = (window.GameData && window.GameData.SYNC_KEYS) ? window.GameData.SYNC_KEYS.slice() : ['games', 'achievements', 'memos'];
-            keys.push('game_record_theme', 'lock_password', 'is_locked', 'profile', 'game_record_wishlist', 'game_record_reviews', 'game_record_spending');
+            var keys = (window.GameData && window.GameData.SYNC_KEYS)
+                ? window.GameData.SYNC_KEYS.slice()
+                : ['games', 'achievements', 'memos', 'profile', 'game_record_wishlist', 'game_record_reviews', 'game_record_spending'];
+            keys.push('lock_password', 'is_locked', 'site_bg_image', 'mascot_image');
             keys.forEach(function (key) { localStorage.removeItem(key); });
 
             showToast('数据已清除，页面将刷新');

@@ -132,25 +132,21 @@ function updateCharts() {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
     });
     
-    // Monthly Chart — aggregate playtime by lastPlayed month
-    const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
-    const monthlyData = Array(12).fill(0);
+    // Playtime by type — uses cumulative playtime per game (no monthly breakdown in data model)
+    const typePlaytime = {};
     filtered.forEach(g => {
-        const d = new Date(g.lastPlayed);
-        if (isNaN(d.getTime())) return;
-        monthlyData[d.getMonth()] += parseInt(g.playtime, 10) || 0;
+        const type = g.type || '其他';
+        typePlaytime[type] = (typePlaytime[type] || 0) + (parseInt(g.playtime, 10) || 0);
     });
-    charts.monthly = new Chart(document.getElementById('monthlyPlaytimeChart'), {
-        type: 'line',
+    const typeLabels = Object.keys(typePlaytime);
+    charts.playtimeByType = new Chart(document.getElementById('playtimeByTypeChart'), {
+        type: 'bar',
         data: {
-            labels: months,
+            labels: typeLabels,
             datasets: [{
                 label: '游戏时长(小时)',
-                data: monthlyData,
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                fill: true,
-                tension: 0.4
+                data: typeLabels.map(t => typePlaytime[t]),
+                backgroundColor: generateColors(typeLabels.length)
             }]
         },
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
@@ -188,7 +184,7 @@ function updateCharts() {
 
 const CHART_CANVAS_IDS = {
     gameTypeChart: 'type',
-    monthlyPlaytimeChart: 'monthly',
+    playtimeByTypeChart: 'playtimeByType',
     gameProgressChart: 'progress',
     gameComparisonChart: 'comparison',
     yearTypeChart: 'yearType'
@@ -253,27 +249,6 @@ function downloadCanvasAsPng(canvas, filename) {
 }
 
 // Export functions
-function exportToExcel() {
-    if (typeof XLSX === 'undefined') {
-        showToast('导出功能暂时不可用，请刷新页面重试');
-        return;
-    }
-    const filtered = getFilteredGames();
-    const data = filtered.map(g => ({
-        '游戏名称': g.name,
-        '类型': g.type,
-        '状态': getStatusText(g.status),
-        '游戏时长(小时)': g.playtime,
-        '进度(%)': g.progress
-    }));
-    
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, '游戏统计');
-    XLSX.writeFile(wb, `游戏统计_${new Date().toISOString().split('T')[0]}.xlsx`);
-    showToast('已导出为 Excel');
-}
-
 function exportToImage() {
     if (typeof html2canvas === 'undefined') {
         showToast('导出功能暂时不可用，请刷新页面重试');
@@ -376,10 +351,10 @@ function saveSummaryImage() {
 }
 
 // Toast
-function showToast(message) {
+function showToast(message, type = 'info') {
     const toast = document.getElementById('toast');
     document.getElementById('toast-message').textContent = message;
-    toast.classList.add('show');
+    toast.className = `toast ${type} show`;
     setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
@@ -399,11 +374,9 @@ document.getElementById('clear-filters').addEventListener('click', () => {
     updateCharts();
 });
 
-document.getElementById('export-excel').addEventListener('click', exportToExcel);
 document.getElementById('export-image').addEventListener('click', exportToImage);
 document.getElementById('year-summary-btn').addEventListener('click', () => openYearSummary(getCurrentYear()));
 document.getElementById('save-summary-image').addEventListener('click', saveSummaryImage);
-document.getElementById('export-summary-excel').addEventListener('click', exportToExcel);
 
 document.querySelectorAll('.modal-close').forEach(btn => {
     btn.addEventListener('click', () => {

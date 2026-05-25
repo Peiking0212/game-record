@@ -17,14 +17,64 @@ function saveWishlist(list) {
   window.GameData.set(window.GameData.KEYS.WISHLIST, list);
 }
 
+function getSpendingRecordType(record) {
+  if (!record) return 'recharge';
+  if (record.recordType === 'purchase' || record.recordType === 'recharge') return record.recordType;
+  if (record.wishlistId != null && record.wishlistId !== '') return 'purchase';
+  if (record.gameId != null && record.gameId !== '') return 'recharge';
+  if (String(record.game || '').trim() === '账户充值') return 'recharge';
+  return 'purchase';
+}
+
+function getPurchaseRecordsForWishlist(wishlistId, wishlistName) {
+  try {
+    var list = window.GameData.get(window.GameData.KEYS.SPENDING, []);
+    return list.filter(function (record) {
+      if (getSpendingRecordType(record) !== 'purchase') return false;
+      if (record.wishlistId != null && String(record.wishlistId) === String(wishlistId)) return true;
+      if (!record.wishlistId && wishlistName && record.game &&
+          String(record.game).trim().toLowerCase() === String(wishlistName).trim().toLowerCase()) {
+        return true;
+      }
+      return false;
+    }).sort(function (a, b) {
+      return String(b.date || '').localeCompare(String(a.date || ''));
+    });
+  } catch (e) {
+    return [];
+  }
+}
+
+function renderWishlistSpendingSummary(records) {
+  if (!records || records.length === 0) return '';
+  var total = records.reduce(function (sum, r) {
+    return sum + (parseFloat(r.amount) || 0);
+  }, 0);
+  var latest = records[0];
+  var html = '<div class="wishlist-spending">';
+  html += '  <div class="wishlist-spending-summary">';
+  html += '    <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>';
+  html += '    <span>已购 ' + records.length + ' 笔 · ¥' + total.toFixed(2) + '</span>';
+  html += '  </div>';
+  if (latest) {
+    html += '  <div class="wishlist-spending-latest">最近：¥' + (parseFloat(latest.amount) || 0).toFixed(2);
+    if (latest.date) html += ' · ' + escapeHtml(formatDate(latest.date));
+    html += '</div>';
+  }
+  html += '  <a href="spending.html" class="wishlist-spending-link">查看消费记录</a>';
+  html += '</div>';
+  return html;
+}
+
 // ---------- 工具函数 ----------
 
-function showToast(message) {
+function showToast(message, type) {
+  type = type || 'info';
   var toast = document.getElementById('toast');
   var toastMsg = document.getElementById('toast-message');
   if (!toast || !toastMsg) return;
   toastMsg.textContent = message;
-  toast.classList.add('show');
+  toast.className = 'toast ' + type + ' show';
   clearTimeout(toast._timeout);
   toast._timeout = setTimeout(function () {
     toast.classList.remove('show');
@@ -247,6 +297,10 @@ function renderWishlist() {
     html += '    </div>';
     if (item.notes) {
       html += '    <p class="wishlist-notes">' + escapeHtml(item.notes) + '</p>';
+    }
+    var purchaseRecords = getPurchaseRecordsForWishlist(item.id, item.name);
+    if (purchaseRecords.length > 0) {
+      html += renderWishlistSpendingSummary(purchaseRecords);
     }
     html += '    <div class="wishlist-date">' + formatDate(item.date) + '</div>';
     html += '  </div>';

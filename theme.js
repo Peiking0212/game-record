@@ -785,18 +785,14 @@
         // 初始化看板娘
         initMascot();
 
-        // 修复移动端菜单：替换 toggle 以清除各页面重复/错误的 hidden 切换逻辑
-        var mobileToggle = document.getElementById('mobile-menu-toggle');
-        var mobileMenu = document.getElementById('mobile-menu');
-        if (mobileToggle && mobileMenu) {
-            var freshToggle = mobileToggle.cloneNode(true);
-            mobileToggle.parentNode.replaceChild(freshToggle, mobileToggle);
-            freshToggle.addEventListener('click', function () {
-                mobileMenu.classList.toggle('open');
+        // 移动端菜单：事件委托，避免 clone 与 lucide 重绘竞态
+        if (!document.documentElement.dataset.mobileMenuBound) {
+            document.documentElement.dataset.mobileMenuBound = '1';
+            document.addEventListener('click', function (e) {
+                if (!e.target.closest('#mobile-menu-toggle')) return;
+                var menu = document.getElementById('mobile-menu');
+                if (menu) menu.classList.toggle('open');
             });
-            if (typeof lucide !== 'undefined' && lucide.createIcons) {
-                lucide.createIcons();
-            }
         }
         
         console.log('主题系统初始化完成，背景状态:', siteBgImage ? '有图片' : '无图片');

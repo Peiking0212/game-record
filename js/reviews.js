@@ -26,12 +26,13 @@ function saveReviews(list) {
 
 // ---------- 工具函数 ----------
 
-function showToast(message) {
+function showToast(message, type) {
+  type = type || 'info';
   var toast = document.getElementById('toast');
   var toastMsg = document.getElementById('toast-message');
   if (!toast || !toastMsg) return;
   toastMsg.textContent = message;
-  toast.classList.add('show');
+  toast.className = 'toast ' + type + ' show';
   clearTimeout(toast._timeout);
   toast._timeout = setTimeout(function () {
     toast.classList.remove('show');

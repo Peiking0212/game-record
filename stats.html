@@ -14,10 +14,9 @@
     <script src="https://cdn.jsdelivr.net/npm/lucide@0.544.0/dist/umd/lucide.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-    <link rel="stylesheet" href="styles.css?v=2">
+    <link rel="stylesheet" href="styles.css?v=10">
     <style>
 /* 导航栏响应式显示 - 不依赖 Tailwind CDN */
 .desktop-nav { display: none; }
@@ -94,7 +93,7 @@
                     </a>
                     <a href="spending.html" class="nav-link">
                         <i data-lucide="shopping-cart" class="w-5 h-5 inline mr-2"></i>
-                        消费统计
+                        消费记录
                     </a>
                     <div style="position:relative;" id="nav-more-wrap">
                         <a href="#" class="nav-link" id="nav-more-btn" onclick="event.preventDefault();document.getElementById('nav-more-menu').classList.toggle('hidden')">
@@ -127,7 +126,7 @@
                     <a href="achievements.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="trophy" class="w-4 h-4 inline mr-2"></i>成就系统</a>
                     <a href="stats.html" class="nav-link py-2 px-4 rounded-lg active"><i data-lucide="bar-chart-3" class="w-4 h-4 inline mr-2"></i>数据统计</a>
                     <a href="report.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="sparkles" class="w-4 h-4 inline mr-2"></i>年度报告</a>
-                    <a href="spending.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="shopping-cart" class="w-4 h-4 inline mr-2"></i>消费统计</a>
+                    <a href="spending.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="shopping-cart" class="w-4 h-4 inline mr-2"></i>消费记录</a>
                     <a href="gallery.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体库</a>
                     <a href="wishlist.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单</a>
                     <a href="reviews.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测</a>
@@ -182,10 +181,6 @@
                 
                 <!-- Export Buttons -->
                 <div class="flex gap-2">
-                    <button id="export-excel" class="export-btn export-btn-secondary">
-                        <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
-                        导出 Excel
-                    </button>
                     <button id="export-image" class="export-btn export-btn-secondary">
                         <i data-lucide="image" class="w-4 h-4"></i>
                         保存图片
@@ -246,9 +241,9 @@
                     </div>
                 </div>
                 <div data-aos="fade-up" data-aos-delay="100">
-                    <h3 class="text-lg font-semibold mb-4 text-gray-800">月度游戏时长趋势</h3>
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">各类型游戏时长</h3>
                     <div class="h-80 relative">
-                        <canvas id="monthlyPlaytimeChart"></canvas>
+                        <canvas id="playtimeByTypeChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -348,10 +343,6 @@
                 <button id="save-summary-image" class="btn-primary">
                     <i data-lucide="camera" class="w-4 h-4 inline mr-2"></i>
                     保存为图片                </button>
-                <button id="export-summary-excel" class="btn-secondary">
-                    <i data-lucide="file-spreadsheet" class="w-4 h-4 inline mr-2"></i>
-                    导出 Excel
-                </button>
             </div>
         </div>
     </div>
@@ -428,11 +419,11 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>
-    <script src="js/cloud-sync.js?v=2"></script>
     <script src="js/sample-data-utils.js?v=1"></script>
-    <script src="js/data.js?v=1"></script>
-    <script src="utils.js?v=5"></script>
-    <script src="js/stats.js?v=8"></script>
-    <script src="theme.js?v=5"></script>
+    <script src="js/data.js?v=2"></script>
+    <script src="js/cloud-sync.js?v=3"></script>
+    <script src="utils.js?v=7"></script>
+    <script src="js/stats.js?v=11"></script>
+    <script src="theme.js?v=8"></script>
 </body>
 </html>

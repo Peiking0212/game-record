@@ -9,11 +9,96 @@
     var MEDIA_TABLE = 'media';
     var MEDIA_BUCKET = 'media';
 
+    var FALLBACK_SYNC_KEYS = [
+        'games', 'achievements', 'profile',
+        'game_record_wishlist', 'game_record_reviews', 'game_record_spending', 'memos',
+        'game_record_theme', 'mascot_quotes', 'mascot_enabled', 'auto_time_bg', 'site_video_bg'
+    ];
+
     function getSyncKeys() {
         if (window.GameData && window.GameData.SYNC_KEYS) {
             return window.GameData.SYNC_KEYS;
         }
-        return ['games', 'achievements', 'profile', 'game_record_wishlist', 'game_record_reviews', 'game_record_spending', 'memos'];
+        return FALLBACK_SYNC_KEYS;
+    }
+
+    function getArraySyncKeys() {
+        if (window.GameData && window.GameData.ARRAY_SYNC_KEYS) {
+            return window.GameData.ARRAY_SYNC_KEYS;
+        }
+        return ['games', 'achievements', 'game_record_wishlist', 'game_record_reviews', 'game_record_spending', 'memos'];
+    }
+
+    function getObjectSyncKeys() {
+        if (window.GameData && window.GameData.OBJECT_SYNC_KEYS) {
+            return window.GameData.OBJECT_SYNC_KEYS;
+        }
+        return ['profile', 'game_record_theme'];
+    }
+
+    function getRawStringSyncKeys() {
+        if (window.GameData && window.GameData.RAW_STRING_SYNC_KEYS) {
+            return window.GameData.RAW_STRING_SYNC_KEYS;
+        }
+        return ['mascot_enabled', 'auto_time_bg', 'site_video_bg'];
+    }
+
+    function isRawStringSyncKey(key) {
+        return getRawStringSyncKeys().indexOf(key) !== -1;
+    }
+
+    function parseLocalValue(key, raw) {
+        if (raw === null) return null;
+        if (isRawStringSyncKey(key)) return raw;
+        return parseJson(raw, null);
+    }
+
+    function serializeLocalValue(key, value) {
+        if (value === null || value === undefined) return null;
+        if (isRawStringSyncKey(key)) return String(value);
+        return JSON.stringify(value);
+    }
+
+    function mergeRecordsById(localList, cloudList) {
+        var map = {};
+        (cloudList || []).forEach(function (item) {
+            if (item && item.id != null) map[String(item.id)] = item;
+        });
+        (localList || []).forEach(function (item) {
+            if (item && item.id != null) map[String(item.id)] = item;
+        });
+        return Object.values(map);
+    }
+
+    function mergeStringQuotes(localList, cloudList) {
+        var seen = {};
+        var out = [];
+        (cloudList || []).concat(localList || []).forEach(function (item) {
+            var s = String(item || '').trim();
+            if (!s || seen[s]) return;
+            seen[s] = true;
+            out.push(s);
+        });
+        return out;
+    }
+
+    function mergePullData(key, localVal, cloudVal) {
+        if (cloudVal === null || cloudVal === undefined) return localVal;
+        if (localVal === null || localVal === undefined) return cloudVal;
+
+        if (key === 'mascot_quotes') {
+            return mergeStringQuotes(localVal, cloudVal);
+        }
+        if (getArraySyncKeys().indexOf(key) !== -1) {
+            return mergeRecordsById(localVal, cloudVal);
+        }
+        if (getObjectSyncKeys().indexOf(key) !== -1) {
+            return Object.assign({}, cloudVal, localVal);
+        }
+        if (isRawStringSyncKey(key)) {
+            return localVal !== '' ? localVal : cloudVal;
+        }
+        return cloudVal;
     }
 
     var pushTimers = {};
@@ -162,10 +247,31 @@
                 }
             }
 
+            var cloudMap = {};
             rows.forEach(function (row) {
-                if (getSyncKeys().indexOf(row.key) === -1) return;
-                localStorage.setItem(row.key, JSON.stringify(row.data));
+                if (getSyncKeys().indexOf(row.key) !== -1) {
+                    cloudMap[row.key] = row.data;
+                }
             });
+
+            var syncKeys = getSyncKeys();
+            syncKeys.forEach(function (key) {
+                if (cloudMap[key] === undefined) return;
+                var localRaw = localStorage.getItem(key);
+                var localVal = parseLocalValue(key, localRaw);
+                var merged = mergePullData(key, localVal, cloudMap[key]);
+                var serialized = serializeLocalValue(key, merged);
+                if (serialized !== null) {
+                    localStorage.setItem(key, serialized);
+                }
+            });
+
+            for (var i = 0; i < syncKeys.length; i++) {
+                var missingKey = syncKeys[i];
+                if (cloudMap[missingKey] === undefined && localStorage.getItem(missingKey) != null) {
+                    await this.pushKey(missingKey);
+                }
+            }
         },
 
         prepareProfileForCloud: async function (profile) {
@@ -207,8 +313,9 @@
             var raw = localStorage.getItem(key);
             if (raw === null) return false;
             try {
-                var payload = parseJson(raw, null);
-                if (key === 'profile' && payload) {
+                var payload = isRawStringSyncKey(key) ? raw : parseJson(raw, null);
+                if (payload === null && raw) payload = raw;
+                if (key === 'profile' && payload && typeof payload === 'object') {
                     payload = await this.prepareProfileForCloud(payload);
                 }
                 var upsert = await window.SB.from(SITE_TABLE).upsert({

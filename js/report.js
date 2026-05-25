@@ -9,6 +9,19 @@ function getAchievements() { return window.GameData.migrateLegacyAchievements();
 function getReviews() { return window.GameData.get(window.GameData.KEYS.REVIEWS, []); }
 function getSpending() { return window.GameData.get(window.GameData.KEYS.SPENDING, []); }
 
+function showToast(message, type) {
+    type = type || 'info';
+    var toast = document.getElementById('toast');
+    var toastMsg = document.getElementById('toast-message');
+    if (!toast || !toastMsg) return;
+    toastMsg.textContent = message;
+    toast.className = 'toast ' + type + ' show';
+    clearTimeout(toast._timeout);
+    toast._timeout = setTimeout(function () {
+        toast.classList.remove('show');
+    }, 3000);
+}
+
 // ==================== 年份选择器 ====================
 function initYearSelector() {
     var select = document.getElementById('report-year');
@@ -167,16 +180,16 @@ function buildSpendingSlide(d) {
         '</div>';
     }).join('');
 
-    var noSpend = d.spending.length === 0 ? '<p style="color:var(--text-gray);margin-bottom:1rem;">暂无消费记录，去 <a href="spending.html">消费统计</a> 添加吧~</p>' : '';
+    var noSpend = d.spending.length === 0 ? '<p style="color:var(--text-gray);margin-bottom:1rem;">暂无消费记录，去 <a href="spending.html">消费记录</a> 添加吧~</p>' : '';
 
     return '<div class="slide" style="background:' + SLIDE_BGS[4] + '">' +
-        '<span class="slide-year-badge">消费统计</span>' +
+        '<span class="slide-year-badge">消费记录</span>' +
         '<div class="slide-big-num gold">&yen;' + totalSpent.toFixed(0) + '</div>' +
         '<p class="slide-sub">年度游戏总花费</p>' +
         noSpend +
         '<div class="report-grid" style="margin-bottom:1rem;">' +
             '<div class="r-card"><div class="r-val">&yen;' + costPerHour + '</div><div class="r-label">每小时成本</div></div>' +
-            '<div class="r-card"><div class="r-val">' + d.spending.length + '</div><div class="r-label">购买记录</div></div>' +
+            '<div class="r-card"><div class="r-val">' + d.spending.length + '</div><div class="r-label">消费笔数</div></div>' +
         '</div>' +
         (sortedSpend.length > 0 ? '<div class="spend-bar-wrap">' + spendBars + '</div>' : '') +
         '</div>';
