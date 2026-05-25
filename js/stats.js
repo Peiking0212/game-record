@@ -164,6 +164,72 @@ function updateCharts() {
     });
 }
 
+const CHART_CANVAS_IDS = {
+    gameTypeChart: 'type',
+    monthlyPlaytimeChart: 'monthly',
+    gameProgressChart: 'progress',
+    gameComparisonChart: 'comparison',
+    yearTypeChart: 'yearType'
+};
+
+function replaceChartsWithImages(clonedRoot, sourceRoot) {
+    sourceRoot.querySelectorAll('canvas[id]').forEach(sourceCanvas => {
+        const chartKey = CHART_CANVAS_IDS[sourceCanvas.id];
+        const chart = chartKey ? charts[chartKey] : null;
+        if (!chart) return;
+
+        const clonedCanvas = clonedRoot.querySelector('#' + CSS.escape(sourceCanvas.id));
+        if (!clonedCanvas) return;
+
+        const parent = clonedCanvas.parentElement;
+        const sourceParent = sourceCanvas.parentElement;
+        if (!parent || !sourceParent) return;
+
+        const img = clonedCanvas.ownerDocument.createElement('img');
+        img.src = chart.toBase64Image('image/png', 1);
+        img.alt = sourceCanvas.id;
+        img.style.display = 'block';
+        img.style.width = sourceCanvas.offsetWidth + 'px';
+        img.style.height = sourceCanvas.offsetHeight + 'px';
+        img.style.maxWidth = '100%';
+
+        parent.style.position = 'relative';
+        parent.style.width = sourceParent.offsetWidth + 'px';
+        parent.style.height = sourceParent.offsetHeight + 'px';
+        parent.style.overflow = 'hidden';
+        parent.replaceChild(img, clonedCanvas);
+    });
+
+    clonedRoot.querySelectorAll('[data-aos]').forEach(el => {
+        el.removeAttribute('data-aos');
+        el.style.transform = 'none';
+        el.style.opacity = '1';
+    });
+}
+
+function captureElement(element, options) {
+    return html2canvas(element, Object.assign({
+        backgroundColor: '#f9fafb',
+        scale: 2,
+        useCORS: true,
+        onclone: (clonedDoc) => {
+            const clonedTarget = element.id
+                ? clonedDoc.getElementById(element.id)
+                : null;
+            if (clonedTarget) {
+                replaceChartsWithImages(clonedTarget, element);
+            }
+        }
+    }, options || {}));
+}
+
+function downloadCanvasAsPng(canvas, filename) {
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+}
+
 // Export functions
 function exportToExcel() {
     if (typeof XLSX === 'undefined') {
@@ -197,11 +263,8 @@ function exportToImage() {
         showToast('找不到要导出的内容');
         return;
     }
-    html2canvas(element, { backgroundColor: '#f9fafb', scale: 2 }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = `游戏统计_${new Date().toISOString().split('T')[0]}.png`;
-        link.href = canvas.toDataURL();
-        link.click();
+    captureElement(element).then(canvas => {
+        downloadCanvasAsPng(canvas, `游戏统计_${new Date().toISOString().split('T')[0]}.png`);
         showToast('已保存为图片');
     }).catch(err => {
         console.error('导出图片失败:', err);
@@ -258,17 +321,14 @@ function saveSummaryImage() {
         showToast('导出功能暂时不可用，请刷新页面重试');
         return;
     }
-    const element = document.getElementById('summary-card-capture');
+    const element = document.getElementById('year-summary-content');
     if (!element) {
         showToast('找不到要导出的内容');
         return;
     }
-    html2canvas(element, { backgroundColor: null, scale: 2 }).then(canvas => {
-        const link = document.createElement('a');
+    captureElement(element, { backgroundColor: '#ffffff' }).then(canvas => {
         const yearEl = document.getElementById('summary-year');
-        link.download = `年度总结_${yearEl ? yearEl.textContent : new Date().getFullYear()}.png`;
-        link.href = canvas.toDataURL();
-        link.click();
+        downloadCanvasAsPng(canvas, `年度总结_${yearEl ? yearEl.textContent : new Date().getFullYear()}.png`);
         showToast('已保存为图片');
     }).catch(err => {
         console.error('导出图片失败:', err);

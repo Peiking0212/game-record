@@ -13,6 +13,7 @@ const GD = window.GameData;
 let profile = Object.assign({}, GD.DEFAULT_PROFILE);
 let games = [];
 let achievements = [];
+const TAG_BADGE_CLASSES = ['badge-blue', 'badge-orange', 'badge-purple', 'badge-green'];
 
 function loadProfileData() {
     profile = GD.getProfile();
@@ -66,18 +67,29 @@ function renderProfile() {
     document.getElementById('profile-member-since').textContent = daysDiff;
     
     // Render game tags
+    renderHeaderTags();
     renderGameTags();
+}
+
+function renderTagList(containerId, removable) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const tags = Array.isArray(profile.tags) ? profile.tags : [];
+    container.innerHTML = tags.map((tag, index) => `
+        <span class="badge ${TAG_BADGE_CLASSES[index % TAG_BADGE_CLASSES.length]}${removable ? ' flex items-center' : ''}">
+            ${escapeHtml(tag)}
+            ${removable ? '<button type="button" class="ml-1 text-xs" onclick="removeTag(this)">×</button>' : ''}
+        </span>
+    `).join('');
+}
+
+function renderHeaderTags() {
+    renderTagList('profile-header-tags', false);
 }
 
 // Render game tags
 function renderGameTags() {
-    const gameTags = document.getElementById('game-tags');
-    gameTags.innerHTML = profile.tags.map(tag => `
-        <span class="badge badge-blue flex items-center">
-            ${escapeHtml(tag)}
-            <button type="button" class="ml-1 text-xs" onclick="removeTag(this)">×</button>
-        </span>
-    `).join('');
+    renderTagList('game-tags', true);
 }
 
 // Render favorite games

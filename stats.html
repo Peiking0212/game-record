@@ -241,13 +241,13 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 <div data-aos="fade-up">
                     <h3 class="text-lg font-semibold mb-4 text-gray-800">游戏类型分布</h3>
-                    <div class="h-80">
+                    <div class="h-80 relative">
                         <canvas id="gameTypeChart"></canvas>
                     </div>
                 </div>
                 <div data-aos="fade-up" data-aos-delay="100">
                     <h3 class="text-lg font-semibold mb-4 text-gray-800">月度游戏时长趋势</h3>
-                    <div class="h-80">
+                    <div class="h-80 relative">
                         <canvas id="monthlyPlaytimeChart"></canvas>
                     </div>
                 </div>
@@ -255,13 +255,13 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div data-aos="fade-up" data-aos-delay="200">
                     <h3 class="text-lg font-semibold mb-4 text-gray-800">游戏进度分布</h3>
-                    <div class="h-80">
+                    <div class="h-80 relative">
                         <canvas id="gameProgressChart"></canvas>
                     </div>
                 </div>
                 <div data-aos="fade-up" data-aos-delay="300">
                     <h3 class="text-lg font-semibold mb-4 text-gray-800">游戏时长对比</h3>
-                    <div class="h-80">
+                    <div class="h-80 relative">
                         <canvas id="gameComparisonChart"></canvas>
                     </div>
                 </div>
@@ -339,7 +339,7 @@
                 
                 <div>
                     <h4 class="font-semibold mb-4">游戏类型偏好</h4>
-                    <div class="h-64">
+                    <div class="h-64 relative">
                         <canvas id="yearTypeChart"></canvas>
                     </div>
                 </div>
@@ -433,7 +433,7 @@
     <script src="js/sample-data-utils.js?v=1"></script>
     <script src="js/data.js?v=1"></script>
     <script src="utils.js?v=4"></script>
-    <script src="js/stats.js?v=4"></script>
+    <script src="js/stats.js?v=5"></script>
     <script src="theme.js?v=3"></script>
 </body>
 </html>
