@@ -504,10 +504,15 @@ window.addEventListener('click', (e) => {
     });
 });
 
-// Initialize page
-document.addEventListener('DOMContentLoaded', async () => {
-    await window.awaitGameCloud();
+async function renderGamesPage() {
     games = await GD.seedGamesIfEmpty();
     renderGames();
     renderRecentlyAdded();
+}
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', async () => {
+    await window.awaitGameCloud();
+    await renderGamesPage();
+    window.whenGameCloudSynced(renderGamesPage);
 });

@@ -128,6 +128,125 @@
         return isNaN(d.getTime()) ? 0 : d.getTime();
     }
 
+    function matchGameName(a, b) {
+        return String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase();
+    }
+
+    function getGames() {
+        return get(KEYS.GAMES, []);
+    }
+
+    function getGameById(id) {
+        if (id == null || id === '') return null;
+        return getGames().find(function (g) { return String(g.id) === String(id); }) || null;
+    }
+
+    /** 按名称在库中查找游戏 id；无匹配返回 null */
+    function resolveGameIdByName(name) {
+        if (!name) return null;
+        var match = getGames().find(function (g) { return matchGameName(g.name, name); });
+        return match ? match.id : null;
+    }
+
+    function getRecordGameName(record, nameKey) {
+        if (!record) return '';
+        if (nameKey === 'name') return record.name || record.gameName || '';
+        return record.gameName || record.game || record.name || '';
+    }
+
+    /** 判断记录是否属于某游戏：优先 gameId，回退名称匹配 */
+    function recordBelongsToGame(record, game, nameKey) {
+        if (!record || !game) return false;
+        nameKey = nameKey || 'gameName';
+        if (record.gameId != null && record.gameId !== '') {
+            return String(record.gameId) === String(game.id);
+        }
+        return matchGameName(getRecordGameName(record, nameKey), game.name);
+    }
+
+    /** 为单条记录补全 gameId，并同步标准名称 */
+    function migrateRecordGameId(record, nameKey) {
+        nameKey = nameKey || 'gameName';
+        var migrated = Object.assign({}, record);
+        if (migrated.gameId != null && migrated.gameId !== '') {
+            var linked = getGameById(migrated.gameId);
+            if (linked) {
+                if (nameKey === 'name') migrated.name = linked.name;
+                else migrated.gameName = linked.name;
+            }
+            return migrated;
+        }
+        var name = getRecordGameName(record, nameKey);
+        var gameMatch = getGames().find(function (g) { return matchGameName(g.name, name); });
+        if (gameMatch) {
+            migrated.gameId = gameMatch.id;
+            if (nameKey === 'name') migrated.name = gameMatch.name;
+            else migrated.gameName = gameMatch.name;
+        }
+        return migrated;
+    }
+
+    function recordNeedsGameIdMigration(record, nameKey) {
+        if (!record) return false;
+        if (record.gameId != null && record.gameId !== '') return false;
+        var name = getRecordGameName(record, nameKey);
+        if (!name) return false;
+        return getGames().some(function (g) { return matchGameName(g.name, name); });
+    }
+
+    /** 加载后迁移 reviews / achievements / media 的 gameId 关联 */
+    function migrateGameLinks() {
+        migrateLegacyAchievements();
+        if (getGames().length === 0) return;
+
+        var achievements = get(KEYS.ACHIEVEMENTS, []);
+        var reviews = get(KEYS.REVIEWS, []);
+        var media = get(KEYS.MEDIA, []);
+
+        var needAch = achievements.some(function (a) { return recordNeedsGameIdMigration(a, 'gameName'); });
+        var needRev = reviews.some(function (r) { return recordNeedsGameIdMigration(r, 'name'); });
+        var needMedia = media.some(function (m) { return recordNeedsGameIdMigration(m, 'gameName'); });
+
+        if (!needAch && !needRev && !needMedia) return;
+
+        if (needAch) {
+            set(KEYS.ACHIEVEMENTS, achievements.map(function (a) { return migrateRecordGameId(a, 'gameName'); }));
+        }
+        if (needRev) {
+            set(KEYS.REVIEWS, reviews.map(function (r) { return migrateRecordGameId(r, 'name'); }));
+        }
+        if (needMedia) {
+            set(KEYS.MEDIA, media.map(function (m) { return migrateRecordGameId(m, 'gameName'); }));
+        }
+    }
+
+    function populateGameSelect(selectEl, options) {
+        if (!selectEl) return;
+        options = options || {};
+        var games = getGames().slice().sort(function (a, b) {
+            return String(a.name || '').localeCompare(String(b.name || ''), 'zh-CN');
+        });
+        var current = selectEl.value;
+        var html = options.includeAll
+            ? '<option value="all">全部游戏</option>'
+            : '<option value="">' + (options.placeholder || '选择游戏') + '</option>';
+        games.forEach(function (g) {
+            var safeName = String(g.name || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+            html += '<option value="' + String(g.id) + '">' + safeName + '</option>';
+        });
+        selectEl.innerHTML = html;
+        if (current) selectEl.value = current;
+    }
+
+    function resolveGameFieldsFromSelect(gameId) {
+        var game = getGameById(gameId);
+        return {
+            gameId: game ? game.id : (gameId || null),
+            gameName: game ? game.name : '',
+            name: game ? game.name : ''
+        };
+    }
+
     async function loadSamples() {
         if (samplesCache) return samplesCache;
         try {
@@ -136,7 +255,7 @@
             samplesCache = await res.json();
         } catch (e) {
             console.warn('无法加载 samples.json，使用内置示例', e);
-            samplesCache = { games: [], achievements: [] };
+            samplesCache = { games: [], achievements: [], memos: [] };
         }
         return samplesCache;
     }
@@ -159,6 +278,18 @@
         return a;
     }
 
+    function hydrateMemo(item) {
+        var m = Object.assign({}, item);
+        if (m.dateDaysAgo != null) {
+            var d = new Date();
+            d.setDate(d.getDate() - parseInt(m.dateDaysAgo, 10));
+            d.setHours(10, 30, 0, 0);
+            m.date = d.toLocaleString('zh-CN');
+            delete m.dateDaysAgo;
+        }
+        return m;
+    }
+
     async function seedGamesIfEmpty() {
         var games = get(KEYS.GAMES, []);
         if (games.length > 0) return games;
@@ -176,6 +307,66 @@
         achievements = (samples.achievements || []).map(hydrateAchievement);
         if (achievements.length > 0) set(KEYS.ACHIEVEMENTS, achievements);
         return achievements;
+    }
+
+    /** 示例备忘录 id（与 data/samples.json 一致） */
+    var SAMPLE_MEMO_IDS = [1001, 1002];
+    var DISMISSED_SAMPLE_MEMOS_KEY = 'memos_dismissed_samples';
+
+    function getDismissedSampleMemoIds() {
+        var list = get(DISMISSED_SAMPLE_MEMOS_KEY, []);
+        return Array.isArray(list) ? list.map(Number) : [];
+    }
+
+    function markSampleMemoDismissed(id) {
+        var numId = Number(id);
+        if (SAMPLE_MEMO_IDS.indexOf(numId) === -1) return;
+        var dismissed = getDismissedSampleMemoIds();
+        if (dismissed.indexOf(numId) === -1) {
+            dismissed.push(numId);
+            set(DISMISSED_SAMPLE_MEMOS_KEY, dismissed);
+        }
+    }
+
+    function isSampleMemoId(id) {
+        return SAMPLE_MEMO_IDS.indexOf(Number(id)) !== -1;
+    }
+
+    /** 补全缺失的示例备忘录（云同步后也会调用；用户主动删除的不再恢复） */
+    async function ensureSampleMemos() {
+        var samples = await loadSamples();
+        var sampleMemos = (samples.memos || []).map(hydrateMemo);
+        if (sampleMemos.length === 0) {
+            var existing = get(KEYS.MEMOS, []);
+            return Array.isArray(existing) ? existing : [];
+        }
+
+        var memos = get(KEYS.MEMOS, []);
+        if (!Array.isArray(memos)) memos = [];
+
+        var dismissed = getDismissedSampleMemoIds();
+        var existingIds = {};
+        memos.forEach(function (m) {
+            if (m && m.id != null) existingIds[String(m.id)] = true;
+        });
+
+        var added = false;
+        sampleMemos.forEach(function (sample) {
+            if (!sample || sample.id == null) return;
+            var sid = Number(sample.id);
+            if (dismissed.indexOf(sid) !== -1) return;
+            if (existingIds[String(sample.id)]) return;
+            memos.unshift(sample);
+            existingIds[String(sample.id)] = true;
+            added = true;
+        });
+
+        if (added) set(KEYS.MEMOS, memos);
+        return memos;
+    }
+
+    async function seedMemosIfEmpty() {
+        return ensureSampleMemos();
     }
 
     var DEFAULT_PROFILE = {
@@ -207,9 +398,24 @@
         set: set,
         remove: remove,
         migrateLegacyAchievements: migrateLegacyAchievements,
+        migrateGameLinks: migrateGameLinks,
         achievementDateMs: achievementDateMs,
+        matchGameName: matchGameName,
+        getGames: getGames,
+        getGameById: getGameById,
+        resolveGameIdByName: resolveGameIdByName,
+        getRecordGameName: getRecordGameName,
+        recordBelongsToGame: recordBelongsToGame,
+        migrateRecordGameId: migrateRecordGameId,
+        populateGameSelect: populateGameSelect,
+        resolveGameFieldsFromSelect: resolveGameFieldsFromSelect,
         seedGamesIfEmpty: seedGamesIfEmpty,
         seedAchievementsIfEmpty: seedAchievementsIfEmpty,
+        seedMemosIfEmpty: seedMemosIfEmpty,
+        ensureSampleMemos: ensureSampleMemos,
+        markSampleMemoDismissed: markSampleMemoDismissed,
+        isSampleMemoId: isSampleMemoId,
+        SAMPLE_MEMO_IDS: SAMPLE_MEMO_IDS,
         getProfile: getProfile,
         setProfile: setProfile,
         DEFAULT_PROFILE: DEFAULT_PROFILE

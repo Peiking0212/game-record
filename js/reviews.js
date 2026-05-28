@@ -24,7 +24,20 @@ function saveReviews(list) {
   window.GameData.set(window.GameData.KEYS.REVIEWS, list);
 }
 
-// ---------- 工具函数 ----------
+// ---------- 游戏选择器 ----------
+function populateReviewGameSelect(selectEl, selectedId) {
+  if (!selectEl || !window.GameData) return;
+  window.GameData.populateGameSelect(selectEl, { placeholder: '选择游戏库中的游戏' });
+  if (selectedId != null && selectedId !== '') {
+    selectEl.value = String(selectedId);
+  }
+}
+
+function getSelectedReviewGameFields(selectEl) {
+  var gameId = selectEl ? selectEl.value : '';
+  if (!gameId) return null;
+  return window.GameData.resolveGameFieldsFromSelect(gameId);
+}
 
 function showToast(message, type) {
   type = type || 'info';
@@ -89,6 +102,52 @@ function renderStars(rating, maxStars) {
     }
   }
   return html;
+}
+
+// ---------- 标签多选（添加/编辑表单） ----------
+function syncTagOptionVisual(optionEl) {
+  if (!optionEl) return;
+  var cb = optionEl.querySelector('.tag-checkbox');
+  if (!cb) return;
+  if (cb.checked) {
+    optionEl.classList.add('active');
+  } else {
+    optionEl.classList.remove('active');
+  }
+}
+
+function syncTagOptionsInForm(formSelector) {
+  var tagOptions = document.querySelectorAll(formSelector + ' .tag-option');
+  for (var i = 0; i < tagOptions.length; i++) {
+    syncTagOptionVisual(tagOptions[i]);
+  }
+}
+
+function bindReviewTagGroup(groupId) {
+  var group = document.getElementById(groupId);
+  if (!group || group.dataset.tagBound === '1') return;
+  group.dataset.tagBound = '1';
+
+  group.addEventListener('click', function (e) {
+    var option = e.target.closest('.tag-option');
+    if (!option || !group.contains(option)) return;
+    var cb = option.querySelector('.tag-checkbox');
+    if (!cb) return;
+    if (e.target === cb) return;
+    e.preventDefault();
+    cb.checked = !cb.checked;
+    syncTagOptionVisual(option);
+  });
+
+  var checkboxes = group.querySelectorAll('.tag-checkbox');
+  for (var j = 0; j < checkboxes.length; j++) {
+    (function (checkbox) {
+      checkbox.addEventListener('change', function () {
+        var parentOption = checkbox.closest('.tag-option');
+        syncTagOptionVisual(parentOption);
+      });
+    })(checkboxes[j]);
+  }
 }
 
 // ---------- 标签药丸 ----------
@@ -275,15 +334,12 @@ function openAddReviewModal() {
   modal.style.display = 'flex';
   var form = document.getElementById('add-review-form');
   if (form) { form.reset(); }
+  populateReviewGameSelect(document.getElementById('review-game'));
   var tagCheckboxes = document.querySelectorAll('#add-tags-group .tag-checkbox');
   for (var i = 0; i < tagCheckboxes.length; i++) {
     tagCheckboxes[i].checked = false;
   }
-  // 重置标签视觉样式
-  var tagOptions = document.querySelectorAll('#add-review-form .tag-option');
-  for (var k = 0; k < tagOptions.length; k++) {
-    tagOptions[k].classList.remove('active');
-  }
+  syncTagOptionsInForm('#add-review-form');
   // 默认3星 - 使用 hidden input + 星星交互
   setAddRating(3);
 }
@@ -297,10 +353,10 @@ function closeAddReviewModal() {
 function handleAddReviewSubmit(e) {
   e.preventDefault();
 
-  var nameInput = document.querySelector('#add-review-form [name="name"]');
-  var name = nameInput ? nameInput.value.trim() : '';
-  if (!name) {
-    showToast('请输入游戏名称');
+  var gameSelect = document.getElementById('review-game');
+  var gameFields = getSelectedReviewGameFields(gameSelect);
+  if (!gameFields || !gameFields.gameId) {
+    showToast('请从游戏库选择游戏');
     return;
   }
 
@@ -318,7 +374,8 @@ function handleAddReviewSubmit(e) {
 
   var newItem = {
     id: 'rv_' + Date.now(),
-    name: name,
+    gameId: gameFields.gameId,
+    name: gameFields.name,
     coverUrl: coverInput ? coverInput.value.trim() : '',
     rating: ratingInput ? parseInt(ratingInput.value) : 3,
     tags: tags,
@@ -353,13 +410,13 @@ function openEditReviewModal(id) {
   modal.style.display = 'flex';
   modal.setAttribute('data-edit-id', id);
 
-  var nameInput = document.querySelector('#edit-review-form [name="name"]');
+  populateReviewGameSelect(document.getElementById('edit-review-game'), item.gameId);
+
   var coverInput = document.querySelector('#edit-review-form [name="cover"]');
   var reviewInput = document.querySelector('#edit-review-form [name="comment"]');
   var playtimeInput = document.querySelector('#edit-review-form [name="hours"]');
   var notesInput = document.querySelector('#edit-review-form [name="notes"]');
 
-  if (nameInput) nameInput.value = item.name;
   if (coverInput) coverInput.value = item.coverUrl || item.cover || '';
   if (reviewInput) reviewInput.value = item.review || item.comment || '';
   if (playtimeInput) playtimeInput.value = item.playtime || item.hours || '';
@@ -373,16 +430,7 @@ function openEditReviewModal(id) {
   for (var k = 0; k < tagCheckboxes.length; k++) {
     tagCheckboxes[k].checked = (itemTags.indexOf(tagCheckboxes[k].value) !== -1);
   }
-  // 同步标签视觉样式
-  var tagOptions = document.querySelectorAll('#edit-review-form .tag-option');
-  for (var m = 0; m < tagOptions.length; m++) {
-    var cb = tagOptions[m].querySelector('input[name="tags"]');
-    if (cb && cb.checked) {
-      tagOptions[m].classList.add('active');
-    } else {
-      tagOptions[m].classList.remove('active');
-    }
-  }
+  syncTagOptionsInForm('#edit-review-form');
 }
 
 function closeEditReviewModal() {
@@ -398,10 +446,10 @@ function handleEditReviewSubmit(e) {
   var id = modal ? modal.getAttribute('data-edit-id') : '';
   if (!id) return;
 
-  var nameInput = document.querySelector('#edit-review-form [name="name"]');
-  var name = nameInput ? nameInput.value.trim() : '';
-  if (!name) {
-    showToast('请输入游戏名称');
+  var gameSelect = document.getElementById('edit-review-game');
+  var gameFields = getSelectedReviewGameFields(gameSelect);
+  if (!gameFields || !gameFields.gameId) {
+    showToast('请从游戏库选择游戏');
     return;
   }
 
@@ -420,7 +468,8 @@ function handleEditReviewSubmit(e) {
   var list = getReviews();
   for (var j = 0; j < list.length; j++) {
     if (list[j].id === id) {
-      list[j].name = name;
+      list[j].gameId = gameFields.gameId;
+      list[j].name = gameFields.name;
       list[j].coverUrl = coverInput ? coverInput.value.trim() : '';
       list[j].rating = ratingInput ? parseInt(ratingInput.value) : 3;
       list[j].tags = tags;
@@ -492,6 +541,8 @@ function createTagCheckboxesHtml(prefix, selectedTags) {
 // ============================================================
 document.addEventListener('DOMContentLoaded', async function () {
   await window.awaitGameCloud();
+  populateReviewGameSelect(document.getElementById('review-game'));
+  populateReviewGameSelect(document.getElementById('edit-review-game'));
   // 初始渲染
   renderReviews();
 
@@ -548,5 +599,8 @@ document.addEventListener('DOMContentLoaded', async function () {
       if (e.target === this) { this.style.display = 'none'; }
     });
   }
+
+  bindReviewTagGroup('add-tags-group');
+  bindReviewTagGroup('edit-tags-group');
 
 });

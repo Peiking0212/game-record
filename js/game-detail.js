@@ -56,9 +56,9 @@
         return null;
     }
 
-    function filterByGameName(list, nameKey, name) {
+    function filterRecordsByGame(list, game, nameKey) {
         return list.filter(function (item) {
-            return matchGameName(item[nameKey], name);
+            return GD.recordBelongsToGame(item, game, nameKey);
         });
     }
 
@@ -267,6 +267,35 @@
         if (counts.spending === 0) document.getElementById('section-spending').classList.add('game-hub-section-muted');
     }
 
+    async function renderGameContent() {
+        if (!game) return;
+
+        var reviews = filterRecordsByGame(GD.get(GD.KEYS.REVIEWS, []), game, 'name');
+        var achievements = filterRecordsByGame(GD.get(GD.KEYS.ACHIEVEMENTS, []), game, 'gameName');
+        var allMedia = window.GameCloud && window.GameCloud.enabled
+            ? await window.GameCloud.fetchMedia()
+            : GD.get(GD.KEYS.MEDIA, []);
+        allMedia = allMedia.map(function (m) { return GD.migrateRecordGameId(m, 'gameName'); });
+        var gallery = filterRecordsByGame(allMedia, game, 'gameName');
+        var spending = filterSpendingByGame(GD.get(GD.KEYS.SPENDING, []), game);
+        var mediaItems = buildMediaItems(gallery);
+
+        renderHero();
+        renderReviews(reviews);
+        renderAchievements(achievements);
+        renderScreenshots(gallery);
+        renderSpending(spending);
+
+        hideEmptySections({
+            reviews: reviews.length,
+            achievements: achievements.length,
+            screenshots: mediaItems.length,
+            spending: spending.length
+        });
+
+        if (window.lucide) lucide.createIcons();
+    }
+
     async function init() {
         await window.awaitGameCloud();
         GD.migrateLegacyAchievements();
@@ -288,34 +317,8 @@
         document.getElementById('game-not-found').classList.add('hidden');
         document.getElementById('game-hub-content').classList.remove('hidden');
 
-        var gameName = game.name;
-        var reviews = filterByGameName(GD.get(GD.KEYS.REVIEWS, []), 'name', gameName);
-        var achievements = GD.get(GD.KEYS.ACHIEVEMENTS, []).filter(function (a) {
-            return matchGameName(a.gameName || a.game, gameName);
-        });
-        var allMedia = window.GameCloud && window.GameCloud.enabled
-            ? await window.GameCloud.fetchMedia()
-            : GD.get(GD.KEYS.MEDIA, []);
-        var gallery = allMedia.filter(function (m) {
-            return matchGameName(m.gameName, gameName);
-        });
-        var spending = filterSpendingByGame(GD.get(GD.KEYS.SPENDING, []), game);
-        var mediaItems = buildMediaItems(gallery);
-
-        renderHero();
-        renderReviews(reviews);
-        renderAchievements(achievements);
-        renderScreenshots(gallery);
-        renderSpending(spending);
-
-        hideEmptySections({
-            reviews: reviews.length,
-            achievements: achievements.length,
-            screenshots: mediaItems.length,
-            spending: spending.length
-        });
-
-        if (window.lucide) lucide.createIcons();
+        await renderGameContent();
+        window.whenGameCloudSynced(renderGameContent);
     }
 
     if (document.readyState === 'loading') {

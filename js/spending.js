@@ -837,6 +837,14 @@
         });
     }
 
+    function renderSpendingData() {
+        var fy = document.getElementById('filter-year');
+        var y = fy ? fy.value : 'all';
+        renderTable(y);
+        updateStats(y);
+        updateCharts(y);
+    }
+
     async function init() {
         await window.awaitGameCloud();
         if (window.GameData && window.GameData.seedGamesIfEmpty) {
@@ -851,8 +859,13 @@
             null
         );
         resetAddForm();
-        bindEvents(); initYearFilter();
-        renderTable('all'); updateStats('all'); updateCharts('all');
+        bindEvents();
+        initYearFilter();
+        renderSpendingData();
+        window.whenGameCloudSynced(function () {
+            migrateSpendingIfNeeded();
+            renderSpendingData();
+        });
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

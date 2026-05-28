@@ -389,13 +389,18 @@ window.addEventListener('click', (e) => {
     if (e.target === modal) modal.classList.remove('active');
 });
 
-// Initialize
-(async function initStatsPage() {
-    await window.awaitGameCloud();
+async function renderStatsPage() {
     games = await GD.seedGamesIfEmpty();
     achievements = GD.migrateLegacyAchievements();
-    initYearFilter();
     updateStats();
     updateTable();
     updateCharts();
+}
+
+// Initialize
+(async function initStatsPage() {
+    await window.awaitGameCloud();
+    initYearFilter();
+    await renderStatsPage();
+    window.whenGameCloudSynced(renderStatsPage);
 })();

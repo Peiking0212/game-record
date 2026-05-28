@@ -28,7 +28,9 @@ function updateAchievementStats() {
     document.getElementById('achievements-this-month').textContent = achievementsThisMonth;
     
     // Calculate games with achievements
-    const gamesWithAchievements = [...new Set(achievements.map(achievement => achievement.gameName))].length;
+    const gamesWithAchievements = [...new Set(achievements.map(achievement =>
+        achievement.gameId != null && achievement.gameId !== '' ? String(achievement.gameId) : achievement.gameName
+    ))].length;
     document.getElementById('games-with-achievements').textContent = gamesWithAchievements;
 }
 
@@ -50,7 +52,13 @@ function renderAchievements() {
     }
     
     if (gameFilter !== 'all') {
-        filteredAchievements = filteredAchievements.filter(achievement => achievement.gameName === gameFilter);
+        filteredAchievements = filteredAchievements.filter(achievement => {
+            if (achievement.gameId != null && achievement.gameId !== '') {
+                return String(achievement.gameId) === String(gameFilter);
+            }
+            const game = GD.getGameById(gameFilter);
+            return game ? GD.matchGameName(achievement.gameName, game.name) : achievement.gameName === gameFilter;
+        });
     }
     
     if (filteredAchievements.length === 0) {
@@ -136,14 +144,10 @@ function updateGameFilter() {
     const gameFilter = document.getElementById('game-filter');
     const editGameFilter = document.getElementById('edit-achievement-game');
     const addGameFilter = document.getElementById('achievement-game');
-    
-    const gameNames = [...new Set(games.map(game => game.name))];
-    
-    const options = gameNames.map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`).join('');
-    
-    gameFilter.innerHTML = '<option value="all">全部游戏</option>' + options;
-    editGameFilter.innerHTML = '<option value="">选择游戏</option>' + options;
-    addGameFilter.innerHTML = '<option value="">选择游戏</option>' + options;
+
+    GD.populateGameSelect(gameFilter, { includeAll: true });
+    GD.populateGameSelect(editGameFilter, { placeholder: '选择游戏' });
+    GD.populateGameSelect(addGameFilter, { placeholder: '选择游戏' });
 }
 
 // Add achievement form submission
@@ -152,12 +156,18 @@ document.getElementById('add-achievement-form').addEventListener('submit', (e) =
     
     const formData = new FormData(e.target);
     const screenshotFile = document.getElementById('achievement-screenshot').files[0];
-    
+    const gameFields = GD.resolveGameFieldsFromSelect(formData.get('gameId'));
+    if (!gameFields || !gameFields.gameId) {
+        showToast('请选择所属游戏', 'error');
+        return;
+    }
+
     const newAchievement = {
         id: Date.now(),
         title: formData.get('title'),
         description: formData.get('description'),
-        gameName: formData.get('gameName'),
+        gameId: gameFields.gameId,
+        gameName: gameFields.gameName,
         date: formData.get('date'),
         icon: formData.get('icon'),
         screenshot: null
@@ -195,11 +205,17 @@ document.getElementById('edit-achievement-form').addEventListener('submit', (e) 
     const achievementIndex = achievements.findIndex(achievement => achievement.id === achievementId);
     
     if (achievementIndex !== -1) {
+        const gameFields = GD.resolveGameFieldsFromSelect(formData.get('gameId'));
+        if (!gameFields || !gameFields.gameId) {
+            showToast('请选择所属游戏', 'error');
+            return;
+        }
         achievements[achievementIndex] = {
             ...achievements[achievementIndex],
             title: formData.get('title'),
             description: formData.get('description'),
-            gameName: formData.get('gameName'),
+            gameId: gameFields.gameId,
+            gameName: gameFields.gameName,
             date: formData.get('date'),
             icon: formData.get('icon')
         };
@@ -307,7 +323,9 @@ function openEditAchievementModal(id) {
     document.getElementById('edit-achievement-id').value = achievement.id;
     document.getElementById('edit-achievement-title').value = achievement.title;
     document.getElementById('edit-achievement-description').value = achievement.description;
-    document.getElementById('edit-achievement-game').value = achievement.gameName;
+    document.getElementById('edit-achievement-game').value = achievement.gameId != null && achievement.gameId !== ''
+        ? String(achievement.gameId)
+        : String(GD.resolveGameIdByName(achievement.gameName) || '');
     document.getElementById('edit-achievement-date').value = achievement.date;
     document.getElementById('edit-achievement-icon').value = achievement.icon;
     

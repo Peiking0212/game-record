@@ -1,6 +1,6 @@
 /**
- * 云端同步：将 localStorage 中的站点数据同步到 Supabase，任何人打开同一网址都能看到。
- * 需先配置 js/supabase.js 并在 Supabase 执行 supabase-migration.sql
+ * 云端同步：登录用户各自的数据同步到 Supabase
+ * 需配置 js/supabase.js 并执行 supabase-migration.sql + supabase-migration-v2-auth.sql
  */
 (function () {
     'use strict';
@@ -14,6 +14,11 @@
         'game_record_wishlist', 'game_record_reviews', 'game_record_spending', 'memos',
         'game_record_theme', 'mascot_quotes', 'mascot_enabled', 'auto_time_bg', 'site_video_bg'
     ];
+
+    var pushTimers = {};
+    var readyResolve;
+    var currentUserId = null;
+    var started = false;
 
     function getSyncKeys() {
         if (window.GameData && window.GameData.SYNC_KEYS) {
@@ -101,10 +106,6 @@
         return cloudVal;
     }
 
-    var pushTimers = {};
-    var readyResolve;
-    var readyReject;
-
     function parseJson(raw, fallback) {
         try {
             return raw ? JSON.parse(raw) : fallback;
@@ -168,6 +169,21 @@
         return Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
     }
 
+    function userStoragePrefix(userId) {
+        return userId + '/';
+    }
+
+    async function resolveUserId() {
+        if (currentUserId) return currentUserId;
+        if (window.GameAuth && window.GameAuth.getUserId) {
+            currentUserId = await window.GameAuth.getUserId();
+        } else if (window.SB) {
+            var session = await window.SB.auth.getSession();
+            currentUserId = session.data.session ? session.data.session.user.id : null;
+        }
+        return currentUserId;
+    }
+
     function showCloudToast(message, type) {
         if (typeof showToast === 'function') {
             showToast(message, type || 'info');
@@ -176,29 +192,82 @@
         console.log('[GameCloud]', message);
     }
 
+    function showSyncStatus(state) {
+        var el = document.getElementById('cloud-sync-status');
+        if (!el) {
+            el = document.createElement('div');
+            el.id = 'cloud-sync-status';
+            el.setAttribute('role', 'status');
+            el.setAttribute('aria-live', 'polite');
+            document.body.appendChild(el);
+        }
+        if (state === 'syncing') {
+            el.textContent = '云端同步中…';
+            el.className = 'cloud-sync-status syncing';
+            el.hidden = false;
+            return;
+        }
+        if (state === 'done') {
+            el.textContent = '已同步';
+            el.className = 'cloud-sync-status done';
+            setTimeout(function () { el.hidden = true; }, 1800);
+            return;
+        }
+        if (state === 'error') {
+            el.textContent = '离线模式';
+            el.className = 'cloud-sync-status error';
+            setTimeout(function () { el.hidden = true; }, 2500);
+        }
+    }
+
+    function notifyCloudSynced() {
+        window.dispatchEvent(new CustomEvent('gamecloud:synced'));
+    }
+
     window.GameCloud = {
         enabled: false,
-        ready: new Promise(function (resolve, reject) {
+        ready: new Promise(function (resolve) {
             readyResolve = resolve;
-            readyReject = reject;
         }),
 
-        init: function () {
+        start: async function () {
+            if (started) return;
+            started = true;
             var self = this;
+
             if (!window.SB) {
                 readyResolve();
                 return;
             }
+
+            var userId = await resolveUserId();
+            if (!userId) {
+                readyResolve();
+                return;
+            }
+
             self.enabled = true;
             self.hookLocalStorage();
+            showSyncStatus('syncing');
+
             self.pullFromCloud()
                 .then(function () {
-                    showCloudToast('已连接云端，数据将与访客同步', 'success');
+                    if (!sessionStorage.getItem('gamecloud_toast_ok')) {
+                        showCloudToast('已连接云端，数据已与您的账号同步', 'success');
+                        sessionStorage.setItem('gamecloud_toast_ok', '1');
+                    }
+                    showSyncStatus('done');
+                    notifyCloudSynced();
                     readyResolve();
                 })
                 .catch(function (err) {
                     console.error('云端拉取失败，使用本地数据:', err);
-                    showCloudToast('云端暂不可用，仅保存在本机', 'error');
+                    if (!sessionStorage.getItem('gamecloud_toast_err')) {
+                        showCloudToast('云端暂不可用，仅保存在本机', 'error');
+                        sessionStorage.setItem('gamecloud_toast_err', '1');
+                    }
+                    showSyncStatus('error');
+                    notifyCloudSynced();
                     readyResolve();
                 });
         },
@@ -232,7 +301,13 @@
         },
 
         pullFromCloud: async function () {
-            var result = await window.SB.from(SITE_TABLE).select('key, data');
+            var userId = await resolveUserId();
+            if (!userId) return;
+
+            var result = await window.SB
+                .from(SITE_TABLE)
+                .select('key, data')
+                .eq('user_id', userId);
             if (result.error) throw result.error;
             var rows = result.data || [];
 
@@ -242,7 +317,7 @@
                 });
                 if (hasLocal) {
                     await this.pushAllLocal();
-                    showCloudToast('已将本机数据备份到云端', 'success');
+                    showCloudToast('已将本机数据备份到您的云端', 'success');
                     return;
                 }
             }
@@ -282,7 +357,8 @@
             if (av.indexOf('http://') === 0 || av.indexOf('https://') === 0) return p;
             if (av.indexOf('data:image') !== 0 && av.indexOf('assets/') === 0) return p;
 
-            if (!window.SB) {
+            var userId = await resolveUserId();
+            if (!window.SB || !userId) {
                 if (av.indexOf('data:image') === 0) {
                     p.avatar = await compressImage(av, 256, 0.82);
                 }
@@ -292,7 +368,7 @@
             try {
                 var small = await compressImage(av, 512, 0.85);
                 var blob = dataURLtoBlob(small);
-                var path = 'avatars/profile.jpg';
+                var path = userStoragePrefix(userId) + 'avatars/profile.jpg';
                 var up = await window.SB.storage.from(MEDIA_BUCKET).upload(path, blob, {
                     contentType: 'image/jpeg',
                     upsert: true
@@ -310,6 +386,9 @@
 
         pushKey: async function (key) {
             if (!window.SB || getSyncKeys().indexOf(key) === -1) return false;
+            var userId = await resolveUserId();
+            if (!userId) return false;
+
             var raw = localStorage.getItem(key);
             if (raw === null) return false;
             try {
@@ -319,10 +398,11 @@
                     payload = await this.prepareProfileForCloud(payload);
                 }
                 var upsert = await window.SB.from(SITE_TABLE).upsert({
+                    user_id: userId,
                     key: key,
                     data: payload,
                     updated_at: new Date().toISOString()
-                }, { onConflict: 'key' });
+                }, { onConflict: 'user_id,key' });
                 if (upsert.error) throw upsert.error;
                 return true;
             } catch (e) {
@@ -335,14 +415,19 @@
             if (!window.SB) {
                 return parseJson(localStorage.getItem('game_record_media'), []);
             }
+            var userId = await resolveUserId();
+            if (!userId) {
+                return parseJson(localStorage.getItem('game_record_media'), []);
+            }
             try {
                 var result = await window.SB
                     .from(MEDIA_TABLE)
                     .select('*')
+                    .eq('user_id', userId)
                     .order('created_at', { ascending: false });
                 if (result.error) throw result.error;
                 var list = (result.data || []).map(function (row) {
-                    return {
+                    var item = {
                         id: row.id,
                         type: row.type,
                         url: row.url,
@@ -351,6 +436,8 @@
                         time: row.created_at,
                         thumbnail: row.thumbnail || null
                     };
+                    if (window.GameData) item = window.GameData.migrateRecordGameId(item, 'gameName');
+                    return item;
                 });
                 localStorage.setItem('game_record_media', JSON.stringify(list));
                 return list;
@@ -362,10 +449,14 @@
 
         uploadMedia: async function (file, type, gameName) {
             if (!window.SB) return false;
+            var userId = await resolveUserId();
+            if (!userId) return false;
+
             gameName = gameName || '';
             var id = generateId();
             var ext = (file.name.split('.').pop() || (type === 'video' ? 'mp4' : 'jpg')).toLowerCase();
-            var storagePath = id + '.' + ext;
+            var prefix = userStoragePrefix(userId) + 'media/';
+            var storagePath = prefix + id + '.' + ext;
 
             if (type === 'image') {
                 var dataUrl = await new Promise(function (resolve, reject) {
@@ -382,7 +473,7 @@
                     upsert: true
                 });
                 if (up.error) throw up.error;
-                var thumbPath = 'thumb_' + id + '.jpg';
+                var thumbPath = prefix + 'thumb_' + id + '.jpg';
                 await window.SB.storage.from(MEDIA_BUCKET).upload(thumbPath, dataURLtoBlob(thumb), {
                     contentType: 'image/jpeg',
                     upsert: true
@@ -395,7 +486,8 @@
                     url: publicUrl,
                     thumbnail: thumbUrl,
                     name: file.name,
-                    game_name: gameName
+                    game_name: gameName,
+                    user_id: userId
                 });
                 if (ins.error) throw ins.error;
             } else {
@@ -411,7 +503,8 @@
                     url: publicUrlV,
                     thumbnail: null,
                     name: file.name,
-                    game_name: gameName
+                    game_name: gameName,
+                    user_id: userId
                 });
                 if (insv.error) throw insv.error;
             }
@@ -420,8 +513,21 @@
     };
 
     window.awaitGameCloud = function () {
-        return window.GameCloud ? window.GameCloud.ready : Promise.resolve();
+        if (window.GameData && window.GameData.migrateGameLinks) {
+            window.GameData.migrateGameLinks();
+        }
+        return Promise.resolve();
     };
 
-    window.GameCloud.init();
+    window.whenGameCloudSynced = function (callback) {
+        if (typeof callback !== 'function') return Promise.resolve();
+        if (!window.GameCloud || !window.GameCloud.enabled) {
+            callback();
+            return Promise.resolve();
+        }
+        return window.GameCloud.ready.then(callback);
+    };
+
+    // auth.html 登录成功后由 auth-page.js 调用 GameCloud.start()
+    // 其他页面由 auth.js requireAuth 成功后调用
 })();

@@ -269,12 +269,17 @@ function showToast(message, type = 'info') {
 }
 
 
-document.addEventListener('DOMContentLoaded', async () => {
-    await window.awaitGameCloud();
+async function renderHomeContent() {
     loadStats();
     loadRecentGames();
     loadRecentAchievements();
     await loadRecentMedia();
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await window.awaitGameCloud();
+    await renderHomeContent();
     setupUpload('#quick-image-upload', 'image', 'screenshot-upload');
     setupUpload('#quick-video-upload', 'video', 'video-upload');
+    window.whenGameCloudSynced(renderHomeContent);
 });

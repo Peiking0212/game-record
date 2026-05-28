@@ -85,15 +85,17 @@ function formatSupabaseError(err) {
 }
 
 /** 云端上传失败时写入本机，避免完全传不上去 */
-async function saveMediaLocally(file, gameName, type) {
+async function saveMediaLocally(file, gameId, gameName, type) {
     var allMedia = getData('game_record_media');
     var dataUrl = await readFile(file);
+    var resolved = window.GameData ? window.GameData.resolveGameFieldsFromSelect(gameId) : { gameId: gameId, gameName: gameName };
     var item = {
         id: window.generateId(),
         type: type,
         url: dataUrl,
         name: file.name,
-        gameName: gameName || '',
+        gameId: resolved.gameId || null,
+        gameName: resolved.gameName || gameName || '',
         time: new Date().toISOString()
     };
     if (type === 'image') {
@@ -289,6 +291,7 @@ async function fetchMediaFromCloud() {
                 thumbnail: row.thumbnail || null
             };
             item.type = normalizeMediaType(item);
+            if (window.GameData) item = window.GameData.migrateRecordGameId(item, 'gameName');
             return item;
         });
     } catch (e) {
@@ -298,15 +301,21 @@ async function fetchMediaFromCloud() {
 }
 
 // Get game names from games data
-function getGameNames() {
-    var games = getData(GAMES_KEY);
-    var names = [];
-    games.forEach(function (g) {
-        if (g.name && names.indexOf(g.name) === -1) {
-            names.push(g.name);
-        }
-    });
-    return names.sort();
+function getLibraryGames() {
+    return window.GameData ? window.GameData.getGames() : getData(GAMES_KEY);
+}
+
+function resolveSelectedGame(selectValue) {
+    if (!selectValue || selectValue === 'all') return { gameId: null, gameName: '' };
+    if (window.GameData) return window.GameData.resolveGameFieldsFromSelect(selectValue);
+    return { gameId: selectValue, gameName: selectValue };
+}
+
+function mediaBelongsToGameFilter(item, gameFilter) {
+    if (!gameFilter || gameFilter === 'all') return true;
+    var game = window.GameData ? window.GameData.getGameById(gameFilter) : null;
+    if (game && window.GameData) return window.GameData.recordBelongsToGame(item, game, 'gameName');
+    return item.gameName === gameFilter;
 }
 
 // ========================================
@@ -314,21 +323,19 @@ function getGameNames() {
 // ========================================
 function populateGameFilter() {
     var select = document.getElementById('game-filter');
-    var gameNames = getGameNames();
-    var currentVal = select.value;
-
-    // Keep first option
-    while (select.options.length > 1) {
-        select.remove(1);
+    if (window.GameData) {
+        window.GameData.populateGameSelect(select, { includeAll: true });
+        return;
     }
-
-    gameNames.forEach(function (name) {
+    var games = getLibraryGames();
+    var currentVal = select.value;
+    while (select.options.length > 1) select.remove(1);
+    games.forEach(function (g) {
         var opt = document.createElement('option');
-        opt.value = name;
-        opt.textContent = name;
+        opt.value = String(g.id);
+        opt.textContent = g.name;
         select.appendChild(opt);
     });
-
     select.value = currentVal;
 }
 
@@ -336,6 +343,7 @@ function populateGameFilter() {
 // Render Gallery
 // ========================================
 async function renderGallery() {
+    if (window.GameData) window.GameData.migrateGameLinks();
     var allMedia = await getAllMedia();
     var grid = document.getElementById('gallery-grid');
     var emptyState = document.getElementById('empty-state');
@@ -357,7 +365,7 @@ async function renderGallery() {
     }
     if (gameFilter && gameFilter !== 'all') {
         filteredMedia = filteredMedia.filter(function (item) {
-            return item.gameName === gameFilter;
+            return mediaBelongsToGameFilter(item, gameFilter);
         });
     }
     if (typeFilter && typeFilter !== 'all') {
@@ -573,17 +581,18 @@ document.getElementById('video-upload-input').addEventListener('change', functio
 // 显示上传弹窗
 function showUploadModal() {
     var select = document.getElementById('upload-type-game-select');
-    var gameNames = getGameNames();
-
-    while (select.options.length > 1) {
-        select.remove(1);
+    if (window.GameData) {
+        window.GameData.populateGameSelect(select, { placeholder: '选择游戏（可选）' });
+    } else {
+        var games = getLibraryGames();
+        while (select.options.length > 1) select.remove(1);
+        games.forEach(function (g) {
+            var opt = document.createElement('option');
+            opt.value = String(g.id);
+            opt.textContent = g.name;
+            select.appendChild(opt);
+        });
     }
-    gameNames.forEach(function (name) {
-        var opt = document.createElement('option');
-        opt.value = name;
-        opt.textContent = name;
-        select.appendChild(opt);
-    });
     select.value = '';
 
     // 显示上传类型和数量
@@ -609,7 +618,9 @@ function closeUploadTypeModal() {
 // 确认上传
 async function confirmTypeUpload() {
     var select = document.getElementById('upload-type-game-select');
-    var gameName = select.value;
+    var selected = resolveSelectedGame(select.value);
+    var gameId = selected.gameId;
+    var gameName = selected.gameName;
 
     if (pendingFiles.length === 0 || !pendingFileType) {
         showToast('没有选择文件', 'error');
@@ -640,16 +651,16 @@ async function confirmTypeUpload() {
             var file = pendingFiles[i];
             try {
                 if (health.ok) {
-                    await uploadFileToCloud(file, gameName, uploadType);
+                    await uploadFileToCloud(file, gameId, gameName, uploadType);
                 } else {
-                    await saveMediaLocally(file, gameName, uploadType);
+                    await saveMediaLocally(file, gameId, gameName, uploadType);
                 }
                 loadedCount++;
             } catch (err) {
                 lastError = formatSupabaseError(err);
                 console.error('上传失败:', file.name, err);
                 try {
-                    await saveMediaLocally(file, gameName, uploadType);
+                    await saveMediaLocally(file, gameId, gameName, uploadType);
                     loadedCount++;
                     errorCount++;
                 } catch (localErr) {
@@ -670,6 +681,7 @@ async function confirmTypeUpload() {
                     type: uploadType,
                     url: dataUrl,
                     name: file.name,
+                    gameId: gameId || null,
                     gameName: gameName || '',
                     time: new Date().toISOString()
                 };
@@ -710,10 +722,12 @@ async function confirmTypeUpload() {
 }
 
 // 上传单个文件到 Supabase（fileType 必须为 'image' 或 'video'，勿依赖全局 pendingFileType）
-async function uploadFileToCloud(file, gameName, fileType) {
+async function uploadFileToCloud(file, gameId, gameName, fileType) {
     var id = window.generateId();
     var ext = file.name.split('.').pop() || 'jpg';
     var storagePath = id + '.' + ext;
+    var resolved = window.GameData ? window.GameData.resolveGameFieldsFromSelect(gameId) : { gameId: gameId, gameName: gameName };
+    gameName = resolved.gameName || gameName || '';
 
     // 处理图片：压缩后上传
     if (fileType === 'image') {

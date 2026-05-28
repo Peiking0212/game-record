@@ -108,5 +108,17 @@
       "icon": "map",
       "screenshot": null
     }
+  ],
+  "memos": [
+    {
+      "id": 1001,
+      "text": "这个周末约好友联机打《双人成行》，记得周六晚上 8 点上线",
+      "dateDaysAgo": 1
+    },
+    {
+      "id": 1002,
+      "text": "想试《空洞骑士：丝之歌》，等 Steam 打折再加愿望单，先记在这里",
+      "dateDaysAgo": 3
+    }
   ]
 }

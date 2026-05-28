@@ -1,6 +1,7 @@
 -- ========================================
 -- 游戏记录 - Supabase 数据库初始化
 -- 在 Supabase Dashboard → SQL Editor 中执行此脚本
+-- 可重复执行，已存在的对象会跳过或重建策略
 -- ========================================
 
 -- 0. 站点 JSON 数据（游戏、成就、简介等，所有人共享）
@@ -18,6 +19,7 @@ CREATE TABLE IF NOT EXISTS site_data (
 
 ALTER TABLE site_data ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "站点数据可读写" ON site_data;
 CREATE POLICY "站点数据可读写" ON site_data
     FOR ALL
     USING (true)
@@ -39,6 +41,7 @@ CREATE TABLE IF NOT EXISTS media (
 ALTER TABLE media ENABLE ROW LEVEL SECURITY;
 
 -- 3. 匿名用户可读写（单用户场景）
+DROP POLICY IF EXISTS "匿名用户可读写" ON media;
 CREATE POLICY "匿名用户可读写" ON media
     FOR ALL
     USING (true)
@@ -53,18 +56,22 @@ VALUES ('media', 'media', true, 52428800, '{image/*,video/*}')
 ON CONFLICT (id) DO NOTHING;
 
 -- 5. 存储桶访问策略
+DROP POLICY IF EXISTS "匿名用户可上传" ON storage.objects;
 CREATE POLICY "匿名用户可上传" ON storage.objects
     FOR INSERT
     WITH CHECK (bucket_id = 'media');
 
+DROP POLICY IF EXISTS "匿名用户可读取" ON storage.objects;
 CREATE POLICY "匿名用户可读取" ON storage.objects
     FOR SELECT
     USING (bucket_id = 'media');
 
+DROP POLICY IF EXISTS "匿名用户可删除" ON storage.objects;
 CREATE POLICY "匿名用户可删除" ON storage.objects
     FOR DELETE
     USING (bucket_id = 'media');
 
+DROP POLICY IF EXISTS "匿名用户可更新" ON storage.objects;
 CREATE POLICY "匿名用户可更新" ON storage.objects
     FOR UPDATE
     USING (bucket_id = 'media')

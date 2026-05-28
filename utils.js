@@ -294,8 +294,48 @@
             // 搜索成就
             var achievements = JSON.parse(localStorage.getItem('achievements') || '[]');
             achievements.forEach(function (a) {
-                if ((a.title + (a.description || '') + (a.game || '')).toLowerCase().indexOf(query) !== -1) {
-                    items.push({ title: a.title, desc: (a.game || '') + ' · ' + (a.date || ''), badge: '成就', badgeColor: '#f59e0b', icon: ICONS.trophy, href: 'achievements.html' });
+                var gameLabel = a.gameName || a.game || '';
+                if ((a.title + (a.description || '') + gameLabel).toLowerCase().indexOf(query) !== -1) {
+                    var achHref = 'achievements.html';
+                    if (a.gameId != null && a.gameId !== '') {
+                        achHref = gameDetailUrl(a.gameId);
+                    } else if (gameLabel) {
+                        var resolvedId = window.GameData && window.GameData.resolveGameIdByName
+                            ? window.GameData.resolveGameIdByName(gameLabel)
+                            : null;
+                        if (resolvedId) achHref = gameDetailUrl(resolvedId);
+                    }
+                    items.push({
+                        title: a.title,
+                        desc: gameLabel + ' · ' + (a.date || ''),
+                        badge: '成就',
+                        badgeColor: '#f59e0b',
+                        icon: ICONS.trophy,
+                        href: achHref
+                    });
+                }
+            });
+
+            // 搜索评测
+            var reviews = JSON.parse(localStorage.getItem('game_record_reviews') || '[]');
+            reviews.forEach(function (r) {
+                var reviewName = r.name || r.gameName || '';
+                if ((reviewName + (r.review || r.comment || '')).toLowerCase().indexOf(query) !== -1) {
+                    var reviewHref = 'reviews.html';
+                    if (r.gameId != null && r.gameId !== '') {
+                        reviewHref = gameDetailUrl(r.gameId);
+                    } else if (reviewName && window.GameData && window.GameData.resolveGameIdByName) {
+                        var reviewGameId = window.GameData.resolveGameIdByName(reviewName);
+                        if (reviewGameId) reviewHref = gameDetailUrl(reviewGameId);
+                    }
+                    items.push({
+                        title: reviewName,
+                        desc: (r.rating || 0) + ' 星 · ' + (r.date || ''),
+                        badge: '评测',
+                        badgeColor: '#10b981',
+                        icon: ICONS.note,
+                        href: reviewHref
+                    });
                 }
             });
 
@@ -357,8 +397,6 @@
             '</div>';
         document.body.appendChild(panel);
 
-        renderMemos();
-
         // 打开/关闭
         document.addEventListener('click', function (e) {
             if (e.target.closest('#btn-memo') || e.target.closest('#btn-memo-m')) openMemo();
@@ -370,15 +408,37 @@
         document.getElementById('memo-input').addEventListener('keydown', function (e) {
             if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) addMemo();
         });
+
+        ensureSampleMemosAndRender();
+        if (window.whenGameCloudSynced) {
+            window.whenGameCloudSynced(ensureSampleMemosAndRender);
+        }
+    }
+
+    function ensureSampleMemosAndRender() {
+        var seedFn = window.GameData && (window.GameData.ensureSampleMemos || window.GameData.seedMemosIfEmpty);
+        if (seedFn) {
+            seedFn.call(window.GameData).then(renderMemos).catch(renderMemos);
+        } else {
+            renderMemos();
+        }
+    }
+
+    function closeMobileMenu() {
+        var menu = document.getElementById('mobile-menu');
+        if (menu) menu.classList.remove('open');
     }
 
     function openMemo() {
+        closeMobileMenu();
+        document.body.classList.add('memo-open');
         document.getElementById('memo-panel').classList.add('open');
         document.getElementById('memo-overlay').classList.add('open');
         renderMemos();
     }
 
     function closeMemo() {
+        document.body.classList.remove('memo-open');
         document.getElementById('memo-panel').classList.remove('open');
         document.getElementById('memo-overlay').classList.remove('open');
     }
@@ -408,8 +468,11 @@
     }
 
     function deleteMemo(id) {
-        var memos = getMemos().filter(function (m) { return m.id !== id; });
+        var memos = getMemos().filter(function (m) { return String(m.id) !== String(id); });
         saveMemos(memos);
+        if (window.GameData && window.GameData.markSampleMemoDismissed) {
+            window.GameData.markSampleMemoDismissed(id);
+        }
         renderMemos();
     }
 
@@ -437,7 +500,7 @@
 
         // 绑定事件
         list.querySelectorAll('.memo-delete').forEach(function (btn) {
-            btn.addEventListener('click', function () { deleteMemo(Number(this.dataset.id)); });
+            btn.addEventListener('click', function () { deleteMemo(this.dataset.id); });
         });
     }
 
@@ -719,6 +782,9 @@
     // ==================== 初始化 ====================
     function init() {
         injectToolbar();
+        if (window.GameAuth && window.GameAuth.injectLogoutButton) {
+            window.GameAuth.injectLogoutButton();
+        }
         initSearch();
         initMemo();
         initLock();
