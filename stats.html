@@ -1,0 +1,430 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="记录游戏时光：游戏收藏、成就、数据统计与媒体库。">
+    <meta name="keywords" content="游戏记录,游戏收藏,成就,游戏统计,媒体库">
+    <meta property="og:title" content="游戏记录">
+    <meta property="og:description" content="记录每一次游戏冒险，分享每一份游戏喜悦。">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <title>游戏记录 - 数据统计</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.544.0/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <link rel="stylesheet" href="styles.css?v=15">
+    <style>
+/* 导航栏响应式显示 - 不依赖 Tailwind CDN */
+.desktop-nav { display: none; }
+.mobile-nav { display: flex; }
+.mobile-menu { display: none; }
+@media (min-width: 768px) {
+    .desktop-nav { display: flex; }
+    .mobile-nav { display: none; }
+}
+        .filter-chip {
+            @apply px-3 py-1 rounded-full text-sm cursor-pointer transition-all border;
+        }
+        .filter-chip.active {
+            @apply bg-blue-500 text-white border-blue-500;
+        }
+        .filter-chip:not(.active) {
+            @apply bg-white text-gray-600 border-gray-300 hover:border-blue-400;
+        }
+        .export-btn {
+            @apply flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all;
+        }
+        .export-btn-primary {
+            @apply bg-blue-500 text-white hover:bg-blue-600;
+        }
+        .export-btn-secondary {
+            @apply bg-gray-100 text-gray-700 hover:bg-gray-200;
+        }
+        .year-summary-card {
+            @apply bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 text-white rounded-2xl p-6 shadow-xl;
+        }
+        .stat-number-large {
+            @apply text-4xl md:text-5xl font-bold;
+        }
+        .chart-container {
+            @apply bg-white rounded-xl shadow-md p-6;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <nav class="flex items-center justify-between py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] rounded-lg flex-shrink-0 flex items-center justify-center"><i data-lucide="gamepad-2" class="text-white w-5 h-5"></i></div>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] bg-clip-text text-transparent">
+                        游戏记录
+                    </h1>
+                </div>
+                
+                <div class="desktop-nav items-center space-x-3">
+                    <a href="index.html" class="nav-link">
+                        <i data-lucide="home" class="w-5 h-5 inline mr-2"></i>
+                        首页
+                    </a>
+                    <a href="profile.html" class="nav-link">
+                        <i data-lucide="user" class="w-5 h-5 inline mr-2"></i>
+                        个人简介</a>
+                    <a href="games.html" class="nav-link">
+                        <i data-lucide="gamepad-2" class="w-5 h-5 inline mr-2"></i>
+                        游戏收藏
+                    </a>
+                    <a href="achievements.html" class="nav-link">
+                        <i data-lucide="trophy" class="w-5 h-5 inline mr-2"></i>
+                        成就系统
+                    </a>
+                    <a href="stats.html" class="nav-link active">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5 inline mr-2"></i>
+                        数据统计
+                    </a>
+                    <a href="report.html" class="nav-link">
+                        <i data-lucide="sparkles" class="w-5 h-5 inline mr-2"></i>
+                        年度报告
+                    </a>
+                    <a href="spending.html" class="nav-link">
+                        <i data-lucide="shopping-cart" class="w-5 h-5 inline mr-2"></i>
+                        消费记录
+                    </a>
+                    <div style="position:relative;" id="nav-more-wrap">
+                        <a href="#" class="nav-link" id="nav-more-btn" onclick="event.preventDefault();document.getElementById('nav-more-menu').classList.toggle('hidden')">
+                            <i data-lucide="more-horizontal" class="w-5 h-5 inline mr-2"></i>
+                            更多
+                        </a>
+                        <div id="nav-more-menu" class="hidden" style="position:absolute;top:100%;right:0;background:var(--bg-card);border:1px solid var(--border-light);border-radius:0.75rem;box-shadow:0 8px 24px var(--shadow-color);z-index:60;min-width:160px;padding:0.5rem;">
+                            <a href="gallery.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体库
+                            </a>
+                            <a href="wishlist.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单</a>
+                            <a href="reviews.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="mobile-nav text-gray-700 hover:text-blue-500" id="mobile-menu-toggle">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </nav>
+            
+            <div class="mobile-menu" id="mobile-menu">
+                <div class="flex flex-col space-y-2 pb-2">
+                    <a href="index.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="home" class="w-4 h-4 inline mr-2"></i>首页</a>
+                    <a href="profile.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="user" class="w-4 h-4 inline mr-2"></i>个人简介</a>
+                    <a href="games.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="gamepad-2" class="w-4 h-4 inline mr-2"></i>游戏收藏</a>
+                    <a href="achievements.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="trophy" class="w-4 h-4 inline mr-2"></i>成就系统</a>
+                    <a href="stats.html" class="nav-link py-2 px-4 rounded-lg active"><i data-lucide="bar-chart-3" class="w-4 h-4 inline mr-2"></i>数据统计</a>
+                    <a href="report.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="sparkles" class="w-4 h-4 inline mr-2"></i>年度报告</a>
+                    <a href="spending.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="shopping-cart" class="w-4 h-4 inline mr-2"></i>消费记录</a>
+                    <a href="gallery.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体库</a>
+                    <a href="wishlist.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单</a>
+                    <a href="reviews.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-br from-blue-50 to-cyan-100 py-12 md:py-16" data-hero>
+        <div class="container mx-auto px-4 text-center">
+            <div data-aos="fade-up">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
+                    数据统计分析
+                </h1>
+                <p class="text-lg md:text-xl text-gray-700 mb-6 max-w-2xl mx-auto">
+                    深入了解你的游戏习惯，发现隐藏的游戏规律
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filter & Export Bar -->
+    <section class="py-4 bg-white border-b sticky top-16 z-40">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+                <!-- Filters -->
+                <div class="flex flex-wrap items-center gap-3">
+                    <span class="text-sm font-medium text-gray-600">筛选：</span>
+                    <select id="filter-year" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
+                        <option value="all">全部年份</option>
+                    </select>
+                    <select id="filter-type" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
+                        <option value="all">全部类型</option>
+                        <option value="开放世界">开放世界</option>
+                        <option value="策略">策略</option>
+                        <option value="MOBA">MOBA</option>
+                        <option value="养成">养成</option>
+                        <option value="RPG">RPG</option>
+                        <option value="射击">射击</option>
+                    </select>
+                    <select id="filter-status" class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm">
+                        <option value="all">全部状态</option>
+                        <option value="playing">游玩中</option>
+                        <option value="completed">已完成</option>
+                        <option value="planned">计划中</option>
+                        <option value="dropped">已放弃</option>
+                    </select>
+                    <button id="apply-filters" class="btn-secondary text-sm py-1.5">应用</button>
+                    <button id="clear-filters" class="text-gray-500 hover:text-gray-700 text-sm">清除</button>
+                </div>
+                
+                <!-- Export Buttons -->
+                <div class="flex gap-2">
+                    <button id="export-image" class="export-btn export-btn-secondary">
+                        <i data-lucide="image" class="w-4 h-4"></i>
+                        保存图片
+                    </button>
+                    <button id="year-summary-btn" class="export-btn export-btn-primary">
+                        <i data-lucide="sparkles" class="w-4 h-4"></i>
+                        年度总结
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Overview -->
+    <section class="py-8 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="stats-overview">
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="stat-icon bg-blue-100 text-blue-500">
+                        <i data-lucide="gamepad-2" class="w-8 h-8"></i>
+                    </div>
+                    <div class="stat-number" id="stat-total-games">0</div>
+                    <div class="stat-label">游戏总数</div>
+                </div>
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="stat-icon bg-cyan-50 text-cyan-500">
+                        <i data-lucide="clock" class="w-8 h-8"></i>
+                    </div>
+                    <div class="stat-number" id="stat-total-playtime">0</div>
+                    <div class="stat-label">总游戏时长(小时)</div>
+                </div>
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stat-icon bg-green-100 text-green-500">
+                        <i data-lucide="check-circle" class="w-8 h-8"></i>
+                    </div>
+                    <div class="stat-number" id="stat-completed">0</div>
+                    <div class="stat-label">已完成游戏</div>
+                </div>
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="400">
+                    <div class="stat-icon bg-purple-100 text-purple-500">
+                        <i data-lucide="trophy" class="w-8 h-8"></i>
+                    </div>
+                    <div class="stat-number" id="stat-achievements">0</div>
+                    <div class="stat-label">获得成就</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Charts Section -->
+    <section class="py-8 bg-gray-50" id="charts-section">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                <div data-aos="fade-up">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">游戏类型分布</h3>
+                    <div class="h-80 relative">
+                        <canvas id="gameTypeChart"></canvas>
+                    </div>
+                </div>
+                <div data-aos="fade-up" data-aos-delay="100">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">各类型游戏时长</h3>
+                    <div class="h-80 relative">
+                        <canvas id="playtimeByTypeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div data-aos="fade-up" data-aos-delay="200">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">游戏进度分布</h3>
+                    <div class="h-80 relative">
+                        <canvas id="gameProgressChart"></canvas>
+                    </div>
+                </div>
+                <div data-aos="fade-up" data-aos-delay="300">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">游戏时长对比</h3>
+                    <div class="h-80 relative">
+                        <canvas id="gameComparisonChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Game List Table -->
+    <section class="py-8 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-2xl font-bold mb-6 text-gray-800">游戏详细数据</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-4 font-semibold text-gray-700">游戏名称</th>
+                            <th class="px-6 py-4 font-semibold text-gray-700">类型</th>
+                            <th class="px-6 py-4 font-semibold text-gray-700">状态</th>
+                            <th class="px-6 py-4 font-semibold text-gray-700">游戏时长</th>
+                            <th class="px-6 py-4 font-semibold text-gray-700">进度</th>
+                        </tr>
+                    </thead>
+                    <tbody id="games-table-body" class="divide-y divide-gray-100">
+                        <!-- Table rows will be generated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Year Summary Modal -->
+    <div id="year-summary-modal" class="modal">
+        <div class="modal-content max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-gray-800" id="year-summary-title">年度游戏总结</h3>
+                <button class="modal-close text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+            
+            <div id="year-summary-content" class="space-y-6">
+                <!-- Year summary -->
+                <div id="summary-card-capture" class="text-center mb-6">
+                    <h2 class="text-3xl font-bold mb-2" id="summary-year"><script>document.currentScript.parentElement.textContent=new Date().getFullYear()</script></h2>
+                    <p class="text-lg opacity-90">年度游戏回顾</p>
+                </div>
+                
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="text-center p-4 rounded-lg" style="background: var(--bg-card);">
+                        <div class="stat-number-large" id="summary-games">0</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">款游戏</div>
+                    </div>
+                    <div class="text-center p-4 rounded-lg" style="background: var(--bg-card);">
+                        <div class="stat-number-large" id="summary-hours">0</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">游戏小时</div>
+                    </div>
+                    <div class="text-center p-4 rounded-lg" style="background: var(--bg-card);">
+                        <div class="stat-number-large" id="summary-completed">0</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">款通关</div>
+                    </div>
+                    <div class="text-center p-4 rounded-lg" style="background: var(--bg-card);">
+                        <div class="stat-number-large" id="summary-achievements">0</div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">个成就</div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-3">年度最爱游戏</h4>
+                    <div id="summary-top-games" class="space-y-2">
+                        <!-- Top games list -->
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">游戏类型偏好</h4>
+                    <div class="h-64 relative">
+                        <canvas id="yearTypeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center gap-3 mt-6 pt-4 border-t">
+                <button id="save-summary-image" class="btn-primary">
+                    <i data-lucide="camera" class="w-4 h-4 inline mr-2"></i>
+                    保存为图片                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-8 h-8 bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] rounded-lg flex items-center justify-center">
+                            <i data-lucide="gamepad-2" class="text-white w-5 h-5"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">游戏记录</h3>
+                    </div>
+                    <p class="text-gray-300">
+                        记录每一次游戏冒险，分享每一份游戏喜悦。                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">快速链接</h4>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="text-gray-300 hover:text-[#52B6FF]">首页</a></li>
+                        <li><a href="profile.html" class="text-gray-300 hover:text-[#52B6FF]">个人简介</a></li>
+                        <li><a href="games.html" class="text-gray-300 hover:text-[#52B6FF]">游戏收藏</a></li>
+                        <li><a href="achievements.html" class="text-gray-300 hover:text-[#52B6FF]">成就系统</a></li>
+                        <li><a href="stats.html" class="text-gray-300 hover:text-[#52B6FF]">数据统计</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">更多功能</h4>
+                    <ul class="space-y-2">
+                        <li><a href="wishlist.html" class="text-gray-300 hover:text-[#52B6FF]">游戏愿望单</a></li>
+                        <li><a href="reviews.html" class="text-gray-300 hover:text-[#52B6FF]">游戏评测</a></li>
+                        <li><a href="gallery.html" class="text-gray-300 hover:text-[#52B6FF]">媒体库</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">联系我</h4>
+                    <div class="space-y-2 text-gray-300">
+                        <div class="flex items-center">
+                            <i data-lucide="mail" class="w-4 h-4 mr-2"></i>
+                            <span>gamer@example.com</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i data-lucide="message-circle" class="w-4 h-4 mr-2"></i>
+                            <span>@游戏玩家</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i data-lucide="github" class="w-4 h-4 mr-2"></i>
+                            <span>GitHub</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; <span id="current-year"></span> 游戏记录. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast -->
+    <div id="toast" class="toast">
+        <span id="toast-message"></span>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        AOS.init({ duration: 800, once: true });
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js?v=1"></script>
+    <script src="js/sample-data-utils.js?v=12"></script>
+    <script src="js/data.js?v=2"></script>
+    <script src="js/cloud-sync.js?v=6"></script>
+    <script src="utils.js?v=12"></script>
+    <script src="js/stats.js?v=11"></script>
+    <script src="theme.js?v=8"></script>
+</body>
+</html>

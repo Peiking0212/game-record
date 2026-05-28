@@ -1,0 +1,484 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="记录游戏时光：游戏收藏、成就、数据统计与媒体库。">
+    <meta name="keywords" content="游戏记录,游戏收藏,成就,游戏统计,媒体库">
+    <meta property="og:title" content="游戏记录">
+    <meta property="og:description" content="记录每一次游戏冒险，分享每一份游戏喜悦。">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <title>游戏记录 - 游戏评测</title>
+    <style>
+/* 导航栏响应式显示 - 不依赖 Tailwind CDN */
+.desktop-nav { display: none; }
+.mobile-nav { display: flex; }
+.mobile-menu { display: none; }
+@media (min-width: 768px) {
+    .desktop-nav { display: flex; }
+    .mobile-nav { display: none; }
+}
+</style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.544.0/dist/umd/lucide.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <link rel="stylesheet" href="styles.css?v=15">
+</head>
+<body>
+    <!-- Header -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <nav class="flex items-center justify-between py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] rounded-lg flex-shrink-0 flex items-center justify-center"><i data-lucide="gamepad-2" class="text-white w-5 h-5"></i></div>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] bg-clip-text text-transparent">
+                        游戏记录
+                    </h1>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="desktop-nav items-center space-x-3">
+                    <a href="index.html" class="nav-link">
+                        <i data-lucide="home" class="w-5 h-5 inline mr-2"></i>
+                        首页
+                    </a>
+                    <a href="profile.html" class="nav-link">
+                        <i data-lucide="user" class="w-5 h-5 inline mr-2"></i>
+                        个人简介</a>
+                    <a href="games.html" class="nav-link">
+                        <i data-lucide="gamepad-2" class="w-5 h-5 inline mr-2"></i>
+                        游戏收藏
+                    </a>
+                    <a href="achievements.html" class="nav-link">
+                        <i data-lucide="trophy" class="w-5 h-5 inline mr-2"></i>
+                        成就系统
+                    </a>
+                    <a href="stats.html" class="nav-link">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5 inline mr-2"></i>
+                        数据统计
+                    </a>
+                    <a href="report.html" class="nav-link">
+                        <i data-lucide="sparkles" class="w-5 h-5 inline mr-2"></i>
+                        年度报告
+                    </a>
+                    <a href="spending.html" class="nav-link">
+                        <i data-lucide="shopping-cart" class="w-5 h-5 inline mr-2"></i>
+                        消费记录
+                    </a>
+                    <div style="position:relative;" id="nav-more-wrap">
+                        <a href="#" class="nav-link active" id="nav-more-btn" onclick="event.preventDefault();document.getElementById('nav-more-menu').classList.toggle('hidden')">
+                            <i data-lucide="more-horizontal" class="w-5 h-5 inline mr-2"></i>
+                            更多
+                        </a>
+                        <div id="nav-more-menu" class="hidden" style="position:absolute;top:100%;right:0;background:var(--bg-card);border:1px solid var(--border-light);border-radius:0.75rem;box-shadow:0 8px 24px var(--shadow-color);z-index:60;min-width:160px;padding:0.5rem;">
+                            <a href="gallery.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体库
+                            </a>
+                            <a href="wishlist.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单</a>
+                            <a href="reviews.html" class="nav-link active" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Navigation Toggle -->
+                <button class="mobile-nav text-gray-700 hover:text-blue-500" id="mobile-menu-toggle">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </nav>
+
+            <!-- Mobile Navigation Menu -->
+            <div class="mobile-menu" id="mobile-menu">
+                <div class="flex flex-col space-y-2 pb-2">
+                    <a href="index.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="home" class="w-4 h-4 inline mr-2"></i>首页</a>
+                    <a href="profile.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="user" class="w-4 h-4 inline mr-2"></i>个人简介</a>
+                    <a href="games.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="gamepad-2" class="w-4 h-4 inline mr-2"></i>游戏收藏</a>
+                    <a href="achievements.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="trophy" class="w-4 h-4 inline mr-2"></i>成就系统</a>
+                    <a href="stats.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="bar-chart-3" class="w-4 h-4 inline mr-2"></i>数据统计</a>
+                    <a href="report.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="sparkles" class="w-4 h-4 inline mr-2"></i>年度报告</a>
+                    <a href="spending.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="shopping-cart" class="w-4 h-4 inline mr-2"></i>消费记录</a>
+                    <a href="gallery.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体库</a>
+                    <a href="wishlist.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单</a>
+                    <a href="reviews.html" class="nav-link py-2 px-4 rounded-lg active"><i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-br from-blue-50 to-cyan-100 py-16">
+        <div class="container mx-auto px-4 text-center">
+            <div data-aos="fade-up">
+                <h1 class="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
+                    游戏评测
+                </h1>
+                <p class="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
+                    记录每款游戏的游玩体验，分享你的真实评价与感受
+                </p>
+                <button class="btn-primary" onclick="openAddReviewModal()">
+                    <i data-lucide="plus" class="w-5 h-5 inline mr-2"></i>
+                    添加评测
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Review Management -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <!-- Search and Filters -->
+            <div class="max-w-6xl mx-auto mb-12 grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Search -->
+                <div>
+                    <label for="search" class="block text-sm font-medium text-gray-700 mb-2">搜索游戏</label>
+                    <div class="relative">
+                        <input type="text" id="search" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="输入游戏名称...">
+                        <i data-lucide="search" class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+                    </div>
+                </div>
+
+                <!-- Filter by Rating -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">评分筛选</label>
+                    <select id="rating-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="all">全部评分</option>
+                        <option value="5">5 星</option>
+                        <option value="4">4 星</option>
+                        <option value="3">3 星</option>
+                        <option value="2">2 星</option>
+                        <option value="1">1 星</option>
+                    </select>
+                </div>
+
+                <!-- Filter by Tag -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">标签筛选</label>
+                    <select id="tag-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="all">全部标签</option>
+                    </select>
+                </div>
+
+                <!-- Sort By -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">排序方式</label>
+                    <select id="sort-by" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="date-desc">评测日期（最新）</option>
+                        <option value="date-asc">评测日期（最早）</option>
+                        <option value="rating-desc">评分（高到低）</option>
+                        <option value="rating-asc">评分（低到高）</option>
+                        <option value="hours-desc">游玩时长（多到少）</option>
+                        <option value="hours-asc">游玩时长（少到多）</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Reviews List -->
+            <div class="max-w-6xl mx-auto">
+                <div class="grid grid-cols-1 gap-6" id="reviews-list">
+                    <!-- Reviews will be dynamically loaded -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="empty-state" class="text-center py-16 hidden">
+                    <i data-lucide="message-square" class="w-20 h-20 text-gray-300 mx-auto mb-6"></i>
+                    <h3 class="text-2xl font-bold text-gray-700 mb-4">还没有游戏评测</h3>
+                    <p class="text-gray-600 mb-8">点击「添加评测」按钮，开始记录你的游戏体验吧</p>
+                    <button class="btn-primary" onclick="openAddReviewModal()">
+                        <i data-lucide="plus" class="w-5 h-5 inline mr-2"></i>
+                        添加评测
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Add Review Modal -->
+    <div id="add-review-modal" class="modal">
+        <div class="modal-content max-w-lg">
+            <button class="modal-close" onclick="closeAddReviewModal()">&times;</button>
+            <h3 class="text-xl font-semibold mb-6 text-gray-800">添加游戏评测</h3>
+            <form id="add-review-form" class="space-y-6">
+                <div>
+                    <label for="review-name" class="block text-sm font-medium text-gray-700 mb-2">游戏名称 <span class="text-red-500">*</span></label>
+                    <input type="text" id="review-name" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="输入游戏名称" required>
+                </div>
+
+                <div>
+                    <label for="review-cover" class="block text-sm font-medium text-gray-700 mb-2">游戏封面 URL</label>
+                    <input type="text" id="review-cover" name="cover" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="输入封面图片URL（可选）">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">评分 <span class="text-red-500">*</span></label>
+                    <div class="flex gap-2" id="add-rating-select">
+                        <i data-lucide="star" class="w-8 h-8 cursor-pointer add-rating-star" data-value="1" onclick="setAddRating(1)"></i>
+                        <i data-lucide="star" class="w-8 h-8 cursor-pointer add-rating-star" data-value="2" onclick="setAddRating(2)"></i>
+                        <i data-lucide="star" class="w-8 h-8 cursor-pointer add-rating-star" data-value="3" onclick="setAddRating(3)"></i>
+                        <i data-lucide="star" class="w-8 h-8 cursor-pointer add-rating-star" data-value="4" onclick="setAddRating(4)"></i>
+                        <i data-lucide="star" class="w-8 h-8 cursor-pointer add-rating-star" data-value="5" onclick="setAddRating(5)"></i>
+                    </div>
+                    <input type="hidden" id="add-review-rating" name="rating" value="0">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">标签（可多选）</label>
+                    <div class="flex flex-wrap gap-2" id="add-tags-group">
+                        <label class="inline-flex items-center px-3 py-1.5 rounded-full border border-gray-300 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition tag-option" data-tag="剧情优秀">
+                            <input type="checkbox" class="hidden tag-checkbox" value="剧情优秀">
+                            <span class="text-sm text-gray-600">剧情优秀</span>
+                        </label>
+                        <label class="inline-flex items-center px-3 py-1.5 rounded-full border border-gray-300 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition tag-option" data-tag="玩法出众">
+                            <input type="checkbox" class="hidden tag-checkbox" value="玩法出众">
+                            <span class="text-sm text-gray-600">玩法出众</span>
+                        </label>
+                        <label class="inline-flex items-center px-3 py-1.5 rounded-full border border-gray-300 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition tag-option" data-tag="画面精美">
+                            <input type="checkbox" class="hidden tag-checkbox" value="画面精美">
+                            <span class="text-sm text-gray-600">画面精美</span>
+                        </label>
+                        <label class="inline-flex items-center px-3 py-1.5 rounded-full border border-gray-300 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition tag-option" data-tag="音乐动听">
+                            <input type="checkbox" class="hidden tag-checkbox" value="音乐动听">
+                            <span class="text-sm text-gray-600">音乐动听</span>
+                        </label>
+                        <label class="inline-flex items-center px-3 py-1.5 rounded-full border border-gray-300 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition tag-option" data-tag="多人有趣">
+                            <input type="checkbox" class="hidden tag-checkbox" value="多人有趣">
+                            <span class="text-sm text-gray-600">多人有趣</span>
+                        </label>
+                        <label class="inline-flex items-center px-3 py-1.5 rounded-full border border-gray-300 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition tag-option" data-tag="休闲放松">
+                            <input type="checkbox" class="hidden tag-checkbox" value="休闲放松">
+                            <span class="text-sm text-gray-600">休闲放松</span>
+                        </label>
+                        <label class="inline-flex items-center px-3 py-1.5 rounded-full border border-gray-300 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition tag-option" data-tag="挑战性强">
+                            <input type="checkbox" class="hidden tag-checkbox" value="挑战性强">
+                            <span class="text-sm text-gray-600">挑战性强</span>
+                        </label>
+                        <label class="inline-flex items-center px-3 py-1.5 rounded-full border border-gray-300 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition tag-option" data-tag="值得重玩">
+                            <input type="checkbox" class="hidden tag-checkbox" value="值得重玩">
+                            <span class="text-sm text-gray-600">值得重玩</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="review-comment" class="block text-sm font-medium text-gray-700 mb-2">评语</label>
+                    <textarea id="review-comment" name="comment" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="写下你的简短评价..." maxlength="200"></textarea>
+                    <p class="text-xs text-gray-400 mt-1 text-right"><span id="add-comment-count">0</span>/200</p>
+                </div>
+
+                <div>
+                    <label for="review-hours" class="block text-sm font-medium text-gray-700 mb-2">游玩时长（小时）</label>
+                    <input type="number" id="review-hours" name="hours" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="输入游玩总时长" min="0" step="0.5">
+                </div>
+
+                <div>
+                    <label for="review-notes" class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+                    <textarea id="review-notes" name="notes" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="添加一些备注信息?.."></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary w-full">
+                    <i data-lucide="save" class="w-5 h-5 inline mr-2"></i>
+                    添加评测
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Review Modal -->
+    <div id="edit-review-modal" class="modal">
+        <div class="modal-content max-w-lg">
+            <button class="modal-close" onclick="closeEditReviewModal()">&times;</button>
+            <h3 class="text-xl font-semibold mb-6 text-gray-800">编辑游戏评测</h3>
+            <form id="edit-review-form" class="space-y-6">
+                <input type="hidden" id="edit-review-id">
+
+                <div>
+                    <label for="edit-review-name" class="block text-sm font-medium text-gray-700 mb-2">游戏名称 <span class="text-red-500">*</span></label>
+                    <input type="text" id="edit-review-name" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="输入游戏名称" required>
+                </div>
+
+                <div>
+                    <label for="edit-review-cover" class="block text-sm font-medium text-gray-700 mb-2">游戏封面 URL</label>
+                    <input type="text" id="edit-review-cover" name="cover" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="输入封面图片URL（可选）">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">评分 <span class="text-red-500">*</span></label>
+                    <div class="flex gap-2" id="edit-rating-select">
+                        <i data-lucide="star" class="w-8 h-8 cursor-pointer edit-rating-star" data-value="1" onclick="setEditRating(1)"></i>
+                        <i data-lucide="star" class="w-8 h-8 cursor-pointer edit-rating-star" data-value="2" onclick="setEditRating(2)"></i>
+                        <i data-lucide="star" class="w-8 h-8 cursor-pointer edit-rating-star" data-value="3" onclick="setEditRating(3)"></i>
+                        <i data-lucide="star" class="w-8 h-8 cursor-pointer edit-rating-star" data-value="4" onclick="setEditRating(4)"></i>
+                        <i data-lucide="star" class="w-8 h-8 cursor-pointer edit-rating-star" data-value="5" onclick="setEditRating(5)"></i>
+                    </div>
+                    <input type="hidden" id="edit-review-rating" name="rating" value="0">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">标签（可多选）</label>
+                    <div class="flex flex-wrap gap-2" id="edit-tags-group">
+                        <label class="inline-flex items-center px-3 py-1.5 rounded-full border border-gray-300 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition tag-option" data-tag="剧情优秀">
+                            <input type="checkbox" class="hidden tag-checkbox" value="剧情优秀">
+                            <span class="text-sm text-gray-600">剧情优秀</span>
+                        </label>
+                        <label class="inline-flex items-center px-3 py-1.5 rounded-full border border-gray-300 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition tag-option" data-tag="玩法出众">
+                            <input type="checkbox" class="hidden tag-checkbox" value="玩法出众">
+                            <span class="text-sm text-gray-600">玩法出众</span>
+                        </label>
+                        <label class="inline-flex items-center px-3 py-1.5 rounded-full border border-gray-300 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition tag-option" data-tag="画面精美">
+                            <input type="checkbox" class="hidden tag-checkbox" value="画面精美">
+                            <span class="text-sm text-gray-600">画面精美</span>
+                        </label>
+                        <label class="inline-flex items-center px-3 py-1.5 rounded-full border border-gray-300 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition tag-option" data-tag="音乐动听">
+                            <input type="checkbox" class="hidden tag-checkbox" value="音乐动听">
+                            <span class="text-sm text-gray-600">音乐动听</span>
+                        </label>
+                        <label class="inline-flex items-center px-3 py-1.5 rounded-full border border-gray-300 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition tag-option" data-tag="多人有趣">
+                            <input type="checkbox" class="hidden tag-checkbox" value="多人有趣">
+                            <span class="text-sm text-gray-600">多人有趣</span>
+                        </label>
+                        <label class="inline-flex items-center px-3 py-1.5 rounded-full border border-gray-300 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition tag-option" data-tag="休闲放松">
+                            <input type="checkbox" class="hidden tag-checkbox" value="休闲放松">
+                            <span class="text-sm text-gray-600">休闲放松</span>
+                        </label>
+                        <label class="inline-flex items-center px-3 py-1.5 rounded-full border border-gray-300 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition tag-option" data-tag="挑战性强">
+                            <input type="checkbox" class="hidden tag-checkbox" value="挑战性强">
+                            <span class="text-sm text-gray-600">挑战性强</span>
+                        </label>
+                        <label class="inline-flex items-center px-3 py-1.5 rounded-full border border-gray-300 cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition tag-option" data-tag="值得重玩">
+                            <input type="checkbox" class="hidden tag-checkbox" value="值得重玩">
+                            <span class="text-sm text-gray-600">值得重玩</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="edit-review-comment" class="block text-sm font-medium text-gray-700 mb-2">评语</label>
+                    <textarea id="edit-review-comment" name="comment" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="写下你的简短评价..." maxlength="200"></textarea>
+                    <p class="text-xs text-gray-400 mt-1 text-right"><span id="edit-comment-count">0</span>/200</p>
+                </div>
+
+                <div>
+                    <label for="edit-review-hours" class="block text-sm font-medium text-gray-700 mb-2">游玩时长（小时）</label>
+                    <input type="number" id="edit-review-hours" name="hours" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="输入游玩总时长" min="0" step="0.5">
+                </div>
+
+                <div>
+                    <label for="edit-review-notes" class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+                    <textarea id="edit-review-notes" name="notes" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="添加一些备注信息?.."></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary w-full">
+                    <i data-lucide="save" class="w-5 h-5 inline mr-2"></i>
+                    保存修改
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content max-w-sm">
+            <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+            <div class="text-center">
+                <i data-lucide="alert-triangle" class="w-16 h-16 text-red-500 mx-auto mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">确认删除</h3>
+                <p class="text-gray-600 mb-6" id="delete-message">确定要删除这篇游戏评测吗？</p>
+                <div class="flex gap-4 justify-center">
+                    <button class="btn-secondary" onclick="closeDeleteModal()">
+                        <i data-lucide="x" class="w-5 h-5 inline mr-2"></i>
+                        取消
+                    </button>
+                    <button class="btn-danger" id="confirm-delete-btn">
+                        <i data-lucide="trash-2" class="w-5 h-5 inline mr-2"></i>
+                        确认删除
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-8 h-8 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-lg flex items-center justify-center">
+                            <i data-lucide="gamepad-2" class="text-white w-5 h-5"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">游戏记录</h3>
+                    </div>
+                    <p class="text-gray-300">
+                        记录每一次游戏冒险，分享每一份游戏喜悦。                    </p>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">快速链接</h4>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="text-gray-300 hover:text-blue-400">首页</a></li>
+                        <li><a href="profile.html" class="text-gray-300 hover:text-blue-400">个人简介</a></li>
+                        <li><a href="games.html" class="text-gray-300 hover:text-blue-400">游戏收藏</a></li>
+                        <li><a href="achievements.html" class="text-gray-300 hover:text-blue-400">成就系统</a></li>
+                        <li><a href="stats.html" class="text-gray-300 hover:text-blue-400">数据统计</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">更多功能</h4>
+                    <ul class="space-y-2">
+                        <li><a href="gallery.html" class="text-gray-300 hover:text-blue-400">媒体库</a></li>
+                        <li><a href="wishlist.html" class="text-gray-300 hover:text-blue-400">游戏愿望单</a></li>
+                        <li><a href="reviews.html" class="text-gray-300 hover:text-blue-400">游戏评测</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">联系我</h4>
+                    <div class="space-y-2 text-gray-300">
+                        <div class="flex items-center">
+                            <i data-lucide="mail" class="w-4 h-4 mr-2"></i>
+                            <span>gamer@example.com</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i data-lucide="message-circle" class="w-4 h-4 mr-2"></i>
+                            <span>@游戏玩家</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i data-lucide="github" class="w-4 h-4 mr-2"></i>
+                            <span>GitHub</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; <span id="current-year"></span> 游戏记录. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <span id="toast-message"></span>
+    </div>
+
+        <script>
+        lucide.createIcons();
+        AOS.init({ duration: 800, once: true });
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js?v=1"></script>
+    <script src="js/sample-data-utils.js?v=12"></script>
+    <script src="js/data.js?v=2"></script>
+    <script src="js/cloud-sync.js?v=6"></script>
+    <script src="utils.js?v=12"></script>
+    <script src="js/reviews.js?v=7"></script>
+    <script src="theme.js?v=8"></script>
+</body>
+</html>
+

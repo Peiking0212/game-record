@@ -1,0 +1,346 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="记录游戏时光：游戏收藏、成就、数据统计与媒体库。">
+    <meta name="keywords" content="游戏记录,游戏收藏,成就,游戏统计,媒体库">
+    <meta property="og:title" content="游戏记录">
+    <meta property="og:description" content="记录每一次游戏冒险，分享每一份游戏喜悦。">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <title>游戏记录 - 首页</title>
+    <style>
+/* 导航栏响应式显示 - 不依赖 Tailwind CDN */
+.desktop-nav { display: none; }
+.mobile-nav { display: flex; }
+.mobile-menu { display: none; }
+@media (min-width: 768px) {
+    .desktop-nav { display: flex; }
+    .mobile-nav { display: none; }
+}
+</style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.544.0/dist/umd/lucide.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <link rel="stylesheet" href="styles.css?v=15">
+</head>
+<body>
+    <!-- Header -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <nav class="flex items-center justify-between py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-lg flex-shrink-0 flex items-center justify-center" style="background: var(--primary);"><i data-lucide="gamepad-2" class="text-white w-5 h-5"></i></div>
+                    <h1 class="text-2xl font-bold" style="color: var(--primary);">
+                        游戏记录
+                    </h1>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <div class="desktop-nav items-center space-x-3">
+                    <a href="index.html" class="nav-link active">
+                        <i data-lucide="home" class="w-5 h-5 inline mr-2"></i>
+                        首页
+                    </a>
+                    <a href="profile.html" class="nav-link">
+                        <i data-lucide="user" class="w-5 h-5 inline mr-2"></i>
+                        个人简介</a>
+                    <a href="games.html" class="nav-link">
+                        <i data-lucide="gamepad-2" class="w-5 h-5 inline mr-2"></i>
+                        游戏收藏
+                    </a>
+                    <a href="achievements.html" class="nav-link">
+                        <i data-lucide="trophy" class="w-5 h-5 inline mr-2"></i>
+                        成就系统
+                    </a>
+                    <a href="stats.html" class="nav-link">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5 inline mr-2"></i>
+                        数据统计
+                    </a>
+                    <a href="report.html" class="nav-link">
+                        <i data-lucide="sparkles" class="w-5 h-5 inline mr-2"></i>
+                        年度报告
+                    </a>
+                    <a href="spending.html" class="nav-link">
+                        <i data-lucide="shopping-cart" class="w-5 h-5 inline mr-2"></i>
+                        消费记录
+                    </a>
+                    <div style="position:relative;" id="nav-more-wrap">
+                        <a href="#" class="nav-link" id="nav-more-btn" onclick="event.preventDefault();document.getElementById('nav-more-menu').classList.toggle('hidden')">
+                            <i data-lucide="more-horizontal" class="w-5 h-5 inline mr-2"></i>
+                            更多
+                        </a>
+                        <div id="nav-more-menu" class="hidden" style="position:absolute;top:100%;right:0;background:var(--bg-card);border:1px solid var(--border-light);border-radius:0.75rem;box-shadow:0 8px 24px var(--shadow-color);z-index:60;min-width:160px;padding:0.5rem;">
+                            <a href="gallery.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体库
+                            </a>
+                            <a href="wishlist.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单</a>
+                            <a href="reviews.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mobile Navigation Toggle -->
+                <button class="mobile-nav text-gray-700 hover:text-blue-500" id="mobile-menu-toggle">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </nav>
+            
+            <!-- Mobile Navigation Menu -->
+            <div class="mobile-menu" id="mobile-menu">
+                <div class="flex flex-col space-y-2 pb-2">
+                    <a href="index.html" class="nav-link py-2 px-4 rounded-lg active"><i data-lucide="home" class="w-4 h-4 inline mr-2"></i>首页</a>
+                    <a href="profile.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="user" class="w-4 h-4 inline mr-2"></i>个人简介</a>
+                    <a href="games.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="gamepad-2" class="w-4 h-4 inline mr-2"></i>游戏收藏</a>
+                    <a href="achievements.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="trophy" class="w-4 h-4 inline mr-2"></i>成就系统</a>
+                    <a href="stats.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="bar-chart-3" class="w-4 h-4 inline mr-2"></i>数据统计</a>
+                    <a href="report.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="sparkles" class="w-4 h-4 inline mr-2"></i>年度报告</a>
+                    <a href="spending.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="shopping-cart" class="w-4 h-4 inline mr-2"></i>消费记录</a>
+                    <a href="gallery.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体库</a>
+                    <a href="wishlist.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单</a>
+                    <a href="reviews.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="py-20" style="background: var(--primary-light);" data-hero>
+        <div class="container mx-auto px-4 text-center">
+            <div data-aos="fade-up">
+                <h1 class="text-4xl md:text-5xl font-bold mb-6" style="color: var(--text-dark);">
+                    欢迎来到我的游戏世界
+                </h1>
+                <p class="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
+                    记录每一次冒险，分享每一份喜悦，让游戏时光成为永恒的回忆
+                </p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="games.html" class="btn-primary">
+                        <i data-lucide="gamepad-2" class="w-5 h-5 inline mr-2"></i>
+                        浏览游戏收藏
+                    </a>
+                    <a href="profile.html" class="btn-secondary">
+                        <i data-lucide="user" class="w-5 h-5 inline mr-2"></i>
+                        了解更多关于我
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Overview -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 gradient-text" data-aos="fade-up">游戏统计概览</h2>
+            
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="stat-icon bg-gray-100">
+                        <i data-lucide="gamepad-2" class="w-8 h-8 text-blue-500"></i>
+                    </div>
+                    <div class="stat-number" id="total-games">0</div>
+                    <div class="stat-label">游戏总数</div>
+                </div>
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="stat-icon bg-cyan-50">
+                        <i data-lucide="clock" class="w-8 h-8 text-cyan-500"></i>
+                    </div>
+                    <div class="stat-number" id="total-hours">0</div>
+                    <div class="stat-label">游戏时长</div>
+                </div>
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="stat-icon bg-green-100">
+                        <i data-lucide="trophy" class="w-8 h-8 text-green-500"></i>
+                    </div>
+                    <div class="stat-number" id="total-achievements">0</div>
+                    <div class="stat-label">获得成就</div>
+                </div>
+                <div class="stat-card" data-aos="fade-up" data-aos-delay="400">
+                    <div class="stat-icon bg-purple-100">
+                        <i data-lucide="star" class="w-8 h-8 text-purple-500"></i>
+                    </div>
+                    <div class="stat-number" id="avg-rating">0.0</div>
+                    <div class="stat-label">平均评分</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Games -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-8" data-aos="fade-up">
+                <i data-lucide="flame" class="w-8 h-8 inline mr-2 text-cyan-500"></i>
+                最近游玩            </h2>
+            
+            <div class="max-w-6xl mx-auto">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="recent-games">
+                    <!-- Recently played games will be dynamically loaded -->
+                </div>
+                
+                <div class="text-center mt-8" data-aos="fade-up">
+                    <a href="games.html" class="btn-secondary">
+                        <i data-lucide="arrow-right" class="w-5 h-5 inline mr-2"></i>
+                        查看全部游戏
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Achievements -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-8" data-aos="fade-up">
+                <i data-lucide="award" class="w-8 h-8 inline mr-2 text-yellow-500"></i>
+                最近成就            </h2>
+            
+            <div class="max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="recent-achievements">
+                    <!-- Recent achievements will be dynamically loaded -->
+                </div>
+                
+                <div class="text-center mt-8" data-aos="fade-up">
+                    <a href="achievements.html" class="btn-secondary">
+                        <i data-lucide="arrow-right" class="w-5 h-5 inline mr-2"></i>
+                        查看全部成就
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Upload -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-4 gradient-text" data-aos="fade-up">快速上传</h2>
+            <p class="text-center text-gray-600 mb-8" data-aos="fade-up" data-aos-delay="100">
+                分享你的游戏瞬间
+            </p>
+
+            <div id="home-media-preview-section" class="max-w-4xl mx-auto mb-10 hidden" data-aos="fade-up" data-aos-delay="150">
+                <div class="flex items-center justify-between mb-4 px-1">
+                    <h3 class="text-lg font-semibold text-gray-700 flex items-center gap-2">
+                        <i data-lucide="images" class="w-5 h-5 text-blue-500"></i>
+                        媒体库精选
+                    </h3>
+                    <a href="gallery.html" class="text-sm text-blue-500 hover:text-blue-600 flex items-center gap-1">
+                        查看全部
+                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    </a>
+                </div>
+                <div id="home-media-preview" class="home-media-preview-grid"></div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+                <!-- Image Upload -->
+                <div class="upload-area" id="quick-image-upload" data-aos="fade-up" data-aos-delay="200">
+                    <i data-lucide="image" class="w-12 h-12 mx-auto mb-4 text-blue-500"></i>
+                    <h4 class="font-semibold mb-2">游戏截图</h4>
+                    <p class="text-sm text-gray-500 mb-4">点击或拖拽文件到此处上传</p>
+                    <p class="text-xs text-gray-400">支持 JPG, PNG, GIF 格式</p>
+                    <input type="file" id="screenshot-upload" accept="image/*" class="hidden" multiple>
+                </div>
+                
+                <!-- Video Upload -->
+                <div class="upload-area" id="quick-video-upload" data-aos="fade-up" data-aos-delay="300">
+                    <i data-lucide="video" class="w-12 h-12 mx-auto mb-4 text-cyan-500"></i>
+                    <h4 class="font-semibold mb-2">游戏视频</h4>
+                    <p class="text-sm text-gray-500 mb-4">点击或拖拽文件到此处上传</p>
+                    <p class="text-xs text-gray-400">支持 MP4, WebM 格式 (最大 50MB)</p>
+                    <input type="file" id="video-upload" accept="video/*" class="hidden">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-8 h-8 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-lg flex items-center justify-center">
+                            <i data-lucide="gamepad-2" class="text-white w-5 h-5"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">游戏记录</h3>
+                    </div>
+                    <p class="text-gray-300">
+                        记录每一次游戏冒险，分享每一份游戏喜悦。                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">快速链接</h4>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="text-gray-300 hover:text-blue-400">首页</a></li>
+                        <li><a href="profile.html" class="text-gray-300 hover:text-blue-400">个人简介</a></li>
+                        <li><a href="games.html" class="text-gray-300 hover:text-blue-400">游戏收藏</a></li>
+                        <li><a href="achievements.html" class="text-gray-300 hover:text-blue-400">成就系统</a></li>
+                        <li><a href="stats.html" class="text-gray-300 hover:text-blue-400">数据统计</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">游戏分类</h4>
+                    <ul class="space-y-2">
+                        <li><a href="games.html" class="text-gray-300 hover:text-blue-400">原神</a></li>
+                        <li><a href="games.html" class="text-gray-300 hover:text-blue-400">明日方舟</a></li>
+                        <li><a href="games.html" class="text-gray-300 hover:text-blue-400">王者荣耀</a></li>
+                        <li><a href="games.html" class="text-gray-300 hover:text-blue-400">闪耀暖暖</a></li>
+                        <li><a href="games.html" class="text-gray-300 hover:text-blue-400">更多游戏</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">联系我</h4>
+                    <div class="space-y-2 text-gray-300">
+                        <div class="flex items-center">
+                            <i data-lucide="mail" class="w-4 h-4 mr-2"></i>
+                            <span>gamer@example.com</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i data-lucide="message-circle" class="w-4 h-4 mr-2"></i>
+                            <span>@游戏玩家</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i data-lucide="github" class="w-4 h-4 mr-2"></i>
+                            <span>GitHub</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; <span id="current-year"></span> 游戏记录. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <span id="toast-message"></span>
+    </div>
+
+        <script>
+        lucide.createIcons();
+        AOS.init({ duration: 800, once: true });
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js?v=1"></script>
+    <script src="js/sample-data-utils.js?v=12"></script>
+    <script src="js/data.js?v=2"></script>
+    <script src="js/cloud-sync.js?v=6"></script>
+    <script src="utils.js?v=12"></script>
+    <script src="js/index.js?v=8"></script>
+    <script src="theme.js?v=8"></script>
+</body>
+</html>
+

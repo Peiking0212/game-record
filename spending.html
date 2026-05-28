@@ -1,0 +1,543 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="记录游戏时光：游戏收藏、成就、数据统计与媒体库。">
+    <meta name="keywords" content="游戏记录,游戏收藏,成就,游戏统计,媒体库">
+    <meta property="og:title" content="游戏记录">
+    <meta property="og:description" content="记录每一次游戏冒险，分享每一份游戏喜悦。">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <title>游戏记录 - 消费记录</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.544.0/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=15">
+    <style>
+/* 导航栏响应式显示 - 不依赖 Tailwind CDN */
+.desktop-nav { display: none; }
+.mobile-nav { display: flex; }
+.mobile-menu { display: none; }
+@media (min-width: 768px) {
+    .desktop-nav { display: flex; }
+    .mobile-nav { display: none; }
+}
+        .stat-card-spending {
+            background: var(--bg-card);
+            border-radius: 1.25rem;
+            padding: 1.75rem 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 16px var(--shadow-color);
+            border: 1px solid var(--border-light);
+            transition: all 0.3s ease;
+        }
+        .stat-card-spending:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px var(--shadow-hover);
+        }
+        .stat-card-spending .stat-icon-wrap {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.75rem;
+        }
+        .stat-card-spending .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            line-height: 1.2;
+        }
+        .stat-card-spending .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-gray);
+            margin-top: 0.25rem;
+            font-weight: 500;
+        }
+        .spending-table-wrap {
+            overflow-x: auto;
+        }
+        .spending-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .spending-table thead th {
+            background: var(--table-header-bg);
+            padding: 0.85rem 1rem;
+            text-align: left;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-gray);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            border-bottom: 2px solid var(--border-light);
+            white-space: nowrap;
+        }
+        .spending-table tbody td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-dark);
+            font-size: 0.875rem;
+            vertical-align: middle;
+        }
+        .spending-table tbody tr {
+            transition: background 0.2s;
+        }
+        .spending-table tbody tr:hover {
+            background: var(--table-row-hover);
+        }
+        .spending-amount {
+            font-weight: 700;
+            color: #f59e0b;
+        }
+        .spending-platform-badge {
+            display: inline-block;
+            padding: 0.15rem 0.6rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: var(--badge-bg-blue);
+            color: var(--badge-text-blue);
+        }
+        .spending-platform-badge.platform-pc { background: #eef2ff; color: #4338ca; }
+        .spending-platform-badge.platform-steam { background: #e8f4ff; color: #1a9fff; }
+        .spending-platform-badge.platform-ps { background: #e8f0ff; color: #5271ff; }
+        .spending-platform-badge.platform-nintendo { background: #ffe8f0; color: #e60050; }
+        .spending-platform-badge.platform-xbox { background: #e8ffe8; color: #107c10; }
+        .spending-platform-badge.platform-epic { background: #f5e8ff; color: #7c3aed; }
+        .spending-platform-badge.platform-mobile { background: #fff3e0; color: #f57c00; }
+        .spending-platform-badge.platform-other { background: #f0f0f0; color: #666; }
+        .spending-action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-gray);
+            transition: all 0.2s;
+        }
+        .spending-action-btn:hover {
+            background: var(--bg-card-hover);
+        }
+        .spending-action-btn.edit-btn:hover {
+            color: var(--primary-blue);
+        }
+        .spending-action-btn.delete-btn:hover {
+            color: #ef4444;
+            background: #fef2f2;
+        }
+        .spending-type-badge {
+            display: inline-block;
+            padding: 0.15rem 0.55rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .spending-type-purchase {
+            background: #fce7f3;
+            color: #be185d;
+        }
+        .spending-type-recharge {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+        .spending-link-help {
+            font-size: 0.75rem;
+            color: var(--text-gray, #6b7280);
+            margin-top: 0.35rem;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <nav class="flex items-center justify-between py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] rounded-lg flex-shrink-0 flex items-center justify-center"><i data-lucide="gamepad-2" class="text-white w-5 h-5"></i></div>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] bg-clip-text text-transparent">
+                        游戏记录
+                    </h1>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="desktop-nav items-center space-x-3">
+                    <a href="index.html" class="nav-link">
+                        <i data-lucide="home" class="w-5 h-5 inline mr-2"></i>
+                        首页
+                    </a>
+                    <a href="profile.html" class="nav-link">
+                        <i data-lucide="user" class="w-5 h-5 inline mr-2"></i>
+                        个人简介</a>
+                    <a href="games.html" class="nav-link">
+                        <i data-lucide="gamepad-2" class="w-5 h-5 inline mr-2"></i>
+                        游戏收藏
+                    </a>
+                    <a href="achievements.html" class="nav-link">
+                        <i data-lucide="trophy" class="w-5 h-5 inline mr-2"></i>
+                        成就系统
+                    </a>
+                    <a href="stats.html" class="nav-link">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5 inline mr-2"></i>
+                        数据统计
+                    </a>
+                    <a href="report.html" class="nav-link">
+                        <i data-lucide="sparkles" class="w-5 h-5 inline mr-2"></i>
+                        年度报告
+                    </a>
+                    <a href="spending.html" class="nav-link active">
+                        <i data-lucide="shopping-cart" class="w-5 h-5 inline mr-2"></i>
+                        消费记录
+                    </a>
+                    <div style="position:relative;" id="nav-more-wrap">
+                        <a href="#" class="nav-link" id="nav-more-btn" onclick="event.preventDefault();document.getElementById('nav-more-menu').classList.toggle('hidden')">
+                            <i data-lucide="more-horizontal" class="w-5 h-5 inline mr-2"></i>
+                            更多
+                        </a>
+                        <div id="nav-more-menu" class="hidden" style="position:absolute;top:100%;right:0;background:var(--bg-card);border:1px solid var(--border-light);border-radius:0.75rem;box-shadow:0 8px 24px var(--shadow-color);z-index:60;min-width:160px;padding:0.5rem;">
+                            <a href="gallery.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体库
+                            </a>
+                            <a href="wishlist.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单</a>
+                            <a href="reviews.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mobile Navigation Toggle -->
+                <button class="mobile-nav text-gray-700 hover:text-blue-500" id="mobile-menu-toggle">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </nav>
+
+            <!-- Mobile Navigation Menu -->
+            <div class="mobile-menu" id="mobile-menu">
+                <div class="flex flex-col space-y-2 pb-2">
+                    <a href="index.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="home" class="w-4 h-4 inline mr-2"></i>首页</a>
+                    <a href="profile.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="user" class="w-4 h-4 inline mr-2"></i>个人简介</a>
+                    <a href="games.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="gamepad-2" class="w-4 h-4 inline mr-2"></i>游戏收藏</a>
+                    <a href="achievements.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="trophy" class="w-4 h-4 inline mr-2"></i>成就系统</a>
+                    <a href="stats.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="bar-chart-3" class="w-4 h-4 inline mr-2"></i>数据统计</a>
+                    <a href="report.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="sparkles" class="w-4 h-4 inline mr-2"></i>年度报告</a>
+                    <a href="spending.html" class="nav-link py-2 px-4 rounded-lg active"><i data-lucide="shopping-cart" class="w-4 h-4 inline mr-2"></i>消费记录</a>
+                    <a href="gallery.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体库</a>
+                    <a href="wishlist.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单</a>
+                    <a href="reviews.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-br from-[#52B6FF15] to-[#94D8FF15] py-14">
+        <div class="container mx-auto px-4 text-center" data-aos="fade-up">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
+                消费记录
+            </h1>
+            <p class="text-lg text-gray-600 mb-6 max-w-xl mx-auto">
+                记录你的游戏花费，理性消费
+            </p>
+            <div class="inline-flex items-center gap-3 bg-white rounded-full px-5 py-2 shadow-md">
+                <i data-lucide="calendar" class="w-5 h-5 text-[#52B6FF]"></i>
+                <select id="filter-year" class="text-base font-bold bg-transparent border-none outline-none cursor-pointer text-gray-800">
+                    <option value="all">全部年份</option>
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <!-- Add Spending Record -->
+    <section class="py-10 bg-white" id="add-spending-section">
+        <div class="container mx-auto px-4 max-w-6xl">
+            <div class="chart-card" data-aos="fade-up">
+                <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2 mb-6">
+                    <i data-lucide="plus-circle" class="w-6 h-6 text-[#52B6FF]"></i>
+                    添加消费记录
+                </h2>
+                <form id="spending-add-form" class="space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label for="add-spending-record-type" class="block text-sm font-medium text-gray-700 mb-2">消费类型</label>
+                            <select id="add-spending-record-type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <option value="purchase">购买游戏</option>
+                                <option value="recharge">账户充值</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="add-spending-link-select" class="block text-sm font-medium text-gray-700 mb-2">关联项目</label>
+                            <select id="add-spending-link-select" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></select>
+                            <p id="add-spending-link-help" class="spending-link-help">购买游戏：从愿望单选择要购买的游戏，记录会显示在愿望单页面。</p>
+                        </div>
+                        <div>
+                            <label for="add-spending-amount" class="block text-sm font-medium text-gray-700 mb-2">金额 (¥)</label>
+                            <input type="number" id="add-spending-amount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required step="0.01" min="0" placeholder="例如：298.00">
+                        </div>
+                        <div>
+                            <label for="add-spending-date" class="block text-sm font-medium text-gray-700 mb-2">消费日期</label>
+                            <input type="date" id="add-spending-date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        </div>
+                        <div>
+                            <label for="add-spending-platform" class="block text-sm font-medium text-gray-700 mb-2">平台</label>
+                            <select id="add-spending-platform" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required></select>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="add-spending-note" class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+                        <textarea id="add-spending-note" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="例如：预购豪华版、DLC、游戏内购、Steam 钱包充值..."></textarea>
+                    </div>
+                    <div class="flex gap-3 pt-2">
+                        <button type="submit" class="btn-primary">
+                            <i data-lucide="save" class="w-5 h-5 inline mr-2"></i>
+                            添加记录
+                        </button>
+                        <button type="reset" class="btn-secondary">
+                            重置
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Row -->
+    <section class="py-10 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto" data-aos="fade-up">
+                <div class="stat-card-spending">
+                    <div class="stat-icon-wrap" style="background:#FEF3C7;">
+                        <i data-lucide="dollar-sign" class="w-5 h-5 text-[#f59e0b]"></i>
+                    </div>
+                    <div class="stat-value" id="stat-total">¥0</div>
+                    <div class="stat-label">总花费</div>
+                </div>
+                <div class="stat-card-spending">
+                    <div class="stat-icon-wrap" style="background:#E8F4FF;">
+                        <i data-lucide="receipt" class="w-5 h-5 text-[#52B6FF]"></i>
+                    </div>
+                    <div class="stat-value" id="stat-games">0</div>
+                    <div class="stat-label">消费笔数<span id="stat-games-breakdown" class="block text-xs font-normal text-gray-400 mt-1"></span></div>
+                </div>
+                <div class="stat-card-spending">
+                    <div class="stat-icon-wrap" style="background:#D1FAE5;">
+                        <i data-lucide="calculator" class="w-5 h-5 text-[#10b981]"></i>
+                    </div>
+                    <div class="stat-value" id="stat-avg">¥0</div>
+                    <div class="stat-label">平均每笔消费</div>
+                </div>
+                <div class="stat-card-spending">
+                    <div class="stat-icon-wrap" style="background:#EDE9FE;">
+                        <i data-lucide="trending-up" class="w-5 h-5 text-[#8b5cf6]"></i>
+                    </div>
+                    <div class="stat-value" id="stat-monthly">¥0</div>
+                    <div class="stat-label">月均消费</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Charts Row -->
+    <section class="py-10 bg-white" id="charts-section">
+        <div class="container mx-auto px-4 max-w-6xl">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" data-aos="fade-up">
+                <!-- Monthly Spending Trend (Line Chart) -->
+                <div class="chart-card">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+                        <i data-lucide="trending-up" class="w-5 h-5 inline mr-2 text-[#52B6FF]"></i>
+                        月度消费趋势
+                    </h3>
+                    <div class="w-full" style="height:320px;overflow:hidden;">
+                        <canvas id="monthly-spending-chart" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+                <!-- Platform Distribution (Pie Chart) -->
+                <div class="chart-card">
+                    <h3 class="flex items-center gap-2">
+                        <i data-lucide="pie-chart" class="w-5 h-5 text-[#f59e0b]"></i>
+                        平台消费占比
+                    </h3>
+                    <div class="w-full" style="height:320px;overflow:hidden;">
+                        <canvas id="platform-pie-chart" class="w-full h-full"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Spending Records Table -->
+    <section class="py-10 bg-white">
+        <div class="container mx-auto px-4 max-w-6xl">
+            <div class="mb-6" data-aos="fade-up">
+                <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                    <i data-lucide="list" class="w-6 h-6 text-[#52B6FF]"></i>
+                    消费记录列表
+                </h2>
+            </div>
+
+            <div class="overflow-x-auto" data-aos="fade-up">
+                <div class="spending-table-wrap">
+                    <table class="spending-table">
+                        <thead>
+                            <tr>
+                                <th>类型</th>
+                                <th>项目</th>
+                                <th>金额 (¥)</th>
+                                <th>日期</th>
+                                <th>平台</th>
+                                <th>备注</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="spending-table-body">
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Empty State -->
+                <div id="spending-empty" class="text-center py-16 hidden">
+                    <i data-lucide="shopping-cart" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
+                    <h3 class="text-xl font-bold text-gray-700 mb-2">暂无消费记录</h3>
+                    <p class="text-gray-500 mb-4">在上方表单添加你的第一条消费记录吧</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-8 h-8 bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] rounded-lg flex items-center justify-center">
+                            <i data-lucide="gamepad-2" class="text-white w-5 h-5"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">游戏记录</h3>
+                    </div>
+                    <p class="text-gray-300">记录每一次游戏冒险，分享每一份游戏喜悦。</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">快速链接</h4>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="text-gray-300 hover:text-[#52B6FF]">首页</a></li>
+                        <li><a href="profile.html" class="text-gray-300 hover:text-[#52B6FF]">个人简介</a></li>
+                        <li><a href="games.html" class="text-gray-300 hover:text-[#52B6FF]">游戏收藏</a></li>
+                        <li><a href="achievements.html" class="text-gray-300 hover:text-[#52B6FF]">成就系统</a></li>
+                        <li><a href="stats.html" class="text-gray-300 hover:text-[#52B6FF]">数据统计</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">更多功能</h4>
+                    <ul class="space-y-2">
+                        <li><a href="wishlist.html" class="text-gray-300 hover:text-[#52B6FF]">游戏愿望单</a></li>
+                        <li><a href="spending.html" class="text-gray-300 hover:text-[#52B6FF]">消费记录</a></li>
+                        <li><a href="reviews.html" class="text-gray-300 hover:text-[#52B6FF]">游戏评测</a></li>
+                        <li><a href="report.html" class="text-gray-300 hover:text-[#52B6FF]">年度报告</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">联系我</h4>
+                    <div class="space-y-2 text-gray-300">
+                        <div class="flex items-center"><i data-lucide="mail" class="w-4 h-4 mr-2"></i><span>gamer@example.com</span></div>
+                        <div class="flex items-center"><i data-lucide="message-circle" class="w-4 h-4 mr-2"></i><span>@游戏玩家</span></div>
+                        <div class="flex items-center"><i data-lucide="github" class="w-4 h-4 mr-2"></i><span>GitHub</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; <span id="current-year"></span> 游戏记录. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Add / Edit Spending Modal -->
+    <div id="spending-modal" class="modal">
+        <div class="modal-content max-w-lg">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <h3 class="text-xl font-semibold mb-6 text-gray-800" id="spending-modal-title">添加消费记录</h3>
+            <form id="spending-form" class="space-y-5">
+                <input type="hidden" id="spending-id">
+
+                <div>
+                    <label for="spending-record-type" class="block text-sm font-medium text-gray-700 mb-2">消费类型</label>
+                    <select id="spending-record-type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="purchase">购买游戏</option>
+                        <option value="recharge">账户充值</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="spending-link-select" class="block text-sm font-medium text-gray-700 mb-2">关联项目</label>
+                    <select id="spending-link-select" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></select>
+                    <p id="spending-link-help" class="spending-link-help">购买游戏：从愿望单选择要购买的游戏，记录会显示在愿望单页面。</p>
+                </div>
+
+                <div>
+                    <label for="spending-amount" class="block text-sm font-medium text-gray-700 mb-2">金额 (¥)</label>
+                    <input type="number" id="spending-amount" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required step="0.01" min="0" placeholder="例如：298.00">
+                </div>
+
+                <div>
+                    <label for="spending-date" class="block text-sm font-medium text-gray-700 mb-2">消费日期</label>
+                    <input type="date" id="spending-date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                </div>
+
+                <div>
+                    <label for="spending-platform" class="block text-sm font-medium text-gray-700 mb-2">平台</label>
+                    <select id="spending-platform" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required></select>
+                </div>
+
+                <div>
+                    <label for="spending-note" class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+                    <textarea id="spending-note" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="例如：预购豪华版、DLC、游戏内购、Steam 钱包充值..."></textarea>
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="btn-primary flex-1">
+                        <i data-lucide="save" class="w-5 h-5 inline mr-2"></i>
+                        <span id="spending-submit-text">添加记录</span>
+                    </button>
+                    <button type="button" class="btn-secondary flex-1" onclick="closeModal()">
+                        取消
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <span id="toast-message"></span>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        AOS.init({ duration: 800, once: true });
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js?v=1"></script>
+    <script src="js/sample-data-utils.js?v=12"></script>
+    <script src="js/data.js?v=2"></script>
+    <script src="js/cloud-sync.js?v=6"></script>
+    <script src="js/time-utils.js?v=12"></script>
+    <script src="utils.js?v=12"></script>
+    <script src="js/spending.js?v=10"></script>
+    <script src="theme.js?v=9"></script>
+</body>
+</html>
+
