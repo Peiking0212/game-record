@@ -779,6 +779,56 @@
     window.safeGetItem = safeGetItem;
     window.safeSetItem = safeSetItem;
 
+    // ==================== 阻止浏览器/密码管理器自动填充账号 ====================
+    // 本站非登录页（登录在 auth.html，不加载本脚本），所以这里所有输入框都不应被
+    // 当成账号/密码字段。给它们打上明确标记，避免 Edge/Chrome 及 1Password/LastPass
+    // 弹出账号填充。可在某个输入上加 data-allow-autofill 主动豁免。
+    function hardenInputAutofill(root) {
+        var scope = root && root.querySelectorAll ? root : document;
+        var fields = scope.querySelectorAll('input, textarea, select');
+        for (var i = 0; i < fields.length; i++) {
+            var el = fields[i];
+            if (!el || el.nodeType !== 1) continue;
+            if (el.hasAttribute('data-allow-autofill')) continue;
+            if (el.getAttribute('data-no-autofill') === '1') continue;
+            var type = (el.getAttribute('type') || '').toLowerCase();
+            // 这些类型不会触发账号填充，跳过即可
+            if (type === 'checkbox' || type === 'radio' || type === 'file' ||
+                type === 'range' || type === 'hidden' || type === 'submit' ||
+                type === 'button' || type === 'color') continue;
+            el.setAttribute('autocomplete', 'off');
+            el.setAttribute('data-lpignore', 'true');
+            el.setAttribute('data-1p-ignore', '');
+            if (!el.hasAttribute('data-form-type')) {
+                el.setAttribute('data-form-type', 'other');
+            }
+            el.setAttribute('data-no-autofill', '1');
+        }
+    }
+
+    function initAutofillGuard() {
+        hardenInputAutofill(document);
+        if (typeof MutationObserver === 'undefined') return;
+        var pending = false;
+        var observer = new MutationObserver(function (mutations) {
+            for (var i = 0; i < mutations.length; i++) {
+                if (mutations[i].addedNodes && mutations[i].addedNodes.length) {
+                    if (pending) return;
+                    pending = true;
+                    // 合并多次 DOM 变更，下一帧统一处理
+                    requestAnimationFrame(function () {
+                        pending = false;
+                        hardenInputAutofill(document);
+                    });
+                    return;
+                }
+            }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
+
+    window.hardenInputAutofill = hardenInputAutofill;
+
     // ==================== 初始化 ====================
     function init() {
         injectToolbar();
@@ -790,6 +840,7 @@
         initLock();
         initBackup();
         updateLockBtn();
+        initAutofillGuard();
     }
 
     if (document.readyState === 'loading') {
