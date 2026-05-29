@@ -182,7 +182,7 @@ async function callLookupGame(query, steamAppId) {
   var token = sessionRes.data && sessionRes.data.session && sessionRes.data.session.access_token;
   if (!token) throw new Error('请先登录');
 
-  var bodyPayload = { import: true };
+  var bodyPayload = { import: true, allowManual: true };
   if (steamAppId != null && Number(steamAppId) > 0) {
     bodyPayload.steamAppId = Number(steamAppId);
   } else {
@@ -201,7 +201,9 @@ async function callLookupGame(query, steamAppId) {
   var body = await res.json().catch(function () { return {}; });
   if (!res.ok || !body.ok) {
     var err = (body && body.error) ? body.error : ('HTTP ' + res.status);
-    if (err === 'not_found') err = 'Steam 未找到该游戏，请检查名称或改用英文名';
+    if (err === 'not_found') {
+      err = (body && body.hint) ? body.hint : '未在 Steam/ITAD 找到；主机独占游戏仍会尝试按名称入库';
+    }
     throw new Error(err);
   }
   invalidateAlertContext();
@@ -302,7 +304,11 @@ function bindLookupCloudHandlers(container) {
               break;
             }
           }
-          showToast('已入库：' + (lookup.game.name || item.name), 'success');
+          if (lookup.warning === 'not_on_steam' && lookup.message) {
+            showToast(lookup.message, 'warning');
+          } else {
+            showToast('已入库：' + (lookup.game.name || item.name), 'success');
+          }
         }
         await renderWishlist();
         await renderAlertsPanel();
@@ -1081,7 +1087,7 @@ async function handleAddWishlistSubmit(e) {
         if (!newItem.cover && lookup.game.cover_url) newItem.cover = lookup.game.cover_url;
         if (lookup.candidates && lookup.candidates.length > 1) {
           newItem.notes = (newItem.notes ? newItem.notes + ' · ' : '') +
-            '已匹配 Steam：' + lookup.game.name;
+            '已匹配：' + lookup.game.name;
         }
       }
     } catch (lookupErr) {
@@ -1098,7 +1104,11 @@ async function handleAddWishlistSubmit(e) {
   saveDealWatchRules(rules);
   closeAddWishlistModal();
   await renderWishlist();
-  showToast(newItem.supabaseGameId ? '愿望单已添加并已同步云端' : '愿望单已添加');
+  if (newItem.supabaseGameId) {
+    showToast('愿望单已添加并已同步云端', 'success');
+  } else {
+    showToast('愿望单已添加', 'success');
+  }
 }
 
 // ============================================================

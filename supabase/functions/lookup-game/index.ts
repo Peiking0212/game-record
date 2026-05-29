@@ -6,6 +6,7 @@ const corsHeaders = {
 };
 
 const STEAM_SEARCH = "https://store.steampowered.com/api/storesearch/";
+const ITAD_BASE = "https://api.isthereanydeal.com";
 const STEAM_CC = (Deno.env.get("STEAM_STORE_CC") || "cn").toLowerCase();
 const STEAM_LANG = (Deno.env.get("STEAM_STORE_LANG") || "schinese").toLowerCase();
 
@@ -17,10 +18,10 @@ type SteamSearchItem = {
 };
 
 type Candidate = {
-  steamAppId: number;
+  steamAppId: number | null;
   name: string;
   coverUrl: string | null;
-  source: "steam";
+  source: "steam" | "itad" | "manual";
 };
 
 function json(status: number, body: Record<string, unknown>) {
@@ -30,15 +31,26 @@ function json(status: number, body: Record<string, unknown>) {
   });
 }
 
+function searchVariants(query: string): string[] {
+  const raw = query.trim();
+  const set = new Set<string>();
+  if (raw.length >= 2) set.add(raw);
+  const xNorm = raw.replace(/[×✕]/g, " x ").replace(/\s+/g, " ").trim();
+  if (xNorm.length >= 2) set.add(xNorm);
+  const ascii = raw.replace(/[×✕·:™®©]/g, " ").replace(/\s+/g, " ").trim();
+  if (ascii.length >= 2) set.add(ascii);
+  const noSpace = ascii.replace(/\s+/g, "");
+  if (noSpace.length >= 2) set.add(noSpace);
+  return [...set];
+}
+
 async function searchSteamStore(query: string): Promise<Candidate[]> {
   const url =
     `${STEAM_SEARCH}?term=${encodeURIComponent(query)}&l=${STEAM_LANG}&cc=${STEAM_CC}`;
   const res = await fetch(url, {
     headers: { "User-Agent": "PeikingGameTime/1.0 (+lookup-game)" },
   });
-  if (!res.ok) {
-    throw new Error(`steam_search_http_${res.status}`);
-  }
+  if (!res.ok) return [];
   const data = (await res.json()) as { items?: SteamSearchItem[] };
   const items = data.items || [];
   const out: Candidate[] = [];
@@ -54,6 +66,76 @@ async function searchSteamStore(query: string): Promise<Candidate[]> {
     if (out.length >= 8) break;
   }
   return out;
+}
+
+async function searchSteamAllVariants(query: string): Promise<Candidate[]> {
+  const seen = new Set<number>();
+  const merged: Candidate[] = [];
+  for (const variant of searchVariants(query)) {
+    const batch = await searchSteamStore(variant);
+    for (const c of batch) {
+      if (c.steamAppId == null || seen.has(c.steamAppId)) continue;
+      seen.add(c.steamAppId);
+      merged.push(c);
+      if (merged.length >= 8) return merged;
+    }
+  }
+  return merged;
+}
+
+type ItadSearchHit = { id?: string; title?: string; type?: string };
+
+async function searchItad(query: string): Promise<Candidate | null> {
+  const apiKey = Deno.env.get("ITAD_API_KEY")?.trim();
+  if (!apiKey) return null;
+
+  for (const variant of searchVariants(query)) {
+    const url =
+      `${ITAD_BASE}/games/search/v1?q=${encodeURIComponent(variant)}&key=${encodeURIComponent(apiKey)}`;
+    const res = await fetch(url, {
+      headers: { "User-Agent": "PeikingGameTime/1.0 (+lookup-game)", "ITAD-API-Key": apiKey },
+    });
+    if (!res.ok) continue;
+    const hits = (await res.json()) as ItadSearchHit[];
+    const game = hits.find((h) => h.type === "game" || !h.type) || hits[0];
+    if (!game?.id || !game.title) continue;
+
+    const lookupRes = await fetch(
+      `${ITAD_BASE}/games/lookup/v1?title=${encodeURIComponent(game.title)}&key=${encodeURIComponent(apiKey)}`,
+      { headers: { "ITAD-API-Key": apiKey } },
+    );
+    if (!lookupRes.ok) {
+      return { steamAppId: null, name: game.title, coverUrl: null, source: "itad" };
+    }
+    const lookup = await lookupRes.json() as { found?: boolean; game?: { id?: string; title?: string } };
+    if (!lookup.found) {
+      return { steamAppId: null, name: game.title, coverUrl: null, source: "itad" };
+    }
+
+    const steamLookup = await fetch(
+      `${ITAD_BASE}/lookup/id/shop/61/v1?key=${encodeURIComponent(apiKey)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "ITAD-API-Key": apiKey },
+        body: JSON.stringify([game.id]),
+      },
+    );
+    if (steamLookup.ok) {
+      const map = await steamLookup.json() as Record<string, string>;
+      const shopId = map[game.id!];
+      const steamAppId = shopId ? Number(String(shopId).replace(/\D/g, "")) : NaN;
+      if (Number.isFinite(steamAppId) && steamAppId > 0) {
+        return {
+          steamAppId,
+          name: game.title,
+          coverUrl: null,
+          source: "itad",
+        };
+      }
+    }
+    return { steamAppId: null, name: game.title, coverUrl: null, source: "itad" };
+  }
+  return null;
 }
 
 async function fetchSteamAppName(steamAppId: number): Promise<{ name: string; coverUrl: string | null }> {
@@ -72,6 +154,63 @@ async function fetchSteamAppName(steamAppId: number): Promise<{ name: string; co
     name: entry.data.name,
     coverUrl: entry.data.header_image || null,
   };
+}
+
+async function upsertGame(
+  admin: ReturnType<typeof createClient>,
+  pick: Candidate,
+): Promise<Record<string, unknown>> {
+  if (pick.steamAppId != null && pick.steamAppId > 0) {
+    const { data, error } = await admin
+      .from("games")
+      .upsert(
+        {
+          steam_app_id: pick.steamAppId,
+          name: pick.name,
+          cover_url: pick.coverUrl,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "steam_app_id" },
+      )
+      .select("id, steam_app_id, name, cover_url")
+      .single();
+    if (error) throw error;
+    return data as Record<string, unknown>;
+  }
+
+  const { data: existing } = await admin
+    .from("games")
+    .select("id, steam_app_id, name, cover_url")
+    .ilike("name", pick.name)
+    .limit(1)
+    .maybeSingle();
+
+  if (existing) {
+    const { data, error } = await admin
+      .from("games")
+      .update({
+        cover_url: pick.coverUrl ?? existing.cover_url,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", existing.id)
+      .select("id, steam_app_id, name, cover_url")
+      .single();
+    if (error) throw error;
+    return data as Record<string, unknown>;
+  }
+
+  const { data, error } = await admin
+    .from("games")
+    .insert({
+      steam_app_id: null,
+      name: pick.name,
+      cover_url: pick.coverUrl,
+      updated_at: new Date().toISOString(),
+    })
+    .select("id, steam_app_id, name, cover_url")
+    .single();
+  if (error) throw error;
+  return data as Record<string, unknown>;
 }
 
 Deno.serve(async (req) => {
@@ -103,9 +242,11 @@ Deno.serve(async (req) => {
     const query = String(payload?.query || "").trim();
     const steamAppId = Number(payload?.steamAppId);
     const doImport = payload?.import !== false;
+    const allowManual = payload?.allowManual !== false;
 
     let pick: Candidate | null = null;
     let candidates: Candidate[] = [];
+    let warning: string | null = null;
 
     if (Number.isFinite(steamAppId) && steamAppId > 0) {
       const details = await fetchSteamAppName(steamAppId);
@@ -117,11 +258,35 @@ Deno.serve(async (req) => {
       };
       candidates = [pick];
     } else if (query.length >= 2) {
-      candidates = await searchSteamStore(query);
-      if (candidates.length === 0) {
-        return json(404, { ok: false, error: "not_found", query });
+      candidates = await searchSteamAllVariants(query);
+      if (candidates.length > 0) {
+        pick = candidates[0];
+      } else {
+        const itadPick = await searchItad(query);
+        if (itadPick) {
+          pick = itadPick;
+          candidates = [itadPick];
+          if (itadPick.steamAppId == null) {
+            warning = "not_on_steam";
+          }
+        } else if (allowManual) {
+          pick = {
+            steamAppId: null,
+            name: query.replace(/[×✕]/g, "×").trim() || query,
+            coverUrl: null,
+            source: "manual",
+          };
+          candidates = [pick];
+          warning = "not_on_steam";
+        } else {
+          return json(404, {
+            ok: false,
+            error: "not_found",
+            query,
+            hint: "该游戏可能不在 Steam（如 Switch 独占），可传 allowManual:true 按名称入库",
+          });
+        }
       }
-      pick = candidates[0];
     } else {
       return json(400, {
         ok: false,
@@ -137,39 +302,35 @@ Deno.serve(async (req) => {
     let gameRow: Record<string, unknown> | null = null;
     if (doImport) {
       const admin = createClient(supabaseUrl, serviceRoleKey);
-      const { data, error } = await admin
-        .from("games")
-        .upsert(
-          {
-            steam_app_id: pick.steamAppId,
-            name: pick.name,
-            cover_url: pick.coverUrl,
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: "steam_app_id" },
-        )
-        .select("id, steam_app_id, name, cover_url")
-        .single();
-
-      if (error) {
-        return json(500, { ok: false, error: "upsert_game_failed", detail: error.message });
-      }
-      gameRow = data as Record<string, unknown>;
-
-      // Fire-and-forget price ingest for this game (best effort)
       try {
-        await fetch(`${supabaseUrl}/functions/v1/run-price-ingest`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${serviceRoleKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ gameId: data.id }),
+        gameRow = await upsertGame(admin, pick);
+      } catch (e) {
+        return json(500, {
+          ok: false,
+          error: "upsert_game_failed",
+          detail: String(e),
         });
-      } catch {
-        /* non-fatal */
+      }
+
+      if (pick.steamAppId != null && gameRow?.id) {
+        try {
+          await fetch(`${supabaseUrl}/functions/v1/run-price-ingest`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${serviceRoleKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ gameId: gameRow.id }),
+          });
+        } catch {
+          /* non-fatal */
+        }
       }
     }
+
+    const message = warning === "not_on_steam"
+      ? "该游戏可能不在 Steam（如 Switch/主机），已按名称加入云端；自动抓价可能不可用，请用手动目标价或本地价格。"
+      : null;
 
     return json(200, {
       ok: true,
@@ -177,6 +338,9 @@ Deno.serve(async (req) => {
       candidates,
       game: gameRow,
       imported: !!gameRow,
+      warning,
+      message,
+      pickSource: pick.source,
     });
   } catch (error) {
     return json(500, { ok: false, error: "unexpected_error", detail: String(error) });
