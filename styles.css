@@ -1876,6 +1876,17 @@ body.has-custom-bg main {
 .wishlist-alert-dismiss:hover {
     background: #f3f4f6;
 }
+.wishlist-alert-dismiss-all {
+    padding: 0.35rem 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid #bfdbfe;
+    background: #fff;
+    color: #2563eb;
+    cursor: pointer;
+}
+.wishlist-alert-dismiss-all:hover {
+    background: #eff6ff;
+}
 @media (max-width: 768px) {
     .review-card,
     .wishlist-card {
