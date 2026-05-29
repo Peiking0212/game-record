@@ -42,6 +42,7 @@ Deployed on project `oxbyshstrvzshxpaztzg`:
 |----------|------------|--------|
 | `run-price-ingest` | off | v3+ ITAD-primary; chains `run-alert-evaluator` after success |
 | `run-alert-evaluator` | off | `channel='in_app'` placeholder |
+| `lookup-game` | on | User JWT; Steam search → upsert `games` → optional `run-price-ingest` |
 | `upsert-alert` | on | User JWT required |
 | `sync-user-games` | on | Body: `ownedGameIds`, `wishlistGameIds` |
 | `fetch-personalized-feed` | on | Existing feed |
@@ -149,7 +150,27 @@ select jobid, jobname, schedule from cron.job;
 - Evaluate: `POST /functions/v1/run-alert-evaluator` (service role or cron)
 - Events land in `alert_events` with `channel='in_app'` — email/webhook later
 
-## 8) Frontend wishlist + in-app alerts + 看板娘
+## 8) Lookup game by user input (Steam search)
+
+`POST /functions/v1/lookup-game` with user JWT:
+
+```json
+{ "query": "Collar×Malice", "import": true }
+```
+
+Or confirm by Steam AppID:
+
+```json
+{ "steamAppId": 591980, "import": true }
+```
+
+Flow: Steam `storesearch` → upsert `public.games` (service role) → best-effort `run-price-ingest` for that `gameId`.
+
+Wishlist UI: on add (logged in) auto-calls lookup; unmatched cards show **从 Steam 搜索入库**.
+
+Deploy: `supabase functions deploy lookup-game --no-verify-jwt` (gateway still validates JWT when enabled).
+
+## 9) Frontend wishlist + in-app alerts + 看板娘
 
 - `js/wishlist.js`: empty local wishlist + signed-in user → `games` + `game_best_prices` (lowest price + store)
 - **目标价提醒**：登录后在愿望单卡片设置「目标价（CNY）」→ `POST /functions/v1/upsert-alert`（Bearer 用户 JWT），body `{ "gameId": 3, "targetPrice": 48, "enabled": true }`
@@ -165,7 +186,7 @@ select jobid, jobname, schedule from cron.job;
 3. Dashboard 执行 `run-price-ingest` 后由 ingest 链式调用 `run-alert-evaluator`，或手动 `POST .../run-alert-evaluator`（service role）
 4. 刷新愿望单：站内提醒列表 + 看板娘气泡；点击「知道了」清除未读红点
 
-## 9) Smoke test
+## 10) Smoke test
 
 ```bash
 # Requires SUPABASE_SERVICE_ROLE_KEY in .env

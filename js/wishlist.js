@@ -175,6 +175,40 @@ async function triggerAlertEvaluatorForGame(gameId) {
   }
 }
 
+async function callLookupGame(query, steamAppId) {
+  var cfg = readSupabaseEnv();
+  if (!cfg.url || !cfg.anonKey) throw new Error('未配置 Supabase');
+  var sessionRes = await window.SB.auth.getSession();
+  var token = sessionRes.data && sessionRes.data.session && sessionRes.data.session.access_token;
+  if (!token) throw new Error('请先登录');
+
+  var bodyPayload = { import: true };
+  if (steamAppId != null && Number(steamAppId) > 0) {
+    bodyPayload.steamAppId = Number(steamAppId);
+  } else {
+    bodyPayload.query = String(query || '').trim();
+  }
+
+  var res = await fetch(cfg.url.replace(/\/$/, '') + '/functions/v1/lookup-game', {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer ' + token,
+      apikey: cfg.anonKey,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(bodyPayload)
+  });
+  var body = await res.json().catch(function () { return {}; });
+  if (!res.ok || !body.ok) {
+    var err = (body && body.error) ? body.error : ('HTTP ' + res.status);
+    if (err === 'not_found') err = 'Steam 未找到该游戏，请检查名称或改用英文名';
+    throw new Error(err);
+  }
+  invalidateAlertContext();
+  _supabaseCatalogCache = null;
+  return body;
+}
+
 async function callUpsertAlert(gameId, targetPrice, enabled) {
   var cfg = readSupabaseEnv();
   if (!cfg.url || !cfg.anonKey) throw new Error('未配置 Supabase');
@@ -208,7 +242,11 @@ function renderTargetPriceBlock(item, ctx) {
   if (!ctx || !ctx.signedIn) return '';
   var gameId = resolveSupabaseGameId(item, ctx);
   if (!gameId) {
-    return '<div class="wishlist-alert-row"><span class="wishlist-alert-inline">未匹配云端游戏。星露谷请用「Stardew Valley」或清空本地愿望单后使用云端目录条目</span></div>';
+    var safeName = escapeHtml(item.name || '');
+    return '<div class="wishlist-alert-row wishlist-alert-unmatched" data-wishlist-id="' + escapeHtml(String(item.id || '')) + '">' +
+      '<span class="wishlist-alert-inline">未在云端目录中。可从 Steam 搜索并入库后即可设目标价提醒。</span>' +
+      '<button type="button" class="wishlist-lookup-cloud-btn" data-wishlist-id="' + escapeHtml(String(item.id || '')) + '">从 Steam 搜索入库</button>' +
+      '</div>';
   }
   var alertRow = ctx.alertsByGameId[String(gameId)];
   var priceRow = ctx.pricesByGameId[String(gameId)];
@@ -231,6 +269,50 @@ function renderTargetPriceBlock(item, ctx) {
   html += '<span class="wishlist-alert-inline wishlist-alert-feedback" data-game-id="' + gameId + '"></span>';
   html += '</div></div>';
   return html;
+}
+
+function bindLookupCloudHandlers(container) {
+  if (!container) return;
+  var buttons = container.querySelectorAll('.wishlist-lookup-cloud-btn');
+  for (var i = 0; i < buttons.length; i++) {
+    buttons[i].addEventListener('click', async function () {
+      var wishId = this.getAttribute('data-wishlist-id');
+      var list = await loadWishlistWithFallback();
+      var item = null;
+      for (var j = 0; j < list.length; j++) {
+        if (String(list[j].id) === String(wishId)) { item = list[j]; break; }
+      }
+      if (!item || !item.name) {
+        showToast('找不到愿望单条目', 'warning');
+        return;
+      }
+      this.disabled = true;
+      try {
+        showToast('正在 Steam 搜索「' + item.name + '」…', 'success');
+        var lookup = await callLookupGame(item.name);
+        if (lookup.game) {
+          item.supabaseGameId = lookup.game.id;
+          item.steamAppId = lookup.game.steam_app_id;
+          if (!item.cover && lookup.game.cover_url) item.cover = lookup.game.cover_url;
+          var local = getWishlist();
+          for (var k = 0; k < local.length; k++) {
+            if (String(local[k].id) === String(wishId)) {
+              local[k] = Object.assign({}, local[k], item);
+              saveWishlist(local);
+              break;
+            }
+          }
+          showToast('已入库：' + (lookup.game.name || item.name), 'success');
+        }
+        await renderWishlist();
+        await renderAlertsPanel();
+      } catch (e) {
+        showToast(e.message || '入库失败', 'warning');
+      } finally {
+        this.disabled = false;
+      }
+    });
+  }
 }
 
 function bindTargetPriceSaveHandlers(container) {
@@ -912,6 +994,7 @@ async function renderWishlist() {
   container.innerHTML = html;
   if (window.lucide) { lucide.createIcons(); }
   bindTargetPriceSaveHandlers(container);
+  bindLookupCloudHandlers(container);
 
   // 绑定编辑/删除按钮
   var editBtns = container.querySelectorAll('.btn-edit-wishlist');
@@ -952,7 +1035,7 @@ function closeAddWishlistModal() {
 }
 
 // ---------- 添加提交 ----------
-function handleAddWishlistSubmit(e) {
+async function handleAddWishlistSubmit(e) {
   e.preventDefault();
   var nameInput = document.querySelector('#add-wishlist-form [name="name"]');
   var name = nameInput ? nameInput.value.trim() : '';
@@ -988,6 +1071,24 @@ function handleAddWishlistSubmit(e) {
     date: new Date().toISOString()
   };
 
+  if (await isUserSignedIn()) {
+    try {
+      showToast('正在从 Steam 搜索并入库…', 'success');
+      var lookup = await callLookupGame(name);
+      if (lookup.game) {
+        newItem.supabaseGameId = lookup.game.id;
+        newItem.steamAppId = lookup.game.steam_app_id;
+        if (!newItem.cover && lookup.game.cover_url) newItem.cover = lookup.game.cover_url;
+        if (lookup.candidates && lookup.candidates.length > 1) {
+          newItem.notes = (newItem.notes ? newItem.notes + ' · ' : '') +
+            '已匹配 Steam：' + lookup.game.name;
+        }
+      }
+    } catch (lookupErr) {
+      showToast((lookupErr.message || '云端入库失败') + '，已仅保存本地', 'warning');
+    }
+  }
+
   var list = getWishlist();
   list.push(newItem);
   saveWishlist(list);
@@ -996,8 +1097,8 @@ function handleAddWishlistSubmit(e) {
   if (newItem.price !== '') rules.targetPriceByWishlistId[newItem.id] = parseFloat(newItem.price) || 0;
   saveDealWatchRules(rules);
   closeAddWishlistModal();
-  renderWishlist();
-  showToast('愿望单已添加');
+  await renderWishlist();
+  showToast(newItem.supabaseGameId ? '愿望单已添加并已同步云端' : '愿望单已添加');
 }
 
 // ============================================================

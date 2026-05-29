@@ -1751,8 +1751,44 @@ body.has-custom-bg main {
 }
 
 /* 愿望单：目标价 + 站内提醒 */
+.wishlist-lookup-cloud-btn {
+  margin-top: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8125rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, #52b6ff, #94d8ff);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+.wishlist-lookup-cloud-btn:hover {
+  opacity: 0.92;
+}
+.wishlist-lookup-cloud-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.wishlist-lookup-cloud-btn {
+  margin-top: 0.5rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8125rem;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, #52b6ff, #94d8ff);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+.wishlist-lookup-cloud-btn:hover {
+  opacity: 0.92;
+}
+.wishlist-lookup-cloud-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .wishlist-alert-row {
-    margin-top: 0.75rem;
+  margin-top: 0.75rem;
     padding: 0.75rem;
     border-radius: 0.5rem;
     background: rgba(82, 182, 255, 0.08);
