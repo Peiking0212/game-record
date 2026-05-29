@@ -8,6 +8,27 @@ var _supabaseCatalogCache = null;
 var _alertCtx = null;
 var ALERT_EVENTS_LIMIT = 15;
 
+/** 愿望单中文名 → 云端 games.name（小写）或 steam_app_id */
+var WISHLIST_GAME_ALIASES = {
+  '星露谷物语': { name: 'stardew valley', steamAppId: 413150 },
+  '星露谷': { name: 'stardew valley', steamAppId: 413150 },
+  'stardew valley': { name: 'stardew valley', steamAppId: 413150 },
+  'dota 2': { name: 'dota 2', steamAppId: 570 },
+  'dota2': { name: 'dota 2', steamAppId: 570 },
+  '反恐精英2': { name: 'counter-strike 2', steamAppId: 730 },
+  'cs2': { name: 'counter-strike 2', steamAppId: 730 },
+  'counter-strike 2': { name: 'counter-strike 2', steamAppId: 730 }
+};
+
+function normalizeWishlistGameName(name) {
+  return String(name || '').trim().toLowerCase();
+}
+
+function getWishlistAlias(name) {
+  var key = normalizeWishlistGameName(name);
+  return WISHLIST_GAME_ALIASES[key] || null;
+}
+
 function readSupabaseEnv() {
   if (window.GameTimeSupabase && window.GameTimeSupabase.readBrowserEnv) {
     return window.GameTimeSupabase.readBrowserEnv();
@@ -104,13 +125,20 @@ function resolveSupabaseGameId(item, ctx) {
   if (!item || !ctx) return null;
   if (item.supabaseGameId != null) return Number(item.supabaseGameId);
   var list = ctx.gamesList || [];
+  var alias = getWishlistAlias(item.name);
+  var wantSteamId = item.steamAppId || (alias && alias.steamAppId);
+  var wantName = alias && alias.name ? alias.name : normalizeWishlistGameName(item.name);
+
   for (var i = 0; i < list.length; i++) {
     var g = list[i];
-    if (item.steamAppId && g.steam_app_id && String(g.steam_app_id) === String(item.steamAppId)) {
+    if (wantSteamId && g.steam_app_id && String(g.steam_app_id) === String(wantSteamId)) {
       return g.id;
     }
     if (g.name && item.name &&
-        String(g.name).trim().toLowerCase() === String(item.name).trim().toLowerCase()) {
+        normalizeWishlistGameName(g.name) === normalizeWishlistGameName(item.name)) {
+      return g.id;
+    }
+    if (g.name && wantName && normalizeWishlistGameName(g.name) === wantName) {
       return g.id;
     }
   }
@@ -124,6 +152,27 @@ function formatBestPriceLine(priceRow) {
   if (store === 'gog') store = 'GOG';
   else if (store) store = store.charAt(0).toUpperCase() + store.slice(1);
   return '当前最低 ' + cur + priceRow.price + (store ? ' @' + store : '');
+}
+
+async function triggerAlertEvaluatorForGame(gameId) {
+  var cfg = readSupabaseEnv();
+  if (!cfg.url || !cfg.anonKey) return;
+  try {
+    var sessionRes = await window.SB.auth.getSession();
+    var token = sessionRes.data && sessionRes.data.session && sessionRes.data.session.access_token;
+    if (!token) return;
+    await fetch(cfg.url.replace(/\/$/, '') + '/functions/v1/run-alert-evaluator', {
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer ' + token,
+        apikey: cfg.anonKey,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ gameId: Number(gameId) })
+    });
+  } catch (e) {
+    console.warn('[wishlist] evaluator invoke failed', e);
+  }
 }
 
 async function callUpsertAlert(gameId, targetPrice, enabled) {
@@ -152,14 +201,14 @@ async function callUpsertAlert(gameId, targetPrice, enabled) {
     throw new Error(err);
   }
   invalidateAlertContext();
-  return body.alert;
+  return body;
 }
 
 function renderTargetPriceBlock(item, ctx) {
   if (!ctx || !ctx.signedIn) return '';
   var gameId = resolveSupabaseGameId(item, ctx);
   if (!gameId) {
-    return '<div class="wishlist-alert-row"><span class="wishlist-alert-inline">登录且游戏名与云端目录一致时可设目标价提醒</span></div>';
+    return '<div class="wishlist-alert-row"><span class="wishlist-alert-inline">未匹配云端游戏。星露谷请用「Stardew Valley」或清空本地愿望单后使用云端目录条目</span></div>';
   }
   var alertRow = ctx.alertsByGameId[String(gameId)];
   var priceRow = ctx.pricesByGameId[String(gameId)];
@@ -176,8 +225,8 @@ function renderTargetPriceBlock(item, ctx) {
   }
   html += '</div>';
   html += '<div class="wishlist-alert-form">';
-  html += '<label class="wishlist-alert-inline">目标价（CNY）<input type="number" min="0.01" step="0.01" class="wishlist-target-price-input" value="' +
-    escapeHtml(String(targetVal)) + '" placeholder="例如 48" /></label>';
+  html += '<label class="wishlist-alert-inline">目标价（CNY，愿意买的最高价）<input type="number" min="0.01" step="0.01" class="wishlist-target-price-input" value="' +
+    escapeHtml(String(targetVal)) + '" placeholder="例如 50" /></label>';
   html += '<button type="button" class="wishlist-save-alert-btn" data-game-id="' + gameId + '">保存提醒</button>';
   html += '<span class="wishlist-alert-inline wishlist-alert-feedback" data-game-id="' + gameId + '"></span>';
   html += '</div></div>';
@@ -204,12 +253,22 @@ function bindTargetPriceSaveHandlers(container) {
         feedback.className = 'wishlist-alert-inline wishlist-alert-feedback';
       }
       try {
-        await callUpsertAlert(gameId, price, true);
+        var upsertBody = await callUpsertAlert(gameId, price, true);
+        await triggerAlertEvaluatorForGame(gameId);
+        var ev = upsertBody && upsertBody.evaluation;
         if (feedback) {
           feedback.textContent = '已保存';
           feedback.className = 'wishlist-alert-inline wishlist-alert-feedback success';
         }
-        showToast('目标价提醒已保存', 'success');
+        if (ev && ev.triggered) {
+          showToast('已达标！站内提醒与看板娘已更新', 'success');
+        } else if (ev && ev.reason === 'above_target') {
+          showToast('已保存。当前价高于目标价，降价后会提醒', 'success');
+        } else if (ev && ev.reason === 'deduped') {
+          showToast('已保存（24 小时内不重复提醒）', 'success');
+        } else {
+          showToast('目标价提醒已保存', 'success');
+        }
         await renderWishlist();
         await renderAlertsPanel();
       } catch (e) {
@@ -233,11 +292,49 @@ async function fetchInAppAlertEvents() {
     .eq('channel', 'in_app')
     .order('triggered_at', { ascending: false })
     .limit(ALERT_EVENTS_LIMIT);
+  if (!res.error && res.data) return res.data;
+
   if (res.error) {
-    console.warn('[wishlist] alert_events fetch failed', res.error.message);
+    console.warn('[wishlist] alert_events embed fetch failed, fallback', res.error.message);
+  }
+  var plain = await window.SB
+    .from('alert_events')
+    .select('id, alert_id, trigger_price, channel, status, triggered_at')
+    .eq('channel', 'in_app')
+    .order('triggered_at', { ascending: false })
+    .limit(ALERT_EVENTS_LIMIT);
+  if (plain.error || !plain.data || plain.data.length === 0) {
+    if (plain.error) console.warn('[wishlist] alert_events fetch failed', plain.error.message);
     return [];
   }
-  return res.data || [];
+  var alertIds = plain.data.map(function (e) { return e.alert_id; });
+  var alertsRes = await window.SB
+    .from('alerts')
+    .select('id, game_id, target_price')
+    .in('id', alertIds);
+  var gameIds = (alertsRes.data || []).map(function (a) { return a.game_id; });
+  var gamesRes = await window.SB.from('games').select('id, name').in('id', gameIds);
+  var alertById = {};
+  (alertsRes.data || []).forEach(function (a) { alertById[a.id] = a; });
+  var gameById = {};
+  (gamesRes.data || []).forEach(function (g) { gameById[g.id] = g; });
+  return plain.data.map(function (ev) {
+    var alert = alertById[ev.alert_id];
+    var game = alert ? gameById[alert.game_id] : null;
+    return {
+      id: ev.id,
+      alert_id: ev.alert_id,
+      trigger_price: ev.trigger_price,
+      channel: ev.channel,
+      status: ev.status,
+      triggered_at: ev.triggered_at,
+      alerts: alert ? {
+        game_id: alert.game_id,
+        target_price: alert.target_price,
+        games: game ? { name: game.name } : null
+      } : null
+    };
+  });
 }
 
 function formatAlertEventMessage(ev) {
@@ -409,13 +506,22 @@ async function enrichWishlistFromSupabase(list) {
     }
 
     return list.map(function (item) {
+      var alias = getWishlistAlias(item.name);
+      var wantSteamId = item.steamAppId || (alias && alias.steamAppId);
+      var wantName = alias && alias.name ? alias.name : normalizeWishlistGameName(item.name);
       var match = (gamesRes.data || []).find(function (g) {
         if (item.supabaseGameId && String(g.id) === String(item.supabaseGameId)) return true;
-        if (item.steamAppId && g.steam_app_id && String(g.steam_app_id) === String(item.steamAppId)) {
+        if (wantSteamId && g.steam_app_id && String(g.steam_app_id) === String(wantSteamId)) {
           return true;
         }
-        return g.name && item.name &&
-          String(g.name).trim().toLowerCase() === String(item.name).trim().toLowerCase();
+        if (g.name && item.name &&
+          normalizeWishlistGameName(g.name) === normalizeWishlistGameName(item.name)) {
+          return true;
+        }
+        if (g.name && wantName && normalizeWishlistGameName(g.name) === wantName) {
+          return true;
+        }
+        return false;
       });
       if (!match) return item;
       var priceRow = priceByGameId[String(match.id)];

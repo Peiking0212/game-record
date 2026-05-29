@@ -62,7 +62,63 @@ Deno.serve(async (req) => {
       return json(500, { ok: false, error: "upsert_failed", detail: error.message });
     }
 
-    return json(200, { ok: true, alert: data });
+    let evaluation: Record<string, unknown> | null = null;
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+    if (serviceRoleKey) {
+      const admin = createClient(supabaseUrl, serviceRoleKey);
+      const { data: latestPrice } = await admin
+        .from("game_best_prices")
+        .select("price, best_store")
+        .eq("game_id", gameId)
+        .maybeSingle();
+
+      const currentPrice = Number(latestPrice?.price);
+      const target = Number(targetPrice);
+      const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+      if (
+        Number.isFinite(currentPrice) &&
+        currentPrice > 0 &&
+        Number.isFinite(target) &&
+        currentPrice <= target
+      ) {
+        const { data: recent } = await admin
+          .from("alert_events")
+          .select("id")
+          .eq("alert_id", data.id)
+          .gte("triggered_at", since)
+          .limit(1);
+
+        if (!recent || recent.length === 0) {
+          const { data: event, error: evErr } = await admin
+            .from("alert_events")
+            .insert({
+              alert_id: data.id,
+              trigger_price: currentPrice,
+              channel: "in_app",
+              status: "triggered",
+            })
+            .select("id")
+            .single();
+          evaluation = {
+            triggered: !evErr && !!event?.id,
+            eventId: event?.id ?? null,
+            currentPrice,
+            bestStore: latestPrice?.best_store ?? null,
+          };
+        } else {
+          evaluation = { triggered: false, reason: "deduped", currentPrice };
+        }
+      } else {
+        evaluation = {
+          triggered: false,
+          reason: currentPrice > target ? "above_target" : "no_price",
+          currentPrice: Number.isFinite(currentPrice) ? currentPrice : null,
+        };
+      }
+    }
+
+    return json(200, { ok: true, alert: data, evaluation });
   } catch (error) {
     return json(500, { ok: false, error: "unexpected_error", detail: String(error) });
   }
