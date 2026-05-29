@@ -1,18 +1,1 @@
-
-.iga/
-
-# Secrets & local env
-.env
-.env.local
-.env.*.local
-.deploy-with-secrets.json
-
-# Dependencies
-node_modules/
-
-# Local deploy / MCP artifacts
-.deploy-*
-.deploy-chunks/
-.mcp-*
-.cheapshark-content.txt
-.itad-content.txt
+.lookup-game-deploy.json

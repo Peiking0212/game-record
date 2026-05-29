@@ -265,7 +265,7 @@ function renderTargetPriceBlock(item, ctx) {
   }
   html += '</div>';
   html += '<div class="wishlist-alert-form">';
-  html += '<label class="wishlist-alert-inline">目标价（CNY，愿意买的最高价）<input type="number" min="0.01" step="0.01" class="wishlist-target-price-input" value="' +
+  html += '<label class="wishlist-alert-inline">目标价（CNY，愿意买的最高价）<input type="number" inputmode="decimal" min="0.01" step="0.01" class="wishlist-target-price-input" name="wishlist-target-price" autocomplete="off" data-lpignore="true" data-1p-ignore data-form-type="other" value="' +
     escapeHtml(String(targetVal)) + '" placeholder="例如 50" /></label>';
   html += '<button type="button" class="wishlist-save-alert-btn" data-game-id="' + gameId + '">保存提醒</button>';
   html += '<span class="wishlist-alert-inline wishlist-alert-feedback" data-game-id="' + gameId + '"></span>';

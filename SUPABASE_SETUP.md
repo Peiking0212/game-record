@@ -195,7 +195,7 @@ npm run supabase:smoke
 
 Checks: ingest invoke, `price_snapshots` count (expect multiple `store` values when ITAD key set), `game_best_prices` sample, alert evaluator, `alert_events` count.
 
-## 10) sync-user-games (skeleton)
+## 11) sync-user-games (skeleton)
 
 ```bash
 curl -X POST "$NEXT_PUBLIC_SUPABASE_URL/functions/v1/sync-user-games" \
@@ -206,7 +206,7 @@ curl -X POST "$NEXT_PUBLIC_SUPABASE_URL/functions/v1/sync-user-games" \
 
 Upserts `user_games` rows (`owned` / `wishlist`). Steam API sync is future work.
 
-## 11) Next steps
+## 12) Next steps
 
 1. Add Epic / other store adapters
 2. ~~Wire `in_app` alert events to UI~~ (wishlist 页已实现；可扩展到全局顶栏)
