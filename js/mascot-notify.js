@@ -35,11 +35,11 @@
     var lastId = parseInt(localStorage.getItem(LAST_ALERT_KEY) || '0', 10);
     if (eventRow.id <= lastId) return false;
 
-    var gameName = '';
+    var gameName = eventRow._displayName || '';
     var targetPrice = null;
     if (eventRow.alerts) {
       targetPrice = eventRow.alerts.target_price;
-      if (eventRow.alerts.games && eventRow.alerts.games.name) {
+      if (!gameName && eventRow.alerts.games && eventRow.alerts.games.name) {
         gameName = eventRow.alerts.games.name;
       }
     }

@@ -425,15 +425,59 @@ async function fetchInAppAlertEvents() {
   });
 }
 
-function formatAlertEventMessage(ev) {
-  var gameName = '游戏';
+function resolveDisplayGameName(gameId, cloudName, ctx) {
+  var gid = gameId != null ? String(gameId) : '';
+  var list = getWishlist();
+  for (var i = 0; i < list.length; i++) {
+    var item = list[i];
+    if (!item || !item.name) continue;
+    var resolved = resolveSupabaseGameId(item, ctx);
+    if (resolved != null && String(resolved) === gid) return item.name;
+  }
+  if (cloudName) {
+    var alias = getWishlistAlias(cloudName);
+    if (alias) {
+      for (var j = 0; j < list.length; j++) {
+        if (list[j].name && normalizeWishlistGameName(list[j].name) === normalizeWishlistGameName(cloudName)) {
+          return list[j].name;
+        }
+      }
+    }
+  }
+  return cloudName || '游戏';
+}
+
+function dedupeAlertEventsByGame(events) {
+  var seen = {};
+  var out = [];
+  for (var i = 0; i < events.length; i++) {
+    var ev = events[i];
+    var gid = ev.alerts && ev.alerts.game_id;
+    var key = gid != null ? 'g:' + gid : 'e:' + ev.id;
+    if (seen[key]) continue;
+    seen[key] = true;
+    out.push(ev);
+  }
+  return out;
+}
+
+function formatAlertEventMessage(ev, displayName) {
+  var gameName = displayName || '游戏';
   var target = null;
-  if (ev.alerts && ev.alerts.games && ev.alerts.games.name) gameName = ev.alerts.games.name;
+  if (!displayName && ev.alerts && ev.alerts.games && ev.alerts.games.name) {
+    gameName = ev.alerts.games.name;
+  }
   if (ev.alerts && ev.alerts.target_price != null) target = ev.alerts.target_price;
   if (window.MascotNotify && window.MascotNotify.formatPriceAlertMessage) {
     return window.MascotNotify.formatPriceAlertMessage(gameName, ev.trigger_price, target);
   }
   return gameName + ' 现价 ' + ev.trigger_price;
+}
+
+function dismissAllVisibleAlertEvents(events) {
+  for (var i = 0; i < events.length; i++) {
+    dismissAlertEventId(events[i].id);
+  }
 }
 
 async function renderAlertsPanel() {
@@ -456,28 +500,41 @@ async function renderAlertsPanel() {
     return;
   }
 
-  var events = await fetchInAppAlertEvents();
-  var unreadCount = 0;
+  var ctx = await loadAlertContext();
+  var rawEvents = await fetchInAppAlertEvents();
+  var events = dedupeAlertEventsByGame(rawEvents).filter(function (ev) {
+    return !isAlertEventDismissed(ev.id);
+  });
+
+  var unreadCount = events.length;
   var html = '';
-  var newestUnread = null;
+  var newestUnread = events.length ? events[0] : null;
 
   for (var i = 0; i < events.length; i++) {
     var ev = events[i];
-    var dismissed = isAlertEventDismissed(ev.id);
-    if (!dismissed) unreadCount++;
-    if (!dismissed && !newestUnread) newestUnread = ev;
-    html += '<li class="wishlist-alert-item' + (dismissed ? '' : ' is-unread') + '" data-event-id="' + ev.id + '">';
-    html += '<div><div class="font-medium text-gray-800">' + escapeHtml(formatAlertEventMessage(ev)) + '</div>';
+    var gameId = ev.alerts && ev.alerts.game_id;
+    var cloudName = ev.alerts && ev.alerts.games && ev.alerts.games.name;
+    var displayName = resolveDisplayGameName(gameId, cloudName, ctx);
+    ev._displayName = displayName;
+    html += '<li class="wishlist-alert-item is-unread" data-event-id="' + ev.id + '">';
+    html += '<div><div class="font-medium text-gray-800">' +
+      escapeHtml(formatAlertEventMessage(ev, displayName)) + '</div>';
     html += '<div class="text-xs text-gray-500 mt-1">' + escapeHtml(formatDate(ev.triggered_at)) + '</div></div>';
-    if (!dismissed) {
-      html += '<button type="button" class="wishlist-alert-dismiss" data-event-id="' + ev.id + '">知道了</button>';
-    }
+    html += '<button type="button" class="wishlist-alert-dismiss" data-event-id="' + ev.id + '">知道了</button>';
     html += '</li>';
   }
 
   listEl.innerHTML = html;
-  if (emptyEl) emptyEl.classList.toggle('hidden', events.length > 0);
+  if (emptyEl) {
+    emptyEl.classList.toggle('hidden', events.length > 0);
+    emptyEl.textContent = events.length === 0
+      ? '暂无未读降价提醒（已读提醒不会重复展示）'
+      : '';
+  }
   if (badgeEl) badgeEl.classList.toggle('hidden', unreadCount === 0);
+
+  var dismissAllBtn = document.getElementById('alerts-dismiss-all-btn');
+  if (dismissAllBtn) dismissAllBtn.classList.toggle('hidden', events.length === 0);
 
   listEl.querySelectorAll('.wishlist-alert-dismiss').forEach(function (btn) {
     btn.addEventListener('click', async function () {
@@ -1260,6 +1317,20 @@ document.addEventListener('DOMContentLoaded', async function () {
   await renderWishlist();
   await renderAlertsPanel();
   bindDealRulesPanel();
+
+  var dismissAllBtn = document.getElementById('alerts-dismiss-all-btn');
+  if (dismissAllBtn && !dismissAllBtn._bound) {
+    dismissAllBtn._bound = true;
+    dismissAllBtn.addEventListener('click', async function () {
+      var raw = await fetchInAppAlertEvents();
+      var visible = dedupeAlertEventsByGame(raw).filter(function (ev) {
+        return !isAlertEventDismissed(ev.id);
+      });
+      dismissAllVisibleAlertEvents(visible);
+      await renderAlertsPanel();
+      showToast('已清除全部未读提醒', 'success');
+    });
+  }
 
   // 添加按钮
   var addBtn = document.getElementById('add-wishlist-btn');

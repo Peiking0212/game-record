@@ -134,7 +134,7 @@
     <section class="py-16 bg-white">
         <div class="container mx-auto px-4">
             <div id="wishlist-alerts-panel" class="max-w-6xl mx-auto mb-8 p-5 rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50/80 to-white">
-                <div class="flex items-center justify-between gap-3 mb-3">
+                <div class="flex items-center justify-between gap-3 mb-3 flex-wrap">
                     <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
                         <span class="relative inline-flex">
                             <i data-lucide="bell" class="w-5 h-5 text-blue-500"></i>
@@ -142,7 +142,10 @@
                         </span>
                         站内提醒
                     </h3>
-                    <span id="alerts-login-hint" class="text-xs text-gray-500 hidden">登录后可同步云端降价提醒</span>
+                    <div class="flex items-center gap-2">
+                        <span id="alerts-login-hint" class="text-xs text-gray-500 hidden">登录后可同步云端降价提醒</span>
+                        <button type="button" id="alerts-dismiss-all-btn" class="wishlist-alert-dismiss-all hidden text-sm">全部知道了</button>
+                    </div>
                 </div>
                 <ul id="wishlist-alerts-list" class="wishlist-alerts-list space-y-2"></ul>
                 <p id="wishlist-alerts-empty" class="text-sm text-gray-500 hidden">暂无降价提醒，设置目标价后由系统定时检测</p>
