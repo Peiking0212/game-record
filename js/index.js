@@ -274,6 +274,76 @@ async function renderHomeContent() {
     loadRecentGames();
     loadRecentAchievements();
     await loadRecentMedia();
+    await loadPersonalizedFeed(false);
+}
+
+function formatMoney(num) {
+    const n = parseFloat(num);
+    if (isNaN(n)) return '0.00';
+    return n.toFixed(2);
+}
+
+function renderHomeNews(news) {
+    const container = document.getElementById('home-news-feed');
+    if (!container) return;
+    if (!news || news.length === 0) {
+        container.innerHTML = '<div class="game-hub-empty"><i data-lucide="inbox" class="w-8 h-8 text-gray-300"></i><p>暂无个性化资讯</p></div>';
+        return;
+    }
+    container.innerHTML = news.slice(0, 5).map(item => `
+        <article class="p-3 rounded-lg border border-gray-200 bg-white/70">
+            <h4 class="font-semibold text-gray-800">${escapeHtml(item.title || '游戏资讯')}</h4>
+            <p class="text-sm text-gray-600 mt-1">${escapeHtml(item.summary || '')}</p>
+            <p class="text-xs text-gray-400 mt-2">${escapeHtml(item.gameName || '')}</p>
+        </article>
+    `).join('');
+}
+
+function renderHomeDeals(deals) {
+    const container = document.getElementById('home-deals-feed');
+    if (!container) return;
+    if (!deals || deals.length === 0) {
+        container.innerHTML = '<div class="game-hub-empty"><i data-lucide="inbox" class="w-8 h-8 text-gray-300"></i><p>暂无折扣计划</p></div>';
+        return;
+    }
+    container.innerHTML = deals.slice(0, 6).map(item => `
+        <article class="p-3 rounded-lg border border-gray-200 bg-white/70">
+            <div class="flex items-center justify-between gap-2">
+                <h4 class="font-semibold text-gray-800 truncate">${escapeHtml(item.gameName || '未知游戏')}</h4>
+                <span class="badge badge-green">${escapeHtml(String(item.discountPercent || 0))}% OFF</span>
+            </div>
+            <p class="text-sm text-gray-600 mt-1">${escapeHtml(item.platform || '平台待定')}</p>
+            <p class="text-sm text-gray-700 mt-1">¥${formatMoney(item.currentPrice)} <span class="text-gray-400 line-through ml-1">¥${formatMoney(item.originalPrice)}</span></p>
+        </article>
+    `).join('');
+}
+
+async function loadPersonalizedFeed(forceRefresh) {
+    const meta = document.getElementById('personalized-feed-meta');
+    if (!window.GamePersonalizedFeed) return;
+    let result = null;
+    try {
+        if (forceRefresh) {
+            result = await window.GamePersonalizedFeed.refresh({ force: true });
+        } else {
+            const cached = window.GamePersonalizedFeed.getCachedFeed();
+            if (cached.news.length === 0 && cached.deals.length === 0) {
+                result = await window.GamePersonalizedFeed.refresh({ force: false });
+            } else {
+                result = { source: 'cache', news: cached.news, deals: cached.deals };
+            }
+        }
+    } catch (e) {
+        console.error(e);
+        const fallback = window.GamePersonalizedFeed.getCachedFeed();
+        result = { source: 'cache', news: fallback.news, deals: fallback.deals };
+    }
+    renderHomeNews(result.news || []);
+    renderHomeDeals(result.deals || []);
+    if (meta) {
+        const sourceMap = { edge: '云端推荐', local: '本地规则', cache: '本地缓存' };
+        meta.textContent = `数据来源：${sourceMap[result.source] || '未知'} · 更新时间 ${new Date().toLocaleString('zh-CN')}`;
+    }
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -281,5 +351,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     await renderHomeContent();
     setupUpload('#quick-image-upload', 'image', 'screenshot-upload');
     setupUpload('#quick-video-upload', 'video', 'video-upload');
+    const refreshBtn = document.getElementById('refresh-personalized-feed-btn');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', async () => {
+            refreshBtn.disabled = true;
+            await loadPersonalizedFeed(true);
+            refreshBtn.disabled = false;
+            showToast('推荐内容已更新', 'success');
+            lucide.createIcons();
+        });
+    }
     window.whenGameCloudSynced(renderHomeContent);
+    lucide.createIcons();
 });

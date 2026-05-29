@@ -8,6 +8,8 @@
     <meta property="og:title" content="游戏记录">
     <meta property="og:description" content="记录每一次游戏冒险，分享每一份游戏喜悦。">
     <meta property="og:type" content="website">
+    <meta name="app:supabase-url" content="https://oxbyshstrvzshxpaztzg.supabase.co">
+    <meta name="app:supabase-anon-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im94YnlzaHN0cnZ6c2h4cGF6dHpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzOTc0OTgsImV4cCI6MjA5NDk3MzQ5OH0.d4hsB6sxUzlcJu3VfA42ncp9KZPZrGPM40pXsCarn3s">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <title>游戏记录 - 首页</title>
     <style>
@@ -216,6 +218,39 @@
         </div>
     </section>
 
+    <!-- Personalized Feed -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+                    <h2 class="text-3xl font-bold" data-aos="fade-up">
+                        <i data-lucide="sparkles" class="w-8 h-8 inline mr-2 text-blue-500"></i>
+                        为你推荐
+                    </h2>
+                    <button id="refresh-personalized-feed-btn" class="btn-secondary" type="button">
+                        <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>
+                        刷新推荐
+                    </button>
+                </div>
+                <p id="personalized-feed-meta" class="text-sm text-gray-500 mb-4"></p>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="game-hub-section">
+                        <div class="game-hub-section-header">
+                            <h2><i data-lucide="newspaper" class="w-5 h-5"></i>游戏资讯</h2>
+                        </div>
+                        <div id="home-news-feed" class="game-hub-list"></div>
+                    </div>
+                    <div class="game-hub-section">
+                        <div class="game-hub-section-header">
+                            <h2><i data-lucide="badge-percent" class="w-5 h-5"></i>折扣计划</h2>
+                        </div>
+                        <div id="home-deals-feed" class="game-hub-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Quick Upload -->
     <section class="py-16 bg-white">
         <div class="container mx-auto px-4">
@@ -333,11 +368,13 @@
         document.getElementById('current-year').textContent = new Date().getFullYear();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/lib/supabase-browser.js"></script>
     <script src="js/supabase.js"></script>
     <script src="js/auth.js?v=1"></script>
     <script src="js/sample-data-utils.js?v=12"></script>
     <script src="js/data.js?v=2"></script>
     <script src="js/cloud-sync.js?v=6"></script>
+    <script src="js/personalized-feed.js?v=1"></script>
     <script src="utils.js?v=12"></script>
     <script src="js/index.js?v=8"></script>
     <script src="theme.js?v=8"></script>

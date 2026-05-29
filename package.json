@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "supabase:inject-meta": "node scripts/inject-supabase-meta.mjs",
+    "supabase:smoke": "node scripts/smoke-supabase.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.106.2"
+  }
+}

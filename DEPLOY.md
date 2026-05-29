@@ -12,7 +12,7 @@
    - Redirect URLs 添加：
      - `http://localhost:8080/**`
      - `https://你的域名.vercel.app/**`
-5. **Settings → API**：确认 Project URL 与 Publishable key 已写入 `js/supabase.js`
+5. **Settings → API**：将 Project URL 与 **anon public key**（JWT，以 `eyJ` 开头）写入 `js/supabase.js` 的 `SUPABASE_URL` / `SUPABASE_ANON_KEY`
 
 > 执行 v2 迁移会删除 `user_id` 为空的旧共享数据。若需保留，请先在 Dashboard 手动绑定到你的用户 UUID。
 
@@ -42,8 +42,8 @@ py -m http.server 8080
 
 ## 5. 安全建议
 
-- Publishable key 可放前端；**切勿**提交 Secret / service_role key
-- 若 key 曾泄露，在 Dashboard 轮换 Publishable key
+- anon public key 可放前端；**切勿**提交 Secret / service_role key
+- 若 key 曾泄露，在 Dashboard 轮换 anon key
 - 确认 RLS 策略已生效（v2 迁移脚本）
 
 ## 6. 验证多人隔离

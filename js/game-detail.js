@@ -267,6 +267,38 @@
         if (counts.spending === 0) document.getElementById('section-spending').classList.add('game-hub-section-muted');
     }
 
+    function renderPersonalized(news, deals) {
+        var newsEl = document.getElementById('game-news-list');
+        var dealsEl = document.getElementById('game-deals-list');
+        if (!newsEl || !dealsEl) return;
+
+        if (!news || news.length === 0) {
+            newsEl.innerHTML = emptySection('暂无该游戏资讯');
+        } else {
+            newsEl.innerHTML = news.slice(0, 4).map(function (item) {
+                return '<article class="p-3 rounded-lg border border-gray-200 bg-white/70">' +
+                    '<h4 class="font-semibold text-gray-800">' + escapeHtml(item.title || '游戏资讯') + '</h4>' +
+                    '<p class="text-sm text-gray-600 mt-1">' + escapeHtml(item.summary || '') + '</p>' +
+                '</article>';
+            }).join('');
+        }
+
+        if (!deals || deals.length === 0) {
+            dealsEl.innerHTML = emptySection('暂无该游戏折扣');
+        } else {
+            dealsEl.innerHTML = deals.slice(0, 4).map(function (item) {
+                return '<article class="p-3 rounded-lg border border-gray-200 bg-white/70">' +
+                    '<div class="flex items-center justify-between gap-2">' +
+                        '<strong class="text-gray-800">' + escapeHtml(item.platform || '平台') + '</strong>' +
+                        '<span class="badge badge-green">' + escapeHtml(String(item.discountPercent || 0)) + '% OFF</span>' +
+                    '</div>' +
+                    '<p class="text-sm text-gray-700 mt-2">¥' + Number(item.currentPrice || 0).toFixed(2) +
+                    ' <span class="text-gray-400 line-through ml-1">¥' + Number(item.originalPrice || 0).toFixed(2) + '</span></p>' +
+                '</article>';
+            }).join('');
+        }
+    }
+
     async function renderGameContent() {
         if (!game) return;
 
@@ -285,6 +317,24 @@
         renderAchievements(achievements);
         renderScreenshots(gallery);
         renderSpending(spending);
+
+        if (window.GamePersonalizedFeed) {
+            var cached = window.GamePersonalizedFeed.getCachedFeed();
+            var gameNews = (cached.news || []).filter(function (n) { return matchGameName(n.gameName, game.name); });
+            var gameDeals = (cached.deals || []).filter(function (d) { return matchGameName(d.gameName, game.name); });
+            if (gameNews.length === 0 && gameDeals.length === 0) {
+                try {
+                    var refreshed = await window.GamePersonalizedFeed.refresh({ force: false });
+                    gameNews = (refreshed.news || []).filter(function (n) { return matchGameName(n.gameName, game.name); });
+                    gameDeals = (refreshed.deals || []).filter(function (d) { return matchGameName(d.gameName, game.name); });
+                } catch (e) {
+                    console.warn('个性化内容加载失败:', e);
+                }
+            }
+            renderPersonalized(gameNews, gameDeals);
+        } else {
+            renderPersonalized([], []);
+        }
 
         hideEmptySections({
             reviews: reviews.length,

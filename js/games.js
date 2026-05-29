@@ -17,6 +17,12 @@ const GD = window.GameData;
 let games = [];
 let isEditMode = false;
 
+function syncFollowedGameDictionary() {
+    if (GD && typeof GD.bootstrapFollowedGameDictionaryFromGames === 'function') {
+        GD.bootstrapFollowedGameDictionaryFromGames({ preserveUserEdits: true });
+    }
+}
+
 // Render games list
 function renderGames() {
     const gamesList = document.getElementById('games-list');
@@ -119,6 +125,7 @@ document.getElementById('add-game-form').addEventListener('submit', (e) => {
     
     games.push(newGame);
     GD.set(GD.KEYS.GAMES, games);
+    syncFollowedGameDictionary();
     renderGames();
     renderRecentlyAdded();
     closeAddGameModal();
@@ -153,6 +160,7 @@ document.getElementById('edit-game-form').addEventListener('submit', (e) => {
         };
         
         GD.set(GD.KEYS.GAMES, games);
+        syncFollowedGameDictionary();
         renderGames();
         renderRecentlyAdded();
         closeEditGameModal();
@@ -165,6 +173,7 @@ function deleteGame(id) {
     if (confirm('确定要删除这款游戏吗？此操作不可撤销。')) {
         games = games.filter(game => game.id !== id);
         GD.set(GD.KEYS.GAMES, games);
+        syncFollowedGameDictionary();
         renderGames();
         renderRecentlyAdded();
         showToast('游戏已删除', 'success');
@@ -506,6 +515,7 @@ window.addEventListener('click', (e) => {
 
 async function renderGamesPage() {
     games = await GD.seedGamesIfEmpty();
+    syncFollowedGameDictionary();
     renderGames();
     renderRecentlyAdded();
 }

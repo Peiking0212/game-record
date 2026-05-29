@@ -12,7 +12,8 @@
     var FALLBACK_SYNC_KEYS = [
         'games', 'achievements', 'profile',
         'game_record_wishlist', 'game_record_reviews', 'game_record_spending', 'memos',
-        'game_record_theme', 'mascot_quotes', 'mascot_enabled', 'auto_time_bg', 'site_video_bg'
+        'game_record_theme', 'mascot_quotes', 'mascot_enabled', 'auto_time_bg', 'site_video_bg',
+        'user_interest_profile', 'deal_watch_rules', 'discount_deals', 'game_news_feed', 'followed_game_dictionary'
     ];
 
     var pushTimers = {};
@@ -31,14 +32,14 @@
         if (window.GameData && window.GameData.ARRAY_SYNC_KEYS) {
             return window.GameData.ARRAY_SYNC_KEYS;
         }
-        return ['games', 'achievements', 'game_record_wishlist', 'game_record_reviews', 'game_record_spending', 'memos'];
+        return ['games', 'achievements', 'game_record_wishlist', 'game_record_reviews', 'game_record_spending', 'memos', 'discount_deals', 'game_news_feed', 'followed_game_dictionary'];
     }
 
     function getObjectSyncKeys() {
         if (window.GameData && window.GameData.OBJECT_SYNC_KEYS) {
             return window.GameData.OBJECT_SYNC_KEYS;
         }
-        return ['profile', 'game_record_theme'];
+        return ['profile', 'game_record_theme', 'user_interest_profile', 'deal_watch_rules'];
     }
 
     function getRawStringSyncKeys() {
@@ -64,13 +65,14 @@
         return JSON.stringify(value);
     }
 
-    function mergeRecordsById(localList, cloudList) {
+    function mergeRecordsById(localList, cloudList, idKey) {
+        idKey = idKey || 'id';
         var map = {};
         (cloudList || []).forEach(function (item) {
-            if (item && item.id != null) map[String(item.id)] = item;
+            if (item && item[idKey] != null) map[String(item[idKey])] = item;
         });
         (localList || []).forEach(function (item) {
-            if (item && item.id != null) map[String(item.id)] = item;
+            if (item && item[idKey] != null) map[String(item[idKey])] = item;
         });
         return Object.values(map);
     }
@@ -93,6 +95,9 @@
 
         if (key === 'mascot_quotes') {
             return mergeStringQuotes(localVal, cloudVal);
+        }
+        if (key === 'followed_game_dictionary') {
+            return mergeRecordsById(localVal, cloudVal, 'gameId');
         }
         if (getArraySyncKeys().indexOf(key) !== -1) {
             return mergeRecordsById(localVal, cloudVal);
@@ -515,6 +520,9 @@
     window.awaitGameCloud = function () {
         if (window.GameData && window.GameData.migrateGameLinks) {
             window.GameData.migrateGameLinks();
+        }
+        if (window.GameData && window.GameData.bootstrapFollowedGameDictionaryFromGames) {
+            window.GameData.bootstrapFollowedGameDictionaryFromGames({ preserveUserEdits: true });
         }
         return Promise.resolve();
     };

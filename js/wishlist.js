@@ -1,7 +1,136 @@
 // ============================================================
 // wishlist.js - 游戏愿望单页面业务逻辑
 // 数据存储: localStorage key = game_record_wishlist
+// Supabase fallback: games + game_best_prices（需登录且配置 SB）
 // ============================================================
+
+var _supabaseCatalogCache = null;
+
+// ---------- Supabase catalog fallback ----------
+async function fetchSupabaseWishlistCatalog() {
+  if (!window.SB) return [];
+  try {
+    var sessionRes = await window.SB.auth.getSession();
+    if (!sessionRes.data || !sessionRes.data.session) return [];
+
+    var gamesRes = await window.SB.from('games').select('id, steam_app_id, name, cover_url, genres');
+    if (gamesRes.error) {
+      console.warn('[wishlist] games fetch failed', gamesRes.error.message);
+      return [];
+    }
+
+    var pricesRes = await window.SB.from('game_best_prices').select('*');
+    if (pricesRes.error) {
+      console.warn('[wishlist] prices fetch failed', pricesRes.error.message);
+      return [];
+    }
+
+    var priceByGameId = {};
+    (pricesRes.data || []).forEach(function (row) {
+      priceByGameId[String(row.game_id)] = row;
+    });
+
+    function formatStoreLabel(store) {
+      if (!store) return 'Steam';
+      var s = String(store);
+      if (s === 'gog') return 'GOG';
+      if (s === 'ea') return 'EA';
+      return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
+    return (gamesRes.data || []).map(function (g) {
+      var priceRow = priceByGameId[String(g.id)];
+      var platform = formatStoreLabel(priceRow && priceRow.best_store);
+      var notes = '来自 Supabase 目录';
+      if (priceRow) {
+        notes = '最低价 ' + priceRow.price + ' ' + (priceRow.currency || '') +
+          ' · ' + formatStoreLabel(priceRow.best_store);
+        if (priceRow.discount_pct) notes += ' · 折扣 ' + priceRow.discount_pct + '%';
+        if (priceRow.meta && priceRow.meta.historical_low != null) {
+          notes += ' · 史低 ' + priceRow.meta.historical_low;
+        }
+      }
+      return {
+        id: 'sb_' + g.id,
+        supabaseGameId: g.id,
+        steamAppId: g.steam_app_id,
+        name: g.name,
+        cover: g.cover_url || '',
+        platform: platform,
+        rating: 3,
+        priority: 'medium',
+        price: priceRow ? String(priceRow.price) : '',
+        notes: notes,
+        date: priceRow && priceRow.captured_at ? priceRow.captured_at : new Date().toISOString(),
+        _fromSupabase: true
+      };
+    });
+  } catch (e) {
+    console.warn('[wishlist] Supabase catalog fallback failed', e);
+    return [];
+  }
+}
+
+async function loadWishlistWithFallback() {
+  var local = getWishlist();
+  if (local.length > 0) {
+    return enrichWishlistFromSupabase(local);
+  }
+  if (_supabaseCatalogCache) return _supabaseCatalogCache.slice();
+  _supabaseCatalogCache = await fetchSupabaseWishlistCatalog();
+  return _supabaseCatalogCache.slice();
+}
+
+async function enrichWishlistFromSupabase(list) {
+  if (!window.SB || !list || list.length === 0) return list;
+  try {
+    var sessionRes = await window.SB.auth.getSession();
+    if (!sessionRes.data || !sessionRes.data.session) return list;
+
+    var pricesRes = await window.SB.from('game_best_prices').select('*');
+    if (pricesRes.error || !pricesRes.data || pricesRes.data.length === 0) return list;
+
+    var gamesRes = await window.SB.from('games').select('id, name, steam_app_id');
+    if (gamesRes.error) return list;
+
+    var priceByGameId = {};
+    pricesRes.data.forEach(function (row) {
+      priceByGameId[String(row.game_id)] = row;
+    });
+
+    function storeLabel(store) {
+      if (!store) return '';
+      var s = String(store);
+      if (s === 'gog') return 'GOG';
+      return s.charAt(0).toUpperCase() + s.slice(1);
+    }
+
+    return list.map(function (item) {
+      var match = (gamesRes.data || []).find(function (g) {
+        if (item.supabaseGameId && String(g.id) === String(item.supabaseGameId)) return true;
+        if (item.steamAppId && g.steam_app_id && String(g.steam_app_id) === String(item.steamAppId)) {
+          return true;
+        }
+        return g.name && item.name &&
+          String(g.name).trim().toLowerCase() === String(item.name).trim().toLowerCase();
+      });
+      if (!match) return item;
+      var priceRow = priceByGameId[String(match.id)];
+      if (!priceRow) return item;
+      var next = Object.assign({}, item);
+      if (!next.price || next.price === '') next.price = String(priceRow.price);
+      if (priceRow.best_store) {
+        next.platform = storeLabel(priceRow.best_store);
+      }
+      var priceNote = '最低价 ' + priceRow.price + (priceRow.currency ? ' ' + priceRow.currency : '') +
+        (priceRow.best_store ? ' @' + storeLabel(priceRow.best_store) : '');
+      next.notes = (next.notes ? next.notes + ' · ' : '') + priceNote;
+      return next;
+    });
+  } catch (e) {
+    return list;
+  }
+}
 
 // ---------- 数据读写 ----------
 function getWishlist() {
@@ -15,6 +144,64 @@ function getWishlist() {
 
 function saveWishlist(list) {
   window.GameData.set(window.GameData.KEYS.WISHLIST, list);
+}
+
+function getDealWatchRules() {
+  if (window.GameData.getDealWatchRules) return window.GameData.getDealWatchRules();
+  return window.GameData.get(window.GameData.KEYS.DEAL_WATCH_RULES, {});
+}
+
+function saveDealWatchRules(rules) {
+  if (window.GameData.setDealWatchRules) return window.GameData.setDealWatchRules(rules);
+  return window.GameData.set(window.GameData.KEYS.DEAL_WATCH_RULES, rules);
+}
+
+function parsePlatformList(raw) {
+  return String(raw || '')
+    .split(',')
+    .map(function (s) { return s.trim(); })
+    .filter(function (s) { return !!s; });
+}
+
+function bindDealRulesPanel() {
+  var minDiscountInput = document.getElementById('deal-min-discount');
+  var preferredPlatformsInput = document.getElementById('deal-platform-preferred');
+  var onlyNewLowInput = document.getElementById('deal-only-new-low');
+  var saveBtn = document.getElementById('save-deal-rules-btn');
+  var refreshBtn = document.getElementById('refresh-deals-btn');
+  if (!minDiscountInput || !preferredPlatformsInput || !onlyNewLowInput) return;
+
+  var rules = getDealWatchRules();
+  minDiscountInput.value = rules.minDiscountPercent || 30;
+  preferredPlatformsInput.value = (rules.preferredPlatforms || []).join(', ');
+  onlyNewLowInput.checked = rules.notifyOnlyNewLows !== false;
+
+  if (saveBtn) {
+    saveBtn.addEventListener('click', function () {
+      var latest = getDealWatchRules();
+      latest.minDiscountPercent = Math.max(1, Math.min(95, parseInt(minDiscountInput.value || '30', 10)));
+      latest.preferredPlatforms = parsePlatformList(preferredPlatformsInput.value);
+      latest.notifyOnlyNewLows = !!onlyNewLowInput.checked;
+      latest.updatedAt = new Date().toISOString();
+      saveDealWatchRules(latest);
+      showToast('折扣提醒规则已保存', 'success');
+    });
+  }
+
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', async function () {
+      if (!window.GamePersonalizedFeed) return;
+      refreshBtn.disabled = true;
+      try {
+        await window.GamePersonalizedFeed.refresh({ force: true });
+        showToast('折扣与资讯已刷新', 'success');
+      } catch (e) {
+        showToast('刷新失败，已使用本地缓存', 'warning');
+      } finally {
+        refreshBtn.disabled = false;
+      }
+    });
+  }
 }
 
 function getSpendingRecordType(record) {
@@ -202,11 +389,11 @@ function resetEditRatingStars() {
 }
 
 // ---------- 渲染愿望单列表 ----------
-function renderWishlist() {
+async function renderWishlist() {
   var container = document.getElementById('wishlist-items');
   if (!container) return;
 
-  var list = getWishlist();
+  var list = await loadWishlistWithFallback();
 
   // 搜索
   var searchInput = document.getElementById('search');
@@ -279,8 +466,12 @@ function renderWishlist() {
     html += '    <div class="wishlist-info-header">';
     html += '      <h3 class="wishlist-name">' + escapeHtml(item.name) + '</h3>';
     html += '      <div class="wishlist-actions">';
-    html += '        <button class="btn-edit-wishlist" data-id="' + item.id + '" title="编辑"><i data-lucide="pencil"></i></button>';
-    html += '        <button class="btn-delete-wishlist" data-id="' + item.id + '" title="删除"><i data-lucide="trash-2"></i></button>';
+    if (!item._fromSupabase) {
+      html += '        <button class="btn-edit-wishlist" data-id="' + item.id + '" title="编辑"><i data-lucide="pencil"></i></button>';
+      html += '        <button class="btn-delete-wishlist" data-id="' + item.id + '" title="删除"><i data-lucide="trash-2"></i></button>';
+    } else {
+      html += '        <span class="text-xs text-blue-500 px-2 py-1 rounded bg-blue-50">云端目录</span>';
+    }
     html += '      </div>';
     html += '    </div>';
     html += '    <div class="wishlist-meta">';
@@ -388,6 +579,10 @@ function handleAddWishlistSubmit(e) {
   var list = getWishlist();
   list.push(newItem);
   saveWishlist(list);
+  var rules = getDealWatchRules();
+  if (!rules.targetPriceByWishlistId) rules.targetPriceByWishlistId = {};
+  if (newItem.price !== '') rules.targetPriceByWishlistId[newItem.id] = parseFloat(newItem.price) || 0;
+  saveDealWatchRules(rules);
   closeAddWishlistModal();
   renderWishlist();
   showToast('愿望单已添加');
@@ -480,6 +675,10 @@ function handleEditWishlistSubmit(e) {
       list[i].priority = priorityInput ? priorityInput.value : 'high';
       list[i].price = priceInput ? priceInput.value.trim() : '';
       list[i].notes = notesInput ? notesInput.value.trim() : '';
+      var rules = getDealWatchRules();
+      if (!rules.targetPriceByWishlistId) rules.targetPriceByWishlistId = {};
+      rules.targetPriceByWishlistId[id] = parseFloat(list[i].price) || 0;
+      saveDealWatchRules(rules);
       break;
     }
   }
@@ -519,6 +718,11 @@ function handleDeleteConfirm() {
     }
   }
   saveWishlist(newList);
+  var rules = getDealWatchRules();
+  if (rules.targetPriceByWishlistId && rules.targetPriceByWishlistId[id] != null) {
+    delete rules.targetPriceByWishlistId[id];
+    saveDealWatchRules(rules);
+  }
   closeDeleteModal();
   renderWishlist();
   showToast('愿望单已删除');
@@ -531,6 +735,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   await window.awaitGameCloud();
   // 初始渲染
   renderWishlist();
+  bindDealRulesPanel();
 
   // 添加按钮
   var addBtn = document.getElementById('add-wishlist-btn');

@@ -26,7 +26,12 @@
         MASCOT_QUOTES: 'mascot_quotes',
         MASCOT_ENABLED: 'mascot_enabled',
         AUTO_TIME_BG: 'auto_time_bg',
-        SITE_VIDEO_BG: 'site_video_bg'
+        SITE_VIDEO_BG: 'site_video_bg',
+        USER_INTEREST_PROFILE: 'user_interest_profile',
+        DEAL_WATCH_RULES: 'deal_watch_rules',
+        DISCOUNT_DEALS: 'discount_deals',
+        GAME_NEWS_FEED: 'game_news_feed',
+        FOLLOWED_GAME_DICTIONARY: 'followed_game_dictionary'
     };
 
     /** 参与 Supabase site_data 同步的键（不含媒体表、密码锁、超大背景图） */
@@ -42,7 +47,12 @@
         KEYS.MASCOT_QUOTES,
         KEYS.MASCOT_ENABLED,
         KEYS.AUTO_TIME_BG,
-        KEYS.SITE_VIDEO_BG
+        KEYS.SITE_VIDEO_BG,
+        KEYS.USER_INTEREST_PROFILE,
+        KEYS.DEAL_WATCH_RULES,
+        KEYS.DISCOUNT_DEALS,
+        KEYS.GAME_NEWS_FEED,
+        KEYS.FOLLOWED_GAME_DICTIONARY
     ];
 
     var ARRAY_SYNC_KEYS = [
@@ -51,10 +61,13 @@
         KEYS.WISHLIST,
         KEYS.REVIEWS,
         KEYS.SPENDING,
-        KEYS.MEMOS
+        KEYS.MEMOS,
+        KEYS.DISCOUNT_DEALS,
+        KEYS.GAME_NEWS_FEED,
+        KEYS.FOLLOWED_GAME_DICTIONARY
     ];
 
-    var OBJECT_SYNC_KEYS = [KEYS.PROFILE, KEYS.THEME];
+    var OBJECT_SYNC_KEYS = [KEYS.PROFILE, KEYS.THEME, KEYS.USER_INTEREST_PROFILE, KEYS.DEAL_WATCH_RULES];
 
     /** localStorage 存 plain string，非 JSON.stringify 包裹 */
     var RAW_STRING_SYNC_KEYS = [
@@ -132,6 +145,124 @@
         return String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase();
     }
 
+    function normalizeAliasText(text) {
+        return String(text || '').trim().toLowerCase();
+    }
+
+    function dedupeAliases(aliases) {
+        var out = [];
+        var seen = {};
+        (Array.isArray(aliases) ? aliases : []).forEach(function (alias) {
+            var raw = String(alias || '').trim();
+            var key = normalizeAliasText(raw);
+            if (!raw || !key || seen[key]) return;
+            seen[key] = true;
+            out.push(raw);
+        });
+        return out;
+    }
+
+    function sanitizeGameDictionaryEntry(entry) {
+        if (!entry || typeof entry !== 'object') return null;
+        var gameId = entry.gameId != null ? String(entry.gameId).trim() : '';
+        if (!gameId) return null;
+        return {
+            gameId: gameId,
+            nameZh: String(entry.nameZh || '').trim(),
+            nameEn: String(entry.nameEn || '').trim(),
+            aliases: dedupeAliases(entry.aliases),
+            steamAppId: String(entry.steamAppId || '').trim(),
+            weiboAccount: String(entry.weiboAccount || '').trim(),
+            xAccount: String(entry.xAccount || '').trim(),
+            updatedAt: entry.updatedAt || new Date().toISOString()
+        };
+    }
+
+    function createDictionaryEntryFromGame(game) {
+        if (!game || game.id == null || game.id === '') return null;
+        var normalizedName = String(game.name || '').trim();
+        return sanitizeGameDictionaryEntry({
+            gameId: String(game.id),
+            nameZh: normalizedName,
+            nameEn: '',
+            aliases: normalizedName ? [normalizedName] : [],
+            steamAppId: '',
+            weiboAccount: '',
+            xAccount: '',
+            updatedAt: new Date().toISOString()
+        });
+    }
+
+    function getFollowedGameDictionary() {
+        var list = get(KEYS.FOLLOWED_GAME_DICTIONARY, []);
+        if (!Array.isArray(list)) return [];
+        return list.map(sanitizeGameDictionaryEntry).filter(Boolean);
+    }
+
+    function setFollowedGameDictionary(entries) {
+        var map = {};
+        (Array.isArray(entries) ? entries : []).forEach(function (entry) {
+            var normalized = sanitizeGameDictionaryEntry(entry);
+            if (!normalized) return;
+            map[normalized.gameId] = normalized;
+        });
+        return set(KEYS.FOLLOWED_GAME_DICTIONARY, Object.values(map));
+    }
+
+    function bootstrapFollowedGameDictionaryFromGames(options) {
+        options = options || {};
+        var preserveUserEdits = options.preserveUserEdits !== false;
+        var nowIso = new Date().toISOString();
+        var games = getGames();
+        var existingMap = {};
+        getFollowedGameDictionary().forEach(function (entry) {
+            existingMap[String(entry.gameId)] = entry;
+        });
+
+        var next = games.map(function (game) {
+            var base = createDictionaryEntryFromGame(game);
+            if (!base) return null;
+            var current = existingMap[String(base.gameId)];
+            if (!current) return base;
+            var defaultAlias = String(game.name || '').trim();
+            return sanitizeGameDictionaryEntry({
+                gameId: base.gameId,
+                nameZh: preserveUserEdits ? (current.nameZh || base.nameZh) : base.nameZh,
+                nameEn: preserveUserEdits ? current.nameEn : '',
+                aliases: dedupeAliases((current.aliases || []).concat(defaultAlias ? [defaultAlias] : [])),
+                steamAppId: preserveUserEdits ? current.steamAppId : '',
+                weiboAccount: preserveUserEdits ? current.weiboAccount : '',
+                xAccount: preserveUserEdits ? current.xAccount : '',
+                updatedAt: preserveUserEdits ? (current.updatedAt || nowIso) : nowIso
+            });
+        }).filter(Boolean);
+
+        setFollowedGameDictionary(next);
+        return next;
+    }
+
+    function buildDictionaryAliasIndex(entries) {
+        var index = {};
+        (Array.isArray(entries) ? entries : []).forEach(function (entry) {
+            var normalized = sanitizeGameDictionaryEntry(entry);
+            if (!normalized) return;
+            var candidates = [normalized.nameZh, normalized.nameEn].concat(normalized.aliases || []);
+            candidates.forEach(function (candidate) {
+                var key = normalizeAliasText(candidate);
+                if (!key || index[key]) return;
+                index[key] = normalized;
+            });
+        });
+        return index;
+    }
+
+    function findFollowedGameDictionaryEntryByAliasOrName(input, entries) {
+        var key = normalizeAliasText(input);
+        if (!key) return null;
+        var index = buildDictionaryAliasIndex(Array.isArray(entries) ? entries : getFollowedGameDictionary());
+        return index[key] || null;
+    }
+
     function getGames() {
         return get(KEYS.GAMES, []);
     }
@@ -207,8 +338,6 @@
         var needRev = reviews.some(function (r) { return recordNeedsGameIdMigration(r, 'name'); });
         var needMedia = media.some(function (m) { return recordNeedsGameIdMigration(m, 'gameName'); });
 
-        if (!needAch && !needRev && !needMedia) return;
-
         if (needAch) {
             set(KEYS.ACHIEVEMENTS, achievements.map(function (a) { return migrateRecordGameId(a, 'gameName'); }));
         }
@@ -218,6 +347,7 @@
         if (needMedia) {
             set(KEYS.MEDIA, media.map(function (m) { return migrateRecordGameId(m, 'gameName'); }));
         }
+        bootstrapFollowedGameDictionaryFromGames({ preserveUserEdits: true });
     }
 
     function populateGameSelect(selectEl, options) {
@@ -292,10 +422,16 @@
 
     async function seedGamesIfEmpty() {
         var games = get(KEYS.GAMES, []);
-        if (games.length > 0) return games;
+        if (games.length > 0) {
+            bootstrapFollowedGameDictionaryFromGames({ preserveUserEdits: true });
+            return games;
+        }
         var samples = await loadSamples();
         games = (samples.games || []).map(hydrateGame);
-        if (games.length > 0) set(KEYS.GAMES, games);
+        if (games.length > 0) {
+            set(KEYS.GAMES, games);
+            bootstrapFollowedGameDictionaryFromGames({ preserveUserEdits: true });
+        }
         return games;
     }
 
@@ -388,6 +524,39 @@
         return set(KEYS.PROFILE, profile);
     }
 
+    var DEFAULT_INTEREST_PROFILE = {
+        preferredPlatforms: [],
+        favoriteGenres: [],
+        priceSensitivity: 'medium',
+        followedFranchises: [],
+        updatedAt: null
+    };
+
+    var DEFAULT_DEAL_WATCH_RULES = {
+        enabled: true,
+        minDiscountPercent: 30,
+        targetPriceByWishlistId: {},
+        preferredPlatforms: [],
+        notifyOnlyNewLows: true,
+        updatedAt: null
+    };
+
+    function getInterestProfile() {
+        return Object.assign({}, DEFAULT_INTEREST_PROFILE, get(KEYS.USER_INTEREST_PROFILE, {}));
+    }
+
+    function setInterestProfile(profile) {
+        return set(KEYS.USER_INTEREST_PROFILE, Object.assign({}, DEFAULT_INTEREST_PROFILE, profile || {}));
+    }
+
+    function getDealWatchRules() {
+        return Object.assign({}, DEFAULT_DEAL_WATCH_RULES, get(KEYS.DEAL_WATCH_RULES, {}));
+    }
+
+    function setDealWatchRules(rules) {
+        return set(KEYS.DEAL_WATCH_RULES, Object.assign({}, DEFAULT_DEAL_WATCH_RULES, rules || {}));
+    }
+
     window.GameData = {
         KEYS: KEYS,
         SYNC_KEYS: SYNC_KEYS,
@@ -401,9 +570,15 @@
         migrateGameLinks: migrateGameLinks,
         achievementDateMs: achievementDateMs,
         matchGameName: matchGameName,
+        normalizeAliasText: normalizeAliasText,
         getGames: getGames,
         getGameById: getGameById,
         resolveGameIdByName: resolveGameIdByName,
+        getFollowedGameDictionary: getFollowedGameDictionary,
+        setFollowedGameDictionary: setFollowedGameDictionary,
+        bootstrapFollowedGameDictionaryFromGames: bootstrapFollowedGameDictionaryFromGames,
+        buildDictionaryAliasIndex: buildDictionaryAliasIndex,
+        findFollowedGameDictionaryEntryByAliasOrName: findFollowedGameDictionaryEntryByAliasOrName,
         getRecordGameName: getRecordGameName,
         recordBelongsToGame: recordBelongsToGame,
         migrateRecordGameId: migrateRecordGameId,
@@ -418,6 +593,12 @@
         SAMPLE_MEMO_IDS: SAMPLE_MEMO_IDS,
         getProfile: getProfile,
         setProfile: setProfile,
-        DEFAULT_PROFILE: DEFAULT_PROFILE
+        DEFAULT_PROFILE: DEFAULT_PROFILE,
+        getInterestProfile: getInterestProfile,
+        setInterestProfile: setInterestProfile,
+        getDealWatchRules: getDealWatchRules,
+        setDealWatchRules: setDealWatchRules,
+        DEFAULT_INTEREST_PROFILE: DEFAULT_INTEREST_PROFILE,
+        DEFAULT_DEAL_WATCH_RULES: DEFAULT_DEAL_WATCH_RULES
     };
 })();

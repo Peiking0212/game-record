@@ -8,6 +8,8 @@
     <meta property="og:title" content="游戏记录 - 游戏详情">
     <meta property="og:description" content="查看某款游戏的全部相关内容。">
     <meta property="og:type" content="website">
+    <meta name="app:supabase-url" content="https://oxbyshstrvzshxpaztzg.supabase.co">
+    <meta name="app:supabase-anon-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im94YnlzaHN0cnZ6c2h4cGF6dHpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzOTc0OTgsImV4cCI6MjA5NDk3MzQ5OH0.d4hsB6sxUzlcJu3VfA42ncp9KZPZrGPM40pXsCarn3s">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <title>游戏详情 - 游戏记录</title>
     <style>
@@ -154,6 +156,23 @@
                     <div id="game-spending-list" class="game-hub-spending-table-wrap"></div>
                 </section>
 
+                <section class="game-hub-section" id="section-personalized">
+                    <div class="game-hub-section-header">
+                        <h2><i data-lucide="sparkles" class="w-5 h-5"></i>相关新闻与折扣</h2>
+                        <a href="wishlist.html" class="game-hub-section-link">管理提醒</a>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-600 mb-2">资讯</h3>
+                            <div id="game-news-list" class="game-hub-list"></div>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-semibold text-gray-600 mb-2">折扣</h3>
+                            <div id="game-deals-list" class="game-hub-list"></div>
+                        </div>
+                    </div>
+                </section>
+
             </div>
         </main>
     </div>
@@ -170,11 +189,13 @@
         document.getElementById('current-year').textContent = new Date().getFullYear();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/lib/supabase-browser.js"></script>
     <script src="js/supabase.js"></script>
     <script src="js/auth.js?v=1"></script>
     <script src="js/sample-data-utils.js?v=12"></script>
     <script src="js/data.js?v=2"></script>
     <script src="js/cloud-sync.js?v=6"></script>
+    <script src="js/personalized-feed.js?v=1"></script>
     <script src="utils.js?v=12"></script>
     <script src="js/game-detail.js?v=6"></script>
     <script src="theme.js?v=8"></script>
