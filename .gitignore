@@ -1,1 +1,28 @@
+# Secrets / environment
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+
+# Deploy artifacts & scratch files
 .lookup-game-deploy.json
+.deploy-args-for-mcp.json
+.deploy-call.json
+.deploy-chunks/
+.deploy-mcp-args-only.json
+.deploy-mcp-args.json
+.deploy-mcp-args.parsed.json
+.deploy-mcp-files-only.json
+.deploy-run-price-ingest.json
+.deploy-stdout.json
+.mcp-args-only.json
+.mcp-args-out.json
+.mcp-deploy-request.json
+.mcp-invoke.json
+
+# Local scratch / cache
+.cheapshark-content.txt
+.itad-content.txt
+.iga/
