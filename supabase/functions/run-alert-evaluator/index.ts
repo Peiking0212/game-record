@@ -105,6 +105,22 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Chain email delivery for freshly created events (best-effort, non-blocking).
+    if (createdEvents.length > 0) {
+      try {
+        await fetch(`${supabaseUrl}/functions/v1/send-alert-emails`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${serviceRoleKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ limit: 50 }),
+        });
+      } catch (_e) {
+        /* email delivery is non-fatal for evaluation */
+      }
+    }
+
     return json(200, {
       ok: true,
       scannedAlerts: (alerts || []).length,

@@ -26,6 +26,8 @@ Remote project (via MCP / Dashboard) applied migrations:
 | `20260528130000` | `harden_games_rls.sql` | Catalog / pricing / ingest RLS |
 | `20260529140000` | `schedule_edge_cron.sql` | pg_cron → Edge Functions |
 | `20260529160000` | `price_snapshots_meta_itad_views.sql` | `meta` column, per-store latest + `game_best_prices` |
+| `20260529180000` | `steam_sync_and_email.sql` | `profiles.steam_id`, `user_games` playtime/last-played, `alert_events` email columns |
+| `20260529181000` | `schedule_send_alert_emails.sql` | pg_cron `send_alert_emails` (retry safety-net) |
 
 Seed catalog (includes a **paid** Steam title for price ingest tests):
 
@@ -41,10 +43,11 @@ Deployed on project `oxbyshstrvzshxpaztzg`:
 | Function | JWT verify | Notes |
 |----------|------------|--------|
 | `run-price-ingest` | off | v3+ ITAD-primary; chains `run-alert-evaluator` after success |
-| `run-alert-evaluator` | off | `channel='in_app'` placeholder |
+| `run-alert-evaluator` | off | Writes `channel='in_app'` events; chains `send-alert-emails` for new events |
+| `send-alert-emails` | off | Sends Resend email for unsent `alert_events`; sets `emailed_at` |
 | `lookup-game` | on | User JWT; Steam search → upsert `games` → optional `run-price-ingest` |
 | `upsert-alert` | on | User JWT required |
-| `sync-user-games` | on | Body: `ownedGameIds`, `wishlistGameIds` |
+| `sync-user-games` | on | Steam library auto-pull (body `steamId`) or manual `ownedGameIds`/`wishlistGameIds` |
 | `fetch-personalized-feed` | on | Existing feed |
 
 Hosted Edge Functions receive `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` automatically. If ingest returns `missing_service_env`, set secrets in Dashboard → Edge Functions → Secrets:
@@ -52,6 +55,15 @@ Hosted Edge Functions receive `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SER
 - `SUPABASE_URL`
 - `SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
+
+Feature secrets (Dashboard → Edge Functions → Secrets):
+
+| Variable | Required for | Source | Notes |
+|----------|--------------|--------|-------|
+| `STEAM_WEB_API_KEY` | `sync-user-games` (Steam auto-pull) | [Steam Web API key](https://steamcommunity.com/dev/apikey) | Without it, only manual `ownedGameIds`/`wishlistGameIds` mode works |
+| `RESEND_API_KEY` | `send-alert-emails` | [Resend](https://resend.com/api-keys) | Without it, events stay unsent (function returns a `note`) |
+| `ALERT_EMAIL_FROM` | `send-alert-emails` | Verified Resend domain | Defaults to `PeikingGameTime <onboarding@resend.dev>` (testing only) |
+| `APP_URL` | `send-alert-emails` | — | Used for the "查看愿望单" link in emails |
 
 Price ingest secrets (Edge Functions → Secrets; see `.env.example`):
 
@@ -125,6 +137,7 @@ Migration `schedule_edge_cron.sql` registers:
 |-----|----------|--------|
 | `run_price_ingest_all` | `0 */6 * * *` | `run-price-ingest` `{"all":true}` |
 | `run_alert_evaluator` | `0 */12 * * *` | `run-alert-evaluator` |
+| `send_alert_emails` | `15 */6 * * *` | `send-alert-emails` `{"limit":50}` (retry safety-net) |
 
 **One-time Vault setup** (Dashboard SQL Editor) so cron can authenticate:
 
@@ -148,7 +161,17 @@ select jobid, jobname, schedule from cron.job;
 
 - Create/update: `POST /functions/v1/upsert-alert` with user JWT, body `{ "gameId": 3, "targetPrice": 99 }`
 - Evaluate: `POST /functions/v1/run-alert-evaluator` (service role or cron)
-- Events land in `alert_events` with `channel='in_app'` — email/webhook later
+- Events land in `alert_events` with `channel='in_app'`
+- **Email**: `run-alert-evaluator` chains `send-alert-emails` for newly created events; the cron `send_alert_emails` retries any unsent ones. Email uses Resend (`RESEND_API_KEY`), recipient = the user's `auth.users.email`. Delivery is tracked per event via `alert_events.emailed_at` / `email_to` / `email_error`. Set `RESEND_API_KEY` (+ verified `ALERT_EMAIL_FROM`) to enable; without it events stay `emailed_at IS NULL` and are retried later.
+
+Manual email run:
+
+```bash
+curl -X POST "$NEXT_PUBLIC_SUPABASE_URL/functions/v1/send-alert-emails" \
+  -H "Authorization: Bearer $SUPABASE_SERVICE_ROLE_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"limit":50,"windowHours":72}'
+```
 
 ## 8) Lookup game by user input (Steam search)
 
@@ -195,20 +218,46 @@ npm run supabase:smoke
 
 Checks: ingest invoke, `price_snapshots` count (expect multiple `store` values when ITAD key set), `game_best_prices` sample, alert evaluator, `alert_events` count.
 
-## 11) sync-user-games (skeleton)
+## 11) sync-user-games (Steam library auto-pull)
+
+**Steam mode** — pulls the user's owned library via `IPlayerService/GetOwnedGames`:
 
 ```bash
 curl -X POST "$NEXT_PUBLIC_SUPABASE_URL/functions/v1/sync-user-games" \
   -H "Authorization: Bearer <USER_ACCESS_TOKEN>" \
   -H "Content-Type: application/json" \
-  -d '{"ownedGameIds":[3],"wishlistGameIds":[3]}'
+  -d '{"steamId":"7656119XXXXXXXXXX"}'
 ```
 
-Upserts `user_games` rows (`owned` / `wishlist`). Steam API sync is future work.
+Flow: resolve SteamID64 (body `steamId`, else stored `profiles.steam_id`) → fetch owned games → upsert `public.games` (one row per `steam_app_id`, `cover_url` = Steam header image) → upsert `user_games` (`source='owned'`, `playtime_minutes`, `last_played_at`) → persist `profiles.steam_id` + `steam_synced_at`.
 
-## 12) Next steps
+Requirements:
+- Secret `STEAM_WEB_API_KEY` set (else `500 missing_steam_api_key`).
+- Steam profile **and** game details set to **Public** (else `0` games returned).
+
+**Manual mode** (back-compat) — explicit catalog ids:
+
+```bash
+curl ... -d '{"ownedGameIds":[3],"wishlistGameIds":[3]}'
+```
+
+**Frontend**: `games.html` shows a "同步 Steam 游戏库" card (logged-in users). `js/cloud-library.js` calls this function, then hydrates the owned library into the local `games` store.
+
+## 12) 全站读 Supabase（关系表贯通）
+
+`js/cloud-library.js` 在云端拉取流程中（`cloud-sync.js` 的 `pullFromCloud` 之后、`readyResolve` 之前）执行 `hydrate()`：
+
+- 读取 `user_games`（`source='owned'`）join `games`（本用户，受 RLS 保护）
+- 按 `steam_app_id` / 名称去重，合并进 localStorage `games`：补全封面、Steam 时长（`steamPlaytimeMinutes`）、`steamAppId`、`supabaseGameId`，新游戏以 `cloudSource:'steam'` 标记
+- 各页 `whenGameCloudSynced(renderX)` 触发重渲染，故 `games` / `stats` / `index` / `spending` / `game` 详情页自动呈现 Steam 库与时长
+- 已加载到全部 12 个页面（`<script src="js/cloud-library.js">`，在 `cloud-sync.js` 之后）
+
+## 13) Next steps
 
 1. Add Epic / other store adapters
 2. ~~Wire `in_app` alert events to UI~~ (wishlist 页已实现；可扩展到全局顶栏)
-3. Email provider for `alert_events.channel`
-4. Integration tests for RLS + function flows
+3. ~~Email provider for `alert_events`~~ (Resend via `send-alert-emails`；需配置 `RESEND_API_KEY`)
+4. ~~Steam library sync~~ (`sync-user-games` Steam 模式；需配置 `STEAM_WEB_API_KEY`)
+5. (可选) 把 `supabase_service_role_key` 写入 Vault，便于将来对 cron 目标函数开启 `verify_jwt`
+6. Periodic Steam re-sync via cron (reuse stored `profiles.steam_id`)
+7. Integration tests for RLS + function flows

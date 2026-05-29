@@ -256,7 +256,11 @@
             showSyncStatus('syncing');
 
             self.pullFromCloud()
-                .then(function () {
+                .then(async function () {
+                    if (window.GameLibrary && typeof window.GameLibrary.hydrate === 'function') {
+                        try { await window.GameLibrary.hydrate(); }
+                        catch (e) { console.warn('云端游戏库合并失败:', e); }
+                    }
                     if (!sessionStorage.getItem('gamecloud_toast_ok')) {
                         showCloudToast('已连接云端，数据已与您的账号同步', 'success');
                         sessionStorage.setItem('gamecloud_toast_ok', '1');

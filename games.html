@@ -169,6 +169,25 @@
                 </div>
             </div>
             
+            <!-- Steam 库同步（登录后可见） -->
+            <div class="max-w-6xl mx-auto mb-12 hidden" id="steam-sync-card">
+                <div class="bg-gradient-to-br from-slate-50 to-blue-50 border border-blue-100 rounded-xl p-5">
+                    <div class="flex flex-col md:flex-row md:items-center gap-4">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-800 flex items-center gap-2">
+                                <i data-lucide="library" class="w-5 h-5"></i> 同步 Steam 游戏库
+                            </h3>
+                            <p class="text-sm text-gray-600 mt-1">输入你的 SteamID64（17 位，个人资料 / 游戏详情须设为公开），一键把已购游戏与时长同步到云端，全站可见。</p>
+                            <p id="steam-sync-status" class="text-xs text-gray-500 mt-1"></p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="steam-id-input" inputmode="numeric" autocomplete="off" placeholder="76561198XXXXXXXXX" class="px-3 py-2 border border-gray-300 rounded-lg w-56 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <button id="steam-sync-btn" class="btn-primary whitespace-nowrap">同步</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Games List -->
             <div class="max-w-6xl mx-auto">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="games-list">
@@ -452,6 +471,7 @@
     <script src="js/sample-data-utils.js?v=12"></script>
     <script src="js/data.js?v=2"></script>
     <script src="js/cloud-sync.js?v=6"></script>
+    <script src="js/cloud-library.js?v=1"></script>
     <script src="utils.js?v=12"></script>
     <script src="js/games.js?v=8"></script>
     <script src="theme.js?v=8"></script>
