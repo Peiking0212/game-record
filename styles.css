@@ -1749,6 +1749,97 @@ body.has-custom-bg main {
 .wishlist-spending-link:hover {
     text-decoration: underline;
 }
+
+/* 愿望单：目标价 + 站内提醒 */
+.wishlist-alert-row {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    background: rgba(82, 182, 255, 0.08);
+    border: 1px solid rgba(82, 182, 255, 0.2);
+    font-size: 0.8125rem;
+}
+.wishlist-alert-prices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary, #4b5563);
+}
+.wishlist-alert-prices .wishlist-best-price {
+    font-weight: 600;
+    color: #059669;
+}
+.wishlist-alert-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+.wishlist-target-price-input {
+    width: 5.5rem;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid var(--input-border, #d1d5db);
+    border-radius: 0.375rem;
+    font-size: 0.8125rem;
+}
+.wishlist-save-alert-btn {
+    padding: 0.35rem 0.75rem;
+    border-radius: 0.375rem;
+    border: none;
+    background: linear-gradient(135deg, #52B6FF, #94D8FF);
+    color: #fff;
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+.wishlist-save-alert-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.wishlist-alert-inline {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+.wishlist-alert-inline.error { color: #dc2626; }
+.wishlist-alert-inline.success { color: #059669; }
+.wishlist-alerts-badge {
+    position: absolute;
+    top: -2px;
+    right: -4px;
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background: #ef4444;
+    border: 2px solid #fff;
+}
+.wishlist-alerts-list .wishlist-alert-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: 0.5rem;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    font-size: 0.875rem;
+}
+.wishlist-alerts-list .wishlist-alert-item.is-unread {
+    border-color: #93c5fd;
+    background: #eff6ff;
+}
+.wishlist-alert-dismiss {
+    flex-shrink: 0;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 0.375rem;
+    border: 1px solid #d1d5db;
+    background: #fff;
+    color: #4b5563;
+    cursor: pointer;
+}
+.wishlist-alert-dismiss:hover {
+    background: #f3f4f6;
+}
 @media (max-width: 768px) {
     .review-card,
     .wishlist-card {

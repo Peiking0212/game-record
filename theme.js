@@ -601,7 +601,15 @@
 
     // ==================== 看板娘 ====================
     function initMascot() {
-        if (!mascotEnabled) return;
+        if (!mascotEnabled) {
+            window.MascotBridge = {
+                speak: function () { return false; },
+                isEnabled: function () { return false; }
+            };
+            var old = document.getElementById('mascot-container');
+            if (old) old.remove();
+            return;
+        }
 
         var container = document.getElementById('mascot-container');
         if (container) container.remove();
@@ -650,6 +658,17 @@
             void speech.offsetWidth;
             speech.classList.add('show', 'fade');
         }
+
+        window.MascotBridge = {
+            speak: function (text) {
+                if (!mascotEnabled || !text) return false;
+                showSpeech(String(text));
+                return true;
+            },
+            isEnabled: function () {
+                return mascotEnabled;
+            }
+        };
         container.addEventListener('click', function(e){
             if (isDragging) return;
             var q = mascotQuotes[Math.floor(Math.random() * mascotQuotes.length)];

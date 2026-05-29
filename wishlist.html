@@ -133,6 +133,20 @@
     <!-- Wishlist Management -->
     <section class="py-16 bg-white">
         <div class="container mx-auto px-4">
+            <div id="wishlist-alerts-panel" class="max-w-6xl mx-auto mb-8 p-5 rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50/80 to-white">
+                <div class="flex items-center justify-between gap-3 mb-3">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                        <span class="relative inline-flex">
+                            <i data-lucide="bell" class="w-5 h-5 text-blue-500"></i>
+                            <span id="alerts-unread-badge" class="wishlist-alerts-badge hidden" aria-hidden="true"></span>
+                        </span>
+                        站内提醒
+                    </h3>
+                    <span id="alerts-login-hint" class="text-xs text-gray-500 hidden">登录后可同步云端降价提醒</span>
+                </div>
+                <ul id="wishlist-alerts-list" class="wishlist-alerts-list space-y-2"></ul>
+                <p id="wishlist-alerts-empty" class="text-sm text-gray-500 hidden">暂无降价提醒，设置目标价后由系统定时检测</p>
+            </div>
             <div class="max-w-6xl mx-auto mb-8 p-5 rounded-xl border border-gray-200 bg-gray-50">
                 <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
                     <i data-lucide="bell-ring" class="w-5 h-5 text-blue-500"></i>
@@ -490,8 +504,9 @@
     <script src="js/cloud-sync.js?v=6"></script>
     <script src="js/personalized-feed.js?v=1"></script>
     <script src="utils.js?v=12"></script>
-    <script src="js/wishlist.js?v=8"></script>
-    <script src="theme.js?v=8"></script>
+    <script src="js/mascot-notify.js?v=1"></script>
+    <script src="theme.js?v=9"></script>
+    <script src="js/wishlist.js?v=9"></script>
 </body>
 </html>
 

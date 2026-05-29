@@ -149,11 +149,21 @@ select jobid, jobname, schedule from cron.job;
 - Evaluate: `POST /functions/v1/run-alert-evaluator` (service role or cron)
 - Events land in `alert_events` with `channel='in_app'` — email/webhook later
 
-## 8) Frontend wishlist
+## 8) Frontend wishlist + in-app alerts + 看板娘
 
 - `js/wishlist.js`: empty local wishlist + signed-in user → `games` + `game_best_prices` (lowest price + store)
+- **目标价提醒**：登录后在愿望单卡片设置「目标价（CNY）」→ `POST /functions/v1/upsert-alert`（Bearer 用户 JWT），body `{ "gameId": 3, "targetPrice": 48, "enabled": true }`
+- **站内提醒**：页顶「站内提醒」读取 `alert_events`（`channel='in_app'`）；「知道了」将事件 id 写入本地 `deal_watch_rules.dismissedAlertEventIds`（经 `site_data` 同步，无需 migration）
+- **看板娘**：`js/mascot-notify.js` + `theme.js` 的 `window.MascotBridge`；有新未读提醒时气泡文案如「星露谷降到 48 元啦，低于你的目标价！」
 - `js/lib/supabase-browser.js`: reads meta / `__APP_ENV__`
 - Meta on `wishlist.html`, `index.html`, `game.html` (run `npm run supabase:inject-meta` after `.env` changes)
+
+**手动测试**
+
+1. 登录 → 打开 `wishlist.html`
+2. 确保愿望单游戏名与 `games` 表一致（或条目带 `supabaseGameId`），填写目标价并保存
+3. Dashboard 执行 `run-price-ingest` 后由 ingest 链式调用 `run-alert-evaluator`，或手动 `POST .../run-alert-evaluator`（service role）
+4. 刷新愿望单：站内提醒列表 + 看板娘气泡；点击「知道了」清除未读红点
 
 ## 9) Smoke test
 
@@ -178,6 +188,6 @@ Upserts `user_games` rows (`owned` / `wishlist`). Steam API sync is future work.
 ## 11) Next steps
 
 1. Add Epic / other store adapters
-2. Wire `in_app` alert events to UI toast center
+2. ~~Wire `in_app` alert events to UI~~ (wishlist 页已实现；可扩展到全局顶栏)
 3. Email provider for `alert_events.channel`
 4. Integration tests for RLS + function flows

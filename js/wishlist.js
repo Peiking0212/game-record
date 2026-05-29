@@ -5,6 +5,309 @@
 // ============================================================
 
 var _supabaseCatalogCache = null;
+var _alertCtx = null;
+var ALERT_EVENTS_LIMIT = 15;
+
+function readSupabaseEnv() {
+  if (window.GameTimeSupabase && window.GameTimeSupabase.readBrowserEnv) {
+    return window.GameTimeSupabase.readBrowserEnv();
+  }
+  return { url: '', anonKey: '' };
+}
+
+function getDismissedAlertEventIds() {
+  var rules = getDealWatchRules();
+  return Array.isArray(rules.dismissedAlertEventIds) ? rules.dismissedAlertEventIds : [];
+}
+
+function dismissAlertEventId(eventId) {
+  var rules = getDealWatchRules();
+  if (!rules.dismissedAlertEventIds) rules.dismissedAlertEventIds = [];
+  var id = Number(eventId);
+  if (!Number.isFinite(id)) return;
+  if (rules.dismissedAlertEventIds.indexOf(id) === -1) {
+    rules.dismissedAlertEventIds.push(id);
+  }
+  saveDealWatchRules(rules);
+}
+
+function isAlertEventDismissed(eventId) {
+  return getDismissedAlertEventIds().indexOf(Number(eventId)) !== -1;
+}
+
+async function isUserSignedIn() {
+  if (!window.SB) return false;
+  try {
+    var sessionRes = await window.SB.auth.getSession();
+    return !!(sessionRes.data && sessionRes.data.session);
+  } catch (e) {
+    return false;
+  }
+}
+
+async function loadAlertContext() {
+  if (_alertCtx) return _alertCtx;
+  var empty = {
+    signedIn: false,
+    alertsByGameId: {},
+    pricesByGameId: {},
+    gamesById: {},
+    gamesList: []
+  };
+  if (!window.SB) {
+    _alertCtx = empty;
+    return _alertCtx;
+  }
+  try {
+    var signedIn = await isUserSignedIn();
+    if (!signedIn) {
+      _alertCtx = empty;
+      return _alertCtx;
+    }
+    var alertsRes = await window.SB.from('alerts').select('id, game_id, target_price, enabled');
+    var pricesRes = await window.SB.from('game_best_prices').select('*');
+    var gamesRes = await window.SB.from('games').select('id, name, steam_app_id, cover_url');
+
+    var alertsByGameId = {};
+    (alertsRes.data || []).forEach(function (row) {
+      alertsByGameId[String(row.game_id)] = row;
+    });
+    var pricesByGameId = {};
+    (pricesRes.data || []).forEach(function (row) {
+      pricesByGameId[String(row.game_id)] = row;
+    });
+    var gamesById = {};
+    (gamesRes.data || []).forEach(function (g) {
+      gamesById[String(g.id)] = g;
+    });
+
+    _alertCtx = {
+      signedIn: true,
+      alertsByGameId: alertsByGameId,
+      pricesByGameId: pricesByGameId,
+      gamesById: gamesById,
+      gamesList: gamesRes.data || []
+    };
+    return _alertCtx;
+  } catch (e) {
+    console.warn('[wishlist] loadAlertContext failed', e);
+    _alertCtx = empty;
+    return _alertCtx;
+  }
+}
+
+function invalidateAlertContext() {
+  _alertCtx = null;
+}
+
+function resolveSupabaseGameId(item, ctx) {
+  if (!item || !ctx) return null;
+  if (item.supabaseGameId != null) return Number(item.supabaseGameId);
+  var list = ctx.gamesList || [];
+  for (var i = 0; i < list.length; i++) {
+    var g = list[i];
+    if (item.steamAppId && g.steam_app_id && String(g.steam_app_id) === String(item.steamAppId)) {
+      return g.id;
+    }
+    if (g.name && item.name &&
+        String(g.name).trim().toLowerCase() === String(item.name).trim().toLowerCase()) {
+      return g.id;
+    }
+  }
+  return null;
+}
+
+function formatBestPriceLine(priceRow) {
+  if (!priceRow) return '';
+  var cur = priceRow.currency === 'CNY' || !priceRow.currency ? '¥' : (priceRow.currency + ' ');
+  var store = priceRow.best_store ? String(priceRow.best_store) : '';
+  if (store === 'gog') store = 'GOG';
+  else if (store) store = store.charAt(0).toUpperCase() + store.slice(1);
+  return '当前最低 ' + cur + priceRow.price + (store ? ' @' + store : '');
+}
+
+async function callUpsertAlert(gameId, targetPrice, enabled) {
+  var cfg = readSupabaseEnv();
+  if (!cfg.url || !cfg.anonKey) throw new Error('未配置 Supabase');
+  var sessionRes = await window.SB.auth.getSession();
+  var token = sessionRes.data && sessionRes.data.session && sessionRes.data.session.access_token;
+  if (!token) throw new Error('请先登录');
+
+  var res = await fetch(cfg.url.replace(/\/$/, '') + '/functions/v1/upsert-alert', {
+    method: 'POST',
+    headers: {
+      Authorization: 'Bearer ' + token,
+      apikey: cfg.anonKey,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      gameId: Number(gameId),
+      targetPrice: Number(targetPrice),
+      enabled: enabled !== false
+    })
+  });
+  var body = await res.json().catch(function () { return {}; });
+  if (!res.ok || !body.ok) {
+    var err = (body && body.error) ? body.error : ('HTTP ' + res.status);
+    throw new Error(err);
+  }
+  invalidateAlertContext();
+  return body.alert;
+}
+
+function renderTargetPriceBlock(item, ctx) {
+  if (!ctx || !ctx.signedIn) return '';
+  var gameId = resolveSupabaseGameId(item, ctx);
+  if (!gameId) {
+    return '<div class="wishlist-alert-row"><span class="wishlist-alert-inline">登录且游戏名与云端目录一致时可设目标价提醒</span></div>';
+  }
+  var alertRow = ctx.alertsByGameId[String(gameId)];
+  var priceRow = ctx.pricesByGameId[String(gameId)];
+  var targetVal = alertRow && alertRow.target_price != null ? alertRow.target_price : '';
+  var html = '<div class="wishlist-alert-row" data-game-id="' + gameId + '">';
+  html += '<div class="wishlist-alert-prices">';
+  if (priceRow) {
+    html += '<span class="wishlist-best-price">' + escapeHtml(formatBestPriceLine(priceRow)) + '</span>';
+  } else {
+    html += '<span class="wishlist-alert-inline">暂无云端最低价</span>';
+  }
+  if (alertRow && alertRow.target_price != null) {
+    html += '<span>已设目标 ¥' + escapeHtml(String(alertRow.target_price)) + '</span>';
+  }
+  html += '</div>';
+  html += '<div class="wishlist-alert-form">';
+  html += '<label class="wishlist-alert-inline">目标价（CNY）<input type="number" min="0.01" step="0.01" class="wishlist-target-price-input" value="' +
+    escapeHtml(String(targetVal)) + '" placeholder="例如 48" /></label>';
+  html += '<button type="button" class="wishlist-save-alert-btn" data-game-id="' + gameId + '">保存提醒</button>';
+  html += '<span class="wishlist-alert-inline wishlist-alert-feedback" data-game-id="' + gameId + '"></span>';
+  html += '</div></div>';
+  return html;
+}
+
+function bindTargetPriceSaveHandlers(container) {
+  if (!container) return;
+  var buttons = container.querySelectorAll('.wishlist-save-alert-btn');
+  for (var i = 0; i < buttons.length; i++) {
+    buttons[i].addEventListener('click', async function () {
+      var gameId = this.getAttribute('data-game-id');
+      var row = container.querySelector('.wishlist-alert-row[data-game-id="' + gameId + '"]');
+      var input = row ? row.querySelector('.wishlist-target-price-input') : null;
+      var feedback = row ? row.querySelector('.wishlist-alert-feedback') : null;
+      var price = input ? parseFloat(input.value) : NaN;
+      if (!Number.isFinite(price) || price <= 0) {
+        showToast('请输入有效的目标价', 'warning');
+        return;
+      }
+      this.disabled = true;
+      if (feedback) {
+        feedback.textContent = '保存中…';
+        feedback.className = 'wishlist-alert-inline wishlist-alert-feedback';
+      }
+      try {
+        await callUpsertAlert(gameId, price, true);
+        if (feedback) {
+          feedback.textContent = '已保存';
+          feedback.className = 'wishlist-alert-inline wishlist-alert-feedback success';
+        }
+        showToast('目标价提醒已保存', 'success');
+        await renderWishlist();
+        await renderAlertsPanel();
+      } catch (e) {
+        if (feedback) {
+          feedback.textContent = e.message || '保存失败';
+          feedback.className = 'wishlist-alert-inline wishlist-alert-feedback error';
+        }
+        showToast(e.message || '保存失败', 'warning');
+      } finally {
+        this.disabled = false;
+      }
+    });
+  }
+}
+
+async function fetchInAppAlertEvents() {
+  if (!window.SB || !(await isUserSignedIn())) return [];
+  var res = await window.SB
+    .from('alert_events')
+    .select('id, alert_id, trigger_price, channel, status, triggered_at, alerts ( game_id, target_price, games ( name ) )')
+    .eq('channel', 'in_app')
+    .order('triggered_at', { ascending: false })
+    .limit(ALERT_EVENTS_LIMIT);
+  if (res.error) {
+    console.warn('[wishlist] alert_events fetch failed', res.error.message);
+    return [];
+  }
+  return res.data || [];
+}
+
+function formatAlertEventMessage(ev) {
+  var gameName = '游戏';
+  var target = null;
+  if (ev.alerts && ev.alerts.games && ev.alerts.games.name) gameName = ev.alerts.games.name;
+  if (ev.alerts && ev.alerts.target_price != null) target = ev.alerts.target_price;
+  if (window.MascotNotify && window.MascotNotify.formatPriceAlertMessage) {
+    return window.MascotNotify.formatPriceAlertMessage(gameName, ev.trigger_price, target);
+  }
+  return gameName + ' 现价 ' + ev.trigger_price;
+}
+
+async function renderAlertsPanel() {
+  var listEl = document.getElementById('wishlist-alerts-list');
+  var emptyEl = document.getElementById('wishlist-alerts-empty');
+  var badgeEl = document.getElementById('alerts-unread-badge');
+  var loginHint = document.getElementById('alerts-login-hint');
+  if (!listEl) return;
+
+  var signedIn = await isUserSignedIn();
+  if (loginHint) loginHint.classList.toggle('hidden', signedIn);
+
+  if (!signedIn) {
+    listEl.innerHTML = '';
+    if (emptyEl) {
+      emptyEl.textContent = '登录后可查看云端降价提醒';
+      emptyEl.classList.remove('hidden');
+    }
+    if (badgeEl) badgeEl.classList.add('hidden');
+    return;
+  }
+
+  var events = await fetchInAppAlertEvents();
+  var unreadCount = 0;
+  var html = '';
+  var newestUnread = null;
+
+  for (var i = 0; i < events.length; i++) {
+    var ev = events[i];
+    var dismissed = isAlertEventDismissed(ev.id);
+    if (!dismissed) unreadCount++;
+    if (!dismissed && !newestUnread) newestUnread = ev;
+    html += '<li class="wishlist-alert-item' + (dismissed ? '' : ' is-unread') + '" data-event-id="' + ev.id + '">';
+    html += '<div><div class="font-medium text-gray-800">' + escapeHtml(formatAlertEventMessage(ev)) + '</div>';
+    html += '<div class="text-xs text-gray-500 mt-1">' + escapeHtml(formatDate(ev.triggered_at)) + '</div></div>';
+    if (!dismissed) {
+      html += '<button type="button" class="wishlist-alert-dismiss" data-event-id="' + ev.id + '">知道了</button>';
+    }
+    html += '</li>';
+  }
+
+  listEl.innerHTML = html;
+  if (emptyEl) emptyEl.classList.toggle('hidden', events.length > 0);
+  if (badgeEl) badgeEl.classList.toggle('hidden', unreadCount === 0);
+
+  listEl.querySelectorAll('.wishlist-alert-dismiss').forEach(function (btn) {
+    btn.addEventListener('click', async function () {
+      var eid = this.getAttribute('data-event-id');
+      dismissAlertEventId(eid);
+      await renderAlertsPanel();
+    });
+  });
+
+  if (newestUnread && window.MascotNotify && window.MascotNotify.notifyLatestUnreadEvent) {
+    window.MascotNotify.notifyLatestUnreadEvent(newestUnread);
+  }
+
+  if (window.lucide) lucide.createIcons();
+}
 
 // ---------- Supabase catalog fallback ----------
 async function fetchSupabaseWishlistCatalog() {
@@ -116,8 +419,8 @@ async function enrichWishlistFromSupabase(list) {
       });
       if (!match) return item;
       var priceRow = priceByGameId[String(match.id)];
-      if (!priceRow) return item;
-      var next = Object.assign({}, item);
+      var next = Object.assign({}, item, { supabaseGameId: match.id });
+      if (!priceRow) return next;
       if (!next.price || next.price === '') next.price = String(priceRow.price);
       if (priceRow.best_store) {
         next.platform = storeLabel(priceRow.best_store);
@@ -393,6 +696,7 @@ async function renderWishlist() {
   var container = document.getElementById('wishlist-items');
   if (!container) return;
 
+  var alertCtx = await loadAlertContext();
   var list = await loadWishlistWithFallback();
 
   // 搜索
@@ -489,6 +793,7 @@ async function renderWishlist() {
     if (item.notes) {
       html += '    <p class="wishlist-notes">' + escapeHtml(item.notes) + '</p>';
     }
+    html += renderTargetPriceBlock(item, alertCtx);
     var purchaseRecords = getPurchaseRecordsForWishlist(item.id, item.name);
     if (purchaseRecords.length > 0) {
       html += renderWishlistSpendingSummary(purchaseRecords);
@@ -500,6 +805,7 @@ async function renderWishlist() {
 
   container.innerHTML = html;
   if (window.lucide) { lucide.createIcons(); }
+  bindTargetPriceSaveHandlers(container);
 
   // 绑定编辑/删除按钮
   var editBtns = container.querySelectorAll('.btn-edit-wishlist');
@@ -734,7 +1040,8 @@ function handleDeleteConfirm() {
 document.addEventListener('DOMContentLoaded', async function () {
   await window.awaitGameCloud();
   // 初始渲染
-  renderWishlist();
+  await renderWishlist();
+  await renderAlertsPanel();
   bindDealRulesPanel();
 
   // 添加按钮
