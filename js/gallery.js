@@ -84,6 +84,36 @@ function formatSupabaseError(err) {
     return msg || JSON.stringify(err);
 }
 
+async function resolveMediaUserId() {
+    if (window.GameAuth && window.GameAuth.getUserId) {
+        return await window.GameAuth.getUserId();
+    }
+    if (window.SB) {
+        var session = await window.SB.auth.getSession();
+        return session.data && session.data.session ? session.data.session.user.id : null;
+    }
+    return null;
+}
+
+function mediaStoragePrefix(userId) {
+    return userId + '/media/';
+}
+
+function storagePathFromPublicUrl(url) {
+    if (!url) return null;
+    var markers = [
+        '/object/public/' + BUCKET + '/',
+        '/object/sign/' + BUCKET + '/'
+    ];
+    for (var i = 0; i < markers.length; i++) {
+        var idx = url.indexOf(markers[i]);
+        if (idx !== -1) {
+            return decodeURIComponent(url.slice(idx + markers[i].length).split('?')[0]);
+        }
+    }
+    return null;
+}
+
 /** 云端上传失败时写入本机，避免完全传不上去 */
 async function saveMediaLocally(file, gameId, gameName, type) {
     var allMedia = getData('game_record_media');
@@ -115,11 +145,15 @@ async function saveMediaLocally(file, gameId, gameName, type) {
 async function checkMediaCloudHealth() {
     if (!window.SB) return { ok: false, reason: '未加载 Supabase（将使用本机存储）' };
     try {
-        var tableCheck = await window.SB.from(TABLE).select('id').limit(1);
+        var userId = await resolveMediaUserId();
+        if (!userId) {
+            return { ok: false, reason: '未登录，无法使用云端媒体库' };
+        }
+        var tableCheck = await window.SB.from(TABLE).select('id').eq('user_id', userId).limit(1);
         if (tableCheck.error) {
             return { ok: false, reason: '数据库 media 表：' + formatSupabaseError(tableCheck.error) };
         }
-        var bucketCheck = await window.SB.storage.from(BUCKET).list('', { limit: 1 });
+        var bucketCheck = await window.SB.storage.from(BUCKET).list(userId, { limit: 1 });
         if (bucketCheck.error) {
             return { ok: false, reason: 'Storage 桶 media：' + formatSupabaseError(bucketCheck.error) };
         }
@@ -137,13 +171,24 @@ async function clearAllMedia() {
 
     if (window.SB) {
         try {
-            var result = await window.SB.from(TABLE).select('id');
+            var userId = await resolveMediaUserId();
+            if (!userId) {
+                showToast('请先登录', 'error');
+                return;
+            }
+            var result = await window.SB.from(TABLE).select('url, thumbnail').eq('user_id', userId);
             if (result.data && result.data.length > 0) {
-                var ids = result.data.map(function(r) { return r.id; });
-                // 删除存储文件
-                await window.SB.storage.from(BUCKET).remove(ids);
-                // 删除数据库记录
-                await window.SB.from(TABLE).delete().neq('id', '_placeholder_');
+                var paths = [];
+                result.data.forEach(function (row) {
+                    var mainPath = storagePathFromPublicUrl(row.url);
+                    var thumbPath = storagePathFromPublicUrl(row.thumbnail);
+                    if (mainPath) paths.push(mainPath);
+                    if (thumbPath) paths.push(thumbPath);
+                });
+                if (paths.length > 0) {
+                    await window.SB.storage.from(BUCKET).remove(paths);
+                }
+                await window.SB.from(TABLE).delete().eq('user_id', userId);
             }
             renderGallery();
             showToast('已清空所有媒体', 'success');
@@ -273,10 +318,16 @@ function getAllMedia() {
 
 // 从 Supabase 获取媒体列表
 async function fetchMediaFromCloud() {
+    if (window.GameCloud && window.GameCloud.fetchMedia) {
+        return window.GameCloud.fetchMedia();
+    }
     try {
+        var userId = await resolveMediaUserId();
+        if (!userId) return [];
         var result = await window.SB
             .from(TABLE)
             .select('*')
+            .eq('user_id', userId)
             .order('created_at', { ascending: false });
         if (result.error) throw result.error;
         // 映射字段：created_at → time, game_name → gameName
@@ -496,12 +547,23 @@ function deleteMedia(id) {
 
 async function deleteFromCloud(id) {
     try {
-        // 删除数据库记录
-        var dbResult = await window.SB.from(TABLE).delete().eq('id', id);
+        var userId = await resolveMediaUserId();
+        if (!userId) throw new Error('未登录');
+        var rowResult = await window.SB.from(TABLE).select('url, thumbnail').eq('id', id).eq('user_id', userId).maybeSingle();
+        if (rowResult.error) throw rowResult.error;
+        var paths = [];
+        if (rowResult.data) {
+            var mainPath = storagePathFromPublicUrl(rowResult.data.url);
+            var thumbPath = storagePathFromPublicUrl(rowResult.data.thumbnail);
+            if (mainPath) paths.push(mainPath);
+            if (thumbPath) paths.push(thumbPath);
+        }
+        var dbResult = await window.SB.from(TABLE).delete().eq('id', id).eq('user_id', userId);
         if (dbResult.error) console.error('删除数据库记录失败:', dbResult.error);
-        // 删除存储文件
-        var storageResult = await window.SB.storage.from(BUCKET).remove([id]);
-        if (storageResult.error) console.error('删除存储文件失败:', storageResult.error);
+        if (paths.length > 0) {
+            var storageResult = await window.SB.storage.from(BUCKET).remove(paths);
+            if (storageResult.error) console.error('删除存储文件失败:', storageResult.error);
+        }
         renderGallery();
         showToast('媒体已删除', 'success');
     } catch (e) {
@@ -723,11 +785,22 @@ async function confirmTypeUpload() {
 
 // 上传单个文件到 Supabase（fileType 必须为 'image' 或 'video'，勿依赖全局 pendingFileType）
 async function uploadFileToCloud(file, gameId, gameName, fileType) {
-    var id = window.generateId();
-    var ext = file.name.split('.').pop() || 'jpg';
-    var storagePath = id + '.' + ext;
+    var userId = await resolveMediaUserId();
+    if (!userId) throw new Error('未登录，无法上传到云端');
+
     var resolved = window.GameData ? window.GameData.resolveGameFieldsFromSelect(gameId) : { gameId: gameId, gameName: gameName };
     gameName = resolved.gameName || gameName || '';
+
+    if (window.GameCloud && window.GameCloud.uploadMedia && fileType === 'image') {
+        var ok = await window.GameCloud.uploadMedia(file, fileType, gameName);
+        if (!ok) throw new Error('云端上传失败');
+        return;
+    }
+
+    var id = window.generateId();
+    var ext = (file.name.split('.').pop() || (fileType === 'video' ? 'mp4' : 'jpg')).toLowerCase();
+    var prefix = mediaStoragePrefix(userId);
+    var storagePath = prefix + id + '.' + ext;
 
     // 处理图片：压缩后上传
     if (fileType === 'image') {
@@ -735,7 +808,6 @@ async function uploadFileToCloud(file, gameId, gameName, fileType) {
         var compressed = await compressImage(dataUrl, 1920, 0.9);
         var thumb = await generateThumbnail(compressed);
 
-        // 上传原图
         var blob = dataURLtoBlob(compressed);
         var uploadResult = await window.SB.storage.from(BUCKET).upload(storagePath, blob, {
             contentType: 'image/jpeg',
@@ -743,44 +815,37 @@ async function uploadFileToCloud(file, gameId, gameName, fileType) {
         });
         if (uploadResult.error) throw uploadResult.error;
 
-        // 上传缩略图
-        var thumbBlob = dataURLtoBlob(thumb);
-        var thumbPath = 'thumb_' + id + '.jpg';
-        var thumbUp = await window.SB.storage.from(BUCKET).upload(thumbPath, thumbBlob, {
+        var thumbPath = prefix + 'thumb_' + id + '.jpg';
+        var thumbUp = await window.SB.storage.from(BUCKET).upload(thumbPath, dataURLtoBlob(thumb), {
             contentType: 'image/jpeg',
             upsert: true
         });
         if (thumbUp.error) throw thumbUp.error;
 
-        // 获取公开 URL
         var publicUrl = window.SB.storage.from(BUCKET).getPublicUrl(storagePath).data.publicUrl;
         var thumbUrl = window.SB.storage.from(BUCKET).getPublicUrl(thumbPath).data.publicUrl;
 
-        // 插入数据库
         var insertResult = await window.SB.from(TABLE).insert({
             id: id,
             type: 'image',
             url: publicUrl,
             thumbnail: thumbUrl,
             name: file.name,
-            game_name: gameName || ''
+            game_name: gameName || '',
+            user_id: userId
         });
         if (insertResult.error) throw insertResult.error;
     } else {
-        // 视频：先生成封面缩略图，再上传
         var videoThumb = await generateVideoCover(file);
-        
-        // 上传视频
+
         var uploadResult = await window.SB.storage.from(BUCKET).upload(storagePath, file, {
-            contentType: file.type,
+            contentType: file.type || 'video/mp4',
             upsert: true
         });
         if (uploadResult.error) throw uploadResult.error;
 
-        // 上传封面缩略图
-        var thumbPath = 'thumb_' + id + '.jpg';
-        var thumbBlob = dataURLtoBlob(videoThumb);
-        var thumbUpV = await window.SB.storage.from(BUCKET).upload(thumbPath, thumbBlob, {
+        var thumbPath = prefix + 'thumb_' + id + '.jpg';
+        var thumbUpV = await window.SB.storage.from(BUCKET).upload(thumbPath, dataURLtoBlob(videoThumb), {
             contentType: 'image/jpeg',
             upsert: true
         });
@@ -795,7 +860,8 @@ async function uploadFileToCloud(file, gameId, gameName, fileType) {
             url: publicUrl,
             thumbnail: thumbUrl,
             name: file.name,
-            game_name: gameName || ''
+            game_name: gameName || '',
+            user_id: userId
         });
         if (insertResult.error) throw insertResult.error;
     }
@@ -1089,9 +1155,11 @@ async function saveEditedImage() {
     if (window.SB) {
         // 云存储：重新上传编辑后的图片
         try {
+            var userId = await resolveMediaUserId();
+            if (!userId) throw new Error('未登录');
             var id = currentImageData.id;
-            var ext = 'jpg';
-            var storagePath = 'edited_' + window.generateId() + '.' + ext;
+            var prefix = mediaStoragePrefix(userId);
+            var storagePath = prefix + 'edited_' + window.generateId() + '.jpg';
             var blob = dataURLtoBlob(editedDataUrl);
             var uploadResult = await window.SB.storage.from(BUCKET).upload(storagePath, blob, {
                 contentType: 'image/jpeg',
@@ -1100,9 +1168,8 @@ async function saveEditedImage() {
             if (uploadResult.error) throw uploadResult.error;
 
             var thumb = await generateThumbnail(editedDataUrl, thumbnailSize);
-            var thumbBlob = dataURLtoBlob(thumb);
-            var thumbPath = 'thumb_' + id + '.jpg';
-            await window.SB.storage.from(BUCKET).upload(thumbPath, thumbBlob, {
+            var thumbPath = prefix + 'thumb_' + id + '.jpg';
+            await window.SB.storage.from(BUCKET).upload(thumbPath, dataURLtoBlob(thumb), {
                 contentType: 'image/jpeg',
                 upsert: true
             });
@@ -1113,7 +1180,7 @@ async function saveEditedImage() {
             var updateResult = await window.SB.from(TABLE).update({
                 url: publicUrl,
                 thumbnail: thumbUrl
-            }).eq('id', id);
+            }).eq('id', id).eq('user_id', userId);
             if (updateResult.error) throw updateResult.error;
 
             closeImageEditor();
