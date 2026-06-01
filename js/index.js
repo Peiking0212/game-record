@@ -179,9 +179,63 @@ function loadRecentAchievements() {
     lucide.createIcons();
 }
 
+let pendingHomeFiles = [];
+let pendingHomeType = '';
+let pendingHomeInputId = '';
+
+function resolveHomeSelectedGame(selectValue) {
+    if (!selectValue) return { gameId: null, gameName: '' };
+    return GD.resolveGameFieldsFromSelect(selectValue);
+}
+
+function showHomeUploadModal() {
+    const modal = document.getElementById('home-upload-modal');
+    const select = document.getElementById('home-upload-game-select');
+    if (!modal) return;
+
+    if (select) {
+        GD.populateGameSelect(select, { placeholder: '选择游戏（可选）' });
+        select.value = '';
+    }
+
+    const typeName = pendingHomeType === 'image' ? '截图' : '视频';
+    const count = pendingHomeFiles.length;
+    const typeLabel = document.getElementById('home-upload-type-label');
+    const uploadCount = document.getElementById('home-upload-count');
+    const btnText = document.getElementById('home-upload-btn-text');
+    if (typeLabel) typeLabel.textContent = typeName;
+    if (uploadCount) uploadCount.textContent = String(count);
+    if (btnText) btnText.textContent = `确认上传 ${count} 个${typeName}`;
+
+    modal.classList.add('active');
+    lucide.createIcons();
+}
+
+function closeHomeUploadModal() {
+    const modal = document.getElementById('home-upload-modal');
+    if (modal) modal.classList.remove('active');
+    pendingHomeFiles = [];
+    pendingHomeType = '';
+    if (pendingHomeInputId) {
+        const input = document.getElementById(pendingHomeInputId);
+        if (input) input.value = '';
+        pendingHomeInputId = '';
+    }
+}
+
+function queueHomeUpload(files, type, inputId) {
+    const list = Array.from(files);
+    if (list.length === 0) return;
+    pendingHomeFiles = list;
+    pendingHomeType = type;
+    pendingHomeInputId = inputId || '';
+    showHomeUploadModal();
+}
+
 function setupUpload(selector, type, inputId) {
     const area = document.querySelector(selector);
     const input = document.getElementById(inputId);
+    if (!area || !input) return;
 
     area.addEventListener('click', () => input.click());
 
@@ -197,24 +251,27 @@ function setupUpload(selector, type, inputId) {
     area.addEventListener('drop', (e) => {
         e.preventDefault();
         area.classList.remove('dragover');
-        handleFiles(e.dataTransfer.files, type);
+        queueHomeUpload(e.dataTransfer.files, type, inputId);
     });
 
     input.addEventListener('change', () => {
-        handleFiles(input.files, type);
+        queueHomeUpload(input.files, type, inputId);
     });
 }
 
-async function handleFiles(files, type) {
+async function handleFiles(files, type, gameName, gameId) {
     const list = Array.from(files);
     if (list.length === 0) return;
+
+    const resolvedName = gameName || '';
+    const resolvedId = gameId || null;
 
     if (window.GameCloud && window.GameCloud.enabled && window.GameCloud.uploadMedia) {
         let ok = 0;
         let fail = 0;
         for (const file of list) {
             try {
-                await window.GameCloud.uploadMedia(file, type, '');
+                await window.GameCloud.uploadMedia(file, type, resolvedName);
                 ok += 1;
             } catch (e) {
                 console.error(e);
@@ -242,7 +299,8 @@ async function handleFiles(files, type) {
                 type: type,
                 url: e.target.result,
                 name: file.name,
-                gameName: '',
+                gameId: resolvedId,
+                gameName: resolvedName,
                 time: new Date().toISOString()
             });
             GD.set(MEDIA_KEY, media);
@@ -254,6 +312,32 @@ async function handleFiles(files, type) {
         };
         reader.readAsDataURL(file);
     });
+}
+
+async function confirmHomeUpload() {
+    if (pendingHomeFiles.length === 0 || !pendingHomeType) {
+        showToast('没有选择文件', 'error');
+        return;
+    }
+
+    const select = document.getElementById('home-upload-game-select');
+    const selected = resolveHomeSelectedGame(select ? select.value : '');
+    const gameName = selected.gameName || '';
+    const gameId = selected.gameId || null;
+    const uploadType = pendingHomeType;
+    const files = pendingHomeFiles.slice();
+
+    const btn = document.getElementById('home-confirm-upload-btn');
+    const btnText = document.getElementById('home-upload-btn-text');
+    if (btn) btn.disabled = true;
+    if (btnText) btnText.textContent = '上传中...';
+
+    try {
+        await handleFiles(files, uploadType, gameName, gameId);
+    } finally {
+        if (btn) btn.disabled = false;
+        closeHomeUploadModal();
+    }
 }
 
 function showToast(message, type = 'info') {
@@ -351,6 +435,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     await renderHomeContent();
     setupUpload('#quick-image-upload', 'image', 'screenshot-upload');
     setupUpload('#quick-video-upload', 'video', 'video-upload');
+
+    const homeUploadModal = document.getElementById('home-upload-modal');
+    const homeUploadClose = document.getElementById('home-upload-modal-close');
+    const homeConfirmBtn = document.getElementById('home-confirm-upload-btn');
+    if (homeUploadClose) {
+        homeUploadClose.addEventListener('click', closeHomeUploadModal);
+    }
+    if (homeConfirmBtn) {
+        homeConfirmBtn.addEventListener('click', confirmHomeUpload);
+    }
+    if (homeUploadModal) {
+        homeUploadModal.addEventListener('click', (e) => {
+            if (e.target === homeUploadModal) closeHomeUploadModal();
+        });
+    }
     const refreshBtn = document.getElementById('refresh-personalized-feed-btn');
     if (refreshBtn) {
         refreshBtn.addEventListener('click', async () => {
