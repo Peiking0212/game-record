@@ -18,7 +18,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
-    <link rel="stylesheet" href="styles.css?v=15">
+    <link rel="stylesheet" href="styles.css?v=16">
     <style>
 /* 导航栏响应式显示 - 不依赖 Tailwind CDN */
 .desktop-nav { display: none; }
@@ -29,31 +29,73 @@
     .mobile-nav { display: none; }
 }
         .filter-chip {
-            @apply px-3 py-1 rounded-full text-sm cursor-pointer transition-all border;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #d1d5db;
         }
         .filter-chip.active {
-            @apply bg-blue-500 text-white border-blue-500;
+            background-color: #3b82f6;
+            color: #fff;
+            border-color: #3b82f6;
         }
         .filter-chip:not(.active) {
-            @apply bg-white text-gray-600 border-gray-300 hover:border-blue-400;
+            background-color: #fff;
+            color: #4b5563;
+            border-color: #d1d5db;
+        }
+        .filter-chip:not(.active):hover {
+            border-color: #60a5fa;
         }
         .export-btn {
-            @apply flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
         }
         .export-btn-primary {
-            @apply bg-blue-500 text-white hover:bg-blue-600;
+            background-color: #3b82f6;
+            color: #fff;
+        }
+        .export-btn-primary:hover {
+            background-color: #2563eb;
         }
         .export-btn-secondary {
-            @apply bg-gray-100 text-gray-700 hover:bg-gray-200;
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+        .export-btn-secondary:hover {
+            background-color: #e5e7eb;
         }
         .year-summary-card {
-            @apply bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 text-white rounded-2xl p-6 shadow-xl;
+            background: linear-gradient(to bottom right, #3b82f6, #a855f7, #ec4899);
+            color: #fff;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
         }
         .stat-number-large {
-            @apply text-4xl md:text-5xl font-bold;
+            font-size: 2.25rem;
+            font-weight: 700;
+        }
+        @media (min-width: 768px) {
+            .stat-number-large {
+                font-size: 3rem;
+            }
         }
         .chart-container {
-            @apply bg-white rounded-xl shadow-md p-6;
+            background-color: #fff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
         }
     </style>
 </head>
@@ -429,6 +471,6 @@
     <script src="js/cloud-library.js?v=1"></script>
     <script src="utils.js?v=13"></script>
     <script src="js/stats.js?v=11"></script>
-    <script src="theme.js?v=8"></script>
+    <script src="theme.js?v=10"></script>
 </body>
 </html>

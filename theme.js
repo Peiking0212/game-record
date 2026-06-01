@@ -5,6 +5,13 @@
 (function () {
     'use strict';
 
+    if (!document.querySelector('link[rel="manifest"]')) {
+        var manifestLink = document.createElement('link');
+        manifestLink.rel = 'manifest';
+        manifestLink.href = 'manifest.json';
+        document.head.appendChild(manifestLink);
+    }
+
     const STORAGE_KEY = 'game_record_theme';
 
     // 默认设置

@@ -53,31 +53,46 @@ function renderGames() {
         gamesList.classList.remove('hidden');
         emptyState.classList.add('hidden');
         
-        gamesList.innerHTML = filteredGames.map(game => `
-            <div class="cassette-3d cassette-${escapeHtml(game.status)}" data-aos="fade-up">
-                <div class="cassette-3d-inner">
-                    <div class="cassette-3d-front" style="cursor:pointer" onclick="window.location.href=gameDetailUrl(${parseInt(game.id, 10)})" title="查看 ${escapeHtml(game.name)} 详情">
-                        <div class="cassette-cover">
-                            <div class="cassette-ribbon"></div>
-                            ${imgWithFallback(game.icon, game.name, '')}
-                        </div>
-                        <div class="cassette-label">${escapeHtml(game.name)}</div>
-                    </div>
-                    <div class="cassette-3d-back">
-                        <h4>${escapeHtml(game.name)}</h4>
-                        <div class="cassette-info-row"><span>类型</span><span>${escapeHtml(game.type || '其他')}</span></div>
-                        <div class="cassette-info-row"><span>状态</span><span>${escapeHtml(getStatusText(game.status))}</span></div>
-                        <div class="cassette-info-row"><span>时长</span><span>${parseInt(game.playtime, 10) || 0} 小时</span></div>
-                        <div class="cassette-info-row"><span>进度</span><span>${parseInt(game.progress, 10) || 0}%</span></div>
-                        <div class="cassette-actions">
-                            <button class="cassette-btn-play" onclick="event.stopPropagation(); window.location.href=gameDetailUrl(${parseInt(game.id, 10)})">查 看</button>
-                            <button class="cassette-btn-edit" onclick="event.stopPropagation(); openEditGameModal(${parseInt(game.id, 10)})">编 辑</button>
+        gamesList.innerHTML = filteredGames.map(game => {
+            const gid = parseInt(game.id, 10);
+            const progress = Math.min(100, parseInt(game.progress, 10) || 0);
+            return `
+            <div class="review-card game-library-card game-status-${escapeHtml(game.status || 'playing')}" data-id="${gid}" data-aos="fade-up">
+                <a href="${gameDetailUrl(gid)}" class="review-cover" title="查看 ${escapeHtml(game.name)}">
+                    ${imgWithFallback(game.icon, game.name, 'review-cover-img')}
+                </a>
+                <div class="review-info">
+                    <div class="review-info-header">
+                        <h3 class="review-name"><a href="${gameDetailUrl(gid)}" class="game-library-name-link">${escapeHtml(game.name)}</a></h3>
+                        <div class="review-actions">
+                            <button type="button" class="btn-view-game" data-id="${gid}" title="查看详情"><i data-lucide="external-link"></i></button>
+                            <button type="button" class="btn-edit-game" data-id="${gid}" title="编辑"><i data-lucide="pencil"></i></button>
                         </div>
                     </div>
+                    <p class="review-text game-library-meta">${escapeHtml(game.type || '其他')} · ${escapeHtml(getStatusText(game.status))} · ${parseInt(game.playtime, 10) || 0} 小时</p>
+                    <div class="game-library-progress">
+                        <div class="game-library-progress-bar" style="width:${progress}%"></div>
+                    </div>
+                    <span class="review-date">进度 ${progress}%</span>
                 </div>
-            </div>
-        `).join('');
-        
+            </div>`;
+        }).join('');
+
+        gamesList.querySelectorAll('.btn-view-game').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                window.location.href = gameDetailUrl(this.getAttribute('data-id'));
+            });
+        });
+        gamesList.querySelectorAll('.btn-edit-game').forEach(btn => {
+            btn.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                openEditGameModal(parseInt(this.getAttribute('data-id'), 10));
+            });
+        });
+
         lucide.createIcons();
     }
 }
@@ -85,7 +100,9 @@ function renderGames() {
 // Render recently added games
 function renderRecentlyAdded() {
     const recentlyAdded = document.getElementById('recently-added');
-    const sortedGames = games.sort((a, b) => new Date(b.lastPlayed) - new Date(a.lastPlayed)).slice(0, 4);
+    const sortedGames = [...games]
+        .sort((a, b) => (Number(b.id) || 0) - (Number(a.id) || 0))
+        .slice(0, 4);
     
     recentlyAdded.innerHTML = sortedGames.map(game => `
         <a href="${gameDetailUrl(game.id)}" class="bg-white rounded-lg shadow-lg overflow-hidden block hover:shadow-xl transition-shadow" data-aos="fade-up">

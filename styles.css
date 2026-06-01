@@ -1534,7 +1534,8 @@ body.has-custom-bg main {
    列表卡片 - Reviews & Wishlist (unified with game-card sizing)
    ======================================== */
 .review-card,
-.wishlist-card {
+.wishlist-card,
+.game-library-card {
     background: var(--bg-card);
     border-radius: 1rem;
     overflow: hidden;
@@ -1546,20 +1547,70 @@ body.has-custom-bg main {
     align-items: stretch;
 }
 .review-card:hover,
-.wishlist-card:hover {
+.wishlist-card:hover,
+.game-library-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 20px 25px -5px var(--shadow-hover);
 }
 .wishlist-priority-high { border-left: 3px solid #ef4444; }
 .wishlist-priority-medium { border-left: 3px solid #f59e0b; }
 .wishlist-priority-low { border-left: 3px solid #10b981; }
+.game-library-card.game-status-playing { border-left: 3px solid #3b82f6; }
+.game-library-card.game-status-completed { border-left: 3px solid #10b981; }
+.game-library-card.game-status-paused { border-left: 3px solid #f59e0b; }
+.game-library-card.game-status-dropped { border-left: 3px solid #9ca3af; }
+.game-library-name-link {
+    color: inherit;
+    text-decoration: none;
+}
+.game-library-name-link:hover {
+    color: var(--primary, #52B6FF);
+}
+.game-library-meta {
+    margin-bottom: 0.5rem;
+}
+.game-library-progress {
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 9999px;
+    overflow: hidden;
+    margin-bottom: 0.35rem;
+}
+.game-library-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #52B6FF, #94D8FF);
+    border-radius: 9999px;
+}
+.btn-view-game,
+.btn-edit-game {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    border-radius: 0.5rem;
+    background: transparent;
+    color: var(--text-secondary, #6b7280);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.btn-view-game:hover,
+.btn-edit-game:hover {
+    background: var(--badge-bg-blue, #eff6ff);
+    color: var(--primary, #52B6FF);
+}
 .review-cover,
-.wishlist-cover {
+.wishlist-cover,
+a.review-cover {
+    display: block;
     flex-shrink: 0;
     width: 120px;
     min-height: 120px;
     overflow: hidden;
     background: #f8fafc;
+    text-decoration: none;
+    color: inherit;
 }
 .review-cover-img,
 .wishlist-cover-img {
@@ -1889,11 +1940,13 @@ body.has-custom-bg main {
 }
 @media (max-width: 768px) {
     .review-card,
-    .wishlist-card {
+    .wishlist-card,
+    .game-library-card {
         flex-direction: column;
     }
     .review-cover,
-    .wishlist-cover {
+    .wishlist-cover,
+    a.review-cover {
         width: 100%;
         height: 10rem;
         min-height: auto;

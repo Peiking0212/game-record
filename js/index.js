@@ -41,22 +41,26 @@ function loadRecentGames() {
     }
 
     const recent = [...games]
-        .sort((a, b) => achievementDateMs({ date: b.lastPlayed }) - achievementDateMs({ date: a.lastPlayed }))
+        .sort((a, b) => (parseInt(b.playtime, 10) || 0) - (parseInt(a.playtime, 10) || 0))
         .slice(0, 4);
 
+    const detailUrl = typeof gameDetailUrl === 'function'
+        ? gameDetailUrl
+        : function (id) { return 'game.html?id=' + encodeURIComponent(id); };
+
     container.innerHTML = recent.map(game => `
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden" data-aos="fade-up">
+        <a href="${detailUrl(game.id)}" class="bg-white rounded-lg shadow-lg overflow-hidden block hover:shadow-xl transition-shadow" data-aos="fade-up">
             <div class="h-32 bg-gradient-to-br from-blue-50 to-cyan-100 flex items-center justify-center">
                 ${imgWithFallback(game.icon, game.name, 'w-20 h-20 rounded-lg object-cover shadow-md')}
             </div>
             <div class="p-4">
                 <h4 class="font-semibold text-gray-800 truncate">${escapeHtml(game.name)}</h4>
-                <p class="text-sm text-gray-600">${escapeHtml(game.type || '其他')} · ${parseInt(game.playtime, 10) || 0}小时</p>
+                <p class="text-sm text-gray-600">${escapeHtml(game.type || '其他')} · ${parseInt(game.playtime, 10) || 0} 小时</p>
                 <div class="mt-2">
                     <span class="text-xs px-2 py-1 rounded-full ${getStatusBadgeClass(game.status)}">${escapeHtml(getStatusText(game.status))}</span>
                 </div>
             </div>
-        </div>
+        </a>
     `).join('');
 
     lucide.createIcons();
