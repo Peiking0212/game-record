@@ -3,17 +3,22 @@
   "version": "2.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
     "build": "next build",
+    "dev": "next dev",
     "start": "next start",
     "lint": "next lint",
     "test:e2e": "playwright test",
     "test:auth:login": "node scripts/auth-test-user.mjs",
     "test:backend:acceptance": "node scripts/acceptance-backend.mjs",
     "supabase:inject-meta": "node scripts/inject-supabase-meta.mjs",
-    "supabase:smoke": "node scripts/smoke-supabase.mjs"
+    "supabase:smoke": "node scripts/smoke-supabase.mjs",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
+    "@opennextjs/cloudflare": "^1.19.11",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.106.2",
     "html2canvas": "^1.4.1",
@@ -31,6 +36,7 @@
     "eslint-config-next": "^15.3.3",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "wrangler": "^4.97.0"
   }
 }

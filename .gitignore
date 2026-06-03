@@ -39,3 +39,11 @@ playwright-report/
 .cheapshark-content.txt
 .itad-content.txt
 .iga/
+
+# OpenNext
+.open-next
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
