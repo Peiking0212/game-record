@@ -1259,6 +1259,16 @@ select:focus-visible {
 .cassette-3d:hover .cassette-cover img {
     transform: scale(1.05);
 }
+.cassette-detail-link {
+    display: block;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.95);
+    padding: 0.35rem 0.5rem 0.5rem;
+    letter-spacing: 0.02em;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
 .cassette-3d-front .cassette-label {
     padding: 0.75rem 1rem;
     text-align: center;
@@ -1329,10 +1339,14 @@ select:focus-visible {
     gap: 0.25rem;
 }
 .cassette-btn-play {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
     background: linear-gradient(135deg, var(--primary), #D1D5DB);
     color: #fff;
 }
-.cassette-btn-play:hover { opacity: 0.85; }
+.cassette-btn-play:hover { opacity: 0.85; color: #fff; }
 .cassette-btn-edit {
     background: var(--bg-card-hover);
     color: var(--text-dark);

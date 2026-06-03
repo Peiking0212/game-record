@@ -63,7 +63,7 @@ Feature secrets (Dashboard → Edge Functions → Secrets):
 | `STEAM_WEB_API_KEY` | `sync-user-games` (Steam auto-pull) | [Steam Web API key](https://steamcommunity.com/dev/apikey) | Without it, only manual `ownedGameIds`/`wishlistGameIds` mode works |
 | `RESEND_API_KEY` | `send-alert-emails` | [Resend](https://resend.com/api-keys) | Without it, events stay unsent (function returns a `note`) |
 | `ALERT_EMAIL_FROM` | `send-alert-emails` | Verified Resend domain | Defaults to `PeikingGameTime <onboarding@resend.dev>` (testing only) |
-| `APP_URL` | `send-alert-emails` | — | Used for the "查看愿望单" link in emails |
+| `APP_URL` | `send-alert-emails` | 生产示例：`https://peiking0212.github.io/game-record`（邮件内链为 `{APP_URL}/wishlist`） | Used for the "查看愿望单" link in emails |
 
 Price ingest secrets (Edge Functions → Secrets; see `.env.example`):
 
@@ -193,12 +193,13 @@ Wishlist UI: on add (logged in) auto-calls lookup; unmatched cards show **从 St
 
 Deploy: `supabase functions deploy lookup-game --no-verify-jwt` (gateway still validates JWT when enabled).
 
-## 9) Frontend wishlist + in-app alerts + 看板娘
+## 9) Frontend wishlist + in-app alerts + 看板娘 + 邮件
 
-- `js/wishlist.js`: empty local wishlist + signed-in user → `games` + `game_best_prices` (lowest price + store)
-- **目标价提醒**：登录后在愿望单卡片设置「目标价（CNY）」→ `POST /functions/v1/upsert-alert`（Bearer 用户 JWT），body `{ "gameId": 3, "targetPrice": 48, "enabled": true }`
-- **站内提醒**：页顶「站内提醒」读取 `alert_events`（`channel='in_app'`）；「知道了」将事件 id 写入本地 `deal_watch_rules.dismissedAlertEventIds`（经 `site_data` 同步，无需 migration）
-- **看板娘**：`js/mascot-notify.js` + `theme.js` 的 `window.MascotBridge`；有新未读提醒时气泡文案如「星露谷降到 48 元啦，低于你的目标价！」
+- Next.js `/wishlist`：云端目录、目标价、`upsert-alert` + `run-alert-evaluator`
+- **目标价提醒**：愿望卡片「保存提醒」；body 可含 `notifyEmail: true|false`（`alerts.notify_email`，migration `20260603120000`）
+- **站内提醒**：「站内提醒」面板 + 看板娘气泡（`mascot-notify`）
+- **邮件提醒**：页顶「邮件降价提醒」展示账号邮箱与最近 `emailed_at` / `email_error`；达标后 `send-alert-emails`（Resend）发往 `auth.users.email`；邮件内链接为 `{APP_URL}/wishlist`
+- Legacy `js/wishlist.js` 仍可用，行为与上类似（HTML 版）
 - `js/lib/supabase-browser.js`: reads meta / `__APP_ENV__`
 - Meta on `wishlist.html`, `index.html`, `game.html` (run `npm run supabase:inject-meta` after `.env` changes)
 

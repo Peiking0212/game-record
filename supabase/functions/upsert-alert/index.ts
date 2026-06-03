@@ -38,6 +38,7 @@ Deno.serve(async (req) => {
     const gameId = Number(payload?.gameId);
     const targetPrice = Number(payload?.targetPrice);
     const enabled = payload?.enabled !== false;
+    const notifyEmail = payload?.notifyEmail !== false;
 
     if (!Number.isFinite(gameId) || gameId <= 0 || !Number.isFinite(targetPrice) || targetPrice <= 0) {
       return json(400, { ok: false, error: "invalid_payload", required: ["gameId", "targetPrice"] });
@@ -51,6 +52,7 @@ Deno.serve(async (req) => {
           game_id: gameId,
           target_price: targetPrice,
           enabled,
+          notify_email: notifyEmail,
           updated_at: new Date().toISOString(),
         },
         { onConflict: "user_id,game_id" },
@@ -115,6 +117,21 @@ Deno.serve(async (req) => {
           reason: currentPrice > target ? "above_target" : "no_price",
           currentPrice: Number.isFinite(currentPrice) ? currentPrice : null,
         };
+      }
+    }
+
+    if (evaluation?.triggered && evaluation.eventId && serviceRoleKey) {
+      try {
+        await fetch(`${supabaseUrl}/functions/v1/send-alert-emails`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${serviceRoleKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ limit: 20 }),
+        });
+      } catch (_e) {
+        /* email delivery is non-fatal */
       }
     }
 

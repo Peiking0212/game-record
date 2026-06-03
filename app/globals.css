@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 导航栏响应式（来自旧版 index.html） */
+.desktop-nav {
+  display: none;
+}
+.mobile-nav {
+  display: flex;
+}
+.mobile-menu {
+  display: none;
+}
+.mobile-menu.is-open {
+  display: block !important;
+}
+@media (min-width: 768px) {
+  .desktop-nav {
+    display: flex;
+  }
+  .mobile-nav {
+    display: none;
+  }
+}
+
+@import "../legacy/styles.css";
+
+/* 媒体库图片编辑器 */
+.filter-item {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.filter-item:hover,
+.filter-item.active {
+  transform: scale(1.1);
+  border-color: #3b82f6;
+}
+.crop-handle {
+  width: 12px;
+  height: 12px;
+  background: white;
+  border: 2px solid #3b82f6;
+  border-radius: 50%;
+  position: absolute;
+  cursor: move;
+}

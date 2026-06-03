@@ -6,6 +6,13 @@
 # Dependencies
 node_modules/
 
+# Next.js
+.next/
+out/
+
+# Local env
+.env.local
+
 # Deploy artifacts & scratch files
 .lookup-game-deploy.json
 .deploy-args-for-mcp.json
@@ -21,6 +28,12 @@ node_modules/
 .mcp-args-out.json
 .mcp-deploy-request.json
 .mcp-invoke.json
+.mcp-deploy-send-alert.json
+.deploy-send-alert-emails.ts.txt
+
+# Playwright
+test-results/
+playwright-report/
 
 # Local scratch / cache
 .cheapshark-content.txt

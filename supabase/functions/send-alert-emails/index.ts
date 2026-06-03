@@ -23,17 +23,27 @@ type AlertEventRow = {
   alerts: {
     user_id: string;
     target_price: number | null;
+    notify_email?: boolean | null;
     game_id: number;
     games: { name: string | null } | null;
   } | null;
 };
+
+/** Public diagnostics: confirms APP_URL secret is loaded (no secrets in response). */
+function emailEnvMeta(appUrl: string) {
+  const base = appUrl ? appUrl.replace(/\/$/, "") : "";
+  return {
+    appUrlConfigured: base.length > 0,
+    wishlistLink: base ? `${base}/wishlist` : null,
+  };
+}
 
 function buildEmail(gameName: string, price: number, target: number | null, appUrl: string) {
   const subject = `🎮 ${gameName} 降到 ¥${price} 啦`;
   const targetLine = target != null
     ? `<p style="margin:0 0 8px;color:#475569">你的目标价：<strong>¥${target}</strong></p>`
     : "";
-  const link = appUrl ? `${appUrl.replace(/\/$/, "")}/wishlist.html` : "";
+  const link = appUrl ? `${appUrl.replace(/\/$/, "")}/wishlist` : "";
   const cta = link
     ? `<p style="margin:20px 0 0"><a href="${link}" style="background:#52B6FF;color:#fff;text-decoration:none;padding:10px 18px;border-radius:8px;display:inline-block">查看愿望单</a></p>`
     : "";
@@ -57,6 +67,7 @@ Deno.serve(async (req) => {
     const resendKey = Deno.env.get("RESEND_API_KEY") || "";
     const fromAddress = Deno.env.get("ALERT_EMAIL_FROM") || DEFAULT_FROM;
     const appUrl = Deno.env.get("APP_URL") || "";
+    const envMeta = emailEnvMeta(appUrl);
 
     if (!supabaseUrl || !serviceRoleKey) {
       return json(500, { ok: false, error: "missing_service_env" });
@@ -72,7 +83,7 @@ Deno.serve(async (req) => {
 
     const { data: events, error: eventsError } = await admin
       .from("alert_events")
-      .select("id, trigger_price, triggered_at, alert_id, alerts(user_id, target_price, game_id, games(name))")
+      .select("id, trigger_price, triggered_at, alert_id, alerts(user_id, target_price, notify_email, game_id, games(name))")
       .is("emailed_at", null)
       .eq("status", "triggered")
       .gte("triggered_at", since)
@@ -85,7 +96,7 @@ Deno.serve(async (req) => {
 
     const pending = (events || []) as unknown as AlertEventRow[];
     if (pending.length === 0) {
-      return json(200, { ok: true, sent: 0, skipped: 0, pending: 0 });
+      return json(200, { ok: true, sent: 0, skipped: 0, pending: 0, ...envMeta });
     }
 
     if (!resendKey) {
@@ -95,11 +106,13 @@ Deno.serve(async (req) => {
         skipped: pending.length,
         pending: pending.length,
         note: "RESEND_API_KEY not set; events left unsent. Configure secret to enable email.",
+        ...envMeta,
       });
     }
 
     let sent = 0;
     let failed = 0;
+    let skipped = 0;
     const emailCache = new Map<string, string | null>();
 
     for (const ev of pending) {
@@ -107,6 +120,11 @@ Deno.serve(async (req) => {
       if (!alert?.user_id) {
         await admin.from("alert_events").update({ email_error: "no_alert_or_user" }).eq("id", ev.id);
         failed++;
+        continue;
+      }
+
+      if (alert.notify_email === false) {
+        skipped += 1;
         continue;
       }
 
@@ -157,7 +175,14 @@ Deno.serve(async (req) => {
       }
     }
 
-    return json(200, { ok: true, sent, failed, pending: pending.length });
+    return json(200, {
+      ok: true,
+      sent,
+      failed,
+      skipped,
+      pending: pending.length,
+      ...envMeta,
+    });
   } catch (error) {
     return json(500, { ok: false, error: "unexpected_error", detail: String(error) });
   }

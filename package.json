@@ -1,9 +1,36 @@
 {
+  "name": "game-record",
+  "version": "2.0.0",
+  "private": true,
   "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test:e2e": "playwright test",
+    "test:auth:login": "node scripts/auth-test-user.mjs",
+    "test:backend:acceptance": "node scripts/acceptance-backend.mjs",
     "supabase:inject-meta": "node scripts/inject-supabase-meta.mjs",
     "supabase:smoke": "node scripts/smoke-supabase.mjs"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.106.2"
+    "@supabase/ssr": "^0.6.1",
+    "@supabase/supabase-js": "^2.106.2",
+    "html2canvas": "^1.4.1",
+    "lucide-react": "^0.544.0",
+    "next": "^15.3.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^22.15.21",
+    "@types/react": "^19.1.4",
+    "@types/react-dom": "^19.1.5",
+    "eslint": "^9.27.0",
+    "eslint-config-next": "^15.3.3",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.8.3"
   }
 }
