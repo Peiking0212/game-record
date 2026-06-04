@@ -25,6 +25,25 @@ npm run dev
 | `legacy/` | 旧版 HTML/JS（迁移参考，不再作为入口） |
 | `supabase/` | 数据库迁移与 Edge Functions |
 
+## 部署 (GitHub Pages)
+
+站点地址：<https://peiking0212.github.io/game-record/>
+
+1. 仓库 **Settings → Pages → Build and deployment → Source** 选 **GitHub Actions**。
+2. 在 **Settings → Secrets and variables → Actions** 添加：
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+3. 推送到 `main` 后，工作流 `.github/workflows/deploy-github-pages.yml` 会执行 `GITHUB_PAGES=true` 静态构建并发布 `out/`。
+
+本地模拟 GitHub Pages 构建（PowerShell）：
+
+```powershell
+$env:GITHUB_PAGES='true'; npm run build
+# 生成 out/wishlist/index.html → 对应 /game-record/wishlist/
+```
+
+邮件里的 `APP_URL` 应设为 `https://peiking0212.github.io/game-record`（无末尾斜杠）。
+
 ## 部署 (Vercel)
 
 连接本仓库后，框架预设选 **Next.js**，根目录为 `game_record_vibrant`（若 monorepo 则配置子目录）。

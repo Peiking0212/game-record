@@ -14,6 +14,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import * as LucideIcons from "lucide-react";
+import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { GameIcon } from "@/components/games/game-icon";
 import {
@@ -71,7 +72,19 @@ function sectionMuted(empty: boolean) {
   return empty ? "game-hub-section game-hub-section-muted" : "game-hub-section";
 }
 
-export function GameDetailClient({ gameId, gameNameQuery }: Props) {
+export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }: Props) {
+  const routeParams = useParams();
+  const searchParams = useSearchParams();
+  const routeId = typeof routeParams?.id === "string" ? routeParams.id : undefined;
+  const gameId =
+    gameIdProp && gameIdProp !== "_"
+      ? gameIdProp
+      : routeId && routeId !== "_"
+        ? routeId
+        : gameIdProp;
+  const nameFromQuery = searchParams.get("name");
+  const gameNameQuery = nameProp ?? (nameFromQuery ? nameFromQuery : undefined);
+
   const [ready, setReady] = useState(false);
   const [notFound, setNotFound] = useState<string | null>(null);
   const [hub, setHub] = useState<GameHubData | null>(null);
