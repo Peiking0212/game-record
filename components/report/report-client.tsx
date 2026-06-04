@@ -227,9 +227,14 @@ export function ReportClient() {
 
   return (
     <>
-      <section className="bg-gradient-to-br from-[#52B6FF15] to-[#94D8FF15] py-6">
-        <div className="container mx-auto px-4 text-center">
-          <div className="inline-flex items-center gap-3 bg-white rounded-full px-5 py-2 shadow-md">
+      <section className="hero-game py-8 md:py-10">
+        <div className="hero-grid" aria-hidden />
+        <div className="container mx-auto px-4 text-center relative z-10">
+          <p className="hero-eyebrow font-mono text-sm mb-4 is-visible">/// year_report.render</p>
+          <h1 className="hero-title text-3xl md:text-4xl mb-6 is-visible">
+            <span className="hero-title-line block">年度报告</span>
+          </h1>
+          <div className="inline-flex items-center gap-3 game-surface rounded-full px-5 py-2 flex-wrap justify-center">
             <Calendar className="w-5 h-5 text-[#52B6FF]" />
             <select
               className="text-lg font-bold bg-transparent border-none outline-none cursor-pointer text-gray-800"
@@ -266,12 +271,16 @@ export function ReportClient() {
       </section>
 
       {!report ? (
-        <section className="py-20">
+        <section className="py-20 section-game">
           <div className="container mx-auto px-4 text-center">
-            <Sparkles className="w-20 h-20 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">年度游戏报告</h2>
-            <p className="text-gray-500 mb-6">选择年份，生成你的专属游戏年度报告 ✨</p>
-            <p className="text-gray-400 text-sm">像 Spotify Wrapped 一样，回顾你的游戏之旅</p>
+            <Sparkles className="w-20 h-20 mx-auto mb-4" style={{ color: "var(--text-gray)" }} />
+            <h2 className="text-2xl font-bold mb-2 page-section-title">年度游戏报告</h2>
+            <p className="mb-6" style={{ color: "var(--text-gray)" }}>
+              选择年份，从主库存档渲染一页页回顾幻灯
+            </p>
+            <p className="text-sm font-mono" style={{ color: "var(--text-gray)" }}>
+              /// recap.slides — 时长、成就与高光条目汇总
+            </p>
           </div>
         </section>
       ) : (

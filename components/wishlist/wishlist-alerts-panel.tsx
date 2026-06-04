@@ -73,7 +73,7 @@ export function WishlistAlertsPanel({ signedIn, items, refreshKey }: Props) {
     return (
       <div
         id="wishlist-alerts-panel"
-        className="max-w-6xl mx-auto mb-8 p-5 rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50/80 to-white"
+        className="max-w-6xl mx-auto mb-8 p-5 game-surface"
       >
         <p id="alerts-login-hint" className="text-sm text-gray-500">
           登录后可查看云端降价提醒并设置目标价
@@ -85,7 +85,7 @@ export function WishlistAlertsPanel({ signedIn, items, refreshKey }: Props) {
   return (
     <div
       id="wishlist-alerts-panel"
-      className="max-w-6xl mx-auto mb-8 p-5 rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50/80 to-white"
+      className="max-w-6xl mx-auto mb-8 p-5 game-surface"
     >
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">

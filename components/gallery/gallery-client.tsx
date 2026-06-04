@@ -18,6 +18,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ImageEditorModal } from "@/components/gallery/image-editor-modal";
 import { MediaLightbox } from "@/components/gallery/media-lightbox";
 import { MediaUploadModal } from "@/components/gallery/media-upload-modal";
+import { PageHero } from "@/components/ui/page-hero";
+import { PageSection } from "@/components/ui/page-section";
 import { useToast } from "@/components/ui/toast";
 import { resolveGameFieldsFromSelect } from "@/lib/game-data";
 import { formatDateISO } from "@/lib/game-utils";
@@ -161,54 +163,48 @@ export function GalleryClient() {
 
   return (
     <>
-      <section className="py-20" style={{ background: "var(--primary-light)" }} data-hero>
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
-            游戏媒体库
-          </h1>
-          <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
-            记录每一个精彩瞬间
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <button
-              type="button"
-              data-testid="gallery-upload-image"
-              className="btn-primary inline-flex items-center"
-              onClick={() => imageInputRef.current?.click()}
-            >
-              <UploadCloud className="w-5 h-5 mr-2" />
-              上传截图
-            </button>
-            <button
-              type="button"
-              className="btn-primary inline-flex items-center"
-              onClick={() => videoInputRef.current?.click()}
-            >
-              <Video className="w-5 h-5 mr-2" />
-              上传视频
-            </button>
-          </div>
-          <input
-            ref={imageInputRef}
-            type="file"
-            accept="image/*"
-            multiple
-            className="hidden"
-            onChange={(e) => handleImagePick(e.target.files)}
-          />
-          <input
-            ref={videoInputRef}
-            type="file"
-            accept="video/*"
-            multiple
-            className="hidden"
-            onChange={(e) => handleVideoPick(e.target.files)}
-          />
-        </div>
-      </section>
+      <PageHero
+        eyebrow="/// media_buffer.capture"
+        title="游戏媒体库"
+        description="截图与录像缓冲区：精彩瞬间写回对应游戏条目，库面媒体格随之点亮。"
+        size="default"
+      >
+        <button
+          type="button"
+          data-testid="gallery-upload-image"
+          className="btn-primary inline-flex items-center"
+          onClick={() => imageInputRef.current?.click()}
+        >
+          <UploadCloud className="w-5 h-5 mr-2" />
+          上传截图
+        </button>
+        <button
+          type="button"
+          className="btn-primary inline-flex items-center"
+          onClick={() => videoInputRef.current?.click()}
+        >
+          <Video className="w-5 h-5 mr-2" />
+          上传视频
+        </button>
+        <input
+          ref={imageInputRef}
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={(e) => handleImagePick(e.target.files)}
+        />
+        <input
+          ref={videoInputRef}
+          type="file"
+          accept="video/*"
+          multiple
+          className="hidden"
+          onChange={(e) => handleVideoPick(e.target.files)}
+        />
+      </PageHero>
 
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
+      <PageSection alt>
           <div className="max-w-6xl mx-auto mb-8">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
               <div className="flex items-center gap-3">
@@ -401,8 +397,7 @@ export function GalleryClient() {
               </div>
             )}
           </div>
-        </div>
-      </section>
+      </PageSection>
 
       <MediaUploadModal
         open={uploadOpen}

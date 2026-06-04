@@ -18,6 +18,8 @@
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
+    "@fontsource/apfel-grotezk": "^5.2.5",
+    "@fontsource/kode-mono": "^5.2.8",
     "@opennextjs/cloudflare": "^1.19.11",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.106.2",

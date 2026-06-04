@@ -1,4 +1,4 @@
-﻿/* ========================================
+/* ========================================
    Global Styles
    ======================================== */
 *, *::before, *::after {
@@ -13,43 +13,51 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    line-height: 1.6;
+    font-family: var(--font-display);
+    line-height: 1.55;
     color: var(--text-dark);
     background-color: var(--bg-light);
     transition: background-color 0.4s ease, color 0.4s ease;
+    -webkit-font-smoothing: antialiased;
 }
 
 /* ========================================
-   Warm Slate + Teal 配色方案
-   中性暖灰 + 青蓝强调色 -- 干净但不单调
+   Convo Design 101 风格 — 高对比天青 + 墨黑
+   参考 convodesign101.xyz 的配色与质感
    ======================================== */
 :root {
-    --primary: #2D9CDB;
-    --primary-hover: #2388C7;
-    --primary-light: #E8F4FC;
-    --bg-light: #F8F9FB;
+    --primary: #4eb8e4;
+    --primary-hover: #3aa8d6;
+    --primary-light: #e3f4fc;
+    --primary-surface: #dceef7;
+    --bg-light: #f2f4f7;
     --bg-white: #FFFFFF;
     --bg-card: #FFFFFF;
-    --bg-card-hover: #F1F3F5;
-    --text-dark: #1A1A2E;
-    --text-gray: #6B7280;
-    --text-light: #9CA3AF;
+    --bg-card-hover: #f5f7fa;
+    --text-dark: #2a3544;
+    --text-gray: #5c6b7a;
+    --text-light: #8b98a8;
+    --border-strong: #c5d0dc;
+    --border-soft: #e2e8f0;
+    --border-ui: #c8d4e0;
+    --border-ui-emphasis: #b0bec9;
     --success: #059669;
     --warning: #D97706;
     --danger: #DC2626;
-    --border-light: #E5E7EB;
-    --border-medium: #D1D5DB;
-    --shadow-color: rgba(0, 0, 0, 0.06);
-    --shadow-hover: rgba(0, 0, 0, 0.10);
-    --shadow-elevated: rgba(0, 0, 0, 0.15);
-    --overlay-bg: rgba(15, 15, 20, 0.65);
+    --border-light: var(--border-soft);
+    --border-medium: #b0bcc9;
+    --shadow-color: rgba(42, 53, 68, 0.06);
+    --shadow-hover: rgba(42, 53, 68, 0.1);
+    --shadow-elevated: rgba(42, 53, 68, 0.14);
+    --shadow-brutal: 0 1px 0 rgba(42, 53, 68, 0.08), 0 6px 20px rgba(42, 53, 68, 0.06);
+    --shadow-brutal-hover: 0 2px 0 rgba(42, 53, 68, 0.1), 0 10px 26px rgba(42, 53, 68, 0.09);
+    --overlay-bg: rgba(42, 53, 68, 0.55);
     --input-bg: #FFFFFF;
-    --input-border: #D1D5DB;
-    --code-bg: #F1F3F5;
-    --badge-bg-blue: #E0ECF6;
-    --badge-text-blue: #2D9CDB;
-    --badge-bg-orange: #FEF3C7;
+    --input-border: var(--border-strong);
+    --code-bg: #EEEEEE;
+    --badge-bg-blue: #D4F4FF;
+    --badge-text-blue: var(--text-dark);
+    --badge-bg-orange: #FFF4D6;
     --badge-text-orange: #B45309;
     --badge-bg-purple: #EDE9FE;
     --badge-text-purple: #7C3AED;
@@ -57,47 +65,58 @@ body {
     --badge-text-green: #059669;
     --badge-bg-pink: #FCE7F3;
     --badge-text-pink: #EC4899;
-    --nav-hover-bg: #F1F3F5;
-    --accent: #52B6FF;
-    --focus-ring: rgba(82, 182, 255, 0.22);
-    --focus-ring-strong: rgba(82, 182, 255, 0.35);
-    --scrollbar-track: #F1F3F5;
-    --skeleton-from: #E5E7EB;
-    --skeleton-to: #D1D5DB;
-    --upload-bg: #F8F9FB;
-    --upload-hover-bg: #F1F3F5;
-    --upload-dragover-bg: #E5E7EB;
-    --table-header-bg: #F1F3F5;
-    --table-row-hover: #F8F9FB;
+    --nav-hover-bg: #FFFFFF;
+    --accent: #2BC5F6;
+    --focus-ring: rgba(43, 197, 246, 0.35);
+    --focus-ring-strong: rgba(43, 197, 246, 0.5);
+    --scrollbar-track: #EEEEEE;
+    --skeleton-from: #CFCFCF;
+    --skeleton-to: #999999;
+    --upload-bg: #EEEEEE;
+    --upload-hover-bg: #FFFFFF;
+    --upload-dragover-bg: #D4F4FF;
+    --table-header-bg: #EEEEEE;
+    --table-row-hover: #FFFFFF;
     --toast-text: #FFFFFF;
-    --toast-bg: #1A1A2E;
+    --toast-bg: #131415;
+    --radius-card: 1.25rem;
+    --radius-pill: 9999px;
+    --font-display: "Apfel Grotezk", system-ui, sans-serif;
+    --font-mono: "Kode Mono", ui-monospace, monospace;
 }
 
 /* ========================================
    Dark Theme
    ======================================== */
 [data-theme="dark"] {
-    --primary: #3DB5E6;
-    --primary-hover: #58C4F0;
-    --primary-light: #1A2D3A;
-    --bg-light: #111827;
-    --bg-white: #1F2937;
-    --bg-card: #1F2937;
-    --bg-card-hover: #374151;
-    --text-dark: #F3F4F6;
-    --text-gray: #9CA3AF;
-    --text-light: #6B7280;
+    --primary: #3DD6FF;
+    --primary-hover: #5CE0FF;
+    --primary-light: #0D2A35;
+    --primary-surface: #243442;
+    --bg-light: #131415;
+    --bg-white: #1C1D1F;
+    --bg-card: #1C1D1F;
+    --bg-card-hover: #2A2B2E;
+    --text-dark: #EEEEEE;
+    --text-gray: #CFCFCF;
+    --text-light: #999999;
     --success: #34D399;
     --warning: #FBBF24;
     --danger: #F87171;
-    --border-light: #374151;
-    --border-medium: #4B5563;
-    --shadow-color: rgba(0, 0, 0, 0.25);
-    --shadow-hover: rgba(0, 0, 0, 0.40);
-    --shadow-elevated: rgba(0, 0, 0, 0.55);
-    --overlay-bg: rgba(17, 24, 39, 0.9);
-    --input-bg: #1F2937;
-    --input-border: #4B5563;
+    --border-medium: #666666;
+    --border-strong: rgba(148, 163, 184, 0.28);
+    --border-soft: rgba(148, 163, 184, 0.14);
+    --shadow-color: rgba(0, 0, 0, 0.35);
+    --shadow-hover: rgba(0, 0, 0, 0.5);
+    --shadow-elevated: rgba(0, 0, 0, 0.65);
+    --shadow-brutal: 0 1px 0 rgba(0, 0, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.28);
+    --shadow-brutal-hover: 0 2px 0 rgba(0, 0, 0, 0.22), 0 12px 28px rgba(0, 0, 0, 0.32);
+    --border-ui: rgba(148, 163, 184, 0.32);
+    --border-ui-emphasis: rgba(148, 163, 184, 0.48);
+    --border-light: var(--border-ui);
+    --overlay-bg: rgba(5, 5, 5, 0.88);
+    --input-bg: #1C1D1F;
+    --input-border: #666666;
     --code-bg: #374151;
     --badge-bg-blue: rgba(61, 181, 230, 0.15);
     --badge-text-blue: #67CFFA;
@@ -132,8 +151,10 @@ body {
     color: var(--text-dark);
 }
 
-[data-theme="dark"] header {
+[data-theme="dark"] header,
+[data-theme="dark"] .site-header {
     background-color: var(--bg-white) !important;
+    border-bottom-color: var(--border-light) !important;
 }
 
 [data-theme="dark"] footer {
@@ -195,23 +216,28 @@ body {
     display: inline-flex;
     align-items: center;
     padding: 0.5rem 1rem;
-    color: var(--text-gray);
+    color: var(--text-dark);
     text-decoration: none;
-    border-radius: 0.5rem;
-    transition: all 0.3s ease;
+    border-radius: var(--radius-pill);
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
     font-weight: 500;
+    border: 1px solid transparent;
 }
 
 .nav-link:hover {
-    color: var(--primary);
-    background-color: var(--nav-hover-bg);
+    color: var(--text-dark);
+    background-color: var(--bg-white);
+    border-color: var(--border-ui-emphasis);
+    box-shadow: var(--shadow-brutal);
     transform: translateY(-1px);
 }
 
 .nav-link.active {
-    color: var(--primary);
-    background-color: var(--nav-hover-bg);
-    font-weight: 600;
+    color: var(--text-dark);
+    background-color: var(--primary-light);
+    border-color: var(--border-ui-emphasis);
+    font-weight: 700;
+    box-shadow: var(--shadow-color);
 }
 
 /* ========================================
@@ -222,21 +248,26 @@ body {
     align-items: center;
     justify-content: center;
     padding: 0.75rem 1.5rem;
-    background: var(--primary);
-    color: #ffffff;
+    background: var(--bg-white);
+    color: var(--text-dark);
     text-decoration: none;
-    border-radius: 0.75rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    border: none;
+    border-radius: var(--radius-pill);
+    font-weight: 700;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    border: 1px solid var(--border-ui-emphasis);
     cursor: pointer;
-    box-shadow: 0 4px 14px 0 var(--shadow-hover);
+    box-shadow: var(--shadow-brutal);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    background: var(--primary-hover);
-    box-shadow: 0 8px 25px 0 var(--shadow-elevated);
+    background: var(--primary-light);
+    box-shadow: var(--shadow-brutal-hover);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-color);
 }
 
 .btn-secondary {
@@ -244,19 +275,26 @@ body {
     align-items: center;
     justify-content: center;
     padding: 0.75rem 1.5rem;
-    background: var(--bg-card);
-    color: var(--primary);
+    background: var(--primary);
+    color: var(--text-dark);
     text-decoration: none;
-    border-radius: 0.75rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    border: 2px solid var(--primary);
+    border-radius: var(--radius-pill);
+    font-weight: 700;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    border: 1px solid var(--border-ui-emphasis);
     cursor: pointer;
+    box-shadow: var(--shadow-brutal);
 }
 
 .btn-secondary:hover {
-    background-color: var(--nav-hover-bg);
+    background-color: var(--primary-hover);
     transform: translateY(-2px);
+    box-shadow: var(--shadow-brutal-hover);
+}
+
+.btn-secondary:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-color);
 }
 
 .btn-danger {
@@ -324,17 +362,17 @@ body {
    ======================================== */
 .stat-card {
     background: var(--bg-card);
-    border-radius: 1.5rem;
+    border-radius: var(--radius-card);
     padding: 2rem;
     text-align: center;
-    box-shadow: 0 4px 6px -1px var(--shadow-color);
+    box-shadow: var(--shadow-brutal);
     border: 1px solid var(--border-light);
-    transition: all 0.3s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .stat-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 25px -5px var(--shadow-hover);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-brutal-hover);
 }
 
 .stat-icon {
@@ -409,16 +447,16 @@ body {
    ======================================== */
 .game-card {
     background: var(--bg-card);
-    border-radius: 1rem;
+    border-radius: var(--radius-card);
     overflow: hidden;
-    box-shadow: 0 4px 6px -1px var(--shadow-color);
-    transition: all 0.3s ease;
+    box-shadow: var(--shadow-brutal);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
     border: 1px solid var(--border-light);
 }
 
 .game-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 25px -5px var(--shadow-hover);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-brutal-hover);
 }
 
 .game-image {
@@ -594,7 +632,9 @@ body {
    Gradient Text
    ======================================== */
 .gradient-text {
-    color: var(--primary);
+    color: var(--text-dark);
+    font-weight: 800;
+    letter-spacing: -0.02em;
 }
 
 /* ========================================

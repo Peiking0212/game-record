@@ -7,6 +7,8 @@ import { WishlistAlertsPanel } from "@/components/wishlist/wishlist-alerts-panel
 import { WishlistEmailAlertsPanel } from "@/components/wishlist/wishlist-email-alerts-panel";
 import { WishlistTargetPriceRow } from "@/components/wishlist/wishlist-target-price-row";
 import { Modal } from "@/components/ui/modal";
+import { PageHero } from "@/components/ui/page-hero";
+import { PageSection } from "@/components/ui/page-section";
 import { useToast } from "@/components/ui/toast";
 import { formatDate, defaultGameCover } from "@/lib/game-utils";
 import { tryCreateClient } from "@/lib/supabase/client";
@@ -254,27 +256,22 @@ export function WishlistClient() {
 
   return (
     <>
-      <section className="bg-gradient-to-br from-blue-50 to-cyan-100 py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
-            游戏愿望单
-          </h1>
-          <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
-            记录你想玩的每一款游戏，追踪期望，规划你的游戏预算
-          </p>
-          <button
-            type="button"
-            className="btn-primary inline-flex items-center"
-            onClick={() => setAddOpen(true)}
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            添加愿望
-          </button>
-        </div>
-      </section>
+      <PageHero
+        eyebrow="/// quest_log.pending"
+        title="游戏愿望单"
+        description="待办 quest 列表：想玩的作品先挂在这里，购入或通关后再并入游戏库主存档。"
+      >
+        <button
+          type="button"
+          className="btn-primary inline-flex items-center"
+          onClick={() => setAddOpen(true)}
+        >
+          <Plus className="w-5 h-5 mr-2" />
+          添加愿望
+        </button>
+      </PageHero>
 
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
+      <PageSection>
           <WishlistAlertsPanel
             signedIn={signedIn}
             items={items}
@@ -286,7 +283,7 @@ export function WishlistClient() {
             refreshKey={alertsRefreshKey}
           />
 
-          <div className="max-w-6xl mx-auto mb-8 p-5 rounded-xl border border-gray-200 bg-gray-50">
+          <div className="max-w-6xl mx-auto mb-8 p-5 game-surface">
             <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
               <Heart className="w-5 h-5 text-blue-500" />
               折扣提醒规则
@@ -537,8 +534,7 @@ export function WishlistClient() {
               </div>
             )}
           </div>
-        </div>
-      </section>
+      </PageSection>
 
       <WishlistItemModal
         open={addOpen}

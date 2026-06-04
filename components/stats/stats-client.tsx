@@ -14,6 +14,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 import { GameIcon } from "@/components/games/game-icon";
 import { Modal } from "@/components/ui/modal";
+import { PageHero } from "@/components/ui/page-hero";
 import { useToast } from "@/components/ui/toast";
 import { getStatusClass, getStatusText } from "@/lib/game-utils";
 import {
@@ -28,10 +29,10 @@ import {
 } from "@/lib/stats";
 
 const STATUS_OPTIONS = [
-  { value: "playing", label: "æ¸¸ç©ä¸­" },
-  { value: "completed", label: "å·²å®Œæˆ" },
-  { value: "planned", label: "è®¡åˆ’ä¸­" },
-  { value: "dropped", label: "å·²æ”¾å¼ƒ" },
+  { value: "playing", label: "ÓÎÍæÖĞ" },
+  { value: "completed", label: "ÒÑÍê³É" },
+  { value: "planned", label: "¼Æ»®ÖĞ" },
+  { value: "dropped", label: "ÒÑ·ÅÆú" },
 ] as const;
 
 export function StatsClient() {
@@ -76,7 +77,7 @@ export function StatsClient() {
     filename: string,
   ) => {
     if (!el) {
-      showToast("æ‰¾ä¸åˆ°è¦å¯¼å‡ºçš„å†…å®¹", "error");
+      showToast("ÕÒ²»µ½Òªµ¼³öµÄÄÚÈİ", "error");
       return;
     }
     try {
@@ -90,53 +91,58 @@ export function StatsClient() {
       link.download = filename;
       link.href = canvas.toDataURL("image/png");
       link.click();
-      showToast("å·²ä¿å­˜ä¸ºå›¾ç‰‡", "success");
+      showToast("ÒÑ±£´æÎªÍ¼Æ¬", "success");
     } catch (e) {
       console.error("[stats] export failed", e);
-      showToast("å¯¼å‡ºå›¾ç‰‡å¤±è´¥ï¼Œè¯·é‡è¯•", "error");
+      showToast("µ¼³öÍ¼Æ¬Ê§°Ü£¬ÇëÖØÊÔ", "error");
     }
   };
 
   return (
     <>
-      <section className="bg-gradient-to-br from-blue-50 to-cyan-100 py-12 md:py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
-            æ•°æ®ç»Ÿè®¡åˆ†æ
-          </h1>
-          <p className="text-lg md:text-xl text-gray-700 mb-6 max-w-2xl mx-auto">
-            æ·±å…¥äº†è§£ä½ çš„æ¸¸æˆä¹ æƒ¯ï¼Œå‘ç°éšè—çš„æ¸¸æˆè§„å¾‹
-          </p>
-        </div>
-      </section>
+      <PageHero
+        eyebrow="/// game_library.analytics"
+        title="Êı¾İÍ³¼Æ·ÖÎö"
+        description="´ÓÖ÷¿â´æµµ¶ÁÈ¡ÀàĞÍ¡¢Ê±³¤Óë½ø¶È£¬·ÖÉ«Í¼±íÃæ°åÏñ HUD Ä£¿éÒÀ´ÎÕ¹¿ª¡£"
+      />
 
-      <section className="py-4 bg-white border-b sticky top-16 z-40">
+      <section className="py-4 section-game-alt border-b sticky top-16 z-40" style={{ borderColor: "var(--border-ui)" }}>
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="text-sm font-medium text-gray-600">ç­›é€‰ï¼š</span>
+              <span className="text-sm font-medium" style={{ color: "var(--text-gray)" }}>É¸Ñ¡£º</span>
               <select
-                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm"
+                className="px-3 py-1.5 border text-sm rounded-lg"
+                style={{
+                  borderColor: "var(--border-ui)",
+                  background: "var(--bg-white)",
+                  color: "var(--text-dark)"
+                }}
                 value={formFilters.year}
                 onChange={(e) =>
                   setFormFilters((f) => ({ ...f, year: e.target.value }))
                 }
               >
-                <option value="all">å…¨éƒ¨å¹´ä»½</option>
+                <option value="all">È«²¿Äê·İ</option>
                 {years.map((y) => (
                   <option key={y} value={y}>
-                    {y}å¹´
+                    {y}Äê
                   </option>
                 ))}
               </select>
               <select
-                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm"
+                className="px-3 py-1.5 border text-sm rounded-lg"
+                style={{
+                  borderColor: "var(--border-ui)",
+                  background: "var(--bg-white)",
+                  color: "var(--text-dark)"
+                }}
                 value={formFilters.type}
                 onChange={(e) =>
                   setFormFilters((f) => ({ ...f, type: e.target.value }))
                 }
               >
-                <option value="all">å…¨éƒ¨ç±»å‹</option>
+                <option value="all">È«²¿ÀàĞÍ</option>
                 {gameTypes.map((t) => (
                   <option key={t} value={t}>
                     {t}
@@ -144,13 +150,18 @@ export function StatsClient() {
                 ))}
               </select>
               <select
-                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm"
+                className="px-3 py-1.5 border text-sm rounded-lg"
+                style={{
+                  borderColor: "var(--border-ui)",
+                  background: "var(--bg-white)",
+                  color: "var(--text-dark)"
+                }}
                 value={formFilters.status}
                 onChange={(e) =>
                   setFormFilters((f) => ({ ...f, status: e.target.value }))
                 }
               >
-                <option value="all">å…¨éƒ¨çŠ¶æ€</option>
+                <option value="all">È«²¿×´Ì¬</option>
                 {STATUS_OPTIONS.map((s) => (
                   <option key={s.value} value={s.value}>
                     {s.label}
@@ -161,10 +172,11 @@ export function StatsClient() {
                 className="btn-secondary text-sm py-1.5"
                 onClick={() => setActiveFilters(formFilters)}
               >
-                åº”ç”¨
+                Ó¦ÓÃ
               </button>
               <button
-                className="text-gray-500 hover:text-gray-700 text-sm"
+                className="text-sm"
+                style={{ color: "var(--text-gray)" }}
                 onClick={() => {
                   const reset = {
                     year: "all",
@@ -175,7 +187,7 @@ export function StatsClient() {
                   setActiveFilters(reset);
                 }}
               >
-                æ¸…é™¤
+                Çå³ı
               </button>
             </div>
 
@@ -185,12 +197,12 @@ export function StatsClient() {
                 onClick={() =>
                   exportElementAsImage(
                     chartsSectionRef.current,
-                    `æ¸¸æˆç»Ÿè®¡_${new Date().toISOString().slice(0, 10)}.png`,
+                    `ÓÎÏ·Í³¼Æ_${new Date().toISOString().slice(0, 10)}.png`,
                   )
                 }
               >
                 <ImageIcon className="w-4 h-4" />
-                ä¿å­˜å›¾ç‰‡
+                ±£´æÍ¼Æ¬
               </button>
               <button
                 className="export-btn export-btn-primary"
@@ -204,85 +216,91 @@ export function StatsClient() {
                 }}
               >
                 <Sparkles className="w-4 h-4" />
-                å¹´åº¦æ€»ç»“
+                Äê¶È×Ü½á
               </button>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="py-8 bg-white">
+      <section className="py-8 section-game-alt">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4" id="stats-overview">
             <StatCard
               icon={<Gamepad2 className="w-8 h-8" />}
-              iconClass="bg-blue-100 text-blue-500"
+              iconStyle="types"
               value={String(overview.totalGames)}
-              label="æ¸¸æˆæ€»æ•°"
+              label="ÓÎÏ·×ÜÊı"
             />
             <StatCard
               icon={<Clock className="w-8 h-8" />}
-              iconClass="bg-cyan-50 text-cyan-500"
+              iconStyle="hours"
               value={String(overview.totalPlaytime)}
-              label="æ€»æ¸¸æˆæ—¶é•¿(å°æ—¶)"
+              label="×ÜÓÎÏ·Ê±³¤(Ğ¡Ê±)"
             />
             <StatCard
               icon={<CheckCircle className="w-8 h-8" />}
-              iconClass="bg-green-100 text-green-500"
+              iconStyle="progress"
               value={String(overview.completed)}
-              label="å·²å®Œæˆæ¸¸æˆ"
+              label="ÒÑÍê³ÉÓÎÏ·"
             />
             <StatCard
               icon={<Trophy className="w-8 h-8" />}
-              iconClass="bg-purple-100 text-purple-500"
+              iconStyle="rank"
               value={String(overview.achievements)}
-              label="è·å¾—æˆå°±"
+              label="»ñµÃ³É¾Í"
             />
           </div>
         </div>
       </section>
 
-      <section ref={chartsSectionRef} className="py-8 bg-gray-50">
+      <section ref={chartsSectionRef} className="py-8 section-game">
         <div className="container mx-auto px-4">
+          <p
+            className="text-center font-mono text-sm mb-8 lowercase"
+            style={{ color: "var(--text-gray)" }}
+          >
+            analytics ¡¤ ËÄÀàÊÓÍ¼
+          </p>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <SimplePanel title="æ¸¸æˆç±»å‹åˆ†å¸ƒ">
+            <ChartPanel variant="types" title="ÓÎÏ·ÀàĞÍ·Ö²¼" subtitle="¿âÈİÕ¼±È">
               <TypeDistribution games={filteredGames} />
-            </SimplePanel>
-            <SimplePanel title="å„ç±»å‹æ¸¸æˆæ—¶é•¿">
+            </ChartPanel>
+            <ChartPanel variant="hours" title="¸÷ÀàĞÍÓÎÏ·Ê±³¤" subtitle="ÀÛ¼ÆĞ¡Ê±">
               <TypePlaytime games={filteredGames} />
-            </SimplePanel>
-            <SimplePanel title="æ¸¸æˆè¿›åº¦æ¦‚è§ˆ">
+            </ChartPanel>
+            <ChartPanel variant="progress" title="ÓÎÏ·½ø¶È¸ÅÀÀ" subtitle="Íê³É¶È Top">
               <ProgressDistribution games={filteredGames} />
-            </SimplePanel>
-            <SimplePanel title="æ¸¸æˆæ—¶é•¿å¯¹æ¯”">
+            </ChartPanel>
+            <ChartPanel variant="rank" title="ÓÎÏ·Ê±³¤¶Ô±È" subtitle="Ê±³¤ÅÅĞĞ">
               <TopPlaytimeList games={filteredGames} />
-            </SimplePanel>
+            </ChartPanel>
           </div>
         </div>
       </section>
 
-      <section className="py-8 bg-white">
+      <section className="py-8 section-game">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold mb-6 text-gray-800">æ¸¸æˆè¯¦ç»†æ•°æ®</h2>
+          <h2 className="text-2xl font-bold mb-6" style={{ color: "var(--text-dark)" }}>ÓÎÏ·ÏêÏ¸Êı¾İ</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
-              <thead className="bg-gray-50">
+              <thead style={{ background: "var(--bg-light)" }}>
                 <tr>
-                  <th className="px-6 py-4 font-semibold text-gray-700">æ¸¸æˆåç§°</th>
-                  <th className="px-6 py-4 font-semibold text-gray-700">ç±»å‹</th>
-                  <th className="px-6 py-4 font-semibold text-gray-700">çŠ¶æ€</th>
-                  <th className="px-6 py-4 font-semibold text-gray-700">æ¸¸æˆæ—¶é•¿</th>
-                  <th className="px-6 py-4 font-semibold text-gray-700">è¿›åº¦</th>
+                  <th className="px-6 py-4 font-semibold" style={{ color: "var(--text-dark)" }}>ÓÎÏ·Ãû³Æ</th>
+                  <th className="px-6 py-4 font-semibold" style={{ color: "var(--text-dark)" }}>ÀàĞÍ</th>
+                  <th className="px-6 py-4 font-semibold" style={{ color: "var(--text-dark)" }}>×´Ì¬</th>
+                  <th className="px-6 py-4 font-semibold" style={{ color: "var(--text-dark)" }}>ÓÎÏ·Ê±³¤</th>
+                  <th className="px-6 py-4 font-semibold" style={{ color: "var(--text-dark)" }}>½ø¶È</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody style={{ borderColor: "var(--border-light)" }} className="divide-y">
                 {filteredGames.map((game) => {
                   const progress = Math.min(
                     100,
                     Math.max(0, parseInt(String(game.progress), 10) || 0),
                   );
                   return (
-                    <tr key={String(game.id)} className="hover:bg-gray-50 transition-colors">
+                    <tr key={String(game.id)} style={{ transition: "background-color 0.2s" }} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <GameIcon
@@ -292,12 +310,18 @@ export function StatsClient() {
                             height={40}
                             className="w-10 h-10 rounded-lg object-cover"
                           />
-                          <span className="font-medium text-gray-800">{game.name}</span>
+                          <span className="font-medium" style={{ color: "var(--text-dark)" }}>{game.name}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-sm">
-                          {game.type || "å…¶ä»–"}
+                        <span
+                          className="px-2 py-1 rounded text-sm"
+                          style={{
+                            background: "var(--primary-light)",
+                            color: "var(--text-dark)"
+                          }}
+                        >
+                          {game.type || "ÆäËû"}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -307,18 +331,24 @@ export function StatsClient() {
                           {getStatusText(game.status)}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-gray-700">
-                        {parseInt(String(game.playtime), 10) || 0} å°æ—¶
+                      <td className="px-6 py-4" style={{ color: "var(--text-dark)" }}>
+                        {parseInt(String(game.playtime), 10) || 0} Ğ¡Ê±
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
-                          <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className="w-24 h-2 rounded-full overflow-hidden"
+                            style={{ background: "var(--border-soft)" }}
+                          >
                             <div
-                              className="h-full bg-blue-500 rounded-full"
-                              style={{ width: `${progress}%` }}
+                              className="h-full rounded-full"
+                              style={{
+                                width: `${progress}%`,
+                                background: "linear-gradient(90deg, var(--primary), var(--primary-hover))"
+                              }}
                             />
                           </div>
-                          <span className="text-sm text-gray-600">{progress}%</span>
+                          <span className="text-sm" style={{ color: "var(--text-gray)" }}>{progress}%</span>
                         </div>
                       </td>
                     </tr>
@@ -332,12 +362,12 @@ export function StatsClient() {
 
       <Modal open={summaryOpen} onClose={() => setSummaryOpen(false)} maxWidth="xl">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-2xl font-bold text-gray-800">{summary.year}å¹´åº¦æ¸¸æˆæ€»ç»“</h3>
+          <h3 className="text-2xl font-bold" style={{ color: "var(--text-dark)" }}>{summary.year}Äê¶ÈÓÎÏ·×Ü½á</h3>
           <button
             type="button"
-            className="text-gray-400 hover:text-gray-600"
+            style={{ color: "var(--text-gray)" }}
             onClick={() => setSummaryOpen(false)}
-            aria-label="å…³é—­"
+            aria-label="¹Ø±Õ"
           >
             <X className="w-6 h-6" />
           </button>
@@ -345,30 +375,30 @@ export function StatsClient() {
 
         <div ref={summaryContentRef} className="space-y-6">
           <div className="text-center mb-6">
-            <h2 className="text-3xl font-bold mb-2">{summary.year}</h2>
-            <p className="text-lg opacity-90">å¹´åº¦æ¸¸æˆå›é¡¾</p>
+            <h2 className="text-3xl font-bold mb-2" style={{ color: "var(--text-dark)" }}>{summary.year}</h2>
+            <p className="text-lg opacity-90" style={{ color: "var(--text-gray)" }}>Äê¶ÈÓÎÏ·»Ø¹Ë</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <SummaryStat value={String(summary.games)} label="æ¬¾æ¸¸æˆ" />
-            <SummaryStat value={String(summary.hours)} label="æ¸¸æˆå°æ—¶" />
-            <SummaryStat value={String(summary.completed)} label="æ¬¾é€šå…³" />
-            <SummaryStat value={String(summary.achievements)} label="ä¸ªæˆå°±" />
+            <SummaryStat value={String(summary.games)} label="¿îÓÎÏ·" variant="types" />
+            <SummaryStat value={String(summary.hours)} label="ÓÎÏ·Ğ¡Ê±" variant="hours" />
+            <SummaryStat value={String(summary.completed)} label="¿îÍ¨¹Ø" variant="progress" />
+            <SummaryStat value={String(summary.achievements)} label="¸ö³É¾Í" variant="rank" />
           </div>
 
           <div>
-            <h4 className="font-semibold mb-3">å¹´åº¦æœ€çˆ±æ¸¸æˆ</h4>
+            <h4 className="font-semibold mb-3" style={{ color: "var(--text-dark)" }}>Äê¶È×î°®ÓÎÏ·</h4>
             <div className="space-y-2">
               {summary.topGames.length === 0 ? (
-                <p className="text-sm text-gray-500">æš‚æ— æ•°æ®</p>
+                <p className="text-sm" style={{ color: "var(--text-gray)" }}>ÔİÎŞÊı¾İ</p>
               ) : (
                 summary.topGames.map((g, i) => (
                   <div key={String(g.id)} className="flex items-center gap-3">
-                    <span className="text-2xl">{["ğŸ¥‡", "ğŸ¥ˆ", "ğŸ¥‰"][i] ?? "ğŸ®"}</span>
+                    <span className="text-2xl">{["?", "?", "?"][i] ?? "?"}</span>
                     <div>
-                      <div className="font-medium">{g.name}</div>
-                      <div className="text-sm opacity-80">
-                        {parseInt(String(g.playtime), 10) || 0} å°æ—¶
+                      <div className="font-medium" style={{ color: "var(--text-dark)" }}>{g.name}</div>
+                      <div className="text-sm opacity-80" style={{ color: "var(--text-gray)" }}>
+                        {parseInt(String(g.playtime), 10) || 0} Ğ¡Ê±
                       </div>
                     </div>
                   </div>
@@ -378,24 +408,28 @@ export function StatsClient() {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-3">æ¸¸æˆç±»å‹åå¥½</h4>
+            <h4 className="font-semibold mb-3" style={{ color: "var(--text-dark)" }}>ÓÎÏ·ÀàĞÍÆ«ºÃ</h4>
             <div className="space-y-2">
               {summary.typeCounts.length === 0 ? (
-                <p className="text-sm text-gray-500">æš‚æ— æ•°æ®</p>
+                <p className="text-sm" style={{ color: "var(--text-gray)" }}>ÔİÎŞÊı¾İ</p>
               ) : (
                 summary.typeCounts.map(([type, count]) => (
                   <div key={type} className="flex items-center justify-between gap-4">
-                    <span className="text-sm text-gray-700">{type}</span>
+                    <span className="text-sm" style={{ color: "var(--text-dark)" }}>{type}</span>
                     <div className="flex items-center gap-2 flex-1 max-w-xs">
-                      <div className="h-2 rounded-full bg-gray-100 flex-1 overflow-hidden">
+                      <div
+                        className="h-2 rounded-full flex-1 overflow-hidden"
+                        style={{ background: "var(--border-soft)" }}
+                      >
                         <div
-                          className="h-full bg-blue-500 rounded-full"
+                          className="h-full rounded-full"
                           style={{
                             width: `${Math.round((count / Math.max(1, summary.games)) * 100)}%`,
+                            background: "linear-gradient(90deg, var(--primary), var(--primary-hover))"
                           }}
                         />
                       </div>
-                      <span className="text-xs text-gray-500 w-8 text-right">{count}</span>
+                      <span className="text-xs w-8 text-right" style={{ color: "var(--text-gray)" }}>{count}</span>
                     </div>
                   </div>
                 ))
@@ -404,19 +438,19 @@ export function StatsClient() {
           </div>
         </div>
 
-        <div className="flex justify-center gap-3 mt-6 pt-4 border-t">
+        <div className="flex justify-center gap-3 mt-6 pt-4" style={{ borderColor: "var(--border-light)" }}>
           <button
             type="button"
             className="btn-primary"
             onClick={() =>
               exportElementAsImage(
                 summaryContentRef.current,
-                `å¹´åº¦æ€»ç»“_${summary.year}.png`,
+                `Äê¶È×Ü½á_${summary.year}.png`,
               )
             }
           >
             <Camera className="w-4 h-4 inline mr-2" />
-            ä¿å­˜ä¸ºå›¾ç‰‡
+            ±£´æÎªÍ¼Æ¬
           </button>
         </div>
       </Modal>
@@ -426,38 +460,103 @@ export function StatsClient() {
 
 function StatCard({
   icon,
-  iconClass,
+  iconStyle,
   value,
   label,
 }: {
   icon: React.ReactNode;
-  iconClass: string;
+  iconStyle: "types" | "hours" | "progress" | "rank";
   value: string;
   label: string;
 }) {
+  const iconStyles = {
+    types: {
+      background: "rgba(78, 184, 228, 0.2)",
+      color: "#2a7fa8",
+    },
+    hours: {
+      background: "rgba(56, 189, 248, 0.2)",
+      color: "#0e7490",
+    },
+    progress: {
+      background: "rgba(245, 158, 11, 0.2)",
+      color: "#b45309",
+    },
+    rank: {
+      background: "rgba(167, 139, 250, 0.22)",
+      color: "#7c3aed",
+    },
+  };
+  const style = iconStyles[iconStyle];
   return (
     <div className="stat-card">
-      <div className={`stat-icon ${iconClass}`}>{icon}</div>
-      <div className="stat-number">{value}</div>
+      <div
+        className="stat-icon mx-auto mb-4 flex items-center justify-center border"
+        style={{
+          background: style.background,
+          color: style.color,
+          borderColor: "var(--border-ui-emphasis)",
+          boxShadow: "var(--shadow-brutal)",
+        }}
+      >
+        {icon}
+      </div>
+      <div className="stat-number" style={{ color: "var(--text-dark)" }}>{value}</div>
       <div className="stat-label">{label}</div>
     </div>
   );
 }
 
-function SimplePanel({
+type ChartVariant = "types" | "hours" | "progress" | "rank";
+
+const CHART_ICONS: Record<ChartVariant, typeof BarChart3> = {
+  types: Gamepad2,
+  hours: Clock,
+  progress: CheckCircle,
+  rank: Trophy,
+};
+
+function ChartPanel({
+  variant,
   title,
+  subtitle,
   children,
 }: {
+  variant: ChartVariant;
   title: string;
+  subtitle: string;
   children: React.ReactNode;
 }) {
+  const Icon = CHART_ICONS[variant];
   return (
-    <div className="chart-card">
-      <h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
-        <BarChart3 className="w-5 h-5 text-[#52B6FF]" />
-        {title}
-      </h3>
-      {children}
+    <div className={`chart-panel chart-panel--${variant}`}>
+      <div className="chart-panel__head">
+        <div className={`chart-panel__icon chart-panel__icon--${variant}`}>
+          <Icon className="w-5 h-5" />
+        </div>
+        <div>
+          <h3 className="chart-panel__title">{title}</h3>
+          <p className="chart-panel__subtitle font-mono">{subtitle}</p>
+        </div>
+      </div>
+      <div className="chart-panel__body">{children}</div>
+    </div>
+  );
+}
+
+function ChartBar({
+  variant,
+  pct,
+}: {
+  variant: ChartVariant;
+  pct: number;
+}) {
+  return (
+    <div className="chart-bar-track">
+      <div
+        className={`chart-bar-fill chart-bar-fill--${variant}`}
+        style={{ width: `${Math.min(100, Math.max(0, pct))}%` }}
+      />
     </div>
   );
 }
@@ -465,27 +564,28 @@ function SimplePanel({
 function TypeDistribution({ games }: { games: Array<{ type?: string }> }) {
   const rows = useMemo(() => {
     const map = games.reduce<Record<string, number>>((acc, g) => {
-      const key = g.type || "å…¶ä»–";
+      const key = g.type || "ÆäËû";
       acc[key] = (acc[key] || 0) + 1;
       return acc;
     }, {});
     return Object.entries(map).sort((a, b) => b[1] - a[1]);
   }, [games]);
 
-  if (!rows.length) return <p className="text-sm text-gray-500">æš‚æ— æ•°æ®</p>;
+  if (!rows.length) return <p className="text-sm text-gray-500">ÔİÎŞÊı¾İ</p>;
   const total = rows.reduce((s, x) => s + x[1], 0);
   return (
-    <div className="space-y-2">
-      {rows.map(([type, count]) => {
+    <div className="chart-rows">
+      {rows.map(([type, count], index) => {
         const pct = Math.round((count / total) * 100);
         return (
-          <div key={type} className="flex items-center justify-between gap-3">
-            <span className="text-sm text-gray-700">{type}</span>
-            <div className="flex items-center gap-2 flex-1 max-w-xs">
-              <div className="h-2 rounded-full bg-gray-100 flex-1 overflow-hidden">
-                <div className="h-full bg-blue-500 rounded-full" style={{ width: `${pct}%` }} />
-              </div>
-              <span className="text-xs text-gray-500 w-14 text-right">{count} ({pct}%)</span>
+          <div key={type} className="chart-row">
+            <span className="chart-row__rank font-mono">{index + 1}</span>
+            <span className="chart-row__label">{type}</span>
+            <div className="chart-row__bar">
+              <ChartBar variant="types" pct={pct} />
+              <span className="chart-row__value font-mono">
+                {count} ({pct}%)
+              </span>
             </div>
           </div>
         );
@@ -497,30 +597,29 @@ function TypeDistribution({ games }: { games: Array<{ type?: string }> }) {
 function TypePlaytime({ games }: { games: Array<{ type?: string; playtime?: number | string }> }) {
   const rows = useMemo(() => {
     const map = games.reduce<Record<string, number>>((acc, g) => {
-      const key = g.type || "å…¶ä»–";
+      const key = g.type || "ÆäËû";
       acc[key] = (acc[key] || 0) + (parseInt(String(g.playtime), 10) || 0);
       return acc;
     }, {});
     return Object.entries(map).sort((a, b) => b[1] - a[1]);
   }, [games]);
-  if (!rows.length) return <p className="text-sm text-gray-500">æš‚æ— æ•°æ®</p>;
+  if (!rows.length) return <p className="text-sm text-gray-500">ÔİÎŞÊı¾İ</p>;
   const max = rows[0][1] || 1;
   return (
-    <div className="space-y-2">
-      {rows.map(([type, hours]) => (
-        <div key={type} className="flex items-center justify-between gap-3">
-          <span className="text-sm text-gray-700">{type}</span>
-          <div className="flex items-center gap-2 flex-1 max-w-xs">
-            <div className="h-2 rounded-full bg-gray-100 flex-1 overflow-hidden">
-              <div
-                className="h-full bg-cyan-500 rounded-full"
-                style={{ width: `${Math.round((hours / max) * 100)}%` }}
-              />
+    <div className="chart-rows">
+      {rows.map(([type, hours], index) => {
+        const pct = Math.round((hours / max) * 100);
+        return (
+          <div key={type} className="chart-row">
+            <span className="chart-row__rank font-mono">{index + 1}</span>
+            <span className="chart-row__label">{type}</span>
+            <div className="chart-row__bar">
+              <ChartBar variant="hours" pct={pct} />
+              <span className="chart-row__value font-mono">{hours}h</span>
             </div>
-            <span className="text-xs text-gray-500 w-16 text-right">{hours}h</span>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -541,19 +640,18 @@ function ProgressDistribution({
         .slice(0, 8),
     [games],
   );
-  if (!top.length) return <p className="text-sm text-gray-500">æš‚æ— æ•°æ®</p>;
+  if (!top.length) return <p className="text-sm text-gray-500">ÔİÎŞÊı¾İ</p>;
   return (
-    <div className="space-y-2">
-      {top.map((g) => {
+    <div className="chart-rows">
+      {top.map((g, index) => {
         const p = Math.min(100, Math.max(0, parseInt(String(g.progress), 10) || 0));
         return (
-          <div key={g.name} className="flex items-center justify-between gap-3">
-            <span className="text-sm text-gray-700 truncate max-w-36">{g.name}</span>
-            <div className="flex items-center gap-2 flex-1 max-w-xs">
-              <div className="h-2 rounded-full bg-gray-100 flex-1 overflow-hidden">
-                <div className="h-full bg-orange-500 rounded-full" style={{ width: `${p}%` }} />
-              </div>
-              <span className="text-xs text-gray-500 w-10 text-right">{p}%</span>
+          <div key={g.name} className="chart-row">
+            <span className="chart-row__rank font-mono">{index + 1}</span>
+            <span className="chart-row__label truncate">{g.name}</span>
+            <div className="chart-row__bar">
+              <ChartBar variant="progress" pct={p} />
+              <span className="chart-row__value font-mono">{p}%</span>
             </div>
           </div>
         );
@@ -578,23 +676,20 @@ function TopPlaytimeList({
         .slice(0, 8),
     [games],
   );
-  if (!top.length) return <p className="text-sm text-gray-500">æš‚æ— æ•°æ®</p>;
+  if (!top.length) return <p className="text-sm text-gray-500">ÔİÎŞÊı¾İ</p>;
   const max = parseInt(String(top[0]?.playtime), 10) || 1;
   return (
-    <div className="space-y-2">
-      {top.map((g) => {
+    <div className="chart-rows">
+      {top.map((g, index) => {
         const hours = parseInt(String(g.playtime), 10) || 0;
+        const pct = Math.round((hours / max) * 100);
         return (
-          <div key={String(g.id)} className="flex items-center justify-between gap-3">
-            <span className="text-sm text-gray-700 truncate max-w-36">{g.name}</span>
-            <div className="flex items-center gap-2 flex-1 max-w-xs">
-              <div className="h-2 rounded-full bg-gray-100 flex-1 overflow-hidden">
-                <div
-                  className="h-full bg-purple-500 rounded-full"
-                  style={{ width: `${Math.round((hours / max) * 100)}%` }}
-                />
-              </div>
-              <span className="text-xs text-gray-500 w-14 text-right">{hours}h</span>
+          <div key={String(g.id)} className="chart-row">
+            <span className="chart-row__rank font-mono">{index + 1}</span>
+            <span className="chart-row__label truncate">{g.name}</span>
+            <div className="chart-row__bar">
+              <ChartBar variant="rank" pct={pct} />
+              <span className="chart-row__value font-mono">{hours}h</span>
             </div>
           </div>
         );
@@ -603,11 +698,25 @@ function TopPlaytimeList({
   );
 }
 
-function SummaryStat({ value, label }: { value: string; label: string }) {
+function SummaryStat({ value, label, variant }: { value: string; label: string; variant: "types" | "hours" | "progress" | "rank" }) {
+  const variantStyles = {
+    types: { color: "#4eb8e4" },
+    hours: { color: "#38bdf8" },
+    progress: { color: "#f59e0b" },
+    rank: { color: "#a78bfa" },
+  };
+  const style = variantStyles[variant];
   return (
-    <div className="text-center p-4 rounded-lg" style={{ background: "var(--bg-card)" }}>
-      <div className="text-3xl font-bold">{value}</div>
-      <div className="text-sm text-gray-600">{label}</div>
+    <div
+      className="text-center p-4 rounded-lg border"
+      style={{
+        background: "var(--bg-card)",
+        borderColor: "var(--border-ui)",
+        boxShadow: "var(--shadow-brutal)",
+      }}
+    >
+      <div className="text-3xl font-bold" style={{ color: style.color }}>{value}</div>
+      <div className="text-sm" style={{ color: "var(--text-gray)" }}>{label}</div>
     </div>
   );
 }

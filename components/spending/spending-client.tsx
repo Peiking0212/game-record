@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Modal } from "@/components/ui/modal";
+import { PageHero } from "@/components/ui/page-hero";
+import { PageSection } from "@/components/ui/page-section";
 import { useToast } from "@/components/ui/toast";
 import { getGames } from "@/lib/game-data";
 import { formatDate, gameDetailPath } from "@/lib/game-utils";
@@ -315,34 +317,31 @@ export function SpendingClient() {
 
   return (
     <>
-      <section className="bg-gradient-to-br from-[#52B6FF15] to-[#94D8FF15] py-14">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
-            消费记录
-          </h1>
-          <p className="text-lg text-gray-600 mb-6 max-w-xl mx-auto">
-            记录你的游戏花费，理性消费
-          </p>
-          <div className="inline-flex items-center gap-3 bg-white rounded-full px-5 py-2 shadow-md">
-            <Calendar className="w-5 h-5 text-[#52B6FF]" />
-            <select
-              className="text-base font-bold bg-transparent border-none outline-none cursor-pointer text-gray-800"
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
-            >
-              <option value="all">全部年份</option>
-              {years.map((y) => (
-                <option key={y} value={y}>
-                  {y} 年
-                </option>
-              ))}
-            </select>
-          </div>
+      <PageHero
+        eyebrow="/// ledger.spend"
+        title="消费记录"
+        description="金币流水帐：购买与充值写入帐本，按年份筛选总览。"
+      >
+        <div className="inline-flex items-center gap-3 game-surface rounded-full px-5 py-2">
+          <Calendar className="w-5 h-5" style={{ color: "var(--primary)" }} />
+          <select
+            className="text-base font-bold bg-transparent border-none outline-none cursor-pointer font-mono"
+            style={{ color: "var(--text-dark)" }}
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+          >
+            <option value="all">全部年份</option>
+            {years.map((y) => (
+              <option key={y} value={y}>
+                {y} 年
+              </option>
+            ))}
+          </select>
         </div>
-      </section>
+      </PageHero>
 
-      <section className="py-10 bg-white">
-        <div className="container mx-auto px-4 max-w-6xl">
+      <PageSection className="py-10">
+        <div className="max-w-6xl mx-auto">
           <div className="chart-card">
             <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2 mb-6">
               <PlusCircle className="w-6 h-6 text-[#52B6FF]" />
@@ -370,10 +369,9 @@ export function SpendingClient() {
             </form>
           </div>
         </div>
-      </section>
+      </PageSection>
 
-      <section className="py-10 bg-gray-50">
-        <div className="container mx-auto px-4">
+      <PageSection alt className="py-10">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
             <StatCard title="总花费" value={fmtMoney(stats.total)} />
             <StatCard
@@ -384,11 +382,10 @@ export function SpendingClient() {
             <StatCard title="平均每笔消费" value={fmtMoney(stats.avg)} />
             <StatCard title="月均消费" value={fmtMoney(stats.monthly)} />
           </div>
-        </div>
-      </section>
+      </PageSection>
 
-      <section className="py-10 bg-white">
-        <div className="container mx-auto px-4 max-w-6xl">
+      <PageSection className="py-10">
+        <div className="max-w-6xl mx-auto">
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
               <List className="w-6 h-6 text-[#52B6FF]" />
@@ -488,7 +485,7 @@ export function SpendingClient() {
             </div>
           )}
         </div>
-      </section>
+      </PageSection>
 
       <Modal
         open={!!editing}

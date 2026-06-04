@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { PageHero } from "@/components/ui/page-hero";
 import { tryCreateClient } from "@/lib/supabase/client";
 
 export function AuthForm() {
@@ -51,77 +52,83 @@ export function AuthForm() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-16 max-w-md">
-      <h1 className="text-3xl font-bold text-center mb-8 gradient-text">账号</h1>
-      <form onSubmit={onSubmit} className="space-y-4 card p-6">
-        <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="email">
-            邮箱
-          </label>
-          <input
-            id="email"
-            data-testid="auth-email"
-            type="email"
-            required
-            className="w-full px-3 py-2 rounded-lg border"
-            style={{
-              background: "var(--input-bg)",
-              borderColor: "var(--input-border)",
-            }}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="password">
-            密码
-          </label>
-          <input
-            id="password"
-            data-testid="auth-password"
-            type="password"
-            required
-            minLength={6}
-            className="w-full px-3 py-2 rounded-lg border"
-            style={{
-              background: "var(--input-bg)",
-              borderColor: "var(--input-border)",
-            }}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        {error && (
-          <p className="text-sm" role="alert" style={{ color: "var(--danger)" }}>
-            {error}
-          </p>
-        )}
-        <button
-          type="submit"
-          data-testid="auth-submit"
-          className="btn-primary w-full"
-          disabled={loading}
-        >
-          {loading ? "处理中…" : mode === "signup" ? "注册" : "登录"}
-        </button>
-        <button
-          type="button"
-          className="text-sm w-full"
-          style={{ color: "var(--primary)" }}
-          onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-        >
-          {mode === "signin" ? "没有账号？注册" : "已有账号？登录"}
-        </button>
-      </form>
-      <p className="text-center mt-6">
-        <Link
-          href="/"
-          className="text-sm hover:underline"
-          style={{ color: "var(--text-gray)" }}
-        >
-          返回首页
-        </Link>
-      </p>
-    </div>
+    <>
+      <PageHero
+        eyebrow="/// account.gate"
+        title="账号"
+        description="云端帐号与本地游戏库同步：登录后愿望单提醒等数据可跨设备读取。"
+      />
+      <div className="container mx-auto px-4 pb-16 max-w-md -mt-4 relative z-10">
+        <form onSubmit={onSubmit} className="space-y-4 game-surface p-6">
+          <div>
+            <label className="block text-sm font-medium mb-1" htmlFor="email">
+              邮箱
+            </label>
+            <input
+              id="email"
+              data-testid="auth-email"
+              type="email"
+              required
+              className="w-full px-3 py-2 rounded-lg border"
+              style={{
+                background: "var(--input-bg)",
+                borderColor: "var(--input-border)",
+              }}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1" htmlFor="password">
+              密码
+            </label>
+            <input
+              id="password"
+              data-testid="auth-password"
+              type="password"
+              required
+              minLength={6}
+              className="w-full px-3 py-2 rounded-lg border"
+              style={{
+                background: "var(--input-bg)",
+                borderColor: "var(--input-border)",
+              }}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          {error && (
+            <p className="text-sm" role="alert" style={{ color: "var(--danger)" }}>
+              {error}
+            </p>
+          )}
+          <button
+            type="submit"
+            data-testid="auth-submit"
+            className="btn-primary w-full"
+            disabled={loading}
+          >
+            {loading ? "处理中…" : mode === "signup" ? "注册" : "登录"}
+          </button>
+          <button
+            type="button"
+            className="text-sm w-full"
+            style={{ color: "var(--primary)" }}
+            onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+          >
+            {mode === "signin" ? "没有账号？注册" : "已有账号？登录"}
+          </button>
+        </form>
+        <p className="text-center mt-6">
+          <Link
+            href="/"
+            className="text-sm hover:underline"
+            style={{ color: "var(--text-gray)" }}
+          >
+            返回首页
+          </Link>
+        </p>
+      </div>
+    </>
   );
 }

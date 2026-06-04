@@ -3,6 +3,8 @@
 import { MessageSquare, Plus, Search, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Modal } from "@/components/ui/modal";
+import { PageHero } from "@/components/ui/page-hero";
+import { PageSection } from "@/components/ui/page-section";
 import { useToast } from "@/components/ui/toast";
 import { defaultGameCover, formatDate } from "@/lib/game-utils";
 import {
@@ -139,27 +141,22 @@ export function ReviewsClient() {
 
   return (
     <>
-      <section className="bg-gradient-to-br from-blue-50 to-cyan-100 py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
-            游戏评测
-          </h1>
-          <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
-            记录每款游戏的游玩体验，分享你的真实评价与感受
-          </p>
-          <button
-            type="button"
-            className="btn-primary inline-flex items-center"
-            onClick={() => setAddOpen(true)}
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            添加评测
-          </button>
-        </div>
-      </section>
+      <PageHero
+        eyebrow="/// game_library.notes"
+        title="游戏评测"
+        description="游玩日志：把每一局的体验写成可读条目，归位到对应游戏槽位。"
+      >
+        <button
+          type="button"
+          className="btn-primary inline-flex items-center"
+          onClick={() => setAddOpen(true)}
+        >
+          <Plus className="w-5 h-5 mr-2" />
+          添加评测
+        </button>
+      </PageHero>
 
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
+      <PageSection>
           <div className="max-w-6xl mx-auto mb-12 grid grid-cols-1 md:grid-cols-4 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -303,8 +300,7 @@ export function ReviewsClient() {
               </div>
             )}
           </div>
-        </div>
-      </section>
+      </PageSection>
 
       <ReviewModal
         open={addOpen}

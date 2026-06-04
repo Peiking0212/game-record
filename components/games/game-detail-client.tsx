@@ -163,8 +163,10 @@ export function GameDetailClient({ gameId, gameNameQuery }: Props) {
 
   return (
     <div id="game-hub-content">
-      <section className="game-hub-hero bg-gradient-to-br from-blue-50 to-cyan-100 py-10 md:py-16">
-        <div className="container mx-auto px-4">
+      <section className="game-hub-hero hero-game py-10 md:py-16">
+        <div className="hero-grid" aria-hidden />
+        <div className="hero-glow hero-glow--a" aria-hidden />
+        <div className="container mx-auto px-4 relative z-10">
           <Link
             href="/games"
             className="game-hub-back inline-flex items-center text-sm text-gray-600 hover:text-blue-600 mb-6"

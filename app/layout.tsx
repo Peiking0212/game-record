@@ -26,15 +26,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN" suppressHydrationWarning>
-      <body className="min-h-screen flex flex-col">
+      <body className="min-h-screen flex flex-col font-display antialiased">
         <ThemeProvider>
-          <MascotProvider>
-            <ToastProvider>
+          <ToastProvider>
+            <MascotProvider>
               <SiteHeader />
               <main className="flex-1">{children}</main>
               <SiteFooter />
-            </ToastProvider>
-          </MascotProvider>
+            </MascotProvider>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { Gamepad2, Plus, Search } from "lucide-react";
@@ -7,6 +7,8 @@ import { GameCassetteCard } from "@/components/games/game-cassette-card";
 import { GameFormModal } from "@/components/games/game-form-modal";
 import { GameIcon } from "@/components/games/game-icon";
 import { SteamSyncCard } from "@/components/games/steam-sync-card";
+import { PageHero } from "@/components/ui/page-hero";
+import { PageSection } from "@/components/ui/page-section";
 import { useToast } from "@/components/ui/toast";
 import { getGames, saveGames, seedGamesIfEmpty } from "@/lib/game-data";
 import type { GameFormValues, GameRecord } from "@/lib/game-types";
@@ -61,7 +63,7 @@ export function GamesClient() {
 
   function persist(next: GameRecord[], message: string) {
     if (!saveGames(next)) {
-      showToast("保存失败，请检查存储空间", "error");
+      showToast("����ʧ�ܣ�����洢�ռ�", "error");
       return;
     }
     setGames(next);
@@ -82,7 +84,7 @@ export function GamesClient() {
       screenshots: [],
       videos: [],
     };
-    persist([...games, newGame], "游戏已添加");
+    persist([...games, newGame], "��Ϸ�����");
   }
 
   function handleEdit(values: GameFormValues, gameId?: number | string) {
@@ -102,75 +104,82 @@ export function GamesClient() {
     };
     const next = [...games];
     next[idx] = updated;
-    persist(next, "游戏信息已更新");
+    persist(next, "��Ϸ��Ϣ�Ѹ���");
   }
 
   if (!ready) {
     return (
       <p className="text-center py-24" style={{ color: "var(--text-gray)" }}>
-        加载中…
+        �����С�
       </p>
     );
   }
 
   return (
     <>
-      <section className="bg-gradient-to-br from-blue-50 to-cyan-100 py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
-            我的游戏收藏
-          </h1>
-          <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
-            记录和管理我玩过的每一次游戏，追踪游戏进度和成就
-          </p>
-          <button
-            type="button"
-            className="btn-primary inline-flex items-center"
-            onClick={() => setAddOpen(true)}
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            添加新游戏
-          </button>
-        </div>
-      </section>
+      <PageHero
+        eyebrow="/// game_library.catalog"
+        title="�ҵ���Ϸ�ղ�"
+        description="��Ϸ����Ŀ¼��ÿһ�������Ʒռһ���浵�ۣ�ʱ����������ɾ�д��ͬһ��ʱ���ߡ�"
+      >
+        <button
+          type="button"
+          className="btn-primary inline-flex items-center"
+          onClick={() => setAddOpen(true)}
+        >
+          <Plus className="w-5 h-5 mr-2" />
+          �������Ϸ
+        </button>
+      </PageHero>
 
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
+      <PageSection>
           <div className="max-w-6xl mx-auto mb-12 grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label
                 htmlFor="search"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium mb-2"
+                style={{ color: "var(--text-dark)" }}
               >
-                搜索游戏
+                ������Ϸ
               </label>
               <div className="relative">
                 <input
                   id="search"
                   type="text"
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="输入游戏名称..."
+                  className="w-full pl-10 pr-4 py-2 border rounded-lg"
+                  style={{
+                    borderColor: "var(--border-ui)",
+                    background: "var(--bg-white)",
+                    color: "var(--text-dark)"
+                  }}
+                  placeholder="������Ϸ����..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
-                <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-gray)" }} />
               </div>
             </div>
 
             <div>
               <label
                 htmlFor="status-filter"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium mb-2"
+                style={{ color: "var(--text-dark)" }}
               >
-                游戏状态
+                ��Ϸ״̬
               </label>
               <select
                 id="status-filter"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border rounded-lg"
+                style={{
+                  borderColor: "var(--border-ui)",
+                  background: "var(--bg-white)",
+                  color: "var(--text-dark)"
+                }}
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
-                <option value="all">全部状态</option>
+                <option value="all">ȫ��״̬</option>
                 {GAME_STATUS_OPTIONS.map((s) => (
                   <option key={s.value} value={s.value}>
                     {s.label}
@@ -182,17 +191,23 @@ export function GamesClient() {
             <div>
               <label
                 htmlFor="type-filter"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium mb-2"
+                style={{ color: "var(--text-dark)" }}
               >
-                游戏类型
+                ��Ϸ����
               </label>
               <select
                 id="type-filter"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border rounded-lg"
+                style={{
+                  borderColor: "var(--border-ui)",
+                  background: "var(--bg-white)",
+                  color: "var(--text-dark)"
+                }}
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
               >
-                <option value="all">全部类型</option>
+                <option value="all">ȫ������</option>
                 {GAME_TYPE_OPTIONS.map((t) => (
                   <option key={t} value={t}>
                     {t}
@@ -206,13 +221,13 @@ export function GamesClient() {
 
           <div className="max-w-6xl mx-auto">
             {filtered.length === 0 ? (
-              <div className="text-center py-16">
-                <Gamepad2 className="w-20 h-20 text-gray-300 mx-auto mb-6" />
-                <h3 className="text-2xl font-bold text-gray-700 mb-4">
-                  还没有游戏
+              <div className="text-center py-16 game-surface max-w-lg mx-auto px-8">
+                <Gamepad2 className="w-20 h-20 mx-auto mb-6" style={{ color: "var(--text-gray)" }} />
+                <h3 className="text-2xl font-bold mb-4" style={{ color: "var(--text-dark)" }}>
+                  �浵��Ϊ��
                 </h3>
-                <p className="text-gray-600 mb-8">
-                  点击「添加新游戏」按钮开始记录你的游戏之旅
+                <p className="mb-8" style={{ color: "var(--text-gray)" }}>
+                  ��ӵ�һ����Ϸ������ͻ������һ����λ
                 </p>
                 <button
                   type="button"
@@ -220,7 +235,7 @@ export function GamesClient() {
                   onClick={() => setAddOpen(true)}
                 >
                   <Plus className="w-5 h-5 mr-2" />
-                  添加新游戏
+                  �������Ϸ
                 </button>
               </div>
             ) : (
@@ -238,24 +253,19 @@ export function GamesClient() {
               </div>
             )}
           </div>
-        </div>
-      </section>
+      </PageSection>
 
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
-            最近添加的游戏
-          </h2>
+      <PageSection title="������" alt>
           <div className="max-w-6xl mx-auto">
             {recentlyAdded.length === 0 ? (
-              <p className="text-center text-gray-500">暂无最近添加的游戏</p>
+              <p className="text-center" style={{ color: "var(--text-gray)" }}>���������ӵ���Ϸ</p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {recentlyAdded.map((game) => (
                   <Link
                     key={String(game.id)}
                     href={gameDetailPath(game.id)}
-                    className="bg-white rounded-lg shadow-lg overflow-hidden block hover:shadow-xl transition-shadow"
+                    className="game-surface overflow-hidden block"
                   >
                     <GameIcon
                       src={game.icon}
@@ -265,16 +275,15 @@ export function GamesClient() {
                       className="w-full h-32 object-cover"
                     />
                     <div className="p-4">
-                      <h4 className="font-semibold text-gray-800">{game.name}</h4>
-                      <p className="text-sm text-gray-600">{game.type}</p>
+                      <h4 className="font-semibold" style={{ color: "var(--text-dark)" }}>{game.name}</h4>
+                      <p className="text-sm" style={{ color: "var(--text-gray)" }}>{game.type}</p>
                     </div>
                   </Link>
                 ))}
               </div>
             )}
           </div>
-        </div>
-      </section>
+      </PageSection>
 
       <GameFormModal
         mode="add"

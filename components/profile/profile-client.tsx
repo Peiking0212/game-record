@@ -13,8 +13,10 @@ import {
   Trophy,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { PROFILE_SETTINGS_HASH } from "@/lib/navigation";
 import { GameIcon } from "@/components/games/game-icon";
 import { Modal } from "@/components/ui/modal";
+import { PageSection } from "@/components/ui/page-section";
 import { useToast } from "@/components/ui/toast";
 import { getAchievements, getGames } from "@/lib/game-data";
 import type { GameRecord } from "@/lib/game-types";
@@ -292,6 +294,13 @@ export function ProfileClient() {
     setFormBio(p.bio);
   }, []);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash !== `#${PROFILE_SETTINGS_HASH}`) return;
+    const el = document.getElementById(PROFILE_SETTINGS_HASH);
+    el?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
   const persist = useCallback(
     (next: UserProfile, message?: string) => {
       if (!saveProfile(next)) {
@@ -388,9 +397,14 @@ export function ProfileClient() {
 
   return (
     <>
-      <section className="bg-gradient-to-br from-blue-50 to-cyan-100 py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+      <section className="hero-game py-16 md:py-20" data-hero>
+        <div className="hero-grid" aria-hidden />
+        <div className="hero-glow hero-glow--a" aria-hidden />
+        <div className="container mx-auto px-4 relative z-10">
+          <p className="hero-eyebrow font-mono text-sm mb-6 text-center is-visible">
+            /// player_profile.card
+          </p>
+          <div className="max-w-4xl mx-auto game-surface overflow-hidden">
             <div className="p-8 md:p-12 text-center">
               <div className="profile-avatar mb-6 mx-auto">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -428,11 +442,7 @@ export function ProfileClient() {
         </div>
       </section>
 
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
-            游戏数据
-          </h2>
+      <PageSection title="游戏数据">
           <div className="max-w-4xl mx-auto">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="stat-card">
@@ -465,17 +475,12 @@ export function ProfileClient() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
+      </PageSection>
 
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
-            游戏偏好
-          </h2>
+      <PageSection title="游戏偏好" alt>
           <div className="max-w-4xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-white rounded-xl shadow-lg p-8">
+              <div className="game-surface p-8">
                 <h3 className="text-xl font-semibold mb-6 text-gray-800 flex items-center">
                   <Heart className="w-6 h-6 text-red-500 mr-2" />
                   最喜欢的游戏
@@ -491,7 +496,7 @@ export function ProfileClient() {
                 </button>
               </div>
 
-              <div className="bg-white rounded-xl shadow-lg p-8">
+              <div className="game-surface p-8">
                 <h3 className="text-xl font-semibold mb-6 text-gray-800 flex items-center">
                   <Settings className="w-6 h-6 text-blue-500 mr-2" />
                   游戏风格
@@ -508,15 +513,10 @@ export function ProfileClient() {
               </div>
             </div>
           </div>
-        </div>
-      </section>
+      </PageSection>
 
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
-            个人设置
-          </h2>
-          <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-8">
+      <PageSection title="个人设置" alt id="profile-settings" scrollMt>
+          <div className="max-w-2xl mx-auto game-surface p-8">
             <form onSubmit={handleFormSubmit} className="space-y-6">
               <div>
                 <label
@@ -603,8 +603,7 @@ export function ProfileClient() {
               </button>
             </form>
           </div>
-        </div>
-      </section>
+      </PageSection>
 
       <FavoriteGamesModal
         open={favoritesOpen}
