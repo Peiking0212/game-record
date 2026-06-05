@@ -449,9 +449,11 @@
     </div>
 
     <script>
-        lucide.createIcons();
-        AOS.init({ duration: 800, once: true });
-        document.getElementById('current-year').textContent = new Date().getFullYear();
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+            AOS.init({ duration: 800, once: true });
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/lib/supabase-browser.js"></script>

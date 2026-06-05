@@ -404,16 +404,19 @@
     </div>
 
     <script>
-        // Initialize Lucide icons
-        lucide.createIcons();
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Lucide icons
+            lucide.createIcons();
 
-        // Initialize AOS animation library
-        AOS.init({
-            duration: 800,
-            once: true
+            // Initialize AOS animation library
+            AOS.init({
+                duration: 800,
+                once: true
+            });
+
+            // 动态年份
+            document.getElementById('current-year').textContent = new Date().getFullYear();
         });
-
-        // 动态年份        document.getElementById('current-year').textContent = new Date().getFullYear();
     </script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/lib/supabase-browser.js"></script>
