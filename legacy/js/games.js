@@ -58,23 +58,23 @@ function renderGames() {
             return `
             <div class="cassette-3d cassette-${escapeHtml(game.status)}" data-aos="fade-up">
                 <div class="cassette-3d-inner">
-                    <div class="cassette-3d-front" style="cursor:pointer" onclick="window.location.href='${detailHref.replace(/'/g, '%27')}'" title="查看 ${escapeHtml(game.name)} 详情页">
+                    <div class="cassette-3d-front" style="cursor:pointer" onclick="window.location.href='${detailHref.replace(/'/g, '%27')}'" title="鏌ョ湅 ${escapeHtml(game.name)} 璇︽儏椤?>
                         <div class="cassette-cover">
                             <div class="cassette-ribbon"></div>
                             ${imgWithFallback(game.icon, game.name, '')}
                         </div>
                         <div class="cassette-label">${escapeHtml(game.name)}</div>
-                        <span class="cassette-detail-link">进入详情页 ›</span>
+                        <span class="cassette-detail-link">杩涘叆璇︽儏椤?鈥?/span>
                     </div>
                     <div class="cassette-3d-back">
                         <h4>${escapeHtml(game.name)}</h4>
-                        <div class="cassette-info-row"><span>类型</span><span>${escapeHtml(game.type || '其他')}</span></div>
-                        <div class="cassette-info-row"><span>状态</span><span>${escapeHtml(getStatusText(game.status))}</span></div>
-                        <div class="cassette-info-row"><span>时长</span><span>${parseInt(game.playtime, 10) || 0} 小时</span></div>
-                        <div class="cassette-info-row"><span>进度</span><span>${parseInt(game.progress, 10) || 0}%</span></div>
+                        <div class="cassette-info-row"><span>绫诲瀷</span><span>${escapeHtml(game.type || '鍏朵粬')}</span></div>
+                        <div class="cassette-info-row"><span>鐘舵€?/span><span>${escapeHtml(getStatusText(game.status))}</span></div>
+                        <div class="cassette-info-row"><span>鏃堕暱</span><span>${parseInt(game.playtime, 10) || 0} 灏忔椂</span></div>
+                        <div class="cassette-info-row"><span>杩涘害</span><span>${parseInt(game.progress, 10) || 0}%</span></div>
                         <div class="cassette-actions">
-                            <a class="cassette-btn-play" href="${detailHref.replace(/"/g, '&quot;')}">详情页</a>
-                            <button type="button" class="cassette-btn-edit" onclick="event.stopPropagation(); openEditGameModal(${JSON.stringify(game.id)})">编 辑</button>
+                            <a class="cassette-btn-play" href="${detailHref.replace(/"/g, '&quot;')}">璇︽儏椤?/a>
+                            <button type="button" class="cassette-btn-edit" onclick="event.stopPropagation(); openEditGameModal(${JSON.stringify(game.id)})">缂?杈?/button>
                         </div>
                     </div>
                 </div>
@@ -134,7 +134,7 @@ document.getElementById('add-game-form').addEventListener('submit', (e) => {
     renderGames();
     renderRecentlyAdded();
     closeAddGameModal();
-    showToast('游戏已添加', 'success');
+    showToast('娓告垙宸叉坊鍔?, 'success');
 });
 
 // Edit game form submission
@@ -169,19 +169,19 @@ document.getElementById('edit-game-form').addEventListener('submit', (e) => {
         renderGames();
         renderRecentlyAdded();
         closeEditGameModal();
-        showToast('游戏信息已更新', 'success');
+        showToast('娓告垙淇℃伅宸叉洿鏂?, 'success');
     }
 });
 
 // Delete game
 function deleteGame(id) {
-    if (confirm('确定要删除这款游戏吗？此操作不可撤销。')) {
+    if (confirm('纭畾瑕佸垹闄よ繖娆炬父鎴忓悧锛熸鎿嶄綔涓嶅彲鎾ら攢銆?)) {
         games = games.filter(game => game.id !== id);
         GD.set(GD.KEYS.GAMES, games);
         syncFollowedGameDictionary();
         renderGames();
         renderRecentlyAdded();
-        showToast('游戏已删除', 'success');
+        showToast('娓告垙宸插垹闄?, 'success');
     }
 }
 
@@ -199,22 +199,22 @@ function openGameDetailModal(id) {
                 <img src="${game.icon}" alt="${game.name}" class="w-full h-64 object-cover rounded-lg mb-4">
                 <div class="space-y-4">
                     <div>
-                        <h4 class="font-semibold text-gray-800 mb-2">游戏信息</h4>
+                        <h4 class="font-semibold text-gray-800 mb-2">娓告垙淇℃伅</h4>
                         <div class="space-y-2 text-sm">
                             <div class="flex justify-between">
-                                <span class="text-gray-600">游戏类型:</span>
+                                <span class="text-gray-600">娓告垙绫诲瀷:</span>
                                 <span class="font-medium">${game.type}</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-600">游戏状态:</span>
+                                <span class="text-gray-600">娓告垙鐘舵€?</span>
                                 <span class="font-medium ${getStatusClass(game.status)} px-2 py-1 rounded">${getStatusText(game.status)}</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-600">游戏时长:</span>
-                                <span class="font-medium">${game.playtime} 小时</span>
+                                <span class="text-gray-600">娓告垙鏃堕暱:</span>
+                                <span class="font-medium">${game.playtime} 灏忔椂</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-600">完成进度:</span>
+                                <span class="text-gray-600">瀹屾垚杩涘害:</span>
                                 <span class="font-medium">${game.progress}%</span>
                             </div>
                         </div>
@@ -225,17 +225,17 @@ function openGameDetailModal(id) {
             <div>
                 <h3 class="text-2xl font-bold text-gray-800 mb-4">${game.name}</h3>
                 <div class="mb-6">
-                    <h4 class="font-semibold text-gray-800 mb-2">游戏描述</h4>
-                    <p class="text-gray-600">${game.description || '暂无描述'}</p>
+                    <h4 class="font-semibold text-gray-800 mb-2">娓告垙鎻忚堪</h4>
+                    <p class="text-gray-600">${game.description || '鏆傛棤鎻忚堪'}</p>
                 </div>
                 
                 <!-- Screenshots -->
                 <div class="mb-6">
                     <div class="flex justify-between items-center mb-3">
-                        <h4 class="font-semibold text-gray-800">游戏截图</h4>
+                        <h4 class="font-semibold text-gray-800">娓告垙鎴浘</h4>
                         <button class="text-blue-500 hover:text-blue-600 text-sm" onclick="openScreenshotUpload(${game.id})">
                             <i data-lucide="plus" class="w-4 h-4 inline mr-1"></i>
-                            添加截图
+                            娣诲姞鎴浘
                         </button>
                     </div>
                     <div class="media-gallery" id="screenshots-${game.id}">
@@ -248,17 +248,17 @@ function openGameDetailModal(id) {
                                     </button>
                                 </div>
                             </div>
-                        `).join('') : '<p class="text-gray-500 text-sm">暂无截图</p>'}
+                        `).join('') : '<p class="text-gray-500 text-sm">鏆傛棤鎴浘</p>'}
                     </div>
                 </div>
                 
                 <!-- Videos -->
                 <div class="mb-6">
                     <div class="flex justify-between items-center mb-3">
-                        <h4 class="font-semibold text-gray-800">游戏视频</h4>
+                        <h4 class="font-semibold text-gray-800">娓告垙瑙嗛</h4>
                         <button class="text-blue-500 hover:text-blue-600 text-sm" onclick="openVideoUpload(${game.id})">
                             <i data-lucide="plus" class="w-4 h-4 inline mr-1"></i>
-                            添加视频
+                            娣诲姞瑙嗛
                         </button>
                     </div>
                     <div class="media-gallery" id="videos-${game.id}">
@@ -271,18 +271,18 @@ function openGameDetailModal(id) {
                                     </button>
                                 </div>
                             </div>
-                        `).join('') : '<p class="text-gray-500 text-sm">暂无视频</p>'}
+                        `).join('') : '<p class="text-gray-500 text-sm">鏆傛棤瑙嗛</p>'}
                     </div>
                 </div>
                 
                 <div class="flex gap-3">
                     <button class="btn-primary flex-1" onclick="openEditGameModal(${game.id})">
                         <i data-lucide="edit" class="w-5 h-5 inline mr-2"></i>
-                        编辑游戏
+                        缂栬緫娓告垙
                     </button>
                     <button class="btn-danger" onclick="deleteGame(${game.id})">
                         <i data-lucide="trash-2" class="w-5 h-5 inline mr-2"></i>
-                        删除游戏
+                        鍒犻櫎娓告垙
                     </button>
                 </div>
             </div>
@@ -398,7 +398,7 @@ function handleVideoUpload(gameId, file) {
     
     if (file && file.type.startsWith('video/')) {
         if (file.size > 50 * 1024 * 1024) {
-            showToast('视频文件过大，请选择小于50MB的文件', 'error');
+            showToast('瑙嗛鏂囦欢杩囧ぇ锛岃閫夋嫨灏忎簬50MB鐨勬枃浠?, 'error');
             return;
         }
         
@@ -447,7 +447,7 @@ function initIconUpload() {
         var file = e.target.files[0];
         if (file && file.type.startsWith('image/')) {
             if (file.size > 2 * 1024 * 1024) {
-                showToast('图片文件过大，请选择小于2MB的文件', 'error');
+                showToast('鍥剧墖鏂囦欢杩囧ぇ锛岃閫夋嫨灏忎簬2MB鐨勬枃浠?, 'error');
                 return;
             }
             var reader = new FileReader();
@@ -464,11 +464,11 @@ function initIconUpload() {
                     if (addPreview) { addPreview.src = ev.target.result; addPreview.style.display = 'block'; }
                 }
                 closeIconUploadModal();
-                showToast('图标已上传');
+                showToast('鍥炬爣宸蹭笂浼?);
             };
             reader.readAsDataURL(file);
         } else {
-            showToast('请选择图片文件', 'error');
+            showToast('璇烽€夋嫨鍥剧墖鏂囦欢', 'error');
         }
     });
 }

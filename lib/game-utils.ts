@@ -1,14 +1,14 @@
 import type { GameFormValues } from "@/lib/game-types";
 
 const STATUS_LABELS: Record<string, string> = {
-  playing: "正在玩",
-  completed: "已完成",
-  paused: "暂停中",
-  dropped: "已放弃",
-  abandoned: "已放弃",
-  wishlist: "愿望单",
-  planned: "计划中",
-  backlog: "待玩",
+  playing: "姝ｅ湪鐜?,
+  completed: "宸插畬鎴?,
+  paused: "鏆傚仠涓?,
+  dropped: "宸叉斁寮?,
+  abandoned: "宸叉斁寮?,
+  wishlist: "鎰挎湜鍗?,
+  planned: "璁″垝涓?,
+  backlog: "寰呯帺",
 };
 
 export function getStatusText(status?: string): string {
@@ -39,19 +39,19 @@ export function gameDetailPath(id: number | string): string {
 
 export function validateGameForm(values: GameFormValues): string | null {
   const name = values.name.trim();
-  if (!name) return "请输入游戏名称";
+  if (!name) return "璇疯緭鍏ユ父鎴忓悕绉?;
   if (Number.isNaN(values.playtime) || values.playtime < 0) {
-    return "请输入有效的游戏时长";
+    return "璇疯緭鍏ユ湁鏁堢殑娓告垙鏃堕暱";
   }
   if (
     Number.isNaN(values.progress) ||
     values.progress < 0 ||
     values.progress > 100
   ) {
-    return "进度需在 0–100 之间";
+    return "杩涘害闇€鍦?0鈥?00 涔嬮棿";
   }
-  if (!values.status) return "请选择游戏状态";
-  if (!values.type) return "请选择游戏类型";
+  if (!values.status) return "璇烽€夋嫨娓告垙鐘舵€?;
+  if (!values.type) return "璇烽€夋嫨娓告垙绫诲瀷";
   return null;
 }
 

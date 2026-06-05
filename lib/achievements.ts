@@ -24,7 +24,7 @@ function parseJson<T>(raw: string | null, fallback: T): T {
 function normalize(item: Partial<AchievementItem>, index: number): AchievementItem {
   return {
     id: item.id ?? Date.now() + index,
-    title: item.title || "未命名成就",
+    title: item.title || "鏈懡鍚嶆垚灏?,
     gameName: item.gameName || "",
     gameId: item.gameId,
     description: item.description || "",

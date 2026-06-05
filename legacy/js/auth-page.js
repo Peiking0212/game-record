@@ -22,9 +22,9 @@
 
     function setMode(register) {
         isRegisterMode = register;
-        submitBtn.textContent = register ? '注册' : '登录';
-        modeLabel.textContent = register ? '已有账号？' : '还没有账号？';
-        toggleBtn.textContent = register ? '去登录' : '注册';
+        submitBtn.textContent = register ? '娉ㄥ唽' : '鐧诲綍';
+        modeLabel.textContent = register ? '宸叉湁璐﹀彿锛? : '杩樻病鏈夎处鍙凤紵';
+        toggleBtn.textContent = register ? '鍘荤櫥褰? : '娉ㄥ唽';
         passwordInput.autocomplete = register ? 'new-password' : 'current-password';
         hideMessage();
     }
@@ -52,19 +52,19 @@
                 var signUpData = await window.GameAuth.signUp(email, password);
                 if (signUpData.session) {
                     localStorage.setItem('game_auth_user_id', signUpData.user.id);
-                    showMessage('注册成功，正在进入…', false);
+                    showMessage('娉ㄥ唽鎴愬姛锛屾鍦ㄨ繘鍏モ€?, false);
                     await redirectAfterAuth();
                 } else {
-                    showMessage('注册成功！请查收确认邮件（若已开启邮箱验证），然后登录。', false);
+                    showMessage('娉ㄥ唽鎴愬姛锛佽鏌ユ敹纭閭欢锛堣嫢宸插紑鍚偖绠遍獙璇侊級锛岀劧鍚庣櫥褰曘€?, false);
                     setMode(false);
                 }
             } else {
                 await window.GameAuth.signIn(email, password);
-                showMessage('登录成功，正在同步…', false);
+                showMessage('鐧诲綍鎴愬姛锛屾鍦ㄥ悓姝モ€?, false);
                 await redirectAfterAuth();
             }
         } catch (err) {
-            showMessage(err.message || '操作失败，请重试', true);
+            showMessage(err.message || '鎿嶄綔澶辫触锛岃閲嶈瘯', true);
         } finally {
             submitBtn.disabled = false;
         }
@@ -72,7 +72,7 @@
 
     (async function initAuthPage() {
         if (!window.SB) {
-            showMessage('Supabase 未配置，无法登录', true);
+            showMessage('Supabase 鏈厤缃紝鏃犳硶鐧诲綍', true);
             return;
         }
         var session = await window.GameAuth.getSession();

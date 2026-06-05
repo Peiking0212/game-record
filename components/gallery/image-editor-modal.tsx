@@ -33,14 +33,14 @@ type FilterName =
   | "bright";
 
 const FILTERS: { id: FilterName; title: string; className?: string }[] = [
-  { id: "none", title: "原图" },
-  { id: "grayscale", title: "黑白", className: "bg-gradient-to-br from-gray-200 to-gray-400" },
-  { id: "sepia", title: "复古", className: "bg-gradient-to-br from-yellow-100 to-amber-200" },
-  { id: "cool", title: "冷色调", className: "bg-gradient-to-br from-blue-200 to-cyan-300" },
-  { id: "warm", title: "暖色调", className: "bg-gradient-to-br from-amber-100 to-orange-200" },
-  { id: "vintage", title: "怀旧", className: "bg-gradient-to-br from-pink-200 to-purple-300" },
-  { id: "vivid", title: "鲜艳", className: "bg-gradient-to-br from-green-200 to-teal-300" },
-  { id: "bright", title: "明亮", className: "bg-gradient-to-br from-gray-300 to-white" },
+  { id: "none", title: "鍘熷浘" },
+  { id: "grayscale", title: "榛戠櫧", className: "bg-gradient-to-br from-gray-200 to-gray-400" },
+  { id: "sepia", title: "澶嶅彜", className: "bg-gradient-to-br from-yellow-100 to-amber-200" },
+  { id: "cool", title: "鍐疯壊璋?, className: "bg-gradient-to-br from-blue-200 to-cyan-300" },
+  { id: "warm", title: "鏆栬壊璋?, className: "bg-gradient-to-br from-amber-100 to-orange-200" },
+  { id: "vintage", title: "鎬€鏃?, className: "bg-gradient-to-br from-pink-200 to-purple-300" },
+  { id: "vivid", title: "椴滆壋", className: "bg-gradient-to-br from-green-200 to-teal-300" },
+  { id: "bright", title: "鏄庝寒", className: "bg-gradient-to-br from-gray-300 to-white" },
 ];
 
 type Props = {
@@ -164,7 +164,7 @@ export function ImageEditorModal({ item, open, onClose, onSaved }: Props) {
           const img2 = new Image();
           img2.crossOrigin = "anonymous";
           img2.onload = () => finishSetup(img2);
-          img2.onerror = () => showToast("无法加载图片进行编辑", "error");
+          img2.onerror = () => showToast("鏃犳硶鍔犺浇鍥剧墖杩涜缂栬緫", "error");
           img2.src = item.url;
         };
         img.src = objectUrl;
@@ -173,7 +173,7 @@ export function ImageEditorModal({ item, open, onClose, onSaved }: Props) {
         const img = new Image();
         img.crossOrigin = "anonymous";
         img.onload = () => finishSetup(img);
-        img.onerror = () => showToast("无法加载图片进行编辑", "error");
+        img.onerror = () => showToast("鏃犳硶鍔犺浇鍥剧墖杩涜缂栬緫", "error");
         img.src = item.url;
       });
   }, [open, item, showToast]);
@@ -225,12 +225,12 @@ export function ImageEditorModal({ item, open, onClose, onSaved }: Props) {
         saveLocalMedia(getLocalMedia());
       }
 
-      showToast("图片编辑保存成功", "success");
+      showToast("鍥剧墖缂栬緫淇濆瓨鎴愬姛", "success");
       onSaved();
       onClose();
     } catch (e) {
       console.error(e);
-      showToast("保存失败，请重试", "error");
+      showToast("淇濆瓨澶辫触锛岃閲嶈瘯", "error");
     } finally {
       setSaving(false);
     }
@@ -243,7 +243,7 @@ export function ImageEditorModal({ item, open, onClose, onSaved }: Props) {
   if (!open || !item) return null;
 
   return (
-    <Modal open={open} onClose={onClose} title="图片编辑器" maxWidth="xl">
+    <Modal open={open} onClose={onClose} title="鍥剧墖缂栬緫鍣? maxWidth="xl">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <div
@@ -272,7 +272,7 @@ export function ImageEditorModal({ item, open, onClose, onSaved }: Props) {
               onClick={() => setCropMode((v) => !v)}
             >
               <Crop className="w-4 h-4 mr-2" />
-              裁剪模式
+              瑁佸壀妯″紡
             </button>
             <button
               type="button"
@@ -280,7 +280,7 @@ export function ImageEditorModal({ item, open, onClose, onSaved }: Props) {
               onClick={resetImage}
             >
               <RotateCcw className="w-4 h-4 mr-2" />
-              重置
+              閲嶇疆
             </button>
           </div>
         </div>
@@ -289,7 +289,7 @@ export function ImageEditorModal({ item, open, onClose, onSaved }: Props) {
           <div>
             <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
               <Sliders className="w-4 h-4 mr-2" />
-              滤镜效果
+              婊ら暅鏁堟灉
             </h4>
             <div className="grid grid-cols-4 gap-2">
               {FILTERS.map((f) => (
@@ -317,12 +317,12 @@ export function ImageEditorModal({ item, open, onClose, onSaved }: Props) {
           <div>
             <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
               <Settings className="w-4 h-4 mr-2" />
-              调整参数
+              璋冩暣鍙傛暟
             </h4>
             <div className="space-y-4">
               <div>
                 <label className="flex justify-between text-sm text-gray-600">
-                  <span>亮度</span>
+                  <span>浜害</span>
                   <span>{filters.brightness}%</span>
                 </label>
                 <input
@@ -341,7 +341,7 @@ export function ImageEditorModal({ item, open, onClose, onSaved }: Props) {
               </div>
               <div>
                 <label className="flex justify-between text-sm text-gray-600">
-                  <span>对比度</span>
+                  <span>瀵规瘮搴?/span>
                   <span>{filters.contrast}%</span>
                 </label>
                 <input
@@ -360,7 +360,7 @@ export function ImageEditorModal({ item, open, onClose, onSaved }: Props) {
               </div>
               <div>
                 <label className="flex justify-between text-sm text-gray-600">
-                  <span>饱和度</span>
+                  <span>楗卞拰搴?/span>
                   <span>{filters.saturation}%</span>
                 </label>
                 <input
@@ -383,7 +383,7 @@ export function ImageEditorModal({ item, open, onClose, onSaved }: Props) {
           <div>
             <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
               <Download className="w-4 h-4 mr-2" />
-              导出设置
+              瀵煎嚭璁剧疆
             </h4>
             <select
               id="thumbnail-size"
@@ -403,7 +403,7 @@ export function ImageEditorModal({ item, open, onClose, onSaved }: Props) {
               onClick={handleSave}
             >
               <Save className="w-4 h-4 mr-2" />
-              {saving ? "保存中…" : "保存修改"}
+              {saving ? "淇濆瓨涓€? : "淇濆瓨淇敼"}
             </button>
           </div>
         </div>

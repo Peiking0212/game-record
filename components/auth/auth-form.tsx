@@ -22,7 +22,7 @@ export function AuthForm() {
 
     const supabase = tryCreateClient();
     if (!supabase) {
-      setError("Supabase 未配置，请在 .env.local 中设置 NEXT_PUBLIC_SUPABASE_*");
+      setError("Supabase 鏈厤缃紝璇峰湪 .env.local 涓缃?NEXT_PUBLIC_SUPABASE_*");
       setLoading(false);
       return;
     }
@@ -44,7 +44,7 @@ export function AuthForm() {
       router.push(returnTo.startsWith("/") ? returnTo : "/");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "登录失败");
+      setError(err instanceof Error ? err.message : "鐧诲綍澶辫触");
     } finally {
       setLoading(false);
     }
@@ -52,11 +52,11 @@ export function AuthForm() {
 
   return (
     <div className="container mx-auto px-4 py-16 max-w-md">
-      <h1 className="text-3xl font-bold text-center mb-8 gradient-text">账号</h1>
+      <h1 className="text-3xl font-bold text-center mb-8 gradient-text">璐﹀彿</h1>
       <form onSubmit={onSubmit} className="space-y-4 card p-6">
         <div>
           <label className="block text-sm font-medium mb-1" htmlFor="email">
-            邮箱
+            閭
           </label>
           <input
             id="email"
@@ -74,7 +74,7 @@ export function AuthForm() {
         </div>
         <div>
           <label className="block text-sm font-medium mb-1" htmlFor="password">
-            密码
+            瀵嗙爜
           </label>
           <input
             id="password"
@@ -102,7 +102,7 @@ export function AuthForm() {
           className="btn-primary w-full"
           disabled={loading}
         >
-          {loading ? "处理中…" : mode === "signup" ? "注册" : "登录"}
+          {loading ? "澶勭悊涓€? : mode === "signup" ? "娉ㄥ唽" : "鐧诲綍"}
         </button>
         <button
           type="button"
@@ -110,7 +110,7 @@ export function AuthForm() {
           style={{ color: "var(--primary)" }}
           onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
         >
-          {mode === "signin" ? "没有账号？注册" : "已有账号？登录"}
+          {mode === "signin" ? "娌℃湁璐﹀彿锛熸敞鍐? : "宸叉湁璐﹀彿锛熺櫥褰?}
         </button>
       </form>
       <p className="text-center mt-6">
@@ -119,7 +119,7 @@ export function AuthForm() {
           className="text-sm hover:underline"
           style={{ color: "var(--text-gray)" }}
         >
-          返回首页
+          杩斿洖棣栭〉
         </Link>
       </p>
     </div>

@@ -16,20 +16,20 @@ export type GameRecord = {
 };
 
 export const GAME_TYPE_OPTIONS = [
-  "开放世界",
-  "策略",
+  "寮€鏀句笘鐣?,
+  "绛栫暐",
   "MOBA",
-  "养成",
+  "鍏绘垚",
   "RPG",
   "FPS",
-  "其他",
+  "鍏朵粬",
 ] as const;
 
 export const GAME_STATUS_OPTIONS = [
-  { value: "playing", label: "正在玩" },
-  { value: "completed", label: "已完成" },
-  { value: "paused", label: "暂停中" },
-  { value: "dropped", label: "已放弃" },
+  { value: "playing", label: "姝ｅ湪鐜? },
+  { value: "completed", label: "宸插畬鎴? },
+  { value: "paused", label: "鏆傚仠涓? },
+  { value: "dropped", label: "宸叉斁寮? },
 ] as const;
 
 export type GameFormValues = {

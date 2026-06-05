@@ -28,20 +28,20 @@ async function persistProfile(successMessage) {
         profile = toSave;
     }
     if (!GD.setProfile(toSave)) {
-        showToast('保存失败：头像或数据过大，请换一张较小的图片', 'error');
+        showToast('淇濆瓨澶辫触锛氬ご鍍忔垨鏁版嵁杩囧ぇ锛岃鎹竴寮犺緝灏忕殑鍥剧墖', 'error');
         return false;
     }
     renderProfile();
     if (window.GameCloud && window.GameCloud.enabled) {
         var ok = await window.GameCloud.pushKey('profile');
         if (!ok) {
-            showToast('已保存到本机，但同步到云端失败，请检查网络或 Supabase', 'error');
+            showToast('宸蹭繚瀛樺埌鏈満锛屼絾鍚屾鍒颁簯绔け璐ワ紝璇锋鏌ョ綉缁滄垨 Supabase', 'error');
             return false;
         }
-        showToast(successMessage || '个人信息已保存并同步到云端', 'success');
+        showToast(successMessage || '涓汉淇℃伅宸蹭繚瀛樺苟鍚屾鍒颁簯绔?, 'success');
         return true;
     }
-    showToast(successMessage || '个人信息已更新', 'success');
+    showToast(successMessage || '涓汉淇℃伅宸叉洿鏂?, 'success');
     return true;
 }
 
@@ -78,7 +78,7 @@ function renderTagList(containerId, removable) {
     container.innerHTML = tags.map((tag, index) => `
         <span class="badge ${TAG_BADGE_CLASSES[index % TAG_BADGE_CLASSES.length]}${removable ? ' flex items-center' : ''}">
             ${escapeHtml(tag)}
-            ${removable ? '<button type="button" class="ml-1 text-xs" onclick="removeTag(this)">×</button>' : ''}
+            ${removable ? '<button type="button" class="ml-1 text-xs" onclick="removeTag(this)">脳</button>' : ''}
         </span>
     `).join('');
 }
@@ -97,18 +97,16 @@ function renderFavoriteGames() {
     const favoriteGames = document.getElementById('favorite-games');
     const favoriteGameIds = profile.favoriteGames || [];
 
-    // 获取用户选择的最喜欢的游戏
-    let displayGames = [];
+    // 鑾峰彇鐢ㄦ埛閫夋嫨鐨勬渶鍠滄鐨勬父鎴?    let displayGames = [];
     if (favoriteGameIds.length > 0) {
         displayGames = favoriteGameIds.map(id => games.find(g => g.id === id)).filter(g => g);
     }
 
-    // 如果没有选择任何游戏，显示提示
-    if (displayGames.length === 0) {
+    // 濡傛灉娌℃湁閫夋嫨浠讳綍娓告垙锛屾樉绀烘彁绀?    if (displayGames.length === 0) {
         favoriteGames.innerHTML = `
             <div class="text-center py-4 text-gray-500">
-                <p>还没有选择最喜欢的游戏</p>
-                <p class="text-sm">点击"编辑偏好"按钮添加</p>
+                <p>杩樻病鏈夐€夋嫨鏈€鍠滄鐨勬父鎴?/p>
+                <p class="text-sm">鐐瑰嚮"缂栬緫鍋忓ソ"鎸夐挳娣诲姞</p>
             </div>
         `;
         return;
@@ -119,7 +117,7 @@ function renderFavoriteGames() {
             <img src="${game.icon}" alt="${game.name}" class="w-12 h-12 rounded-lg object-cover">
             <div class="flex-1">
                 <h4 class="font-semibold text-gray-800">${escapeHtml(game.name)}</h4>
-                <p class="text-sm text-gray-600">${game.playtime} 小时</p>
+                <p class="text-sm text-gray-600">${game.playtime} 灏忔椂</p>
             </div>
             <div class="text-yellow-500">
                 <i data-lucide="star" class="w-5 h-5 fill-current"></i>
@@ -137,14 +135,14 @@ function renderPlayStyle() {
 
     playStyleContainer.innerHTML = `
         <div class="flex justify-between items-center">
-            <span class="text-gray-700">单人游戏</span>
+            <span class="text-gray-700">鍗曚汉娓告垙</span>
             <div class="w-32 bg-gray-200 rounded-full h-2">
                 <div class="progress-bar-fill" style="width: ${ps.singlePlayer}%"></div>
             </div>
             <span class="text-gray-600 font-medium">${ps.singlePlayer}%</span>
         </div>
         <div class="flex justify-between items-center">
-            <span class="text-gray-700">多人游戏</span>
+            <span class="text-gray-700">澶氫汉娓告垙</span>
             <div class="w-32 bg-gray-200 rounded-full h-2">
                 <div class="progress-bar-fill" style="width: ${ps.multiPlayer}%"></div>
             </div>
@@ -175,7 +173,7 @@ document.getElementById('avatar-input').addEventListener('change', async (e) => 
     reader.onload = async (ev) => {
         profile.avatar = ev.target.result;
         document.getElementById('profile-avatar').src = ev.target.result;
-        await persistProfile('头像已更新并同步');
+        await persistProfile('澶村儚宸叉洿鏂板苟鍚屾');
     };
     reader.readAsDataURL(file);
 });
@@ -188,7 +186,7 @@ document.getElementById('profile-form').addEventListener('submit', async (e) => 
     profile.title = document.getElementById('title').value;
     profile.bio = document.getElementById('bio').value;
 
-    await persistProfile('个人信息已保存并同步到云端');
+    await persistProfile('涓汉淇℃伅宸蹭繚瀛樺苟鍚屾鍒颁簯绔?);
 });
 
 // Add tag
@@ -200,16 +198,16 @@ function addTag() {
         profile.tags.push(tag);
         renderGameTags();
         newTagInput.value = '';
-        persistProfile('标签已添加');
+        persistProfile('鏍囩宸叉坊鍔?);
     }
 }
 
 // Remove tag
 function removeTag(button) {
-    const tag = button.parentElement.textContent.trim().replace('×', '').trim();
+    const tag = button.parentElement.textContent.trim().replace('脳', '').trim();
     profile.tags = profile.tags.filter(t => t !== tag);
     renderGameTags();
-    persistProfile('标签已删除');
+    persistProfile('鏍囩宸插垹闄?);
 }
 
 // Modal functions
@@ -218,13 +216,13 @@ function openEditModal(type) {
     const modalTitle = document.getElementById('modal-title');
     const modalContent = document.getElementById('modal-content');
     
-    modalTitle.textContent = type === 'favorite-games' ? '编辑最喜欢的游戏' : '编辑游戏风格';
+    modalTitle.textContent = type === 'favorite-games' ? '缂栬緫鏈€鍠滄鐨勬父鎴? : '缂栬緫娓告垙椋庢牸';
     
     if (type === 'favorite-games') {
         const favoriteGameIds = profile.favoriteGames || [];
         modalContent.innerHTML = `
             <div class="space-y-4 max-h-80 overflow-y-auto">
-                ${games.length === 0 ? '<p class="text-gray-500 text-center">还没有添加任何游戏</p>' : games.map(game => `
+                ${games.length === 0 ? '<p class="text-gray-500 text-center">杩樻病鏈夋坊鍔犱换浣曟父鎴?/p>' : games.map(game => `
                     <div class="flex items-center">
                         <input type="checkbox" id="game-${game.id}" class="mr-3" ${favoriteGameIds.includes(game.id) ? 'checked' : ''}>
                         <label for="game-${game.id}" class="flex items-center gap-2 cursor-pointer">
@@ -233,7 +231,7 @@ function openEditModal(type) {
                         </label>
                     </div>
                 `).join('')}
-                <button class="btn-primary w-full mt-4" onclick="saveFavoriteGames()">保存</button>
+                <button class="btn-primary w-full mt-4" onclick="saveFavoriteGames()">淇濆瓨</button>
             </div>
         `;
     } else {
@@ -241,7 +239,7 @@ function openEditModal(type) {
         modalContent.innerHTML = `
             <div class="space-y-4">
                 <div>
-                    <label for="single-player" class="block mb-2">单人游戏</label>
+                    <label for="single-player" class="block mb-2">鍗曚汉娓告垙</label>
                     <input type="range" id="single-player" min="0" max="100" value="${ps.singlePlayer}" class="w-full">
                     <div class="flex justify-between text-sm text-gray-600">
                         <span>0%</span>
@@ -250,7 +248,7 @@ function openEditModal(type) {
                     </div>
                 </div>
                 <div>
-                    <label for="multi-player" class="block mb-2">多人游戏</label>
+                    <label for="multi-player" class="block mb-2">澶氫汉娓告垙</label>
                     <input type="range" id="multi-player" min="0" max="100" value="${ps.multiPlayer}" class="w-full">
                     <div class="flex justify-between text-sm text-gray-600">
                         <span>0%</span>
@@ -276,7 +274,7 @@ function openEditModal(type) {
                         <span>100%</span>
                     </div>
                 </div>
-                <button class="btn-primary w-full mt-4" onclick="savePlayStyle()">保存</button>
+                <button class="btn-primary w-full mt-4" onclick="savePlayStyle()">淇濆瓨</button>
             </div>
         `;
 
@@ -307,7 +305,7 @@ function closeEditModal() {
 
 // Save functions
 function saveFavoriteGames() {
-    // 获取所有选中的游戏ID
+    // 鑾峰彇鎵€鏈夐€変腑鐨勬父鎴廔D
     const selectedGames = [];
     games.forEach(game => {
         const checkbox = document.getElementById(`game-${game.id}`);
@@ -316,12 +314,12 @@ function saveFavoriteGames() {
         }
     });
 
-    // 保存到profile
+    // 淇濆瓨鍒皃rofile
     profile.favoriteGames = selectedGames;
 
     renderFavoriteGames();
     closeEditModal();
-    persistProfile('最喜欢的游戏已更新');
+    persistProfile('鏈€鍠滄鐨勬父鎴忓凡鏇存柊');
 }
 
 function savePlayStyle() {
@@ -334,7 +332,7 @@ function savePlayStyle() {
     };
     renderPlayStyle();
     closeEditModal();
-    persistProfile('游戏风格已更新');
+    persistProfile('娓告垙椋庢牸宸叉洿鏂?);
 }
 
 // Toast notification

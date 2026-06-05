@@ -32,8 +32,8 @@ function loadRecentGames() {
         container.innerHTML = `
             <div class="col-span-4 text-center py-8">
                 <i data-lucide="gamepad-2" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
-                <p class="text-gray-500">还没有游戏记录</p>
-                <a href="games.html" class="text-blue-500 hover:underline">去添加一款游戏吧</a>
+                <p class="text-gray-500">杩樻病鏈夋父鎴忚褰?/p>
+                <a href="games.html" class="text-blue-500 hover:underline">鍘绘坊鍔犱竴娆炬父鎴忓惂</a>
             </div>
         `;
         lucide.createIcons();
@@ -55,7 +55,7 @@ function loadRecentGames() {
             </div>
             <div class="p-4">
                 <h4 class="font-semibold text-gray-800 truncate">${escapeHtml(game.name)}</h4>
-                <p class="text-sm text-gray-600">${escapeHtml(game.type || '其他')} · ${parseInt(game.playtime, 10) || 0} 小时</p>
+                <p class="text-sm text-gray-600">${escapeHtml(game.type || '鍏朵粬')} 路 ${parseInt(game.playtime, 10) || 0} 灏忔椂</p>
                 <div class="mt-2">
                     <span class="text-xs px-2 py-1 rounded-full ${getStatusBadgeClass(game.status)}">${escapeHtml(getStatusText(game.status))}</span>
                 </div>
@@ -79,7 +79,7 @@ function mediaSortTime(item) {
     return isNaN(d.getTime()) ? 0 : d.getTime();
 }
 
-/** 首页预览用更高清图源：截图用原图，视频用真实封面 */
+/** 棣栭〉棰勮鐢ㄦ洿楂樻竻鍥炬簮锛氭埅鍥剧敤鍘熷浘锛岃棰戠敤鐪熷疄灏侀潰 */
 function getHomePreviewSrc(item) {
     const isVideo = item.type === 'video';
     if (isVideo) {
@@ -121,7 +121,7 @@ async function loadRecentMedia() {
         const isVideo = item.type === 'video';
         const src = getHomePreviewSrc(item);
         const srcset = getHomePreviewSrcset(item);
-        const label = item.gameName || item.name || (isVideo ? '游戏视频' : '游戏截图');
+        const label = item.gameName || item.name || (isVideo ? '娓告垙瑙嗛' : '娓告垙鎴浘');
         const badge = isVideo
             ? '<span class="home-media-type-badge"><i data-lucide="video" class="w-3 h-3"></i></span>'
             : '';
@@ -156,8 +156,8 @@ function loadRecentAchievements() {
         container.innerHTML = `
             <div class="col-span-2 text-center py-8">
                 <i data-lucide="trophy" class="w-16 h-16 text-gray-300 mx-auto mb-4"></i>
-                <p class="text-gray-500">还没有成就记录</p>
-                <a href="achievements.html" class="text-blue-500 hover:underline text-sm">去添加成就</a>
+                <p class="text-gray-500">杩樻病鏈夋垚灏辫褰?/p>
+                <a href="achievements.html" class="text-blue-500 hover:underline text-sm">鍘绘坊鍔犳垚灏?/a>
             </div>
         `;
         lucide.createIcons();
@@ -174,8 +174,8 @@ function loadRecentAchievements() {
                 <i data-lucide="${safeLucideIcon(ach.icon)}" class="w-6 h-6 text-yellow-500"></i>
             </div>
             <div class="flex-1">
-                <h4 class="font-bold text-gray-800">${escapeHtml(ach.title || '未知成就')}</h4>
-                <p class="text-sm text-gray-500">${escapeHtml(ach.gameName || '未知游戏')} · ${escapeHtml(ach.description || '')}</p>
+                <h4 class="font-bold text-gray-800">${escapeHtml(ach.title || '鏈煡鎴愬氨')}</h4>
+                <p class="text-sm text-gray-500">${escapeHtml(ach.gameName || '鏈煡娓告垙')} 路 ${escapeHtml(ach.description || '')}</p>
             </div>
         </div>
     `).join('');
@@ -198,18 +198,18 @@ function showHomeUploadModal() {
     if (!modal) return;
 
     if (select) {
-        GD.populateGameSelect(select, { placeholder: '选择游戏（可选）' });
+        GD.populateGameSelect(select, { placeholder: '閫夋嫨娓告垙锛堝彲閫夛級' });
         select.value = '';
     }
 
-    const typeName = pendingHomeType === 'image' ? '截图' : '视频';
+    const typeName = pendingHomeType === 'image' ? '鎴浘' : '瑙嗛';
     const count = pendingHomeFiles.length;
     const typeLabel = document.getElementById('home-upload-type-label');
     const uploadCount = document.getElementById('home-upload-count');
     const btnText = document.getElementById('home-upload-btn-text');
     if (typeLabel) typeLabel.textContent = typeName;
     if (uploadCount) uploadCount.textContent = String(count);
-    if (btnText) btnText.textContent = `确认上传 ${count} 个${typeName}`;
+    if (btnText) btnText.textContent = `纭涓婁紶 ${count} 涓?{typeName}`;
 
     modal.classList.add('active');
     lucide.createIcons();
@@ -284,10 +284,10 @@ async function handleFiles(files, type, gameName, gameId) {
         }
         await loadRecentMedia();
         if (ok > 0) {
-            showToast(`已上传 ${ok} 个${type === 'image' ? '截图' : '视频'}到云端`, 'success');
+            showToast(`宸蹭笂浼?${ok} 涓?{type === 'image' ? '鎴浘' : '瑙嗛'}鍒颁簯绔痐, 'success');
         }
         if (fail > 0) {
-            showToast(`${fail} 个文件上传失败`, 'error');
+            showToast(`${fail} 涓枃浠朵笂浼犲け璐, 'error');
         }
         return;
     }
@@ -311,7 +311,7 @@ async function handleFiles(files, type, gameName, gameId) {
             pending -= 1;
             if (pending === 0) {
                 loadRecentMedia();
-                showToast(`${type === 'image' ? '截图' : '视频'}上传成功！`, 'success');
+                showToast(`${type === 'image' ? '鎴浘' : '瑙嗛'}涓婁紶鎴愬姛锛乣, 'success');
             }
         };
         reader.readAsDataURL(file);
@@ -320,7 +320,7 @@ async function handleFiles(files, type, gameName, gameId) {
 
 async function confirmHomeUpload() {
     if (pendingHomeFiles.length === 0 || !pendingHomeType) {
-        showToast('没有选择文件', 'error');
+        showToast('娌℃湁閫夋嫨鏂囦欢', 'error');
         return;
     }
 
@@ -334,7 +334,7 @@ async function confirmHomeUpload() {
     const btn = document.getElementById('home-confirm-upload-btn');
     const btnText = document.getElementById('home-upload-btn-text');
     if (btn) btn.disabled = true;
-    if (btnText) btnText.textContent = '上传中...';
+    if (btnText) btnText.textContent = '涓婁紶涓?..';
 
     try {
         await handleFiles(files, uploadType, gameName, gameId);
@@ -375,12 +375,12 @@ function renderHomeNews(news) {
     const container = document.getElementById('home-news-feed');
     if (!container) return;
     if (!news || news.length === 0) {
-        container.innerHTML = '<div class="game-hub-empty"><i data-lucide="inbox" class="w-8 h-8 text-gray-300"></i><p>暂无个性化资讯</p></div>';
+        container.innerHTML = '<div class="game-hub-empty"><i data-lucide="inbox" class="w-8 h-8 text-gray-300"></i><p>鏆傛棤涓€у寲璧勮</p></div>';
         return;
     }
     container.innerHTML = news.slice(0, 5).map(item => `
         <article class="p-3 rounded-lg border border-gray-200 bg-white/70">
-            <h4 class="font-semibold text-gray-800">${escapeHtml(item.title || '游戏资讯')}</h4>
+            <h4 class="font-semibold text-gray-800">${escapeHtml(item.title || '娓告垙璧勮')}</h4>
             <p class="text-sm text-gray-600 mt-1">${escapeHtml(item.summary || '')}</p>
             <p class="text-xs text-gray-400 mt-2">${escapeHtml(item.gameName || '')}</p>
         </article>
@@ -391,17 +391,17 @@ function renderHomeDeals(deals) {
     const container = document.getElementById('home-deals-feed');
     if (!container) return;
     if (!deals || deals.length === 0) {
-        container.innerHTML = '<div class="game-hub-empty"><i data-lucide="inbox" class="w-8 h-8 text-gray-300"></i><p>暂无折扣计划</p></div>';
+        container.innerHTML = '<div class="game-hub-empty"><i data-lucide="inbox" class="w-8 h-8 text-gray-300"></i><p>鏆傛棤鎶樻墸璁″垝</p></div>';
         return;
     }
     container.innerHTML = deals.slice(0, 6).map(item => `
         <article class="p-3 rounded-lg border border-gray-200 bg-white/70">
             <div class="flex items-center justify-between gap-2">
-                <h4 class="font-semibold text-gray-800 truncate">${escapeHtml(item.gameName || '未知游戏')}</h4>
+                <h4 class="font-semibold text-gray-800 truncate">${escapeHtml(item.gameName || '鏈煡娓告垙')}</h4>
                 <span class="badge badge-green">${escapeHtml(String(item.discountPercent || 0))}% OFF</span>
             </div>
-            <p class="text-sm text-gray-600 mt-1">${escapeHtml(item.platform || '平台待定')}</p>
-            <p class="text-sm text-gray-700 mt-1">¥${formatMoney(item.currentPrice)} <span class="text-gray-400 line-through ml-1">¥${formatMoney(item.originalPrice)}</span></p>
+            <p class="text-sm text-gray-600 mt-1">${escapeHtml(item.platform || '骞冲彴寰呭畾')}</p>
+            <p class="text-sm text-gray-700 mt-1">楼${formatMoney(item.currentPrice)} <span class="text-gray-400 line-through ml-1">楼${formatMoney(item.originalPrice)}</span></p>
         </article>
     `).join('');
 }
@@ -429,8 +429,8 @@ async function loadPersonalizedFeed(forceRefresh) {
     renderHomeNews(result.news || []);
     renderHomeDeals(result.deals || []);
     if (meta) {
-        const sourceMap = { edge: '云端推荐', local: '本地规则', cache: '本地缓存' };
-        meta.textContent = `数据来源：${sourceMap[result.source] || '未知'} · 更新时间 ${new Date().toLocaleString('zh-CN')}`;
+        const sourceMap = { edge: '浜戠鎺ㄨ崘', local: '鏈湴瑙勫垯', cache: '鏈湴缂撳瓨' };
+        meta.textContent = `鏁版嵁鏉ユ簮锛?{sourceMap[result.source] || '鏈煡'} 路 鏇存柊鏃堕棿 ${new Date().toLocaleString('zh-CN')}`;
     }
 }
 
@@ -460,7 +460,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             refreshBtn.disabled = true;
             await loadPersonalizedFeed(true);
             refreshBtn.disabled = false;
-            showToast('推荐内容已更新', 'success');
+            showToast('鎺ㄨ崘鍐呭宸叉洿鏂?, 'success');
             lucide.createIcons();
         });
     }

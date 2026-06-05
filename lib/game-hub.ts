@@ -65,7 +65,7 @@ export function getSpendingRecordType(s: SpendingRecord): "purchase" | "recharge
   const label = String(s.game || "")
     .trim()
     .toLowerCase();
-  if (label === "账户充值") return "recharge";
+  if (label === "璐︽埛鍏呭€?) return "recharge";
   return "recharge";
 }
 
@@ -80,7 +80,7 @@ export function filterSpendingByGame(
       if (
         !s.gameId &&
         matchGameName(s.game, game.name) &&
-        String(s.game || "").trim() !== "账户充值"
+        String(s.game || "").trim() !== "璐︽埛鍏呭€?
       ) {
         return true;
       }

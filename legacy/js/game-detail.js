@@ -1,6 +1,6 @@
 /**
- * game-detail.js — 单游戏聚合详情页
- * URL: game.html?id=<gameId> 或 game.html?name=<encodedName>
+ * game-detail.js 鈥?鍗曟父鎴忚仛鍚堣鎯呴〉
+ * URL: game.html?id=<gameId> 鎴?game.html?name=<encodedName>
  */
 (function () {
     'use strict';
@@ -41,7 +41,7 @@
         if (message) {
             document.getElementById('not-found-message').textContent = message;
         }
-        document.title = '未找到游戏 - 游戏记录';
+        document.title = '鏈壘鍒版父鎴?- 娓告垙璁板綍';
         if (window.lucide) lucide.createIcons();
     }
 
@@ -67,7 +67,7 @@
         if (s.wishlistId != null && s.wishlistId !== '') return 'purchase';
         if (s.gameId != null && s.gameId !== '') return 'recharge';
         var label = String(s.game || '').trim().toLowerCase();
-        if (label === '账户充值') return 'recharge';
+        if (label === '璐︽埛鍏呭€?) return 'recharge';
         return 'recharge';
     }
 
@@ -76,7 +76,7 @@
             var type = getSpendingRecordType(s);
             if (type === 'recharge') {
                 if (s.gameId != null && String(s.gameId) === String(currentGame.id)) return true;
-                if (!s.gameId && matchGameName(s.game, currentGame.name) && String(s.game || '').trim() !== '账户充值') {
+                if (!s.gameId && matchGameName(s.game, currentGame.name) && String(s.game || '').trim() !== '璐︽埛鍏呭€?) {
                     return true;
                 }
                 return false;
@@ -89,8 +89,8 @@
     function renderHero() {
         document.getElementById('game-hero-cover').innerHTML = imgWithFallback(game.icon, game.name, 'game-hub-cover-img');
         document.getElementById('game-hero-name').textContent = game.name;
-        document.getElementById('game-hero-type').textContent = game.type || '其他';
-        document.getElementById('game-hero-desc').textContent = game.description || '暂无描述';
+        document.getElementById('game-hero-type').textContent = game.type || '鍏朵粬';
+        document.getElementById('game-hero-desc').textContent = game.description || '鏆傛棤鎻忚堪';
 
         var statusEl = document.getElementById('game-hero-status');
         statusEl.textContent = getStatusText(game.status);
@@ -102,9 +102,9 @@
 
         var playtime = parseInt(game.playtime, 10) || 0;
         document.getElementById('game-quick-stats').innerHTML =
-            '<div class="game-hub-stat"><i data-lucide="clock" class="w-4 h-4"></i><span><strong>' + playtime + '</strong> 小时</span></div>';
+            '<div class="game-hub-stat"><i data-lucide="clock" class="w-4 h-4"></i><span><strong>' + playtime + '</strong> 灏忔椂</span></div>';
 
-        document.title = game.name + ' - 游戏记录';
+        document.title = game.name + ' - 娓告垙璁板綍';
     }
 
     function renderReviews(reviews) {
@@ -112,7 +112,7 @@
         var section = document.getElementById('section-reviews');
 
         if (reviews.length === 0) {
-            container.innerHTML = emptySection('暂无该游戏的评测');
+            container.innerHTML = emptySection('鏆傛棤璇ユ父鎴忕殑璇勬祴');
             return;
         }
 
@@ -146,7 +146,7 @@
         var section = document.getElementById('section-achievements');
 
         if (achievements.length === 0) {
-            container.innerHTML = emptySection('暂无该游戏的成就');
+            container.innerHTML = emptySection('鏆傛棤璇ユ父鎴忕殑鎴愬氨');
             return;
         }
 
@@ -173,7 +173,7 @@
         return t === 'video' ? 'video' : 'image';
     }
 
-    /** 合并媒体库 (game_record_media) 与游戏对象上的 legacy screenshots/videos */
+    /** 鍚堝苟濯掍綋搴?(game_record_media) 涓庢父鎴忓璞′笂鐨?legacy screenshots/videos */
     function buildMediaItems(galleryMedia) {
         var items = [];
         var seenUrls = {};
@@ -202,7 +202,7 @@
         var items = buildMediaItems(galleryMedia);
 
         if (items.length === 0) {
-            container.innerHTML = emptySection('暂无截图或视频');
+            container.innerHTML = emptySection('鏆傛棤鎴浘鎴栬棰?);
             return;
         }
 
@@ -210,7 +210,7 @@
             if (item.type === 'video') {
                 return '<div class="media-item"><video src="' + escapeHtml(item.url) + '" controls class="w-full h-full object-cover"></video></div>';
             }
-            return '<div class="media-item"><img src="' + escapeHtml(item.url) + '" alt="截图 ' + (i + 1) + '" loading="lazy"></div>';
+            return '<div class="media-item"><img src="' + escapeHtml(item.url) + '" alt="鎴浘 ' + (i + 1) + '" loading="lazy"></div>';
         }).join('');
         section.classList.remove('hidden');
     }
@@ -222,7 +222,7 @@
 
         if (records.length === 0) {
             summaryEl.innerHTML = '';
-            listEl.innerHTML = emptySection('暂无该游戏的消费记录');
+            listEl.innerHTML = emptySection('鏆傛棤璇ユ父鎴忕殑娑堣垂璁板綍');
             return;
         }
 
@@ -232,9 +232,9 @@
 
         summaryEl.innerHTML =
             '<div class="game-hub-spending-total">' +
-                '<span>累计消费</span>' +
-                '<strong>¥' + total.toFixed(2) + '</strong>' +
-                '<span class="text-sm text-gray-500">' + records.length + ' 笔记录</span>' +
+                '<span>绱娑堣垂</span>' +
+                '<strong>楼' + total.toFixed(2) + '</strong>' +
+                '<span class="text-sm text-gray-500">' + records.length + ' 绗旇褰?/span>' +
             '</div>';
 
         records.sort(function (a, b) {
@@ -243,13 +243,13 @@
 
         listEl.innerHTML =
             '<table class="game-hub-table">' +
-                '<thead><tr><th>类型</th><th>金额</th><th>日期</th><th>平台</th><th>备注</th></tr></thead>' +
+                '<thead><tr><th>绫诲瀷</th><th>閲戦</th><th>鏃ユ湡</th><th>骞冲彴</th><th>澶囨敞</th></tr></thead>' +
                 '<tbody>' +
                 records.map(function (r) {
-                    var typeLabel = getSpendingRecordType(r) === 'purchase' ? '购买' : '充值';
+                    var typeLabel = getSpendingRecordType(r) === 'purchase' ? '璐拱' : '鍏呭€?;
                     return '<tr>' +
                         '<td>' + escapeHtml(typeLabel) + '</td>' +
-                        '<td class="font-medium">¥' + (parseFloat(r.amount) || 0).toFixed(2) + '</td>' +
+                        '<td class="font-medium">楼' + (parseFloat(r.amount) || 0).toFixed(2) + '</td>' +
                         '<td>' + escapeHtml(formatDateISO(r.date) || '-') + '</td>' +
                         '<td>' + escapeHtml(r.platform || '-') + '</td>' +
                         '<td>' + escapeHtml(r.note || '-') + '</td>' +
@@ -273,27 +273,27 @@
         if (!newsEl || !dealsEl) return;
 
         if (!news || news.length === 0) {
-            newsEl.innerHTML = emptySection('暂无该游戏资讯');
+            newsEl.innerHTML = emptySection('鏆傛棤璇ユ父鎴忚祫璁?);
         } else {
             newsEl.innerHTML = news.slice(0, 4).map(function (item) {
                 return '<article class="p-3 rounded-lg border border-gray-200 bg-white/70">' +
-                    '<h4 class="font-semibold text-gray-800">' + escapeHtml(item.title || '游戏资讯') + '</h4>' +
+                    '<h4 class="font-semibold text-gray-800">' + escapeHtml(item.title || '娓告垙璧勮') + '</h4>' +
                     '<p class="text-sm text-gray-600 mt-1">' + escapeHtml(item.summary || '') + '</p>' +
                 '</article>';
             }).join('');
         }
 
         if (!deals || deals.length === 0) {
-            dealsEl.innerHTML = emptySection('暂无该游戏折扣');
+            dealsEl.innerHTML = emptySection('鏆傛棤璇ユ父鎴忔姌鎵?);
         } else {
             dealsEl.innerHTML = deals.slice(0, 4).map(function (item) {
                 return '<article class="p-3 rounded-lg border border-gray-200 bg-white/70">' +
                     '<div class="flex items-center justify-between gap-2">' +
-                        '<strong class="text-gray-800">' + escapeHtml(item.platform || '平台') + '</strong>' +
+                        '<strong class="text-gray-800">' + escapeHtml(item.platform || '骞冲彴') + '</strong>' +
                         '<span class="badge badge-green">' + escapeHtml(String(item.discountPercent || 0)) + '% OFF</span>' +
                     '</div>' +
-                    '<p class="text-sm text-gray-700 mt-2">¥' + Number(item.currentPrice || 0).toFixed(2) +
-                    ' <span class="text-gray-400 line-through ml-1">¥' + Number(item.originalPrice || 0).toFixed(2) + '</span></p>' +
+                    '<p class="text-sm text-gray-700 mt-2">楼' + Number(item.currentPrice || 0).toFixed(2) +
+                    ' <span class="text-gray-400 line-through ml-1">楼' + Number(item.originalPrice || 0).toFixed(2) + '</span></p>' +
                 '</article>';
             }).join('');
         }
@@ -328,7 +328,7 @@
                     gameNews = (refreshed.news || []).filter(function (n) { return matchGameName(n.gameName, game.name); });
                     gameDeals = (refreshed.deals || []).filter(function (d) { return matchGameName(d.gameName, game.name); });
                 } catch (e) {
-                    console.warn('个性化内容加载失败:', e);
+                    console.warn('涓€у寲鍐呭鍔犺浇澶辫触:', e);
                 }
             }
             renderPersonalized(gameNews, gameDeals);
@@ -354,13 +354,13 @@
         var query = getQueryParams();
 
         if (!query.id && !query.name) {
-            showNotFound('缺少游戏参数。请从游戏收藏页点击进入，或使用 game.html?id= 链接。');
+            showNotFound('缂哄皯娓告垙鍙傛暟銆傝浠庢父鎴忔敹钘忛〉鐐瑰嚮杩涘叆锛屾垨浣跨敤 game.html?id= 閾炬帴銆?);
             return;
         }
 
         game = findGame(games, query);
         if (!game) {
-            showNotFound('找不到名为「' + (query.name ? decodeURIComponent(query.name) : 'ID ' + query.id) + '」的游戏。');
+            showNotFound('鎵句笉鍒板悕涓恒€? + (query.name ? decodeURIComponent(query.name) : 'ID ' + query.id) + '銆嶇殑娓告垙銆?);
             return;
         }
 

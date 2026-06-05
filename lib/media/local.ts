@@ -54,7 +54,7 @@ export async function saveMediaLocally(
 
   allMedia.push(item);
   if (!saveLocalMedia(allMedia)) {
-    throw new Error("存储空间不足");
+    throw new Error("瀛樺偍绌洪棿涓嶈冻");
   }
 }
 
@@ -95,7 +95,7 @@ export async function uploadFilesLocally(
   }
 
   if (loaded > 0 && !saveLocalMedia(allMedia)) {
-    throw new Error("存储空间已满");
+    throw new Error("瀛樺偍绌洪棿宸叉弧");
   }
 
   return { loaded, errors };

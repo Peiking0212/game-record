@@ -141,9 +141,9 @@ export function MascotWidget({ enabled, onEnabledChange }: Props) {
         try {
           setMascotImage(dataUrl);
           setImageSrc(dataUrl);
-          showToast("看板娘新衣服换上啦！", "success");
+          showToast("鐪嬫澘濞樻柊琛ｆ湇鎹笂鍟︼紒", "success");
         } catch {
-          showToast("图片太大，无法保存", "error");
+          showToast("鍥剧墖澶ぇ锛屾棤娉曚繚瀛?, "error");
         }
       };
       if (compressed.length <= 500_000) {
@@ -174,15 +174,15 @@ export function MascotWidget({ enabled, onEnabledChange }: Props) {
       <button
         type="button"
         className="mascot-toggle-btn"
-        title="显示看板娘"
-        aria-label="显示看板娘"
+        title="鏄剧ず鐪嬫澘濞?
+        aria-label="鏄剧ず鐪嬫澘濞?
         data-testid="mascot-show-btn"
         onClick={() => {
           setMascotEnabled(true);
           onEnabledChange(true);
         }}
       >
-        🎭
+        馃幁
       </button>
     );
   }
@@ -192,15 +192,15 @@ export function MascotWidget({ enabled, onEnabledChange }: Props) {
       <button
         type="button"
         className="mascot-toggle-btn"
-        title="隐藏看板娘"
-        aria-label="隐藏看板娘"
+        title="闅愯棌鐪嬫澘濞?
+        aria-label="闅愯棌鐪嬫澘濞?
         data-testid="mascot-hide-btn"
         onClick={() => {
           setMascotEnabled(false);
           onEnabledChange(false);
         }}
       >
-        ✕
+        鉁?
       </button>
       <div
         ref={containerRef}
@@ -229,10 +229,10 @@ export function MascotWidget({ enabled, onEnabledChange }: Props) {
           }}
           role="button"
           tabIndex={0}
-          aria-label="看板娘，点击随机台词"
+          aria-label="鐪嬫澘濞橈紝鐐瑰嚮闅忔満鍙拌瘝"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={imageSrc} alt="看板娘" id="mascot-img" />
+          <img src={imageSrc} alt="鐪嬫澘濞? id="mascot-img" />
         </div>
         <button
           type="button"
@@ -242,7 +242,7 @@ export function MascotWidget({ enabled, onEnabledChange }: Props) {
             document.getElementById("mascot-file-input")?.click()
           }
         >
-          换装
+          鎹㈣
         </button>
         <input
           id="mascot-file-input"

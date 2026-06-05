@@ -1,21 +1,21 @@
 // ============================================================
-// reviews.js - 游戏评测页面业务逻辑
-// 数据存储: localStorage key = game_record_reviews
+// reviews.js - 娓告垙璇勬祴椤甸潰涓氬姟閫昏緫
+// 鏁版嵁瀛樺偍: localStorage key = game_record_reviews
 // ============================================================
 
-// ---------- 标签预设 ----------
+// ---------- 鏍囩棰勮 ----------
 var REVIEW_TAGS = [
-  '剧情优秀',
-  '玩法出众',
-  '画面精美',
-  '音乐动听',
-  '多人有趣',
-  '休闲放松',
-  '挑战性强',
-  '值得重玩'
+  '鍓ф儏浼樼',
+  '鐜╂硶鍑轰紬',
+  '鐢婚潰绮剧編',
+  '闊充箰鍔ㄥ惉',
+  '澶氫汉鏈夎叮',
+  '浼戦棽鏀炬澗',
+  '鎸戞垬鎬у己',
+  '鍊煎緱閲嶇帺'
 ];
 
-// ---------- 数据读写 ----------
+// ---------- 鏁版嵁璇诲啓 ----------
 function getReviews() {
   return window.GameData.get(window.GameData.KEYS.REVIEWS, []);
 }
@@ -24,10 +24,10 @@ function saveReviews(list) {
   window.GameData.set(window.GameData.KEYS.REVIEWS, list);
 }
 
-// ---------- 游戏选择器 ----------
+// ---------- 娓告垙閫夋嫨鍣?----------
 function populateReviewGameSelect(selectEl, selectedId) {
   if (!selectEl || !window.GameData) return;
-  window.GameData.populateGameSelect(selectEl, { placeholder: '选择游戏库中的游戏' });
+  window.GameData.populateGameSelect(selectEl, { placeholder: '閫夋嫨娓告垙搴撲腑鐨勬父鎴? });
   if (selectedId != null && selectedId !== '') {
     selectEl.value = String(selectedId);
   }
@@ -52,7 +52,7 @@ function showToast(message, type) {
   }, 3000);
 }
 
-// ---------- 星级评分交互 ----------
+// ---------- 鏄熺骇璇勫垎浜や簰 ----------
 function setAddRating(val) {
   var hiddenInput = document.getElementById('add-review-rating');
   if (hiddenInput) hiddenInput.value = val;
@@ -85,12 +85,12 @@ function setEditRating(val) {
   }
 }
 
-// ---------- 封面生成 ----------
+// ---------- 灏侀潰鐢熸垚 ----------
 function getReviewCoverHtml(url, name) {
   return imgWithFallback(url, name, 'review-cover-img');
 }
 
-// ---------- 星级渲染 ----------
+// ---------- 鏄熺骇娓叉煋 ----------
 function renderStars(rating, maxStars) {
   maxStars = maxStars || 5;
   var html = '';
@@ -104,7 +104,7 @@ function renderStars(rating, maxStars) {
   return html;
 }
 
-// ---------- 标签多选（添加/编辑表单） ----------
+// ---------- 鏍囩澶氶€夛紙娣诲姞/缂栬緫琛ㄥ崟锛?----------
 function syncTagOptionVisual(optionEl) {
   if (!optionEl) return;
   var cb = optionEl.querySelector('.tag-checkbox');
@@ -150,7 +150,7 @@ function bindReviewTagGroup(groupId) {
   }
 }
 
-// ---------- 标签药丸 ----------
+// ---------- 鏍囩鑽父 ----------
 function renderTags(tags) {
   if (!tags || !tags.length) return '';
   var html = '';
@@ -160,7 +160,7 @@ function renderTags(tags) {
   return html;
 }
 
-// ---------- 获取所有已有的标签（用于动态筛选下拉） ----------
+// ---------- 鑾峰彇鎵€鏈夊凡鏈夌殑鏍囩锛堢敤浜庡姩鎬佺瓫閫変笅鎷夛級 ----------
 function getAllUsedTags() {
   var list = getReviews();
   var tagSet = {};
@@ -179,7 +179,7 @@ function getAllUsedTags() {
   return result;
 }
 
-// ---------- 更新标签筛选下拉 ----------
+// ---------- 鏇存柊鏍囩绛涢€変笅鎷?----------
 function updateTagFilter() {
   var tagFilter = document.getElementById('tag-filter');
   if (!tagFilter) return;
@@ -187,7 +187,7 @@ function updateTagFilter() {
   var usedTags = getAllUsedTags();
   var currentVal = tagFilter.value;
 
-  var html = '<option value="all">全部标签</option>';
+  var html = '<option value="all">鍏ㄩ儴鏍囩</option>';
   for (var i = 0; i < REVIEW_TAGS.length; i++) {
     var selected = REVIEW_TAGS[i] === currentVal ? ' selected' : '';
     html += '<option value="' + escapeHtml(REVIEW_TAGS[i]) + '"' + selected + '>' + escapeHtml(REVIEW_TAGS[i]) + '</option>';
@@ -202,7 +202,7 @@ function updateTagFilter() {
   tagFilter.innerHTML = html;
 }
 
-// ---------- 渲染评测列表 ----------
+// ---------- 娓叉煋璇勬祴鍒楄〃 ----------
 function renderReviews() {
   var container = document.getElementById('reviews-list');
   var emptyState = document.getElementById('empty-state');
@@ -282,8 +282,8 @@ function renderReviews() {
     html += '    <div class="review-info-header">';
     html += '      <h3 class="review-name">' + escapeHtml(item.name) + '</h3>';
     html += '      <div class="review-actions">';
-    html += '        <button class="btn-edit-review" data-id="' + item.id + '" title="编辑"><i data-lucide="pencil"></i></button>';
-    html += '        <button class="btn-delete-review" data-id="' + item.id + '" title="删除"><i data-lucide="trash-2"></i></button>';
+    html += '        <button class="btn-edit-review" data-id="' + item.id + '" title="缂栬緫"><i data-lucide="pencil"></i></button>';
+    html += '        <button class="btn-delete-review" data-id="' + item.id + '" title="鍒犻櫎"><i data-lucide="trash-2"></i></button>';
     html += '      </div>';
     html += '    </div>';
     html += '    <div class="review-stars">' + renderStars(item.rating || 0) + '</div>';
@@ -295,7 +295,7 @@ function renderReviews() {
     }
     html += '    <div class="review-meta">';
     if (playtime !== undefined && playtime !== null && playtime !== '') {
-      html += '      <span class="review-playtime">时长: ' + escapeHtml(String(playtime)) + ' 小时</span>';
+      html += '      <span class="review-playtime">鏃堕暱: ' + escapeHtml(String(playtime)) + ' 灏忔椂</span>';
     }
     html += '      <span class="review-date">' + formatDate(item.date) + '</span>';
     html += '    </div>';
@@ -309,7 +309,7 @@ function renderReviews() {
   container.innerHTML = html;
   if (window.lucide) { lucide.createIcons(); }
 
-  // 绑定编辑/删除按钮
+  // 缁戝畾缂栬緫/鍒犻櫎鎸夐挳
   var editBtns = container.querySelectorAll('.btn-edit-review');
   for (var j = 0; j < editBtns.length; j++) {
     editBtns[j].addEventListener('click', function () {
@@ -326,7 +326,7 @@ function renderReviews() {
 }
 
 // ============================================================
-// Modal: 添加评测
+// Modal: 娣诲姞璇勬祴
 // ============================================================
 function openAddReviewModal() {
   var modal = document.getElementById('add-review-modal');
@@ -340,7 +340,7 @@ function openAddReviewModal() {
     tagCheckboxes[i].checked = false;
   }
   syncTagOptionsInForm('#add-review-form');
-  // 默认3星 - 使用 hidden input + 星星交互
+  // 榛樿3鏄?- 浣跨敤 hidden input + 鏄熸槦浜や簰
   setAddRating(3);
 }
 
@@ -356,7 +356,7 @@ function handleAddReviewSubmit(e) {
   var gameSelect = document.getElementById('review-game');
   var gameFields = getSelectedReviewGameFields(gameSelect);
   if (!gameFields || !gameFields.gameId) {
-    showToast('请从游戏库选择游戏');
+    showToast('璇蜂粠娓告垙搴撻€夋嫨娓告垙');
     return;
   }
 
@@ -390,11 +390,11 @@ function handleAddReviewSubmit(e) {
   saveReviews(list);
   closeAddReviewModal();
   renderReviews();
-  showToast('评测已添加');
+  showToast('璇勬祴宸叉坊鍔?);
 }
 
 // ============================================================
-// Modal: 编辑评测
+// Modal: 缂栬緫璇勬祴
 // ============================================================
 function openEditReviewModal(id) {
   var modal = document.getElementById('edit-review-modal');
@@ -449,7 +449,7 @@ function handleEditReviewSubmit(e) {
   var gameSelect = document.getElementById('edit-review-game');
   var gameFields = getSelectedReviewGameFields(gameSelect);
   if (!gameFields || !gameFields.gameId) {
-    showToast('请从游戏库选择游戏');
+    showToast('璇蜂粠娓告垙搴撻€夋嫨娓告垙');
     return;
   }
 
@@ -483,11 +483,11 @@ function handleEditReviewSubmit(e) {
   saveReviews(list);
   closeEditReviewModal();
   renderReviews();
-  showToast('评测已更新');
+  showToast('璇勬祴宸叉洿鏂?);
 }
 
 // ============================================================
-// Modal: 删除确认
+// Modal: 鍒犻櫎纭
 // ============================================================
 function openDeleteModal(id) {
   var modal = document.getElementById('delete-modal');
@@ -517,12 +517,11 @@ function handleDeleteConfirm() {
   saveReviews(newList);
   closeDeleteModal();
   renderReviews();
-  showToast('评测已删除');
+  showToast('璇勬祴宸插垹闄?);
 }
 
 // ============================================================
-// 生成标签复选框 HTML（用于 Modal 表单）
-// ============================================================
+// 鐢熸垚鏍囩澶嶉€夋 HTML锛堢敤浜?Modal 琛ㄥ崟锛?// ============================================================
 function createTagCheckboxesHtml(prefix, selectedTags) {
   selectedTags = selectedTags || [];
   var html = '';
@@ -537,22 +536,21 @@ function createTagCheckboxesHtml(prefix, selectedTags) {
 }
 
 // ============================================================
-// 事件绑定 & 初始化
-// ============================================================
+// 浜嬩欢缁戝畾 & 鍒濆鍖?// ============================================================
 document.addEventListener('DOMContentLoaded', async function () {
   await window.awaitGameCloud();
   populateReviewGameSelect(document.getElementById('review-game'));
   populateReviewGameSelect(document.getElementById('edit-review-game'));
-  // 初始渲染
+  // 鍒濆娓叉煋
   renderReviews();
 
-  // 添加按钮
+  // 娣诲姞鎸夐挳
   var addBtn = document.getElementById('add-review-btn');
   if (addBtn) {
     addBtn.addEventListener('click', openAddReviewModal);
   }
 
-  // 搜索
+  // 鎼滅储
   var searchInput = document.getElementById('search');
   if (searchInput) {
     searchInput.addEventListener('input', renderReviews);
@@ -565,25 +563,25 @@ document.addEventListener('DOMContentLoaded', async function () {
   if (tagFilter) { tagFilter.addEventListener('change', renderReviews); }
   if (sortSelect) { sortSelect.addEventListener('change', renderReviews); }
 
-  // 添加表单提交
+  // 娣诲姞琛ㄥ崟鎻愪氦
   var addForm = document.getElementById('add-review-form');
   if (addForm) {
     addForm.addEventListener('submit', handleAddReviewSubmit);
   }
 
-  // 编辑表单提交
+  // 缂栬緫琛ㄥ崟鎻愪氦
   var editForm = document.getElementById('edit-review-form');
   if (editForm) {
     editForm.addEventListener('submit', handleEditReviewSubmit);
   }
 
-  // 删除确认按钮
+  // 鍒犻櫎纭鎸夐挳
   var confirmDeleteBtn = document.getElementById('confirm-delete-btn');
   if (confirmDeleteBtn) {
     confirmDeleteBtn.addEventListener('click', handleDeleteConfirm);
   }
 
-  // Modal 关闭按钮
+  // Modal 鍏抽棴鎸夐挳
   var closeButtons = document.querySelectorAll('.modal-close');
   for (var i = 0; i < closeButtons.length; i++) {
     closeButtons[i].addEventListener('click', function () {
@@ -592,8 +590,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
   }
 
-  // 点击遮罩层关闭
-  var modals = document.querySelectorAll('.modal');
+  // 鐐瑰嚮閬僵灞傚叧闂?  var modals = document.querySelectorAll('.modal');
   for (var j = 0; j < modals.length; j++) {
     modals[j].addEventListener('click', function (e) {
       if (e.target === this) { this.style.display = 'none'; }

@@ -28,9 +28,9 @@ export function MediaLightbox({ item, onClose }: Props) {
   if (!item) return null;
 
   const type = normalizeMediaType(item);
-  const nameText = item.gameName || "未指定游戏";
+  const nameText = item.gameName || "鏈寚瀹氭父鎴?;
   const dateText = item.time ? formatDateISO(item.time) : "";
-  const typeText = type === "video" ? "视频" : "截图";
+  const typeText = type === "video" ? "瑙嗛" : "鎴浘";
 
   return (
     <div
@@ -46,7 +46,7 @@ export function MediaLightbox({ item, onClose }: Props) {
         type="button"
         className="lightbox-close"
         onClick={onClose}
-        aria-label="关闭"
+        aria-label="鍏抽棴"
       >
         <X className="w-6 h-6" />
       </button>
@@ -72,7 +72,7 @@ export function MediaLightbox({ item, onClose }: Props) {
           <p className="text-lg font-medium">{nameText}</p>
           <p className="text-sm text-gray-300 mt-1">{typeText}</p>
           {dateText && (
-            <p className="text-sm text-gray-300 mt-1">上传于 {dateText}</p>
+            <p className="text-sm text-gray-300 mt-1">涓婁紶浜?{dateText}</p>
           )}
         </div>
       </div>

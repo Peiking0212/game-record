@@ -78,12 +78,12 @@ export async function fetchSupabaseWishlistCatalog(): Promise<WishlistItem[]> {
   return gamesRes.data.map((g, idx) => {
     const priceRow = priceByGameId[String(g.id)];
     let platform = formatStoreLabel(priceRow?.best_store);
-    let notes = "来自 Supabase 目录";
+    let notes = "鏉ヨ嚜 Supabase 鐩綍";
     if (priceRow) {
-      notes = `最低价 ${priceRow.price} ${priceRow.currency || ""} · ${formatStoreLabel(priceRow.best_store)}`;
-      if (priceRow.discount_pct) notes += ` · 折扣 ${priceRow.discount_pct}%`;
+      notes = `鏈€浣庝环 ${priceRow.price} ${priceRow.currency || ""} 路 ${formatStoreLabel(priceRow.best_store)}`;
+      if (priceRow.discount_pct) notes += ` 路 鎶樻墸 ${priceRow.discount_pct}%`;
       if (priceRow.meta?.historical_low != null) {
-        notes += ` · 史低 ${priceRow.meta.historical_low}`;
+        notes += ` 路 鍙蹭綆 ${priceRow.meta.historical_low}`;
       }
     }
     return {
@@ -170,15 +170,15 @@ export async function enrichWishlistFromSupabase(
       next.platform = formatStoreLabel(priceRow.best_store);
     }
     const priceNote =
-      `最低价 ${priceRow.price}` +
+      `鏈€浣庝环 ${priceRow.price}` +
       (priceRow.currency ? ` ${priceRow.currency}` : "") +
       (priceRow.best_store ? ` @${formatStoreLabel(priceRow.best_store)}` : "");
-    next.notes = next.notes ? `${next.notes} · ${priceNote}` : priceNote;
+    next.notes = next.notes ? `${next.notes} 路 ${priceNote}` : priceNote;
     return next;
   });
 }
 
-/** Local list first; empty local → full cloud catalog; always enrich when logged in. */
+/** Local list first; empty local 鈫?full cloud catalog; always enrich when logged in. */
 export async function loadWishlistWithFallback(): Promise<WishlistItem[]> {
   const local = getWishlist();
   if (local.length > 0) {

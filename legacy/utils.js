@@ -1,14 +1,12 @@
 /**
- * utils.js — 实用小功能
- * 全局搜索、备忘录、密码锁、数据备份恢复、通用工具函数
+ * utils.js 鈥?瀹炵敤灏忓姛鑳? * 鍏ㄥ眬鎼滅储銆佸蹇樺綍銆佸瘑鐮侀攣銆佹暟鎹浠芥仮澶嶃€侀€氱敤宸ュ叿鍑芥暟
  */
 (function () {
     'use strict';
 
-    // ==================== 通用工具函数 ====================
+    // ==================== 閫氱敤宸ュ叿鍑芥暟 ====================
 
-    // 日期格式化（完整格式）
-    function formatDate(dateString) {
+    // 鏃ユ湡鏍煎紡鍖栵紙瀹屾暣鏍煎紡锛?    function formatDate(dateString) {
         if (!dateString) return '-';
         const date = new Date(dateString);
         if (isNaN(date.getTime())) return dateString;
@@ -19,7 +17,7 @@
         });
     }
 
-    // 日期格式化（短格式）
+    // 鏃ユ湡鏍煎紡鍖栵紙鐭牸寮忥級
     function formatDateShort(dateString) {
         if (!dateString) return '-';
         const date = new Date(dateString);
@@ -31,21 +29,20 @@
         });
     }
 
-    // 获取状态文本
-    function getStatusText(status) {
+    // 鑾峰彇鐘舵€佹枃鏈?    function getStatusText(status) {
         const map = {
-            playing: '正在玩',
-            completed: '已完成',
-            paused: '暂停中',
-            dropped: '已放弃',
-            abandoned: '已放弃',
-            wishlist: '愿望单',
-            planned: '计划中'
+            playing: '姝ｅ湪鐜?,
+            completed: '宸插畬鎴?,
+            paused: '鏆傚仠涓?,
+            dropped: '宸叉斁寮?,
+            abandoned: '宸叉斁寮?,
+            wishlist: '鎰挎湜鍗?,
+            planned: '璁″垝涓?
         };
         return map[status] || status || '-';
     }
 
-    // 获取状态样式类
+    // 鑾峰彇鐘舵€佹牱寮忕被
     function getStatusClass(status) {
         const map = {
             playing: 'status-playing',
@@ -57,12 +54,12 @@
         return map[status] || '';
     }
 
-    // 生成唯一ID
+    // 鐢熸垚鍞竴ID
     function generateId() {
         return Date.now().toString(36) + Math.random().toString(36).substr(2);
     }
 
-    // 防抖函数
+    // 闃叉姈鍑芥暟
     function debounce(fn, delay) {
         let timer = null;
         return function () {
@@ -71,8 +68,7 @@
         };
     }
 
-    // ISO 日期 YYYY-MM-DD（列表、卡带等）
-    function formatDateISO(dateString) {
+    // ISO 鏃ユ湡 YYYY-MM-DD锛堝垪琛ㄣ€佸崱甯︾瓑锛?    function formatDateISO(dateString) {
         if (!dateString) return '';
         const date = new Date(dateString);
         if (isNaN(date.getTime())) return String(dateString);
@@ -82,7 +78,7 @@
         return y + '-' + m + '-' + d;
     }
 
-    // Tailwind 状态徽章 class
+    // Tailwind 鐘舵€佸窘绔?class
     function getStatusBadgeClass(status) {
         const map = {
             playing: 'text-blue-600 bg-blue-100',
@@ -121,13 +117,13 @@
 
     function validateGameForm(formData) {
         const name = (formData.get('name') || '').trim();
-        if (!name) return '请输入游戏名称';
+        if (!name) return '璇疯緭鍏ユ父鎴忓悕绉?;
         const playtime = parseInt(formData.get('playtime'), 10);
-        if (isNaN(playtime) || playtime < 0) return '请输入有效的游戏时长';
+        if (isNaN(playtime) || playtime < 0) return '璇疯緭鍏ユ湁鏁堢殑娓告垙鏃堕暱';
         const progress = parseInt(formData.get('progress'), 10);
-        if (isNaN(progress) || progress < 0 || progress > 100) return '进度需在 0–100 之间';
-        if (!formData.get('status')) return '请选择游戏状态';
-        if (!formData.get('type')) return '请选择游戏类型';
+        if (isNaN(progress) || progress < 0 || progress > 100) return '杩涘害闇€鍦?0鈥?00 涔嬮棿';
+        if (!formData.get('status')) return '璇烽€夋嫨娓告垙鐘舵€?;
+        if (!formData.get('type')) return '璇烽€夋嫨娓告垙绫诲瀷';
         return null;
     }
 
@@ -140,7 +136,7 @@
             ' onerror="this.onerror=null;this.src=\'' + fallback + '\'">';
     }
 
-    /** 游戏详情页 URL：优先 id，其次 name */
+    /** 娓告垙璇︽儏椤?URL锛氫紭鍏?id锛屽叾娆?name */
     function gameDetailUrl(gameOrId, name) {
         if (gameOrId != null && typeof gameOrId === 'object') {
             return 'game.html?id=' + encodeURIComponent(gameOrId.id);
@@ -154,7 +150,7 @@
         return 'games.html';
     }
 
-    // 暴露全局函数
+    // 鏆撮湶鍏ㄥ眬鍑芥暟
     window.formatDate = formatDate;
     window.formatDateShort = formatDateShort;
     window.formatDateISO = formatDateISO;
@@ -171,7 +167,7 @@
     window.validateGameForm = validateGameForm;
     window.gameDetailUrl = gameDetailUrl;
 
-    // ==================== SVG 图标 ====================
+    // ==================== SVG 鍥炬爣 ====================
     var ICONS = {
         search: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>',
         memo: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>',
@@ -188,7 +184,7 @@
         note: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>'
     };
 
-    // ==================== 注入工具栏按钮 ====================
+    // ==================== 娉ㄥ叆宸ュ叿鏍忔寜閽?====================
     function injectToolbar() {
         var nav = document.querySelector('nav');
         if (!nav || document.getElementById('utils-toolbar')) return;
@@ -197,35 +193,35 @@
         toolbar.className = 'utils-toolbar';
         toolbar.id = 'utils-toolbar';
         toolbar.innerHTML =
-            '<button class="utils-toolbar-btn" id="btn-search" title="全局搜索 (Ctrl+K)">' + ICONS.search + '</button>' +
-            '<button class="utils-toolbar-btn" id="btn-memo" title="备忘录">' + ICONS.memo + '</button>' +
-            '<button class="utils-toolbar-btn" id="btn-backup" title="数据备份恢复">' + ICONS.backup + '</button>' +
-            '<button class="utils-toolbar-btn" id="btn-lock" title="锁屏 / 访客模式">' + ICONS.unlock + '</button>';
+            '<button class="utils-toolbar-btn" id="btn-search" title="鍏ㄥ眬鎼滅储 (Ctrl+K)">' + ICONS.search + '</button>' +
+            '<button class="utils-toolbar-btn" id="btn-memo" title="澶囧繕褰?>' + ICONS.memo + '</button>' +
+            '<button class="utils-toolbar-btn" id="btn-backup" title="鏁版嵁澶囦唤鎭㈠">' + ICONS.backup + '</button>' +
+            '<button class="utils-toolbar-btn" id="btn-lock" title="閿佸睆 / 璁垮妯″紡">' + ICONS.unlock + '</button>';
 
-        // 插入到导航栏
+        // 鎻掑叆鍒板鑸爮
         var desktopNav = nav.querySelector('.desktop-nav');
         if (desktopNav) {
             desktopNav.appendChild(toolbar);
         }
 
-        // 移动端菜单也加上
+        // 绉诲姩绔彍鍗曚篃鍔犱笂
         var mobileMenu = document.getElementById('mobile-menu');
         if (mobileMenu && !document.getElementById('utils-toolbar-mobile')) {
             var mobileToolbar = document.createElement('div');
             mobileToolbar.className = 'flex items-center gap-3 py-3 border-t mt-2';
             mobileToolbar.id = 'utils-toolbar-mobile';
             mobileToolbar.innerHTML =
-                '<button class="utils-toolbar-btn" id="btn-search-m" title="搜索">' + ICONS.search + '</button>' +
-                '<button class="utils-toolbar-btn" id="btn-memo-m" title="备忘录">' + ICONS.memo + '</button>' +
-                '<button class="utils-toolbar-btn" id="btn-backup-m" title="备份">' + ICONS.backup + '</button>' +
-                '<button class="utils-toolbar-btn" id="btn-lock-m" title="锁屏">' + ICONS.unlock + '</button>';
+                '<button class="utils-toolbar-btn" id="btn-search-m" title="鎼滅储">' + ICONS.search + '</button>' +
+                '<button class="utils-toolbar-btn" id="btn-memo-m" title="澶囧繕褰?>' + ICONS.memo + '</button>' +
+                '<button class="utils-toolbar-btn" id="btn-backup-m" title="澶囦唤">' + ICONS.backup + '</button>' +
+                '<button class="utils-toolbar-btn" id="btn-lock-m" title="閿佸睆">' + ICONS.unlock + '</button>';
             mobileMenu.appendChild(mobileToolbar);
         }
     }
 
-    // ==================== 1. 全局搜索 ====================
+    // ==================== 1. 鍏ㄥ眬鎼滅储 ====================
     function initSearch() {
-        // 注入搜索界面
+        // 娉ㄥ叆鎼滅储鐣岄潰
         var searchOverlay = document.createElement('div');
         searchOverlay.className = 'global-search-bar';
         searchOverlay.id = 'global-search-bar';
@@ -233,8 +229,8 @@
             '<div class="global-search-container">' +
                 '<div class="global-search-input-wrap">' +
                     ICONS.search +
-                    '<input type="text" class="global-search-input" id="global-search-input" placeholder="搜索游戏、成就、时间线、备忘录..." autocomplete="off">' +
-                    '<span class="global-search-hint">ESC 关闭</span>' +
+                    '<input type="text" class="global-search-input" id="global-search-input" placeholder="鎼滅储娓告垙銆佹垚灏便€佹椂闂寸嚎銆佸蹇樺綍..." autocomplete="off">' +
+                    '<span class="global-search-hint">ESC 鍏抽棴</span>' +
                 '</div>' +
                 '<div class="global-search-results" id="global-search-results"></div>' +
             '</div>';
@@ -253,17 +249,17 @@
             results.innerHTML = '';
         }
 
-        // 按钮触发
+        // 鎸夐挳瑙﹀彂
         document.addEventListener('click', function (e) {
             if (e.target.closest('#btn-search') || e.target.closest('#btn-search-m')) openSearch();
         });
 
-        // 点击背景关闭
+        // 鐐瑰嚮鑳屾櫙鍏抽棴
         searchOverlay.addEventListener('click', function (e) {
             if (e.target === searchOverlay) closeSearch();
         });
 
-        // ESC 关闭
+        // ESC 鍏抽棴
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') closeSearch();
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
@@ -272,26 +268,26 @@
             }
         });
 
-        // 搜索逻辑
+        // 鎼滅储閫昏緫
         input.addEventListener('input', function () {
             var query = this.value.trim().toLowerCase();
             if (!query) {
-                results.innerHTML = '<div class="global-search-empty">输入关键词开始搜索</div>';
+                results.innerHTML = '<div class="global-search-empty">杈撳叆鍏抽敭璇嶅紑濮嬫悳绱?/div>';
                 return;
             }
 
             var items = [];
 
-            // 搜索游戏
+            // 鎼滅储娓告垙
             var games = JSON.parse(localStorage.getItem('games') || '[]');
             games.forEach(function (g) {
                 if ((g.name + (g.type || '') + (g.description || '')).toLowerCase().indexOf(query) !== -1) {
-                    var statusText = g.status === 'playing' ? '正在玩' : g.status === 'completed' ? '已完成' : g.status || '';
-                    items.push({ title: g.name, desc: (g.type || '') + ' · ' + statusText, badge: '游戏', badgeColor: '#52B6FF', icon: ICONS.gamepad, href: gameDetailUrl(g.id) });
+                    var statusText = g.status === 'playing' ? '姝ｅ湪鐜? : g.status === 'completed' ? '宸插畬鎴? : g.status || '';
+                    items.push({ title: g.name, desc: (g.type || '') + ' 路 ' + statusText, badge: '娓告垙', badgeColor: '#52B6FF', icon: ICONS.gamepad, href: gameDetailUrl(g.id) });
                 }
             });
 
-            // 搜索成就
+            // 鎼滅储鎴愬氨
             var achievements = JSON.parse(localStorage.getItem('achievements') || '[]');
             achievements.forEach(function (a) {
                 var gameLabel = a.gameName || a.game || '';
@@ -307,8 +303,8 @@
                     }
                     items.push({
                         title: a.title,
-                        desc: gameLabel + ' · ' + (a.date || ''),
-                        badge: '成就',
+                        desc: gameLabel + ' 路 ' + (a.date || ''),
+                        badge: '鎴愬氨',
                         badgeColor: '#f59e0b',
                         icon: ICONS.trophy,
                         href: achHref
@@ -316,7 +312,7 @@
                 }
             });
 
-            // 搜索评测
+            // 鎼滅储璇勬祴
             var reviews = JSON.parse(localStorage.getItem('game_record_reviews') || '[]');
             reviews.forEach(function (r) {
                 var reviewName = r.name || r.gameName || '';
@@ -330,8 +326,8 @@
                     }
                     items.push({
                         title: reviewName,
-                        desc: (r.rating || 0) + ' 星 · ' + (r.date || ''),
-                        badge: '评测',
+                        desc: (r.rating || 0) + ' 鏄?路 ' + (r.date || ''),
+                        badge: '璇勬祴',
                         badgeColor: '#10b981',
                         icon: ICONS.note,
                         href: reviewHref
@@ -339,16 +335,15 @@
                 }
             });
 
-            // 搜索备忘录
-            var memos = JSON.parse(localStorage.getItem('memos') || '[]');
+            // 鎼滅储澶囧繕褰?            var memos = JSON.parse(localStorage.getItem('memos') || '[]');
             memos.forEach(function (m) {
                 if (m.text.toLowerCase().indexOf(query) !== -1) {
-                    items.push({ title: m.text.substring(0, 30), desc: m.date, badge: '备忘录', badgeColor: '#B8A9C9', icon: ICONS.note, href: null });
+                    items.push({ title: m.text.substring(0, 30), desc: m.date, badge: '澶囧繕褰?, badgeColor: '#B8A9C9', icon: ICONS.note, href: null });
                 }
             });
 
             if (items.length === 0) {
-                results.innerHTML = '<div class="global-search-empty">没有找到 "' + escapeHtml(query) + '" 相关结果</div>';
+                results.innerHTML = '<div class="global-search-empty">娌℃湁鎵惧埌 "' + escapeHtml(query) + '" 鐩稿叧缁撴灉</div>';
                 return;
             }
 
@@ -371,10 +366,9 @@
         return escaped.replace(regex, '<mark style="background:#f0c04040;color:inherit;padding:0 2px;border-radius:2px;">$1</mark>');
     }
 
-    // ==================== 2. 备忘录 ====================
+    // ==================== 2. 澶囧繕褰?====================
     function initMemo() {
-        // 注入备忘录面板
-        var overlay = document.createElement('div');
+        // 娉ㄥ叆澶囧繕褰曢潰鏉?        var overlay = document.createElement('div');
         overlay.className = 'settings-overlay';
         overlay.id = 'memo-overlay';
         overlay.addEventListener('click', closeMemo);
@@ -385,25 +379,25 @@
         panel.id = 'memo-panel';
         panel.innerHTML =
             '<div class="memo-panel-header">' +
-                '<h3>备忘录</h3>' +
+                '<h3>澶囧繕褰?/h3>' +
                 '<button id="memo-close-btn" style="background:none;border:none;cursor:pointer;color:var(--text-gray);font-size:1.25rem;">' + ICONS.x + '</button>' +
             '</div>' +
             '<div class="memo-list" id="memo-list"></div>' +
             '<div class="memo-input-area">' +
                 '<div class="memo-input-wrap">' +
-                    '<textarea id="memo-input" placeholder="写点什么..." rows="2"></textarea>' +
-                    '<button class="memo-send-btn" id="memo-send-btn" title="发送">' + ICONS.send + '</button>' +
+                    '<textarea id="memo-input" placeholder="鍐欑偣浠€涔?.." rows="2"></textarea>' +
+                    '<button class="memo-send-btn" id="memo-send-btn" title="鍙戦€?>' + ICONS.send + '</button>' +
                 '</div>' +
             '</div>';
         document.body.appendChild(panel);
 
-        // 打开/关闭
+        // 鎵撳紑/鍏抽棴
         document.addEventListener('click', function (e) {
             if (e.target.closest('#btn-memo') || e.target.closest('#btn-memo-m')) openMemo();
         });
         document.getElementById('memo-close-btn').addEventListener('click', closeMemo);
 
-        // 发送备忘录
+        // 鍙戦€佸蹇樺綍
         document.getElementById('memo-send-btn').addEventListener('click', addMemo);
         document.getElementById('memo-input').addEventListener('keydown', function (e) {
             if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) addMemo();
@@ -482,7 +476,7 @@
         var memos = getMemos();
 
         if (memos.length === 0) {
-            list.innerHTML = '<div class="memo-empty">暂无备忘录<br>记录你的游戏灵感吧</div>';
+            list.innerHTML = '<div class="memo-empty">鏆傛棤澶囧繕褰?br>璁板綍浣犵殑娓告垙鐏垫劅鍚?/div>';
             return;
         }
 
@@ -491,20 +485,20 @@
                 '<div class="memo-item-header">' +
                     '<span class="memo-item-time">' + m.date + '</span>' +
                     '<div class="memo-item-actions">' +
-                        '<button class="memo-delete" data-id="' + m.id + '" title="删除">' + ICONS.trash + '</button>' +
+                        '<button class="memo-delete" data-id="' + m.id + '" title="鍒犻櫎">' + ICONS.trash + '</button>' +
                     '</div>' +
                 '</div>' +
                 '<div class="memo-item-text">' + escapeHtml(m.text) + '</div>' +
             '</div>';
         }).join('');
 
-        // 绑定事件
+        // 缁戝畾浜嬩欢
         list.querySelectorAll('.memo-delete').forEach(function (btn) {
             btn.addEventListener('click', function () { deleteMemo(this.dataset.id); });
         });
     }
 
-    // ==================== 3. 密码锁 / 访客模式 ====================
+    // ==================== 3. 瀵嗙爜閿?/ 璁垮妯″紡 ====================
     function initLock() {
         var lockScreen = document.createElement('div');
         lockScreen.className = 'lock-screen';
@@ -513,44 +507,44 @@
             '<div class="lock-screen-icon">' +
                 '<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>' +
             '</div>' +
-            '<h2>已锁定</h2>' +
-            '<p>请输入密码解锁</p>' +
+            '<h2>宸查攣瀹?/h2>' +
+            '<p>璇疯緭鍏ュ瘑鐮佽В閿?/p>' +
             '<div class="lock-screen-input-wrap">' +
-                '<input type="password" class="lock-screen-input" id="lock-input" placeholder="输入密码" autocomplete="off">' +
-                '<button class="lock-screen-btn" id="lock-unlock-btn">解锁</button>' +
+                '<input type="password" class="lock-screen-input" id="lock-input" placeholder="杈撳叆瀵嗙爜" autocomplete="off">' +
+                '<button class="lock-screen-btn" id="lock-unlock-btn">瑙ｉ攣</button>' +
             '</div>' +
             '<div class="lock-screen-error" id="lock-error"></div>' +
             '<div class="lock-screen-setup" id="lock-setup-area">' +
-                '<a id="lock-setup-link">首次使用，设置密码</a>' +
+                '<a id="lock-setup-link">棣栨浣跨敤锛岃缃瘑鐮?/a>' +
             '</div>';
         document.body.appendChild(lockScreen);
 
-        // 检查是否已锁定
+        // 妫€鏌ユ槸鍚﹀凡閿佸畾
         if (localStorage.getItem('is_locked') === 'true') {
             lockScreen.classList.add('active');
         }
 
-        // 解锁
+        // 瑙ｉ攣
         document.getElementById('lock-unlock-btn').addEventListener('click', tryUnlock);
         document.getElementById('lock-input').addEventListener('keydown', function (e) {
             if (e.key === 'Enter') tryUnlock();
         });
 
-        // 设置密码
+        // 璁剧疆瀵嗙爜
         document.getElementById('lock-setup-link').addEventListener('click', function () {
-            var pwd = prompt('设置密码（至少4位）');
+            var pwd = prompt('璁剧疆瀵嗙爜锛堣嚦灏?浣嶏級');
             if (!pwd || pwd.length < 4) {
-                if (pwd !== null) alert('密码至少4位');
+                if (pwd !== null) alert('瀵嗙爜鑷冲皯4浣?);
                 return;
             }
             localStorage.setItem('lock_password', pwd);
             localStorage.setItem('is_locked', 'false');
             lockScreen.classList.remove('active');
-            showToast('密码已设置');
+            showToast('瀵嗙爜宸茶缃?);
             updateLockBtn();
         });
 
-        // 锁定按钮
+        // 閿佸畾鎸夐挳
         document.addEventListener('click', function (e) {
             if (e.target.closest('#btn-lock') || e.target.closest('#btn-lock-m')) toggleLock();
         });
@@ -559,13 +553,13 @@
     function toggleLock() {
         var pwd = localStorage.getItem('lock_password');
         if (!pwd) {
-            var newPwd = prompt('设置密码（至少4位）');
+            var newPwd = prompt('璁剧疆瀵嗙爜锛堣嚦灏?浣嶏級');
             if (!newPwd || newPwd.length < 4) {
-                if (newPwd !== null) alert('密码至少4位');
+                if (newPwd !== null) alert('瀵嗙爜鑷冲皯4浣?);
                 return;
             }
             localStorage.setItem('lock_password', newPwd);
-            showToast('密码已设置，已锁定');
+            showToast('瀵嗙爜宸茶缃紝宸查攣瀹?);
         }
         localStorage.setItem('is_locked', 'true');
         document.getElementById('lock-screen').classList.add('active');
@@ -578,7 +572,7 @@
         var pwd = localStorage.getItem('lock_password');
         var input = document.getElementById('lock-input').value;
         if (!pwd) {
-            document.getElementById('lock-error').textContent = '请先设置密码';
+            document.getElementById('lock-error').textContent = '璇峰厛璁剧疆瀵嗙爜';
             return;
         }
         if (input === pwd) {
@@ -586,7 +580,7 @@
             document.getElementById('lock-screen').classList.remove('active');
             updateLockBtn();
         } else {
-            document.getElementById('lock-error').textContent = '密码错误，请重试';
+            document.getElementById('lock-error').textContent = '瀵嗙爜閿欒锛岃閲嶈瘯';
             document.getElementById('lock-input').value = '';
             document.getElementById('lock-input').focus();
         }
@@ -597,23 +591,23 @@
         var btn = document.getElementById('btn-lock');
         if (btn) {
             btn.innerHTML = isLocked ? ICONS.lock : ICONS.unlock;
-            btn.title = isLocked ? '已锁定' : '锁屏 / 访客模式';
+            btn.title = isLocked ? '宸查攣瀹? : '閿佸睆 / 璁垮妯″紡';
         }
     }
 
-    // ==================== 4. 数据备份 & 恢复 ====================
+    // ==================== 4. 鏁版嵁澶囦唤 & 鎭㈠ ====================
     function initBackup() {
         var modal = document.createElement('div');
         modal.className = 'backup-modal';
         modal.id = 'backup-modal';
         modal.innerHTML =
             '<div class="backup-modal-content">' +
-                '<h3>数据备份与恢复</h3>' +
+                '<h3>鏁版嵁澶囦唤涓庢仮澶?/h3>' +
                 '<div class="backup-option" id="backup-export">' +
                     '<div class="backup-option-icon" style="background:#52B6FF15;color:#52B6FF;">' + ICONS.backup + '</div>' +
                     '<div class="backup-option-info">' +
-                        '<h4>导出备份</h4>' +
-                        '<p>将所有数据导出为 JSON 文件，保存到本地</p>' +
+                        '<h4>瀵煎嚭澶囦唤</h4>' +
+                        '<p>灏嗘墍鏈夋暟鎹鍑轰负 JSON 鏂囦欢锛屼繚瀛樺埌鏈湴</p>' +
                     '</div>' +
                 '</div>' +
                 '<div class="backup-option" id="backup-import">' +
@@ -621,23 +615,23 @@
                         '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>' +
                     '</div>' +
                     '<div class="backup-option-info">' +
-                        '<h4>导入恢复</h4>' +
-                        '<p>从 JSON 备份文件恢复数据，将覆盖当前数据</p>' +
+                        '<h4>瀵煎叆鎭㈠</h4>' +
+                        '<p>浠?JSON 澶囦唤鏂囦欢鎭㈠鏁版嵁锛屽皢瑕嗙洊褰撳墠鏁版嵁</p>' +
                     '</div>' +
                 '</div>' +
                 '<div class="backup-option" id="backup-clear">' +
                     '<div class="backup-option-icon" style="background:#ef444415;color:#ef4444;">' + ICONS.trash + '</div>' +
                     '<div class="backup-option-info">' +
-                        '<h4>清除所有数据</h4>' +
-                        '<p>删除游戏、成就、时间线、备忘录等全部数据</p>' +
+                        '<h4>娓呴櫎鎵€鏈夋暟鎹?/h4>' +
+                        '<p>鍒犻櫎娓告垙銆佹垚灏便€佹椂闂寸嚎銆佸蹇樺綍绛夊叏閮ㄦ暟鎹?/p>' +
                     '</div>' +
                 '</div>' +
                 '<input type="file" id="backup-file-input" accept=".json" style="display:none;">' +
-                '<button class="backup-close-btn" id="backup-close-btn">关闭</button>' +
+                '<button class="backup-close-btn" id="backup-close-btn">鍏抽棴</button>' +
             '</div>';
         document.body.appendChild(modal);
 
-        // 打开/关闭
+        // 鎵撳紑/鍏抽棴
         document.addEventListener('click', function (e) {
             if (e.target.closest('#btn-backup') || e.target.closest('#btn-backup-m')) {
                 modal.classList.add('open');
@@ -650,7 +644,7 @@
             modal.classList.remove('open');
         });
 
-        // 导出
+        // 瀵煎嚭
         document.getElementById('backup-export').addEventListener('click', function () {
             var data = {};
             var keys = (window.GameData && window.GameData.SYNC_KEYS)
@@ -670,14 +664,14 @@
             var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             var link = document.createElement('a');
             link.href = URL.createObjectURL(blob);
-            link.download = '游戏记录_备份_' + new Date().toISOString().split('T')[0] + '.json';
+            link.download = '娓告垙璁板綍_澶囦唤_' + new Date().toISOString().split('T')[0] + '.json';
             link.click();
             URL.revokeObjectURL(link.href);
-            showToast('备份文件已生成');
+            showToast('澶囦唤鏂囦欢宸茬敓鎴?);
             modal.classList.remove('open');
         });
 
-        // 导入
+        // 瀵煎叆
         var fileInput = document.getElementById('backup-file-input');
         document.getElementById('backup-import').addEventListener('click', function () {
             fileInput.click();
@@ -690,10 +684,10 @@
                 try {
                     var data = JSON.parse(e.target.result);
                     if (!data._version) {
-                        alert('无效的备份文件');
+                        alert('鏃犳晥鐨勫浠芥枃浠?);
                         return;
                     }
-                    if (!confirm('导入将覆盖当前所有数据，确定继续？')) return;
+                    if (!confirm('瀵煎叆灏嗚鐩栧綋鍓嶆墍鏈夋暟鎹紝纭畾缁х画锛?)) return;
 
                     var keys = (window.GameData && window.GameData.SYNC_KEYS)
                         ? window.GameData.SYNC_KEYS.slice()
@@ -705,21 +699,21 @@
                         }
                     });
 
-                    showToast('数据已恢复，页面将刷新');
+                    showToast('鏁版嵁宸叉仮澶嶏紝椤甸潰灏嗗埛鏂?);
                     modal.classList.remove('open');
                     setTimeout(function () { location.reload(); }, 1000);
                 } catch (err) {
-                    alert('文件读取失败：' + err.message);
+                    alert('鏂囦欢璇诲彇澶辫触锛? + err.message);
                 }
             };
             reader.readAsText(file);
             this.value = '';
         });
 
-        // 清除数据
+        // 娓呴櫎鏁版嵁
         document.getElementById('backup-clear').addEventListener('click', function () {
-            if (!confirm('确定要清除所有数据吗？此操作不可撤销')) return;
-            if (!confirm('再次确认：将要删除全部数据')) return;
+            if (!confirm('纭畾瑕佹竻闄ゆ墍鏈夋暟鎹悧锛熸鎿嶄綔涓嶅彲鎾ら攢')) return;
+            if (!confirm('鍐嶆纭锛氬皢瑕佸垹闄ゅ叏閮ㄦ暟鎹?)) return;
 
             var keys = (window.GameData && window.GameData.SYNC_KEYS)
                 ? window.GameData.SYNC_KEYS.slice()
@@ -727,7 +721,7 @@
             keys.push('lock_password', 'is_locked', 'site_bg_image', 'mascot_image');
             keys.forEach(function (key) { localStorage.removeItem(key); });
 
-            showToast('数据已清除，页面将刷新');
+            showToast('鏁版嵁宸叉竻闄わ紝椤甸潰灏嗗埛鏂?);
             modal.classList.remove('open');
             setTimeout(function () { location.reload(); }, 1000);
         });
@@ -753,7 +747,7 @@
         }, 2500);
     }
 
-    // ==================== 安全的 localStorage 操作 ====================
+    // ==================== 瀹夊叏鐨?localStorage 鎿嶄綔 ====================
     function safeGetItem(key, defaultValue) {
         try {
             var data = localStorage.getItem(key);
@@ -770,20 +764,19 @@
             return true;
         } catch (e) {
             console.error('localStorage write error:', e);
-            showToast('存储空间不足，请清理数据');
+            showToast('瀛樺偍绌洪棿涓嶈冻锛岃娓呯悊鏁版嵁');
             return false;
         }
     }
 
-    // 暴露全局函数
+    // 鏆撮湶鍏ㄥ眬鍑芥暟
     window.safeGetItem = safeGetItem;
     window.safeSetItem = safeSetItem;
 
-    // ==================== 阻止浏览器/密码管理器自动填充账号 ====================
-    // 本站非登录页（登录在 auth.html，不加载本脚本），所以这里所有输入框都不应被
-    // 当成账号/密码字段。给它们打上明确标记，避免 Edge/Chrome 及 1Password/LastPass
-    // 弹出账号填充。可在某个输入上加 data-allow-autofill 主动豁免。
-    function hardenInputAutofill(root) {
+    // ==================== 闃绘娴忚鍣?瀵嗙爜绠＄悊鍣ㄨ嚜鍔ㄥ～鍏呰处鍙?====================
+    // 鏈珯闈炵櫥褰曢〉锛堢櫥褰曞湪 auth.html锛屼笉鍔犺浇鏈剼鏈級锛屾墍浠ヨ繖閲屾墍鏈夎緭鍏ユ閮戒笉搴旇
+    // 褰撴垚璐﹀彿/瀵嗙爜瀛楁銆傜粰瀹冧滑鎵撲笂鏄庣‘鏍囪锛岄伩鍏?Edge/Chrome 鍙?1Password/LastPass
+    // 寮瑰嚭璐﹀彿濉厖銆傚彲鍦ㄦ煇涓緭鍏ヤ笂鍔?data-allow-autofill 涓诲姩璞佸厤銆?    function hardenInputAutofill(root) {
         var scope = root && root.querySelectorAll ? root : document;
         var fields = scope.querySelectorAll('input, textarea, select');
         for (var i = 0; i < fields.length; i++) {
@@ -792,8 +785,7 @@
             if (el.hasAttribute('data-allow-autofill')) continue;
             if (el.getAttribute('data-no-autofill') === '1') continue;
             var type = (el.getAttribute('type') || '').toLowerCase();
-            // 这些类型不会触发账号填充，跳过即可
-            if (type === 'checkbox' || type === 'radio' || type === 'file' ||
+            // 杩欎簺绫诲瀷涓嶄細瑙﹀彂璐﹀彿濉厖锛岃烦杩囧嵆鍙?            if (type === 'checkbox' || type === 'radio' || type === 'file' ||
                 type === 'range' || type === 'hidden' || type === 'submit' ||
                 type === 'button' || type === 'color') continue;
             el.setAttribute('autocomplete', 'off');
@@ -815,7 +807,7 @@
                 if (mutations[i].addedNodes && mutations[i].addedNodes.length) {
                     if (pending) return;
                     pending = true;
-                    // 合并多次 DOM 变更，下一帧统一处理
+                    // 鍚堝苟澶氭 DOM 鍙樻洿锛屼笅涓€甯х粺涓€澶勭悊
                     requestAnimationFrame(function () {
                         pending = false;
                         hardenInputAutofill(document);
@@ -829,7 +821,7 @@
 
     window.hardenInputAutofill = hardenInputAutofill;
 
-    // ==================== 初始化 ====================
+    // ==================== 鍒濆鍖?====================
     function init() {
         injectToolbar();
         if (window.GameAuth && window.GameAuth.injectLogoutButton) {

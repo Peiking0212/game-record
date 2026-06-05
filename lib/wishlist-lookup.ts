@@ -33,10 +33,10 @@ export function formatLookupError(
 ): string {
   const err = body?.error || fallback || "lookup_failed";
   if (err === "not_found") {
-    return body?.hint || "未在 Steam/ITAD 找到；可尝试其他关键词或允许按名称入库";
+    return body?.hint || "鏈湪 Steam/ITAD 鎵惧埌锛涘彲灏濊瘯鍏朵粬鍏抽敭璇嶆垨鍏佽鎸夊悕绉板叆搴?;
   }
-  if (err === "unauthorized") return "请先登录";
-  if (err === "invalid_payload") return "请输入至少 2 个字符的游戏名";
+  if (err === "unauthorized") return "璇峰厛鐧诲綍";
+  if (err === "invalid_payload") return "璇疯緭鍏ヨ嚦灏?2 涓瓧绗︾殑娓告垙鍚?;
   return String(err);
 }
 

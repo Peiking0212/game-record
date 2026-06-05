@@ -2,12 +2,12 @@
 export type WishlistAlias = { name: string; steamAppId?: number };
 
 export const WISHLIST_GAME_ALIASES: Record<string, WishlistAlias> = {
-  星露谷物语: { name: "stardew valley", steamAppId: 413150 },
-  星露谷: { name: "stardew valley", steamAppId: 413150 },
+  鏄熼湶璋风墿璇? { name: "stardew valley", steamAppId: 413150 },
+  鏄熼湶璋? { name: "stardew valley", steamAppId: 413150 },
   "stardew valley": { name: "stardew valley", steamAppId: 413150 },
   "dota 2": { name: "dota 2", steamAppId: 570 },
   dota2: { name: "dota 2", steamAppId: 570 },
-  反恐精英2: { name: "counter-strike 2", steamAppId: 730 },
+  鍙嶆亹绮捐嫳2: { name: "counter-strike 2", steamAppId: 730 },
   cs2: { name: "counter-strike 2", steamAppId: 730 },
   "counter-strike 2": { name: "counter-strike 2", steamAppId: 730 },
 };

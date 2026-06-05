@@ -15,7 +15,7 @@ const BUCKET = "media";
 const TABLE = "media";
 
 export function formatSupabaseError(err: unknown): string {
-  if (!err) return "未知错误";
+  if (!err) return "鏈煡閿欒";
   if (typeof err === "string") return err;
   const e = err as { message?: string; error_description?: string; statusCode?: number };
   let msg = e.message || e.error_description || "";
@@ -67,7 +67,7 @@ export async function checkMediaCloudHealth(
 ): Promise<{ ok: boolean; reason: string }> {
   try {
     const userId = await resolveMediaUserId(supabase);
-    if (!userId) return { ok: false, reason: "未登录，无法使用云端媒体库" };
+    if (!userId) return { ok: false, reason: "鏈櫥褰曪紝鏃犳硶浣跨敤浜戠濯掍綋搴? };
 
     const tableCheck = await supabase
       .from(TABLE)
@@ -75,12 +75,12 @@ export async function checkMediaCloudHealth(
       .eq("user_id", userId)
       .limit(1);
     if (tableCheck.error) {
-      return { ok: false, reason: `数据库 media 表：${formatSupabaseError(tableCheck.error)}` };
+      return { ok: false, reason: `鏁版嵁搴?media 琛細${formatSupabaseError(tableCheck.error)}` };
     }
 
     const bucketCheck = await supabase.storage.from(BUCKET).list(userId, { limit: 1 });
     if (bucketCheck.error) {
-      return { ok: false, reason: `Storage 桶 media：${formatSupabaseError(bucketCheck.error)}` };
+      return { ok: false, reason: `Storage 妗?media锛?{formatSupabaseError(bucketCheck.error)}` };
     }
 
     return { ok: true, reason: "" };
@@ -113,7 +113,7 @@ export async function uploadFileToCloud(
   fileType: "image" | "video",
 ): Promise<void> {
   const userId = await resolveMediaUserId(supabase);
-  if (!userId) throw new Error("未登录，无法上传到云端");
+  if (!userId) throw new Error("鏈櫥褰曪紝鏃犳硶涓婁紶鍒颁簯绔?);
 
   const id = generateMediaId();
   const ext = (file.name.split(".").pop() || (fileType === "video" ? "mp4" : "jpg")).toLowerCase();
@@ -194,7 +194,7 @@ export async function deleteMediaFromCloud(
   id: string | number,
 ): Promise<void> {
   const userId = await resolveMediaUserId(supabase);
-  if (!userId) throw new Error("未登录");
+  if (!userId) throw new Error("鏈櫥褰?);
 
   const rowResult = await supabase
     .from(TABLE)
@@ -227,7 +227,7 @@ export async function updateEditedImageOnCloud(
   thumbnailSize: number,
 ): Promise<void> {
   const userId = await resolveMediaUserId(supabase);
-  if (!userId) throw new Error("未登录");
+  if (!userId) throw new Error("鏈櫥褰?);
 
   const prefix = mediaStoragePrefix(userId);
   const storagePath = `${prefix}edited_${generateMediaId()}.jpg`;

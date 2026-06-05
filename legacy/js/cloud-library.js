@@ -1,14 +1,8 @@
 /**
- * cloud-library.js — 关系表（user_games + games）→ 全站本地 games 贯通
- *
- * 职责：
- *  1) 登录后从 Supabase 拉取本用户 owned 库（sync-user-games 写入的 user_games），
- *     合并进 localStorage 的 `games`，让 games / stats / index / spending 等页直接呈现。
- *  2) 提供 Steam 库一键同步入口（调用 sync-user-games Edge Function）。
- *
- * 由 cloud-sync.js 在云端拉取完成、readyResolve 之前调用 hydrate()，
- * 因此各页 whenGameCloudSynced(renderX) 重渲染时即可看到 Steam 库。
- */
+ * cloud-library.js 鈥?鍏崇郴琛紙user_games + games锛夆啋 鍏ㄧ珯鏈湴 games 璐€? *
+ * 鑱岃矗锛? *  1) 鐧诲綍鍚庝粠 Supabase 鎷夊彇鏈敤鎴?owned 搴擄紙sync-user-games 鍐欏叆鐨?user_games锛夛紝
+ *     鍚堝苟杩?localStorage 鐨?`games`锛岃 games / stats / index / spending 绛夐〉鐩存帴鍛堢幇銆? *  2) 鎻愪緵 Steam 搴撲竴閿悓姝ュ叆鍙ｏ紙璋冪敤 sync-user-games Edge Function锛夈€? *
+ * 鐢?cloud-sync.js 鍦ㄤ簯绔媺鍙栧畬鎴愩€乺eadyResolve 涔嬪墠璋冪敤 hydrate()锛? * 鍥犳鍚勯〉 whenGameCloudSynced(renderX) 閲嶆覆鏌撴椂鍗冲彲鐪嬪埌 Steam 搴撱€? */
 (function () {
   'use strict';
 
@@ -41,7 +35,7 @@
     return !!(await getSessionToken());
   }
 
-  /** 拉取本用户已拥有的游戏（user_games.source='owned' join games） */
+  /** 鎷夊彇鏈敤鎴峰凡鎷ユ湁鐨勬父鎴忥紙user_games.source='owned' join games锛?*/
   async function pullOwnedGames() {
     if (!window.SB) return [];
     if (!(await isSignedIn())) return [];
@@ -77,7 +71,7 @@
     return id;
   }
 
-  /** 把 owned 库合并进本地 games（保留用户已编辑字段；按 steam_app_id / 名称去重） */
+  /** 鎶?owned 搴撳悎骞惰繘鏈湴 games锛堜繚鐣欑敤鎴峰凡缂栬緫瀛楁锛涙寜 steam_app_id / 鍚嶇О鍘婚噸锛?*/
   async function hydrate() {
     if (!GD()) return false;
     var owned = await pullOwnedGames();
@@ -128,7 +122,7 @@
           playtime: playHours,
           progress: 0,
           status: playHours > 0 ? 'playing' : 'planned',
-          type: '其他',
+          type: '鍏朵粬',
           description: '',
           lastPlayed: lastIso,
           steamAppId: g.steam_app_id != null ? g.steam_app_id : '',
@@ -153,12 +147,12 @@
     return changed;
   }
 
-  /** 调用 sync-user-games（Steam 库自动拉取） */
+  /** 璋冪敤 sync-user-games锛圫team 搴撹嚜鍔ㄦ媺鍙栵級 */
   async function syncSteam(steamId) {
     var cfg = readSupabaseEnv();
-    if (!cfg.url || !cfg.anonKey) throw new Error('未配置 Supabase');
+    if (!cfg.url || !cfg.anonKey) throw new Error('鏈厤缃?Supabase');
     var token = await getSessionToken();
-    if (!token) throw new Error('请先登录');
+    if (!token) throw new Error('璇峰厛鐧诲綍');
 
     var body = {};
     var clean = String(steamId || '').replace(/\D/g, '');
@@ -191,7 +185,7 @@
     window.dispatchEvent(new CustomEvent('gamelibrary:updated'));
   }
 
-  // ---------- Steam 同步 UI（仅在含 #steam-sync-card 的页面生效，如 games.html） ----------
+  // ---------- Steam 鍚屾 UI锛堜粎鍦ㄥ惈 #steam-sync-card 鐨勯〉闈㈢敓鏁堬紝濡?games.html锛?----------
   function initSteamSyncUI() {
     var card = document.getElementById('steam-sync-card');
     if (!card) return;
@@ -213,26 +207,26 @@
     btn.addEventListener('click', async function () {
       var steamId = String(input.value || '').replace(/\D/g, '');
       if (steamId.length < 17) {
-        if (statusEl) statusEl.textContent = '请输入 17 位 SteamID64（个人资料须公开）';
+        if (statusEl) statusEl.textContent = '璇疯緭鍏?17 浣?SteamID64锛堜釜浜鸿祫鏂欓』鍏紑锛?;
         return;
       }
       btn.disabled = true;
       var oldLabel = btn.textContent;
-      btn.textContent = '同步中…';
-      if (statusEl) statusEl.textContent = '正在从 Steam 拉取游戏库…';
+      btn.textContent = '鍚屾涓€?;
+      if (statusEl) statusEl.textContent = '姝ｅ湪浠?Steam 鎷夊彇娓告垙搴撯€?;
       try {
         var data = await syncSteam(steamId);
         await hydrate();
         refreshLibraryPages();
         if (statusEl) {
           if (data.mode === 'steam') {
-            statusEl.textContent = '已同步 ' + (data.ownedCount || 0) + ' 款（库内共 ' + (data.gameCount || 0) + ' 款）';
+            statusEl.textContent = '宸插悓姝?' + (data.ownedCount || 0) + ' 娆撅紙搴撳唴鍏?' + (data.gameCount || 0) + ' 娆撅級';
           } else {
-            statusEl.textContent = '已同步 ' + (data.syncedCount || 0) + ' 条';
+            statusEl.textContent = '宸插悓姝?' + (data.syncedCount || 0) + ' 鏉?;
           }
         }
       } catch (e) {
-        if (statusEl) statusEl.textContent = '同步失败：' + (e.message || e);
+        if (statusEl) statusEl.textContent = '鍚屾澶辫触锛? + (e.message || e);
       } finally {
         btn.disabled = false;
         btn.textContent = oldLabel;

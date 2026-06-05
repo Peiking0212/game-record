@@ -15,23 +15,23 @@ export type SpendingItem = {
 };
 
 export const RECORD_TYPE_LABEL: Record<SpendingRecordType, string> = {
-  purchase: "购买游戏",
-  recharge: "账户充值",
+  purchase: "璐拱娓告垙",
+  recharge: "璐︽埛鍏呭€?,
 };
 
 export const PLATFORM_OPTIONS = [
   "PC",
-  "手机",
+  "鎵嬫満",
   "PlayStation",
   "Xbox",
   "Switch",
   "Steam",
   "Epic",
-  "其他",
+  "鍏朵粬",
 ] as const;
 
 export const DEFAULT_PLATFORM = "PC";
-export const DEFAULT_GAME_LABEL = "账户充值";
+export const DEFAULT_GAME_LABEL = "璐︽埛鍏呭€?;
 
 function parseJson<T>(raw: string | null, fallback: T): T {
   if (!raw) return fallback;
@@ -109,7 +109,7 @@ export function platformClass(platform: string): string {
   switch (platform) {
     case "PC":
       return "platform-pc";
-    case "手机":
+    case "鎵嬫満":
       return "platform-mobile";
     case "PlayStation":
     case "PS Store":

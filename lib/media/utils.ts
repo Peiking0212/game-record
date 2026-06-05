@@ -36,7 +36,7 @@ export function generateMediaId(): string {
 export const MEDIA_FAIL_PLACEHOLDER =
   "data:image/svg+xml," +
   encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect fill="#E8F0F8" width="400" height="300"/><text x="200" y="150" text-anchor="middle" dy=".3em" fill="#94A3B8" font-size="16">图片加载失败</text></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect fill="#E8F0F8" width="400" height="300"/><text x="200" y="150" text-anchor="middle" dy=".3em" fill="#94A3B8" font-size="16">鍥剧墖鍔犺浇澶辫触</text></svg>',
   );
 
 export function videoThumbnailPlaceholder(): string {

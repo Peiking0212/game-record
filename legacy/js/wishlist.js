@@ -1,21 +1,20 @@
 // ============================================================
-// wishlist.js - 游戏愿望单页面业务逻辑
-// 数据存储: localStorage key = game_record_wishlist
-// Supabase fallback: games + game_best_prices（需登录且配置 SB）
-// ============================================================
+// wishlist.js - 娓告垙鎰挎湜鍗曢〉闈笟鍔￠€昏緫
+// 鏁版嵁瀛樺偍: localStorage key = game_record_wishlist
+// Supabase fallback: games + game_best_prices锛堥渶鐧诲綍涓旈厤缃?SB锛?// ============================================================
 
 var _supabaseCatalogCache = null;
 var _alertCtx = null;
 var ALERT_EVENTS_LIMIT = 15;
 
-/** 愿望单中文名 → 云端 games.name（小写）或 steam_app_id */
+/** 鎰挎湜鍗曚腑鏂囧悕 鈫?浜戠 games.name锛堝皬鍐欙級鎴?steam_app_id */
 var WISHLIST_GAME_ALIASES = {
-  '星露谷物语': { name: 'stardew valley', steamAppId: 413150 },
-  '星露谷': { name: 'stardew valley', steamAppId: 413150 },
+  '鏄熼湶璋风墿璇?: { name: 'stardew valley', steamAppId: 413150 },
+  '鏄熼湶璋?: { name: 'stardew valley', steamAppId: 413150 },
   'stardew valley': { name: 'stardew valley', steamAppId: 413150 },
   'dota 2': { name: 'dota 2', steamAppId: 570 },
   'dota2': { name: 'dota 2', steamAppId: 570 },
-  '反恐精英2': { name: 'counter-strike 2', steamAppId: 730 },
+  '鍙嶆亹绮捐嫳2': { name: 'counter-strike 2', steamAppId: 730 },
   'cs2': { name: 'counter-strike 2', steamAppId: 730 },
   'counter-strike 2': { name: 'counter-strike 2', steamAppId: 730 }
 };
@@ -147,11 +146,11 @@ function resolveSupabaseGameId(item, ctx) {
 
 function formatBestPriceLine(priceRow) {
   if (!priceRow) return '';
-  var cur = priceRow.currency === 'CNY' || !priceRow.currency ? '¥' : (priceRow.currency + ' ');
+  var cur = priceRow.currency === 'CNY' || !priceRow.currency ? '楼' : (priceRow.currency + ' ');
   var store = priceRow.best_store ? String(priceRow.best_store) : '';
   if (store === 'gog') store = 'GOG';
   else if (store) store = store.charAt(0).toUpperCase() + store.slice(1);
-  return '当前最低 ' + cur + priceRow.price + (store ? ' @' + store : '');
+  return '褰撳墠鏈€浣?' + cur + priceRow.price + (store ? ' @' + store : '');
 }
 
 async function triggerAlertEvaluatorForGame(gameId) {
@@ -177,10 +176,10 @@ async function triggerAlertEvaluatorForGame(gameId) {
 
 async function callLookupGame(query, steamAppId) {
   var cfg = readSupabaseEnv();
-  if (!cfg.url || !cfg.anonKey) throw new Error('未配置 Supabase');
+  if (!cfg.url || !cfg.anonKey) throw new Error('鏈厤缃?Supabase');
   var sessionRes = await window.SB.auth.getSession();
   var token = sessionRes.data && sessionRes.data.session && sessionRes.data.session.access_token;
-  if (!token) throw new Error('请先登录');
+  if (!token) throw new Error('璇峰厛鐧诲綍');
 
   var bodyPayload = { import: true, allowManual: true };
   if (steamAppId != null && Number(steamAppId) > 0) {
@@ -202,7 +201,7 @@ async function callLookupGame(query, steamAppId) {
   if (!res.ok || !body.ok) {
     var err = (body && body.error) ? body.error : ('HTTP ' + res.status);
     if (err === 'not_found') {
-      err = (body && body.hint) ? body.hint : '未在 Steam/ITAD 找到；主机独占游戏仍会尝试按名称入库';
+      err = (body && body.hint) ? body.hint : '鏈湪 Steam/ITAD 鎵惧埌锛涗富鏈虹嫭鍗犳父鎴忎粛浼氬皾璇曟寜鍚嶇О鍏ュ簱';
     }
     throw new Error(err);
   }
@@ -213,10 +212,10 @@ async function callLookupGame(query, steamAppId) {
 
 async function callUpsertAlert(gameId, targetPrice, enabled) {
   var cfg = readSupabaseEnv();
-  if (!cfg.url || !cfg.anonKey) throw new Error('未配置 Supabase');
+  if (!cfg.url || !cfg.anonKey) throw new Error('鏈厤缃?Supabase');
   var sessionRes = await window.SB.auth.getSession();
   var token = sessionRes.data && sessionRes.data.session && sessionRes.data.session.access_token;
-  if (!token) throw new Error('请先登录');
+  if (!token) throw new Error('璇峰厛鐧诲綍');
 
   var res = await fetch(cfg.url.replace(/\/$/, '') + '/functions/v1/upsert-alert', {
     method: 'POST',
@@ -246,8 +245,8 @@ function renderTargetPriceBlock(item, ctx) {
   if (!gameId) {
     var safeName = escapeHtml(item.name || '');
     return '<div class="wishlist-alert-row wishlist-alert-unmatched" data-wishlist-id="' + escapeHtml(String(item.id || '')) + '">' +
-      '<span class="wishlist-alert-inline">未在云端目录中。可从 Steam 搜索并入库后即可设目标价提醒。</span>' +
-      '<button type="button" class="wishlist-lookup-cloud-btn" data-wishlist-id="' + escapeHtml(String(item.id || '')) + '">从 Steam 搜索入库</button>' +
+      '<span class="wishlist-alert-inline">鏈湪浜戠鐩綍涓€傚彲浠?Steam 鎼滅储骞跺叆搴撳悗鍗冲彲璁剧洰鏍囦环鎻愰啋銆?/span>' +
+      '<button type="button" class="wishlist-lookup-cloud-btn" data-wishlist-id="' + escapeHtml(String(item.id || '')) + '">浠?Steam 鎼滅储鍏ュ簱</button>' +
       '</div>';
   }
   var alertRow = ctx.alertsByGameId[String(gameId)];
@@ -258,16 +257,16 @@ function renderTargetPriceBlock(item, ctx) {
   if (priceRow) {
     html += '<span class="wishlist-best-price">' + escapeHtml(formatBestPriceLine(priceRow)) + '</span>';
   } else {
-    html += '<span class="wishlist-alert-inline">暂无云端最低价</span>';
+    html += '<span class="wishlist-alert-inline">鏆傛棤浜戠鏈€浣庝环</span>';
   }
   if (alertRow && alertRow.target_price != null) {
-    html += '<span>已设目标 ¥' + escapeHtml(String(alertRow.target_price)) + '</span>';
+    html += '<span>宸茶鐩爣 楼' + escapeHtml(String(alertRow.target_price)) + '</span>';
   }
   html += '</div>';
   html += '<div class="wishlist-alert-form">';
-  html += '<label class="wishlist-alert-inline">目标价（CNY，愿意买的最高价）<input type="number" inputmode="decimal" min="0.01" step="0.01" class="wishlist-target-price-input" name="wishlist-target-price" autocomplete="off" data-lpignore="true" data-1p-ignore data-form-type="other" value="' +
-    escapeHtml(String(targetVal)) + '" placeholder="例如 50" /></label>';
-  html += '<button type="button" class="wishlist-save-alert-btn" data-game-id="' + gameId + '">保存提醒</button>';
+  html += '<label class="wishlist-alert-inline">鐩爣浠凤紙CNY锛屾効鎰忎拱鐨勬渶楂樹环锛?input type="number" inputmode="decimal" min="0.01" step="0.01" class="wishlist-target-price-input" name="wishlist-target-price" autocomplete="off" data-lpignore="true" data-1p-ignore data-form-type="other" value="' +
+    escapeHtml(String(targetVal)) + '" placeholder="渚嬪 50" /></label>';
+  html += '<button type="button" class="wishlist-save-alert-btn" data-game-id="' + gameId + '">淇濆瓨鎻愰啋</button>';
   html += '<span class="wishlist-alert-inline wishlist-alert-feedback" data-game-id="' + gameId + '"></span>';
   html += '</div></div>';
   return html;
@@ -285,12 +284,12 @@ function bindLookupCloudHandlers(container) {
         if (String(list[j].id) === String(wishId)) { item = list[j]; break; }
       }
       if (!item || !item.name) {
-        showToast('找不到愿望单条目', 'warning');
+        showToast('鎵句笉鍒版効鏈涘崟鏉＄洰', 'warning');
         return;
       }
       this.disabled = true;
       try {
-        showToast('正在 Steam 搜索「' + item.name + '」…', 'success');
+        showToast('姝ｅ湪 Steam 鎼滅储銆? + item.name + '銆嶁€?, 'success');
         var lookup = await callLookupGame(item.name);
         if (lookup.game) {
           item.supabaseGameId = lookup.game.id;
@@ -307,13 +306,13 @@ function bindLookupCloudHandlers(container) {
           if (lookup.warning === 'not_on_steam' && lookup.message) {
             showToast(lookup.message, 'warning');
           } else {
-            showToast('已入库：' + (lookup.game.name || item.name), 'success');
+            showToast('宸插叆搴擄細' + (lookup.game.name || item.name), 'success');
           }
         }
         await renderWishlist();
         await renderAlertsPanel();
       } catch (e) {
-        showToast(e.message || '入库失败', 'warning');
+        showToast(e.message || '鍏ュ簱澶辫触', 'warning');
       } finally {
         this.disabled = false;
       }
@@ -332,12 +331,12 @@ function bindTargetPriceSaveHandlers(container) {
       var feedback = row ? row.querySelector('.wishlist-alert-feedback') : null;
       var price = input ? parseFloat(input.value) : NaN;
       if (!Number.isFinite(price) || price <= 0) {
-        showToast('请输入有效的目标价', 'warning');
+        showToast('璇疯緭鍏ユ湁鏁堢殑鐩爣浠?, 'warning');
         return;
       }
       this.disabled = true;
       if (feedback) {
-        feedback.textContent = '保存中…';
+        feedback.textContent = '淇濆瓨涓€?;
         feedback.className = 'wishlist-alert-inline wishlist-alert-feedback';
       }
       try {
@@ -345,26 +344,26 @@ function bindTargetPriceSaveHandlers(container) {
         await triggerAlertEvaluatorForGame(gameId);
         var ev = upsertBody && upsertBody.evaluation;
         if (feedback) {
-          feedback.textContent = '已保存';
+          feedback.textContent = '宸蹭繚瀛?;
           feedback.className = 'wishlist-alert-inline wishlist-alert-feedback success';
         }
         if (ev && ev.triggered) {
-          showToast('已达标！站内提醒与看板娘已更新', 'success');
+          showToast('宸茶揪鏍囷紒绔欏唴鎻愰啋涓庣湅鏉垮宸叉洿鏂?, 'success');
         } else if (ev && ev.reason === 'above_target') {
-          showToast('已保存。当前价高于目标价，降价后会提醒', 'success');
+          showToast('宸蹭繚瀛樸€傚綋鍓嶄环楂樹簬鐩爣浠凤紝闄嶄环鍚庝細鎻愰啋', 'success');
         } else if (ev && ev.reason === 'deduped') {
-          showToast('已保存（24 小时内不重复提醒）', 'success');
+          showToast('宸蹭繚瀛橈紙24 灏忔椂鍐呬笉閲嶅鎻愰啋锛?, 'success');
         } else {
-          showToast('目标价提醒已保存', 'success');
+          showToast('鐩爣浠锋彁閱掑凡淇濆瓨', 'success');
         }
         await renderWishlist();
         await renderAlertsPanel();
       } catch (e) {
         if (feedback) {
-          feedback.textContent = e.message || '保存失败';
+          feedback.textContent = e.message || '淇濆瓨澶辫触';
           feedback.className = 'wishlist-alert-inline wishlist-alert-feedback error';
         }
-        showToast(e.message || '保存失败', 'warning');
+        showToast(e.message || '淇濆瓨澶辫触', 'warning');
       } finally {
         this.disabled = false;
       }
@@ -444,7 +443,7 @@ function resolveDisplayGameName(gameId, cloudName, ctx) {
       }
     }
   }
-  return cloudName || '游戏';
+  return cloudName || '娓告垙';
 }
 
 function dedupeAlertEventsByGame(events) {
@@ -462,7 +461,7 @@ function dedupeAlertEventsByGame(events) {
 }
 
 function formatAlertEventMessage(ev, displayName) {
-  var gameName = displayName || '游戏';
+  var gameName = displayName || '娓告垙';
   var target = null;
   if (!displayName && ev.alerts && ev.alerts.games && ev.alerts.games.name) {
     gameName = ev.alerts.games.name;
@@ -471,7 +470,7 @@ function formatAlertEventMessage(ev, displayName) {
   if (window.MascotNotify && window.MascotNotify.formatPriceAlertMessage) {
     return window.MascotNotify.formatPriceAlertMessage(gameName, ev.trigger_price, target);
   }
-  return gameName + ' 现价 ' + ev.trigger_price;
+  return gameName + ' 鐜颁环 ' + ev.trigger_price;
 }
 
 function dismissAllVisibleAlertEvents(events) {
@@ -493,7 +492,7 @@ async function renderAlertsPanel() {
   if (!signedIn) {
     listEl.innerHTML = '';
     if (emptyEl) {
-      emptyEl.textContent = '登录后可查看云端降价提醒';
+      emptyEl.textContent = '鐧诲綍鍚庡彲鏌ョ湅浜戠闄嶄环鎻愰啋';
       emptyEl.classList.remove('hidden');
     }
     if (badgeEl) badgeEl.classList.add('hidden');
@@ -520,7 +519,7 @@ async function renderAlertsPanel() {
     html += '<div><div class="font-medium text-gray-800">' +
       escapeHtml(formatAlertEventMessage(ev, displayName)) + '</div>';
     html += '<div class="text-xs text-gray-500 mt-1">' + escapeHtml(formatDate(ev.triggered_at)) + '</div></div>';
-    html += '<button type="button" class="wishlist-alert-dismiss" data-event-id="' + ev.id + '">知道了</button>';
+    html += '<button type="button" class="wishlist-alert-dismiss" data-event-id="' + ev.id + '">鐭ラ亾浜?/button>';
     html += '</li>';
   }
 
@@ -528,7 +527,7 @@ async function renderAlertsPanel() {
   if (emptyEl) {
     emptyEl.classList.toggle('hidden', events.length > 0);
     emptyEl.textContent = events.length === 0
-      ? '暂无未读降价提醒（已读提醒不会重复展示）'
+      ? '鏆傛棤鏈闄嶄环鎻愰啋锛堝凡璇绘彁閱掍笉浼氶噸澶嶅睍绀猴級'
       : '';
   }
   if (badgeEl) badgeEl.classList.toggle('hidden', unreadCount === 0);
@@ -586,13 +585,13 @@ async function fetchSupabaseWishlistCatalog() {
     return (gamesRes.data || []).map(function (g) {
       var priceRow = priceByGameId[String(g.id)];
       var platform = formatStoreLabel(priceRow && priceRow.best_store);
-      var notes = '来自 Supabase 目录';
+      var notes = '鏉ヨ嚜 Supabase 鐩綍';
       if (priceRow) {
-        notes = '最低价 ' + priceRow.price + ' ' + (priceRow.currency || '') +
-          ' · ' + formatStoreLabel(priceRow.best_store);
-        if (priceRow.discount_pct) notes += ' · 折扣 ' + priceRow.discount_pct + '%';
+        notes = '鏈€浣庝环 ' + priceRow.price + ' ' + (priceRow.currency || '') +
+          ' 路 ' + formatStoreLabel(priceRow.best_store);
+        if (priceRow.discount_pct) notes += ' 路 鎶樻墸 ' + priceRow.discount_pct + '%';
         if (priceRow.meta && priceRow.meta.historical_low != null) {
-          notes += ' · 史低 ' + priceRow.meta.historical_low;
+          notes += ' 路 鍙蹭綆 ' + priceRow.meta.historical_low;
         }
       }
       return {
@@ -676,9 +675,9 @@ async function enrichWishlistFromSupabase(list) {
       if (priceRow.best_store) {
         next.platform = storeLabel(priceRow.best_store);
       }
-      var priceNote = '最低价 ' + priceRow.price + (priceRow.currency ? ' ' + priceRow.currency : '') +
+      var priceNote = '鏈€浣庝环 ' + priceRow.price + (priceRow.currency ? ' ' + priceRow.currency : '') +
         (priceRow.best_store ? ' @' + storeLabel(priceRow.best_store) : '');
-      next.notes = (next.notes ? next.notes + ' · ' : '') + priceNote;
+      next.notes = (next.notes ? next.notes + ' 路 ' : '') + priceNote;
       return next;
     });
   } catch (e) {
@@ -686,7 +685,7 @@ async function enrichWishlistFromSupabase(list) {
   }
 }
 
-// ---------- 数据读写 ----------
+// ---------- 鏁版嵁璇诲啓 ----------
 function getWishlist() {
   try {
     var data = localStorage.getItem(window.GameData.KEYS.WISHLIST);
@@ -738,7 +737,7 @@ function bindDealRulesPanel() {
       latest.notifyOnlyNewLows = !!onlyNewLowInput.checked;
       latest.updatedAt = new Date().toISOString();
       saveDealWatchRules(latest);
-      showToast('折扣提醒规则已保存', 'success');
+      showToast('鎶樻墸鎻愰啋瑙勫垯宸蹭繚瀛?, 'success');
     });
   }
 
@@ -748,9 +747,9 @@ function bindDealRulesPanel() {
       refreshBtn.disabled = true;
       try {
         await window.GamePersonalizedFeed.refresh({ force: true });
-        showToast('折扣与资讯已刷新', 'success');
+        showToast('鎶樻墸涓庤祫璁凡鍒锋柊', 'success');
       } catch (e) {
-        showToast('刷新失败，已使用本地缓存', 'warning');
+        showToast('鍒锋柊澶辫触锛屽凡浣跨敤鏈湴缂撳瓨', 'warning');
       } finally {
         refreshBtn.disabled = false;
       }
@@ -763,7 +762,7 @@ function getSpendingRecordType(record) {
   if (record.recordType === 'purchase' || record.recordType === 'recharge') return record.recordType;
   if (record.wishlistId != null && record.wishlistId !== '') return 'purchase';
   if (record.gameId != null && record.gameId !== '') return 'recharge';
-  if (String(record.game || '').trim() === '账户充值') return 'recharge';
+  if (String(record.game || '').trim() === '璐︽埛鍏呭€?) return 'recharge';
   return 'purchase';
 }
 
@@ -795,19 +794,19 @@ function renderWishlistSpendingSummary(records) {
   var html = '<div class="wishlist-spending">';
   html += '  <div class="wishlist-spending-summary">';
   html += '    <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>';
-  html += '    <span>已购 ' + records.length + ' 笔 · ¥' + total.toFixed(2) + '</span>';
+  html += '    <span>宸茶喘 ' + records.length + ' 绗?路 楼' + total.toFixed(2) + '</span>';
   html += '  </div>';
   if (latest) {
-    html += '  <div class="wishlist-spending-latest">最近：¥' + (parseFloat(latest.amount) || 0).toFixed(2);
-    if (latest.date) html += ' · ' + escapeHtml(formatDate(latest.date));
+    html += '  <div class="wishlist-spending-latest">鏈€杩戯細楼' + (parseFloat(latest.amount) || 0).toFixed(2);
+    if (latest.date) html += ' 路 ' + escapeHtml(formatDate(latest.date));
     html += '</div>';
   }
-  html += '  <a href="spending.html" class="wishlist-spending-link">查看消费记录</a>';
+  html += '  <a href="spending.html" class="wishlist-spending-link">鏌ョ湅娑堣垂璁板綍</a>';
   html += '</div>';
   return html;
 }
 
-// ---------- 工具函数 ----------
+// ---------- 宸ュ叿鍑芥暟 ----------
 
 function showToast(message, type) {
   type = type || 'info';
@@ -822,12 +821,12 @@ function showToast(message, type) {
   }, 3000);
 }
 
-// ---------- 封面生成 ----------
+// ---------- 灏侀潰鐢熸垚 ----------
 function getCoverHtml(url, name) {
   return imgWithFallback(url, name, 'wishlist-cover-img');
 }
 
-// ---------- 星级渲染（卡片展示用） ----------
+// ---------- 鏄熺骇娓叉煋锛堝崱鐗囧睍绀虹敤锛?----------
 function renderStars(rating, maxStars) {
   maxStars = maxStars || 5;
   var html = '';
@@ -841,11 +840,11 @@ function renderStars(rating, maxStars) {
   return html;
 }
 
-// ---------- 优先级标签（使用 high/medium/low） ----------
+// ---------- 浼樺厛绾ф爣绛撅紙浣跨敤 high/medium/low锛?----------
 function getPriorityLabel(p) {
-  if (p === 'high') return '<span class="priority-tag priority-high">高</span>';
-  if (p === 'medium') return '<span class="priority-tag priority-medium">中</span>';
-  if (p === 'low') return '<span class="priority-tag priority-low">低</span>';
+  if (p === 'high') return '<span class="priority-tag priority-high">楂?/span>';
+  if (p === 'medium') return '<span class="priority-tag priority-medium">涓?/span>';
+  if (p === 'low') return '<span class="priority-tag priority-low">浣?/span>';
   return '';
 }
 
@@ -856,20 +855,16 @@ function getPriorityClass(p) {
   return 'medium';
 }
 
-// ---------- 星级评分点击函数（全局，供 HTML onclick 调用） ----------
+// ---------- 鏄熺骇璇勫垎鐐瑰嚮鍑芥暟锛堝叏灞€锛屼緵 HTML onclick 璋冪敤锛?----------
 
 /**
- * 设置添加表单的星级评分
- * @param {number} val - 1~5 的评分值
- */
+ * 璁剧疆娣诲姞琛ㄥ崟鐨勬槦绾ц瘎鍒? * @param {number} val - 1~5 鐨勮瘎鍒嗗€? */
 function setRating(val) {
-  // 更新隐藏 input 的值
-  var ratingInput = document.getElementById('wish-rating');
+  // 鏇存柊闅愯棌 input 鐨勫€?  var ratingInput = document.getElementById('wish-rating');
   if (ratingInput) {
     ratingInput.value = val;
   }
-  // 更新星星视觉状态
-  var stars = document.querySelectorAll('#rating-select .rating-star');
+  // 鏇存柊鏄熸槦瑙嗚鐘舵€?  var stars = document.querySelectorAll('#rating-select .rating-star');
   for (var i = 0; i < stars.length; i++) {
     var starVal = parseInt(stars[i].getAttribute('data-value'));
     if (starVal <= val) {
@@ -885,17 +880,13 @@ function setRating(val) {
 }
 
 /**
- * 设置编辑表单的星级评分
- * @param {number} val - 1~5 的评分值
- */
+ * 璁剧疆缂栬緫琛ㄥ崟鐨勬槦绾ц瘎鍒? * @param {number} val - 1~5 鐨勮瘎鍒嗗€? */
 function setEditRating(val) {
-  // 更新隐藏 input 的值
-  var ratingInput = document.getElementById('edit-wish-rating');
+  // 鏇存柊闅愯棌 input 鐨勫€?  var ratingInput = document.getElementById('edit-wish-rating');
   if (ratingInput) {
     ratingInput.value = val;
   }
-  // 更新星星视觉状态
-  var stars = document.querySelectorAll('#edit-rating-select .edit-rating-star');
+  // 鏇存柊鏄熸槦瑙嗚鐘舵€?  var stars = document.querySelectorAll('#edit-rating-select .edit-rating-star');
   for (var i = 0; i < stars.length; i++) {
     var starVal = parseInt(stars[i].getAttribute('data-value'));
     if (starVal <= val) {
@@ -911,7 +902,7 @@ function setEditRating(val) {
 }
 
 /**
- * 重置添加表单的星级视觉状态（所有星星置灰）
+ * 閲嶇疆娣诲姞琛ㄥ崟鐨勬槦绾ц瑙夌姸鎬侊紙鎵€鏈夋槦鏄熺疆鐏帮級
  */
 function resetAddRatingStars() {
   var stars = document.querySelectorAll('#rating-select .rating-star');
@@ -927,7 +918,7 @@ function resetAddRatingStars() {
 }
 
 /**
- * 重置编辑表单的星级视觉状态（所有星星置灰）
+ * 閲嶇疆缂栬緫琛ㄥ崟鐨勬槦绾ц瑙夌姸鎬侊紙鎵€鏈夋槦鏄熺疆鐏帮級
  */
 function resetEditRatingStars() {
   var stars = document.querySelectorAll('#edit-rating-select .edit-rating-star');
@@ -942,7 +933,7 @@ function resetEditRatingStars() {
   }
 }
 
-// ---------- 渲染愿望单列表 ----------
+// ---------- 娓叉煋鎰挎湜鍗曞垪琛?----------
 async function renderWishlist() {
   var container = document.getElementById('wishlist-items');
   if (!container) return;
@@ -950,12 +941,11 @@ async function renderWishlist() {
   var alertCtx = await loadAlertContext();
   var list = await loadWishlistWithFallback();
 
-  // 搜索
+  // 鎼滅储
   var searchInput = document.getElementById('search');
   var keyword = searchInput ? searchInput.value.trim().toLowerCase() : '';
 
-  // 筛选（使用 HTML 中的正确 ID）
-  var platformFilter = document.getElementById('platform-filter');
+  // 绛涢€夛紙浣跨敤 HTML 涓殑姝ｇ‘ ID锛?  var platformFilter = document.getElementById('platform-filter');
   var priorityFilter = document.getElementById('priority-filter');
   var sortSelect = document.getElementById('sort-by');
 
@@ -978,7 +968,7 @@ async function renderWishlist() {
     });
   }
 
-  // 排序
+  // 鎺掑簭
   if (sortSelect && sortSelect.value) {
     var sortVal = sortSelect.value;
     list.sort(function (a, b) {
@@ -1001,8 +991,7 @@ async function renderWishlist() {
     });
   }
 
-  // 空状态处理
-  var emptyState = document.getElementById('empty-state');
+  // 绌虹姸鎬佸鐞?  var emptyState = document.getElementById('empty-state');
   if (list.length === 0) {
     container.innerHTML = '';
     if (emptyState) { emptyState.classList.remove('hidden'); }
@@ -1022,10 +1011,10 @@ async function renderWishlist() {
     html += '      <h3 class="wishlist-name">' + escapeHtml(item.name) + '</h3>';
     html += '      <div class="wishlist-actions">';
     if (!item._fromSupabase) {
-      html += '        <button class="btn-edit-wishlist" data-id="' + item.id + '" title="编辑"><i data-lucide="pencil"></i></button>';
-      html += '        <button class="btn-delete-wishlist" data-id="' + item.id + '" title="删除"><i data-lucide="trash-2"></i></button>';
+      html += '        <button class="btn-edit-wishlist" data-id="' + item.id + '" title="缂栬緫"><i data-lucide="pencil"></i></button>';
+      html += '        <button class="btn-delete-wishlist" data-id="' + item.id + '" title="鍒犻櫎"><i data-lucide="trash-2"></i></button>';
     } else {
-      html += '        <span class="text-xs text-blue-500 px-2 py-1 rounded bg-blue-50">云端目录</span>';
+      html += '        <span class="text-xs text-blue-500 px-2 py-1 rounded bg-blue-50">浜戠鐩綍</span>';
     }
     html += '      </div>';
     html += '    </div>';
@@ -1059,7 +1048,7 @@ async function renderWishlist() {
   bindTargetPriceSaveHandlers(container);
   bindLookupCloudHandlers(container);
 
-  // 绑定编辑/删除按钮
+  // 缁戝畾缂栬緫/鍒犻櫎鎸夐挳
   var editBtns = container.querySelectorAll('.btn-edit-wishlist');
   for (var j = 0; j < editBtns.length; j++) {
     editBtns[j].addEventListener('click', function () {
@@ -1076,19 +1065,16 @@ async function renderWishlist() {
 }
 
 // ============================================================
-// Modal: 添加愿望单
-// ============================================================
+// Modal: 娣诲姞鎰挎湜鍗?// ============================================================
 function openAddWishlistModal() {
   var modal = document.getElementById('add-wishlist-modal');
   if (!modal) return;
   modal.classList.add('active');
-  // 清空表单
+  // 娓呯┖琛ㄥ崟
   var form = document.getElementById('add-wishlist-form');
   if (form) { form.reset(); }
-  // 重置星级评分的视觉状态（lucide star icon，不是 radio button）
-  resetAddRatingStars();
-  // 重新初始化 lucide 图标（因为 modal display 从 none 变为 flex）
-  if (window.lucide) { lucide.createIcons(); }
+  // 閲嶇疆鏄熺骇璇勫垎鐨勮瑙夌姸鎬侊紙lucide star icon锛屼笉鏄?radio button锛?  resetAddRatingStars();
+  // 閲嶆柊鍒濆鍖?lucide 鍥炬爣锛堝洜涓?modal display 浠?none 鍙樹负 flex锛?  if (window.lucide) { lucide.createIcons(); }
 }
 
 function closeAddWishlistModal() {
@@ -1097,25 +1083,24 @@ function closeAddWishlistModal() {
   modal.classList.remove('active');
 }
 
-// ---------- 添加提交 ----------
+// ---------- 娣诲姞鎻愪氦 ----------
 async function handleAddWishlistSubmit(e) {
   e.preventDefault();
   var nameInput = document.querySelector('#add-wishlist-form [name="name"]');
   var name = nameInput ? nameInput.value.trim() : '';
   if (!name) {
-    showToast('请输入游戏名称');
+    showToast('璇疯緭鍏ユ父鎴忓悕绉?);
     return;
   }
 
-  // 从隐藏 input #wish-rating 读取评分值
-  var ratingInput = document.getElementById('wish-rating');
+  // 浠庨殣钘?input #wish-rating 璇诲彇璇勫垎鍊?  var ratingInput = document.getElementById('wish-rating');
   var rating = ratingInput ? parseInt(ratingInput.value) : 0;
   if (isNaN(rating) || rating < 1) {
-    showToast('请选择期望度');
+    showToast('璇烽€夋嫨鏈熸湜搴?);
     return;
   }
 
-  // 使用 HTML 中的 name="cover"
+  // 浣跨敤 HTML 涓殑 name="cover"
   var coverInput = document.querySelector('#add-wishlist-form [name="cover"]');
   var platformInput = document.querySelector('#add-wishlist-form [name="platform"]');
   var priorityInput = document.querySelector('#add-wishlist-form [name="priority"]');
@@ -1136,19 +1121,19 @@ async function handleAddWishlistSubmit(e) {
 
   if (await isUserSignedIn()) {
     try {
-      showToast('正在从 Steam 搜索并入库…', 'success');
+      showToast('姝ｅ湪浠?Steam 鎼滅储骞跺叆搴撯€?, 'success');
       var lookup = await callLookupGame(name);
       if (lookup.game) {
         newItem.supabaseGameId = lookup.game.id;
         newItem.steamAppId = lookup.game.steam_app_id;
         if (!newItem.cover && lookup.game.cover_url) newItem.cover = lookup.game.cover_url;
         if (lookup.candidates && lookup.candidates.length > 1) {
-          newItem.notes = (newItem.notes ? newItem.notes + ' · ' : '') +
-            '已匹配：' + lookup.game.name;
+          newItem.notes = (newItem.notes ? newItem.notes + ' 路 ' : '') +
+            '宸插尮閰嶏細' + lookup.game.name;
         }
       }
     } catch (lookupErr) {
-      showToast((lookupErr.message || '云端入库失败') + '，已仅保存本地', 'warning');
+      showToast((lookupErr.message || '浜戠鍏ュ簱澶辫触') + '锛屽凡浠呬繚瀛樻湰鍦?, 'warning');
     }
   }
 
@@ -1162,15 +1147,14 @@ async function handleAddWishlistSubmit(e) {
   closeAddWishlistModal();
   await renderWishlist();
   if (newItem.supabaseGameId) {
-    showToast('愿望单已添加并已同步云端', 'success');
+    showToast('鎰挎湜鍗曞凡娣诲姞骞跺凡鍚屾浜戠', 'success');
   } else {
-    showToast('愿望单已添加', 'success');
+    showToast('鎰挎湜鍗曞凡娣诲姞', 'success');
   }
 }
 
 // ============================================================
-// Modal: 编辑愿望单
-// ============================================================
+// Modal: 缂栬緫鎰挎湜鍗?// ============================================================
 function openEditWishlistModal(id) {
   var modal = document.getElementById('edit-wishlist-modal');
   if (!modal) return;
@@ -1184,7 +1168,7 @@ function openEditWishlistModal(id) {
 
   modal.classList.add('active');
 
-  // 填充表单字段
+  // 濉厖琛ㄥ崟瀛楁
   var nameInput = document.getElementById('edit-wish-name');
   var coverInput = document.getElementById('edit-wish-cover');
   var platformInput = document.getElementById('edit-wish-platform');
@@ -1199,15 +1183,14 @@ function openEditWishlistModal(id) {
   if (priceInput) priceInput.value = item.price || '';
   if (notesInput) notesInput.value = item.notes || '';
 
-  // 设置星级评分的视觉状态
-  var rating = item.rating || 0;
+  // 璁剧疆鏄熺骇璇勫垎鐨勮瑙夌姸鎬?  var rating = item.rating || 0;
   if (rating < 1) rating = 0;
   setEditRating(rating);
 
-  // 存储当前编辑 ID
+  // 瀛樺偍褰撳墠缂栬緫 ID
   modal.setAttribute('data-edit-id', id);
 
-  // 重新初始化 lucide 图标
+  // 閲嶆柊鍒濆鍖?lucide 鍥炬爣
   if (window.lucide) { lucide.createIcons(); }
 }
 
@@ -1226,19 +1209,18 @@ function handleEditWishlistSubmit(e) {
   var nameInput = document.querySelector('#edit-wishlist-form [name="name"]');
   var name = nameInput ? nameInput.value.trim() : '';
   if (!name) {
-    showToast('请输入游戏名称');
+    showToast('璇疯緭鍏ユ父鎴忓悕绉?);
     return;
   }
 
-  // 从隐藏 input #edit-wish-rating 读取评分值
-  var ratingInput = document.getElementById('edit-wish-rating');
+  // 浠庨殣钘?input #edit-wish-rating 璇诲彇璇勫垎鍊?  var ratingInput = document.getElementById('edit-wish-rating');
   var rating = ratingInput ? parseInt(ratingInput.value) : 0;
   if (isNaN(rating) || rating < 1) {
-    showToast('请选择期望度');
+    showToast('璇烽€夋嫨鏈熸湜搴?);
     return;
   }
 
-  // 使用 HTML 中的 name="cover"
+  // 浣跨敤 HTML 涓殑 name="cover"
   var coverInput = document.getElementById('edit-wish-cover');
   var platformInput = document.getElementById('edit-wish-platform');
   var priorityInput = document.querySelector('#edit-wishlist-form [name="edit-priority"]');
@@ -1266,11 +1248,11 @@ function handleEditWishlistSubmit(e) {
   saveWishlist(list);
   closeEditWishlistModal();
   renderWishlist();
-  showToast('愿望单已更新');
+  showToast('鎰挎湜鍗曞凡鏇存柊');
 }
 
 // ============================================================
-// Modal: 删除确认
+// Modal: 鍒犻櫎纭
 // ============================================================
 function openDeleteConfirmModal(id) {
   var modal = document.getElementById('delete-modal');
@@ -1305,15 +1287,14 @@ function handleDeleteConfirm() {
   }
   closeDeleteModal();
   renderWishlist();
-  showToast('愿望单已删除');
+  showToast('鎰挎湜鍗曞凡鍒犻櫎');
 }
 
 // ============================================================
-// 事件绑定 & 初始化
-// ============================================================
+// 浜嬩欢缁戝畾 & 鍒濆鍖?// ============================================================
 document.addEventListener('DOMContentLoaded', async function () {
   await window.awaitGameCloud();
-  // 初始渲染
+  // 鍒濆娓叉煋
   await renderWishlist();
   await renderAlertsPanel();
   bindDealRulesPanel();
@@ -1328,49 +1309,48 @@ document.addEventListener('DOMContentLoaded', async function () {
       });
       dismissAllVisibleAlertEvents(visible);
       await renderAlertsPanel();
-      showToast('已清除全部未读提醒', 'success');
+      showToast('宸叉竻闄ゅ叏閮ㄦ湭璇绘彁閱?, 'success');
     });
   }
 
-  // 添加按钮
+  // 娣诲姞鎸夐挳
   var addBtn = document.getElementById('add-wishlist-btn');
   if (addBtn) {
     addBtn.addEventListener('click', openAddWishlistModal);
   }
 
-  // 搜索
+  // 鎼滅储
   var searchInput = document.getElementById('search');
   if (searchInput) {
     searchInput.addEventListener('input', renderWishlist);
   }
 
-  // 筛选 & 排序（使用 HTML 中的正确 ID）
-  var platformFilter = document.getElementById('platform-filter');
+  // 绛涢€?& 鎺掑簭锛堜娇鐢?HTML 涓殑姝ｇ‘ ID锛?  var platformFilter = document.getElementById('platform-filter');
   var priorityFilter = document.getElementById('priority-filter');
   var sortSelect = document.getElementById('sort-by');
   if (platformFilter) { platformFilter.addEventListener('change', renderWishlist); }
   if (priorityFilter) { priorityFilter.addEventListener('change', renderWishlist); }
   if (sortSelect) { sortSelect.addEventListener('change', renderWishlist); }
 
-  // 添加表单提交
+  // 娣诲姞琛ㄥ崟鎻愪氦
   var addForm = document.getElementById('add-wishlist-form');
   if (addForm) {
     addForm.addEventListener('submit', handleAddWishlistSubmit);
   }
 
-  // 编辑表单提交
+  // 缂栬緫琛ㄥ崟鎻愪氦
   var editForm = document.getElementById('edit-wishlist-form');
   if (editForm) {
     editForm.addEventListener('submit', handleEditWishlistSubmit);
   }
 
-  // 删除确认按钮
+  // 鍒犻櫎纭鎸夐挳
   var confirmDeleteBtn = document.getElementById('confirm-delete-btn');
   if (confirmDeleteBtn) {
     confirmDeleteBtn.addEventListener('click', handleDeleteConfirm);
   }
 
-  // Modal 关闭按钮
+  // Modal 鍏抽棴鎸夐挳
   var closeButtons = document.querySelectorAll('.modal-close');
   for (var i = 0; i < closeButtons.length; i++) {
     closeButtons[i].addEventListener('click', function () {
@@ -1379,8 +1359,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
   }
 
-  // 点击遮罩层关闭
-  var modals = document.querySelectorAll('.modal');
+  // 鐐瑰嚮閬僵灞傚叧闂?  var modals = document.querySelectorAll('.modal');
   for (var j = 0; j < modals.length; j++) {
     modals[j].addEventListener('click', function (e) {
       if (e.target === this) { this.style.display = 'none'; }

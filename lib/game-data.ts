@@ -37,7 +37,7 @@ function writeJson(key: string, data: unknown): boolean {
     localStorage.setItem(key, JSON.stringify(data));
     return true;
   } catch (e) {
-    console.error("保存失败:", key, e);
+    console.error("淇濆瓨澶辫触:", key, e);
     return false;
   }
 }
@@ -183,7 +183,7 @@ export function migrateLegacyAchievements(): AchievementRecord[] {
     .filter((a) => a.unlocked !== false)
     .map((a, i) => ({
       id: a.id ?? Date.now() + i,
-      title: a.title || a.name || "未知成就",
+      title: a.title || a.name || "鏈煡鎴愬氨",
       gameName: a.gameName || a.game || "",
       description: a.description || "",
       date: a.date || "",

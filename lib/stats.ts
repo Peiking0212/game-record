@@ -63,7 +63,7 @@ export function buildOverview(
 }
 
 export function getGameTypes(games: GameRecord[]): string[] {
-  return [...new Set(games.map((g) => g.type || "其他"))].sort((a, b) =>
+  return [...new Set(games.map((g) => g.type || "鍏朵粬"))].sort((a, b) =>
     a.localeCompare(b, "zh-CN"),
   );
 }
@@ -89,7 +89,7 @@ export function yearlySummary(
     )
     .slice(0, 3);
   const typeCountMap = yearGames.reduce<Record<string, number>>((acc, g) => {
-    const type = g.type || "其他";
+    const type = g.type || "鍏朵粬";
     acc[type] = (acc[type] || 0) + 1;
     return acc;
   }, {});

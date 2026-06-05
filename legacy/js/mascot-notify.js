@@ -1,20 +1,19 @@
 /**
- * mascot-notify.js — 看板娘价格/提醒文案（依赖 theme.js 的 MascotBridge）
- */
+ * mascot-notify.js 鈥?鐪嬫澘濞樹环鏍?鎻愰啋鏂囨锛堜緷璧?theme.js 鐨?MascotBridge锛? */
 (function () {
   'use strict';
 
   var LAST_ALERT_KEY = 'mascot_last_alert_event_id';
 
   function formatPriceAlertMessage(gameName, triggerPrice, targetPrice) {
-    var name = gameName || '这款游戏';
+    var name = gameName || '杩欐娓告垙';
     var price = Number(triggerPrice);
     var target = Number(targetPrice);
     var priceText = Number.isFinite(price) ? price.toFixed(price % 1 === 0 ? 0 : 2) : String(triggerPrice);
     if (Number.isFinite(target) && target > 0) {
-      return name + '降到 ' + priceText + ' 元啦，低于你的目标价 ' + target.toFixed(target % 1 === 0 ? 0 : 2) + ' 元！';
+      return name + '闄嶅埌 ' + priceText + ' 鍏冨暒锛屼綆浜庝綘鐨勭洰鏍囦环 ' + target.toFixed(target % 1 === 0 ? 0 : 2) + ' 鍏冿紒';
     }
-    return name + '降到 ' + priceText + ' 元啦，快去看看愿望单~';
+    return name + '闄嶅埌 ' + priceText + ' 鍏冨暒锛屽揩鍘荤湅鐪嬫効鏈涘崟~';
   }
 
   function speak(text) {

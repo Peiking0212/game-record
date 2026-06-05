@@ -71,12 +71,12 @@ export function formatBestPriceLine(priceRow: BestPriceRow | undefined): string 
   if (!priceRow) return "";
   const cur =
     priceRow.currency === "CNY" || !priceRow.currency
-      ? "¥"
+      ? "楼"
       : `${priceRow.currency} `;
   let store = priceRow.best_store ? String(priceRow.best_store) : "";
   if (store === "gog") store = "GOG";
   else if (store) store = store.charAt(0).toUpperCase() + store.slice(1);
-  return `当前最低 ${cur}${priceRow.price}${store ? ` @${store}` : ""}`;
+  return `褰撳墠鏈€浣?${cur}${priceRow.price}${store ? ` @${store}` : ""}`;
 }
 
 export function resolveSupabaseGameId(
@@ -287,14 +287,14 @@ export function resolveDisplayGameName(
     const resolved = resolveSupabaseGameId(item, ctx);
     if (resolved != null && String(resolved) === gid) return item.name;
   }
-  return cloudName || "游戏";
+  return cloudName || "娓告垙";
 }
 
 export function formatAlertEventMessage(
   ev: AlertEvent,
   displayName: string,
 ): string {
-  let gameName = displayName || "游戏";
+  let gameName = displayName || "娓告垙";
   let target: number | null = null;
   if (!displayName && ev.alerts?.games?.name) {
     gameName = ev.alerts.games.name;
@@ -342,7 +342,7 @@ export async function fetchRecentEmailDeliveries(
       emailed_at: (row.emailed_at as string | null) ?? null,
       email_to: (row.email_to as string | null) ?? null,
       email_error: (row.email_error as string | null) ?? null,
-      gameName: alerts?.games?.name || "游戏",
+      gameName: alerts?.games?.name || "娓告垙",
     };
   });
 }
@@ -379,22 +379,22 @@ export function toastForUpsertEvaluation(
   evaluation: UpsertAlertResponse["evaluation"],
 ): { message: string; variant: "success" | "error" } {
   if (!evaluation) {
-    return { message: "目标价提醒已保存", variant: "success" };
+    return { message: "鐩爣浠锋彁閱掑凡淇濆瓨", variant: "success" };
   }
   if (evaluation.triggered) {
     return {
-      message: "已达标！站内提醒、看板娘与邮件（若已开启）已更新",
+      message: "宸茶揪鏍囷紒绔欏唴鎻愰啋銆佺湅鏉垮涓庨偖浠讹紙鑻ュ凡寮€鍚級宸叉洿鏂?,
       variant: "success",
     };
   }
   if (evaluation.reason === "above_target") {
     return {
-      message: "已保存。当前价高于目标价，降价后会提醒",
+      message: "宸蹭繚瀛樸€傚綋鍓嶄环楂樹簬鐩爣浠凤紝闄嶄环鍚庝細鎻愰啋",
       variant: "success",
     };
   }
   if (evaluation.reason === "deduped") {
-    return { message: "已保存（24 小时内不重复提醒）", variant: "success" };
+    return { message: "宸蹭繚瀛橈紙24 灏忔椂鍐呬笉閲嶅鎻愰啋锛?, variant: "success" };
   }
-  return { message: "目标价提醒已保存", variant: "success" };
+  return { message: "鐩爣浠锋彁閱掑凡淇濆瓨", variant: "success" };
 }

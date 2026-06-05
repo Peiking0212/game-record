@@ -1,7 +1,5 @@
 /**
- * personalized-feed.js — 个性化资讯与折扣聚合
- * 优先调用 Supabase Edge Function，失败时回退本地规则引擎。
- */
+ * personalized-feed.js 鈥?涓€у寲璧勮涓庢姌鎵ｈ仛鍚? * 浼樺厛璋冪敤 Supabase Edge Function锛屽け璐ユ椂鍥為€€鏈湴瑙勫垯寮曟搸銆? */
 (function () {
     'use strict';
 
@@ -87,12 +85,12 @@
         var wishlist = GD.get(GD.KEYS.WISHLIST, []);
         var records = games.concat(wishlist).slice(0, 10);
         return records.map(function (item, idx) {
-            var gameName = item.name || '未知游戏';
+            var gameName = item.name || '鏈煡娓告垙';
             return {
                 id: 'local-news-' + String(item.id || idx),
                 gameName: gameName,
-                title: gameName + ' 社区热度上升，近期值得关注',
-                summary: '根据你的游玩与收藏偏好，这款游戏近期更新讨论度较高，建议查看版本公告与社区攻略。',
+                title: gameName + ' 绀惧尯鐑害涓婂崌锛岃繎鏈熷€煎緱鍏虫敞',
+                summary: '鏍规嵁浣犵殑娓哥帺涓庢敹钘忓亸濂斤紝杩欐娓告垙杩戞湡鏇存柊璁ㄨ搴﹁緝楂橈紝寤鸿鏌ョ湅鐗堟湰鍏憡涓庣ぞ鍖烘敾鐣ャ€?,
                 source: 'local-fallback',
                 link: '',
                 publishedAt: isoNow(),
@@ -109,7 +107,7 @@
             var finalPrice = Math.max(1, origin * (1 - discountRate / 100));
             return {
                 id: 'local-deal-' + String(item.id || idx),
-                gameName: item.name || '未知游戏',
+                gameName: item.name || '鏈煡娓告垙',
                 platform: item.platform || 'PC',
                 originalPrice: Number(origin.toFixed(2)),
                 currentPrice: Number(finalPrice.toFixed(2)),
@@ -169,7 +167,7 @@
             });
             return { source: 'edge', news: persisted.news, deals: persisted.deals };
         } catch (err) {
-            console.warn('个性化 feed 使用本地回退:', err);
+            console.warn('涓€у寲 feed 浣跨敤鏈湴鍥為€€:', err);
             var fallback = {
                 news: localNewsCandidates(),
                 deals: localDealCandidates(rules)

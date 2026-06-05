@@ -1,6 +1,6 @@
 /**
- * 云端同步：登录用户各自的数据同步到 Supabase
- * 需配置 js/supabase.js 并执行 supabase-migration.sql + supabase-migration-v2-auth.sql
+ * 浜戠鍚屾锛氱櫥褰曠敤鎴峰悇鑷殑鏁版嵁鍚屾鍒?Supabase
+ * 闇€閰嶇疆 js/supabase.js 骞舵墽琛?supabase-migration.sql + supabase-migration-v2-auth.sql
  */
 (function () {
     'use strict';
@@ -207,19 +207,19 @@
             document.body.appendChild(el);
         }
         if (state === 'syncing') {
-            el.textContent = '云端同步中…';
+            el.textContent = '浜戠鍚屾涓€?;
             el.className = 'cloud-sync-status syncing';
             el.hidden = false;
             return;
         }
         if (state === 'done') {
-            el.textContent = '已同步';
+            el.textContent = '宸插悓姝?;
             el.className = 'cloud-sync-status done';
             setTimeout(function () { el.hidden = true; }, 1800);
             return;
         }
         if (state === 'error') {
-            el.textContent = '离线模式';
+            el.textContent = '绂荤嚎妯″紡';
             el.className = 'cloud-sync-status error';
             setTimeout(function () { el.hidden = true; }, 2500);
         }
@@ -259,10 +259,10 @@
                 .then(async function () {
                     if (window.GameLibrary && typeof window.GameLibrary.hydrate === 'function') {
                         try { await window.GameLibrary.hydrate(); }
-                        catch (e) { console.warn('云端游戏库合并失败:', e); }
+                        catch (e) { console.warn('浜戠娓告垙搴撳悎骞跺け璐?', e); }
                     }
                     if (!sessionStorage.getItem('gamecloud_toast_ok')) {
-                        showCloudToast('已连接云端，数据已与您的账号同步', 'success');
+                        showCloudToast('宸茶繛鎺ヤ簯绔紝鏁版嵁宸蹭笌鎮ㄧ殑璐﹀彿鍚屾', 'success');
                         sessionStorage.setItem('gamecloud_toast_ok', '1');
                     }
                     showSyncStatus('done');
@@ -270,9 +270,9 @@
                     readyResolve();
                 })
                 .catch(function (err) {
-                    console.error('云端拉取失败，使用本地数据:', err);
+                    console.error('浜戠鎷夊彇澶辫触锛屼娇鐢ㄦ湰鍦版暟鎹?', err);
                     if (!sessionStorage.getItem('gamecloud_toast_err')) {
-                        showCloudToast('云端暂不可用，仅保存在本机', 'error');
+                        showCloudToast('浜戠鏆備笉鍙敤锛屼粎淇濆瓨鍦ㄦ湰鏈?, 'error');
                         sessionStorage.setItem('gamecloud_toast_err', '1');
                     }
                     showSyncStatus('error');
@@ -326,7 +326,7 @@
                 });
                 if (hasLocal) {
                     await this.pushAllLocal();
-                    showCloudToast('已将本机数据备份到您的云端', 'success');
+                    showCloudToast('宸插皢鏈満鏁版嵁澶囦唤鍒版偍鐨勪簯绔?, 'success');
                     return;
                 }
             }
@@ -385,7 +385,7 @@
                 if (up.error) throw up.error;
                 p.avatar = window.SB.storage.from(MEDIA_BUCKET).getPublicUrl(path).data.publicUrl;
             } catch (e) {
-                console.warn('头像上传云端失败，改用压缩图保存:', e);
+                console.warn('澶村儚涓婁紶浜戠澶辫触锛屾敼鐢ㄥ帇缂╁浘淇濆瓨:', e);
                 if (av.indexOf('data:image') === 0) {
                     p.avatar = await compressImage(av, 256, 0.82);
                 }
@@ -415,7 +415,7 @@
                 if (upsert.error) throw upsert.error;
                 return true;
             } catch (e) {
-                console.error('云端保存失败:', key, e);
+                console.error('浜戠淇濆瓨澶辫触:', key, e);
                 return false;
             }
         },
@@ -451,7 +451,7 @@
                 localStorage.setItem('game_record_media', JSON.stringify(list));
                 return list;
             } catch (e) {
-                console.error('获取云端媒体失败:', e);
+                console.error('鑾峰彇浜戠濯掍綋澶辫触:', e);
                 return parseJson(localStorage.getItem('game_record_media'), []);
             }
         },
@@ -540,6 +540,5 @@
         return window.GameCloud.ready.then(callback);
     };
 
-    // auth.html 登录成功后由 auth-page.js 调用 GameCloud.start()
-    // 其他页面由 auth.js requireAuth 成功后调用
-})();
+    // auth.html 鐧诲綍鎴愬姛鍚庣敱 auth-page.js 璋冪敤 GameCloud.start()
+    // 鍏朵粬椤甸潰鐢?auth.js requireAuth 鎴愬姛鍚庤皟鐢?})();

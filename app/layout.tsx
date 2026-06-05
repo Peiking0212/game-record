@@ -8,11 +8,11 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "游戏记录",
-    template: "%s · 游戏记录",
+    default: "娓告垙璁板綍",
+    template: "%s 路 娓告垙璁板綍",
   },
   description:
-    "记录游戏时光：游戏收藏、成就、数据统计与媒体库。",
+    "璁板綍娓告垙鏃跺厜锛氭父鎴忔敹钘忋€佹垚灏便€佹暟鎹粺璁′笌濯掍綋搴撱€?,
   icons: {
     icon: "/assets/favicon.svg",
   },

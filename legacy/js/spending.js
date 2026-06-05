@@ -1,8 +1,8 @@
 /**
- * spending.js — 消费记录业务逻辑
+ * spending.js 鈥?娑堣垂璁板綍涓氬姟閫昏緫
  * localStorage key: game_record_spending
- * 数据结构: { id, recordType: 'purchase'|'recharge', wishlistId?, gameId?, game, amount, date, platform, note }
- * 购买游戏 → 关联愿望单 (wishlistId)；账户充值 → 关联游戏库 (gameId)
+ * 鏁版嵁缁撴瀯: { id, recordType: 'purchase'|'recharge', wishlistId?, gameId?, game, amount, date, platform, note }
+ * 璐拱娓告垙 鈫?鍏宠仈鎰挎湜鍗?(wishlistId)锛涜处鎴峰厖鍊?鈫?鍏宠仈娓告垙搴?(gameId)
  */
 (function () {
     'use strict';
@@ -47,28 +47,28 @@
 
     var RECORD_TYPE = { PURCHASE: 'purchase', RECHARGE: 'recharge' };
     var PLATFORM_OPTIONS = [
-        'PC', '手机', 'PlayStation', 'Xbox', 'Switch', 'Steam', 'Epic', '其他'
+        'PC', '鎵嬫満', 'PlayStation', 'Xbox', 'Switch', 'Steam', 'Epic', '鍏朵粬'
     ];
     var DEFAULT_PLATFORM = 'PC';
-    var DEFAULT_GAME_LABEL = '账户充值';
+    var DEFAULT_GAME_LABEL = '璐︽埛鍏呭€?;
     var RECHARGE_OTHER_VALUE = '__recharge_other__';
     var LEGACY_VALUE = '__legacy__';
     var PLATFORM_COLORS = {
-        'PC': '#4338ca', '手机': '#f57c00', 'PlayStation': '#5271ff', 'Xbox': '#107c10',
-        'Switch': '#e60050', 'Steam': '#1a9fff', 'Epic': '#7c3aed', '其他': '#64748b',
+        'PC': '#4338ca', '鎵嬫満': '#f57c00', 'PlayStation': '#5271ff', 'Xbox': '#107c10',
+        'Switch': '#e60050', 'Steam': '#1a9fff', 'Epic': '#7c3aed', '鍏朵粬': '#64748b',
         'PS Store': '#5271ff', 'Nintendo eShop': '#e60050'
     };
     var PLATFORM_CLASS = {
-        'PC': 'platform-pc', '手机': 'platform-mobile', 'PlayStation': 'platform-ps',
+        'PC': 'platform-pc', '鎵嬫満': 'platform-mobile', 'PlayStation': 'platform-ps',
         'PS Store': 'platform-ps', 'Xbox': 'platform-xbox', 'Switch': 'platform-nintendo',
         'Nintendo eShop': 'platform-nintendo', 'Steam': 'platform-steam', 'Epic': 'platform-epic'
     };
     var HELP_TEXT = {
-        purchase: '购买游戏：从愿望单选择要购买的游戏，记录会显示在愿望单页面。',
-        recharge: '账户充值：从游戏库选择充值对应的游戏，记录会显示在该游戏详情页。'
+        purchase: '璐拱娓告垙锛氫粠鎰挎湜鍗曢€夋嫨瑕佽喘涔扮殑娓告垙锛岃褰曚細鏄剧ず鍦ㄦ効鏈涘崟椤甸潰銆?,
+        recharge: '璐︽埛鍏呭€硷細浠庢父鎴忓簱閫夋嫨鍏呭€煎搴旂殑娓告垙锛岃褰曚細鏄剧ず鍦ㄨ娓告垙璇︽儏椤点€?
     };
 
-    // ==================== 数据读写 ====================
+    // ==================== 鏁版嵁璇诲啓 ====================
     function getSpending() {
         if (window.GameData) return window.GameData.get(SPENDING_KEY, []);
         try { return JSON.parse(localStorage.getItem(SPENDING_KEY) || '[]'); }
@@ -79,11 +79,11 @@
         localStorage.setItem(SPENDING_KEY, JSON.stringify(data));
     }
 
-    // ==================== 工具 ====================
+    // ==================== 宸ュ叿 ====================
     function fmt(v) { return TU.format(v); }
     function fmtMoney(v) {
         v = parseFloat(v);
-        return isNaN(v) ? '¥0.00' : '¥' + v.toFixed(2);
+        return isNaN(v) ? '楼0.00' : '楼' + v.toFixed(2);
     }
     function esc(str) {
         if (!str) return '';
@@ -212,14 +212,14 @@
                 return String(a.name || '').localeCompare(String(b.name || ''), 'zh-CN');
             });
             if (wishlist.length === 0) {
-                html = '<option value="">愿望单为空，请先在愿望单页添加</option>';
+                html = '<option value="">鎰挎湜鍗曚负绌猴紝璇峰厛鍦ㄦ効鏈涘崟椤垫坊鍔?/option>';
             } else {
                 wishlist.forEach(function (w) {
                     html += '<option value="' + esc(String(w.id)) + '">' + esc(w.name) + '</option>';
                 });
             }
         } else {
-            html = '<option value="' + RECHARGE_OTHER_VALUE + '">其他 / 账户充值</option>';
+            html = '<option value="' + RECHARGE_OTHER_VALUE + '">鍏朵粬 / 璐︽埛鍏呭€?/option>';
             var games = getGamesList().slice().sort(function (a, b) {
                 return String(a.name || '').localeCompare(String(b.name || ''), 'zh-CN');
             });
@@ -288,7 +288,7 @@
         }
         var opt = document.createElement('option');
         opt.value = LEGACY_VALUE;
-        opt.textContent = normalizeGame(record.game) + ' (未关联)';
+        opt.textContent = normalizeGame(record.game) + ' (鏈叧鑱?';
         opt.dataset.gameName = normalizeGame(record.game);
         linkEl.appendChild(opt);
         linkEl.value = LEGACY_VALUE;
@@ -309,12 +309,12 @@
                         game: (legacyOpt && legacyOpt.dataset.gameName) || normalizeGame('')
                     };
                 }
-                showToast('请选择愿望单中的游戏');
+                showToast('璇烽€夋嫨鎰挎湜鍗曚腑鐨勬父鎴?);
                 return null;
             }
             var wish = findWishlistById(value);
             if (!wish) {
-                showToast('请选择愿望单中的游戏');
+                showToast('璇烽€夋嫨鎰挎湜鍗曚腑鐨勬父鎴?);
                 return null;
             }
             return {
@@ -343,7 +343,7 @@
         }
         var game = findGameById(linkEl.value);
         if (!game) {
-            showToast('请选择充值对应的游戏');
+            showToast('璇烽€夋嫨鍏呭€煎搴旂殑娓告垙');
             return null;
         }
         return {
@@ -366,9 +366,9 @@
     function renderTypeBadge(r) {
         var type = getRecordType(r);
         if (type === RECORD_TYPE.PURCHASE) {
-            return '<span class="spending-type-badge spending-type-purchase">购买游戏</span>';
+            return '<span class="spending-type-badge spending-type-purchase">璐拱娓告垙</span>';
         }
-        return '<span class="spending-type-badge spending-type-recharge">账户充值</span>';
+        return '<span class="spending-type-badge spending-type-recharge">璐︽埛鍏呭€?/span>';
     }
 
     function renderGameCell(r) {
@@ -380,7 +380,7 @@
                 return '<a href="' + esc(window.gameDetailUrl(gameId)) + '" class="text-[#52B6FF] hover:underline font-medium">' + esc(label) + '</a>';
             }
         } else if (r.wishlistId) {
-            return '<a href="wishlist.html" class="text-[#52B6FF] hover:underline font-medium" title="查看愿望单">' + esc(label) + '</a>';
+            return '<a href="wishlist.html" class="text-[#52B6FF] hover:underline font-medium" title="鏌ョ湅鎰挎湜鍗?>' + esc(label) + '</a>';
         }
         return '<span class="font-medium text-gray-800">' + esc(label) + '</span>';
     }
@@ -419,7 +419,7 @@
     }
     window.showToast = showToast;
 
-    // ==================== 表格 ====================
+    // ==================== 琛ㄦ牸 ====================
     function renderTable(year) {
         var tbody = document.getElementById('spending-table-body');
         var empty = document.getElementById('spending-empty');
@@ -451,10 +451,10 @@
                 '<td><span class="spending-platform-badge ' + pc + '">' + esc(r.platform || '-') + '</span></td>' +
                 '<td><span class="text-gray-600 text-sm">' + esc(r.note || '-') + '</span></td>' +
                 '<td>' +
-                    '<button class="spending-action-btn edit-btn" data-id="' + r.id + '" title="编辑">' +
+                    '<button class="spending-action-btn edit-btn" data-id="' + r.id + '" title="缂栬緫">' +
                         '<i data-lucide="pencil" class="w-4 h-4"></i>' +
                     '</button>' +
-                    '<button class="spending-action-btn delete-btn" data-id="' + r.id + '" title="删除">' +
+                    '<button class="spending-action-btn delete-btn" data-id="' + r.id + '" title="鍒犻櫎">' +
                         '<i data-lucide="trash-2" class="w-4 h-4"></i>' +
                     '</button>' +
                 '</td>' +
@@ -478,7 +478,7 @@
         return PLATFORM_CLASS[p] || 'platform-other';
     }
 
-    // ==================== 统计 ====================
+    // ==================== 缁熻 ====================
     function updateStats(year) {
         var records = TU.filterByYear(getSpending(), year, 'date');
         var total = records.reduce(function (s, r) { return s + (parseFloat(r.amount) || 0); }, 0);
@@ -509,11 +509,11 @@
         if (breakdown) {
             var purchaseCount = records.filter(function (r) { return getRecordType(r) === RECORD_TYPE.PURCHASE; }).length;
             var rechargeCount = records.filter(function (r) { return getRecordType(r) === RECORD_TYPE.RECHARGE; }).length;
-            breakdown.textContent = count > 0 ? (purchaseCount + ' 笔购买 · ' + rechargeCount + ' 笔充值') : '';
+            breakdown.textContent = count > 0 ? (purchaseCount + ' 绗旇喘涔?路 ' + rechargeCount + ' 绗斿厖鍊?) : '';
         }
     }
 
-    // ==================== 图表 ====================
+    // ==================== 鍥捐〃 ====================
     function updateCharts(year) {
         var records = TU.filterByYear(getSpending(), year, 'date');
         updateMonthlyChart(records, year);
@@ -537,7 +537,7 @@
         } else {
             var map = TU.groupByMonthSum(records, 'date', 'amount');
             var keys = Object.keys(map).sort();
-            months = keys.map(function (k) { return k.split('-')[1] + '月'; });
+            months = keys.map(function (k) { return k.split('-')[1] + '鏈?; });
             amounts = keys.map(function (k) { return Math.round(map[k] * 100) / 100; });
         }
 
@@ -550,7 +550,7 @@
             data: {
                 labels: months,
                 datasets: [{
-                    label: '月消费 (¥)',
+                    label: '鏈堟秷璐?(楼)',
                     data: amounts,
                     borderColor: '#52B6FF',
                     backgroundColor: 'rgba(82,182,255,0.1)',
@@ -568,11 +568,11 @@
                 responsive: true, maintainAspectRatio: true, aspectRatio: 2,
                 plugins: {
                     legend: { display: true, position: 'top', labels: { color: tc, usePointStyle: true, padding: 20 } },
-                    tooltip: { callbacks: { label: function (c) { return '¥' + c.parsed.y.toFixed(2); } } }
+                    tooltip: { callbacks: { label: function (c) { return '楼' + c.parsed.y.toFixed(2); } } }
                 },
                 scales: {
                     x: { grid: { color: gc }, ticks: { color: tc, maxRotation: 45 } },
-                    y: { grid: { color: gc }, ticks: { color: tc, callback: function (v) { return '¥' + v; } }, beginAtZero: true }
+                    y: { grid: { color: gc }, ticks: { color: tc, callback: function (v) { return '楼' + v; } }, beginAtZero: true }
                 }
             }
         });
@@ -585,7 +585,7 @@
 
         var map = {};
         records.forEach(function (r) {
-            var p = r.platform || '其他';
+            var p = r.platform || '鍏朵粬';
             map[p] = (map[p] || 0) + (parseFloat(r.amount) || 0);
         });
         var labels = Object.keys(map);
@@ -595,7 +595,7 @@
             return PLATFORM_COLORS[label] || fallbackColors[i % fallbackColors.length];
         });
 
-        if (labels.length === 0) { labels = ['暂无数据']; data = [1]; }
+        if (labels.length === 0) { labels = ['鏆傛棤鏁版嵁']; data = [1]; }
 
         var dark = document.documentElement.classList.contains('dark');
         var tc = dark ? '#94a3b8' : '#64748b';
@@ -613,7 +613,7 @@
                     tooltip: { callbacks: { label: function (c) {
                         var t = c.dataset.data.reduce(function (a, b) { return a + b; }, 0);
                         var pct = t > 0 ? Math.round(c.parsed / t * 100) : 0;
-                        return c.label + ': ¥' + c.parsed.toFixed(2) + ' (' + pct + '%)';
+                        return c.label + ': 楼' + c.parsed.toFixed(2) + ' (' + pct + '%)';
                     }}}
                 }
             }
@@ -626,8 +626,8 @@
         if (!modal) return;
         if (editItem) {
             editingId = editItem.id;
-            document.getElementById('spending-modal-title').textContent = '编辑消费记录';
-            document.getElementById('spending-submit-text').textContent = '保存更改';
+            document.getElementById('spending-modal-title').textContent = '缂栬緫娑堣垂璁板綍';
+            document.getElementById('spending-submit-text').textContent = '淇濆瓨鏇存敼';
             document.getElementById('spending-id').value = editItem.id;
             initFormControls(
                 document.getElementById('spending-record-type'),
@@ -641,8 +641,8 @@
             document.getElementById('spending-note').value = editItem.note || '';
         } else {
             editingId = null;
-            document.getElementById('spending-modal-title').textContent = '添加消费记录';
-            document.getElementById('spending-submit-text').textContent = '添加记录';
+            document.getElementById('spending-modal-title').textContent = '娣诲姞娑堣垂璁板綍';
+            document.getElementById('spending-submit-text').textContent = '娣诲姞璁板綍';
             document.getElementById('spending-id').value = '';
             initFormControls(
                 document.getElementById('spending-record-type'),
@@ -692,8 +692,8 @@
         var platform = document.getElementById('add-spending-platform').value;
         var note = document.getElementById('add-spending-note').value.trim();
 
-        if (isNaN(amount) || amount < 0) { showToast('请输入有效金额'); return; }
-        if (!date) { showToast('请选择消费日期'); return; }
+        if (isNaN(amount) || amount < 0) { showToast('璇疯緭鍏ユ湁鏁堥噾棰?); return; }
+        if (!date) { showToast('璇烽€夋嫨娑堣垂鏃ユ湡'); return; }
 
         var records = getSpending();
         var record = {
@@ -706,7 +706,7 @@
         applyRecordFields(record, fields);
         records.push(record);
         saveSpending(records);
-        showToast('消费记录已添加');
+        showToast('娑堣垂璁板綍宸叉坊鍔?);
         resetAddForm();
         refreshAll();
     }
@@ -722,8 +722,8 @@
         var platform = document.getElementById('spending-platform').value;
         var note = document.getElementById('spending-note').value.trim();
 
-        if (isNaN(amount) || amount < 0) { showToast('请输入有效金额'); return; }
-        if (!date) { showToast('请选择消费日期'); return; }
+        if (isNaN(amount) || amount < 0) { showToast('璇疯緭鍏ユ湁鏁堥噾棰?); return; }
+        if (!date) { showToast('璇烽€夋嫨娑堣垂鏃ユ湡'); return; }
 
         var records = getSpending();
         if (editingId) {
@@ -747,15 +747,15 @@
             records.push(record);
         }
         saveSpending(records);
-        showToast(editingId ? '消费记录已更新' : '消费记录已添加');
+        showToast(editingId ? '娑堣垂璁板綍宸叉洿鏂? : '娑堣垂璁板綍宸叉坊鍔?);
         closeModal();
         refreshAll();
     }
 
     function deleteSpending(id) {
-        if (!confirm('确定要删除这条消费记录吗？')) return;
+        if (!confirm('纭畾瑕佸垹闄よ繖鏉℃秷璐硅褰曞悧锛?)) return;
         saveSpending(getSpending().filter(function (r) { return r.id !== id; }));
-        showToast('消费记录已删除');
+        showToast('娑堣垂璁板綍宸插垹闄?);
         refreshAll();
     }
 
@@ -772,15 +772,15 @@
         });
     }
 
-    // ==================== 年份筛选 ====================
+    // ==================== 骞翠唤绛涢€?====================
     function initYearFilter() {
         var select = document.getElementById('filter-year');
         if (!select) return;
         var years = TU.collectYears([{ items: getSpending(), dateKey: 'date' }]);
-        select.innerHTML = '<option value="all">全部年份</option>';
+        select.innerHTML = '<option value="all">鍏ㄩ儴骞翠唤</option>';
         years.forEach(function (y) {
             var o = document.createElement('option');
-            o.value = y; o.textContent = y + ' 年';
+            o.value = y; o.textContent = y + ' 骞?;
             select.appendChild(o);
         });
     }
@@ -798,7 +798,7 @@
         if (s && s.value !== y) s.value = y;
     }
 
-    // ==================== 事件 ====================
+    // ==================== 浜嬩欢 ====================
     function bindEvents() {
         var addForm = document.getElementById('spending-add-form');
         if (addForm) addForm.addEventListener('submit', function (e) { e.preventDefault(); handleAddSubmit(); });

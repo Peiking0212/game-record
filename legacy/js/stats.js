@@ -20,11 +20,11 @@ function ensureYearFilterOption(select, year) {
     if ([...select.options].some(o => o.value === value)) return;
     const opt = document.createElement('option');
     opt.value = value;
-    opt.textContent = `${year}年`;
+    opt.textContent = `${year}骞碻;
     select.appendChild(opt);
 }
 
-// Initialize year filter — default to current year
+// Initialize year filter 鈥?default to current year
 function initYearFilter() {
     const select = document.getElementById('filter-year');
     const currentYear = getCurrentYear();
@@ -32,7 +32,7 @@ function initYearFilter() {
     if (!years.includes(currentYear)) years.push(currentYear);
     years.sort((a, b) => b - a);
     years.forEach(year => {
-        select.innerHTML += `<option value="${year}">${year}年</option>`;
+        select.innerHTML += `<option value="${year}">${year}骞?/option>`;
     });
     select.value = String(currentYear);
 }
@@ -86,7 +86,7 @@ function updateTable() {
             <td class="px-6 py-4">
                 <span class="px-2 py-1 rounded text-sm ${getStatusBadgeClass(game.status)}">${escapeHtml(getStatusText(game.status))}</span>
             </td>
-            <td class="px-6 py-4 text-gray-700">${parseInt(game.playtime, 10) || 0} 小时</td>
+            <td class="px-6 py-4 text-gray-700">${parseInt(game.playtime, 10) || 0} 灏忔椂</td>
             <td class="px-6 py-4">
                 <div class="flex items-center gap-2">
                     <div class="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -132,10 +132,10 @@ function updateCharts() {
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
     });
     
-    // Playtime by type — uses cumulative playtime per game (no monthly breakdown in data model)
+    // Playtime by type 鈥?uses cumulative playtime per game (no monthly breakdown in data model)
     const typePlaytime = {};
     filtered.forEach(g => {
-        const type = g.type || '其他';
+        const type = g.type || '鍏朵粬';
         typePlaytime[type] = (typePlaytime[type] || 0) + (parseInt(g.playtime, 10) || 0);
     });
     const typeLabels = Object.keys(typePlaytime);
@@ -144,7 +144,7 @@ function updateCharts() {
         data: {
             labels: typeLabels,
             datasets: [{
-                label: '游戏时长(小时)',
+                label: '娓告垙鏃堕暱(灏忔椂)',
                 data: typeLabels.map(t => typePlaytime[t]),
                 backgroundColor: generateColors(typeLabels.length)
             }]
@@ -158,7 +158,7 @@ function updateCharts() {
         data: {
             labels: filtered.map(g => g.name),
             datasets: [{
-                label: '进度(%)',
+                label: '杩涘害(%)',
                 data: filtered.map(g => g.progress),
                 backgroundColor: 'rgba(249, 115, 22, 0.2)',
                 borderColor: '#f97316'
@@ -173,7 +173,7 @@ function updateCharts() {
         data: {
             labels: filtered.map(g => g.name),
             datasets: [{
-                label: '游戏时长(小时)',
+                label: '娓告垙鏃堕暱(灏忔椂)',
                 data: filtered.map(g => g.playtime),
                 backgroundColor: generateColors(filtered.length)
             }]
@@ -251,20 +251,20 @@ function downloadCanvasAsPng(canvas, filename) {
 // Export functions
 function exportToImage() {
     if (typeof html2canvas === 'undefined') {
-        showToast('导出功能暂时不可用，请刷新页面重试');
+        showToast('瀵煎嚭鍔熻兘鏆傛椂涓嶅彲鐢紝璇峰埛鏂伴〉闈㈤噸璇?);
         return;
     }
     const element = document.getElementById('charts-section');
     if (!element) {
-        showToast('找不到要导出的内容');
+        showToast('鎵句笉鍒拌瀵煎嚭鐨勫唴瀹?);
         return;
     }
     captureElement(element).then(canvas => {
-        downloadCanvasAsPng(canvas, `游戏统计_${new Date().toISOString().split('T')[0]}.png`);
-        showToast('已保存为图片');
+        downloadCanvasAsPng(canvas, `娓告垙缁熻_${new Date().toISOString().split('T')[0]}.png`);
+        showToast('宸蹭繚瀛樹负鍥剧墖');
     }).catch(err => {
-        console.error('导出图片失败:', err);
-        showToast('导出图片失败，请重试');
+        console.error('瀵煎嚭鍥剧墖澶辫触:', err);
+        showToast('瀵煎嚭鍥剧墖澶辫触锛岃閲嶈瘯');
     });
 }
 
@@ -292,7 +292,7 @@ function generateYearSummary(forYear) {
     const yearNum = resolveSummaryYear(forYear);
     const yearGames = games.filter(g => new Date(g.lastPlayed).getFullYear() === yearNum);
     
-    document.getElementById('year-summary-title').textContent = `${yearNum}年度游戏总结`;
+    document.getElementById('year-summary-title').textContent = `${yearNum}骞村害娓告垙鎬荤粨`;
     document.getElementById('summary-year').textContent = yearNum;
     document.getElementById('summary-games').textContent = yearGames.length;
     document.getElementById('summary-hours').textContent = yearGames.reduce((s, g) => s + g.playtime, 0);
@@ -303,10 +303,10 @@ function generateYearSummary(forYear) {
     const topGames = [...yearGames].sort((a, b) => b.playtime - a.playtime).slice(0, 3);
     document.getElementById('summary-top-games').innerHTML = topGames.map((g, i) => `
         <div class="flex items-center gap-3">
-            <span class="text-2xl">${['🥇', '🥈', '🥉'][i]}</span>
+            <span class="text-2xl">${['馃', '馃', '馃'][i]}</span>
             <div>
                 <div class="font-medium">${g.name}</div>
-                <div class="text-sm opacity-80">${g.playtime} 小时</div>
+                <div class="text-sm opacity-80">${g.playtime} 灏忔椂</div>
             </div>
         </div>
     `).join('');
@@ -332,21 +332,21 @@ function generateYearSummary(forYear) {
 
 function saveSummaryImage() {
     if (typeof html2canvas === 'undefined') {
-        showToast('导出功能暂时不可用，请刷新页面重试');
+        showToast('瀵煎嚭鍔熻兘鏆傛椂涓嶅彲鐢紝璇峰埛鏂伴〉闈㈤噸璇?);
         return;
     }
     const element = document.getElementById('year-summary-content');
     if (!element) {
-        showToast('找不到要导出的内容');
+        showToast('鎵句笉鍒拌瀵煎嚭鐨勫唴瀹?);
         return;
     }
     captureElement(element, { backgroundColor: '#ffffff' }).then(canvas => {
         const yearEl = document.getElementById('summary-year');
-        downloadCanvasAsPng(canvas, `年度总结_${yearEl ? yearEl.textContent : new Date().getFullYear()}.png`);
-        showToast('已保存为图片');
+        downloadCanvasAsPng(canvas, `骞村害鎬荤粨_${yearEl ? yearEl.textContent : new Date().getFullYear()}.png`);
+        showToast('宸蹭繚瀛樹负鍥剧墖');
     }).catch(err => {
-        console.error('导出图片失败:', err);
-        showToast('导出图片失败，请重试');
+        console.error('瀵煎嚭鍥剧墖澶辫触:', err);
+        showToast('瀵煎嚭鍥剧墖澶辫触锛岃閲嶈瘯');
     });
 }
 

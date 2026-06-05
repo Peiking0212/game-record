@@ -1,27 +1,25 @@
 /**
- * time-utils.js — 统一时间约束工具
- * 所有页面的日期解析、格式化、年份筛选、月度分组统一走这里
- * 避免时区陷阱：一律用本地时间构造，不做 UTC 偏移
+ * time-utils.js 鈥?缁熶竴鏃堕棿绾︽潫宸ュ叿
+ * 鎵€鏈夐〉闈㈢殑鏃ユ湡瑙ｆ瀽銆佹牸寮忓寲銆佸勾浠界瓫閫夈€佹湀搴﹀垎缁勭粺涓€璧拌繖閲? * 閬垮厤鏃跺尯闄烽槺锛氫竴寰嬬敤鏈湴鏃堕棿鏋勯€狅紝涓嶅仛 UTC 鍋忕Щ
  */
 (function (root) {
     'use strict';
 
-    // ==================== 安全日期解析 ====================
-    // 规避 new Date("2024-06-10") 的 UTC 时区陷阱
-    // 统一拆分为 [year, month, day] 后用本地时间构造
-    function parseDate(val) {
+    // ==================== 瀹夊叏鏃ユ湡瑙ｆ瀽 ====================
+    // 瑙勯伩 new Date("2024-06-10") 鐨?UTC 鏃跺尯闄烽槺
+    // 缁熶竴鎷嗗垎涓?[year, month, day] 鍚庣敤鏈湴鏃堕棿鏋勯€?    function parseDate(val) {
         if (!val) return null;
         if (val instanceof Date && !isNaN(val.getTime())) return val;
         if (typeof val !== 'string') return null;
-        // 支持 "2024-06-10" 和 "2024-06-10T12:00:00" 两种格式
+        // 鏀寔 "2024-06-10" 鍜?"2024-06-10T12:00:00" 涓ょ鏍煎紡
         var m = val.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
         if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
-        // 兜底
+        // 鍏滃簳
         var d = new Date(val);
         return isNaN(d.getTime()) ? null : d;
     }
 
-    // ==================== 年份/月份提取 ====================
+    // ==================== 骞翠唤/鏈堜唤鎻愬彇 ====================
     function getYear(val) {
         var d = parseDate(val);
         return d ? d.getFullYear() : null;
@@ -35,7 +33,7 @@
         return d ? d.getDate() : null;
     }
 
-    // ==================== 格式化 ====================
+    // ==================== 鏍煎紡鍖?====================
     function format(val) {
         var d = parseDate(val);
         if (!d) return '';
@@ -47,9 +45,9 @@
     function formatCN(val) {
         var d = parseDate(val);
         if (!d) return '-';
-        return d.getFullYear() + '年' +
-            (d.getMonth() + 1) + '月' +
-            d.getDate() + '日';
+        return d.getFullYear() + '骞? +
+            (d.getMonth() + 1) + '鏈? +
+            d.getDate() + '鏃?;
     }
 
     function formatMonth(val) {
@@ -65,7 +63,7 @@
         return (d.getMonth() + 1) + '/' + d.getDate();
     }
 
-    // ==================== 年份筛选 ====================
+    // ==================== 骞翠唤绛涢€?====================
     function filterByYear(items, year, dateKey) {
         if (!year || year === 'all') return items.slice();
         return items.filter(function (item) {
@@ -75,7 +73,7 @@
         });
     }
 
-    // ==================== 日期范围筛选 ====================
+    // ==================== 鏃ユ湡鑼冨洿绛涢€?====================
     function filterByRange(items, dateKey, startDate, endDate) {
         var start = startDate ? parseDate(startDate) : null;
         var end = endDate ? parseDate(endDate) : null;
@@ -92,7 +90,7 @@
         });
     }
 
-    // ==================== 月份分组（用于图表） ====================
+    // ==================== 鏈堜唤鍒嗙粍锛堢敤浜庡浘琛級 ====================
     function groupByMonth(items, dateKey) {
         var map = {};
         items.forEach(function (item) {
@@ -115,7 +113,7 @@
         return map;
     }
 
-    // ==================== 月度标签数组 ====================
+    // ==================== 鏈堝害鏍囩鏁扮粍 ====================
     function getMonthLabels(year) {
         var y = year || new Date().getFullYear();
         var labels = [];
@@ -126,10 +124,10 @@
     }
 
     function getMonthNames() {
-        return ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+        return ['1鏈?,'2鏈?,'3鏈?,'4鏈?,'5鏈?,'6鏈?,'7鏈?,'8鏈?,'9鏈?,'10鏈?,'11鏈?,'12鏈?];
     }
 
-    // ==================== 可用年份列表 ====================
+    // ==================== 鍙敤骞翠唤鍒楄〃 ====================
     function collectYears(dataSources) {
         var yearSet = {};
         for (var i = 0; i < dataSources.length; i++) {
@@ -143,7 +141,7 @@
         return Object.keys(yearSet).map(Number).sort(function (a, b) { return b - a; });
     }
 
-    // ==================== 对比 ====================
+    // ==================== 瀵规瘮 ====================
     function isSameDay(a, b) {
         var da = parseDate(a), db = parseDate(b);
         if (!da || !db) return false;
@@ -158,7 +156,7 @@
         return Math.abs(Math.round((db - da) / 86400000));
     }
 
-    // ==================== 今天 ====================
+    // ==================== 浠婂ぉ ====================
     function todayISO() {
         var d = new Date();
         return d.getFullYear() + '-' +
@@ -166,7 +164,7 @@
             String(d.getDate()).padStart(2, '0');
     }
 
-    // ==================== 暴露 ====================
+    // ==================== 鏆撮湶 ====================
     var TimeUtils = {
         parse: parseDate,
         getYear: getYear,

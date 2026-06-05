@@ -1,12 +1,10 @@
 /**
- * sample-data-utils.js — 示例数据日期工具
- * 所有 sample / mock 数据中不再硬编码年份，统一用"今天"为锚点动态偏移
- * 须在 games / achievements / stats / profile 等业务脚本之前加载
- */
+ * sample-data-utils.js 鈥?绀轰緥鏁版嵁鏃ユ湡宸ュ叿
+ * 鎵€鏈?sample / mock 鏁版嵁涓笉鍐嶇‖缂栫爜骞翠唤锛岀粺涓€鐢?浠婂ぉ"涓洪敋鐐瑰姩鎬佸亸绉? * 椤诲湪 games / achievements / stats / profile 绛変笟鍔¤剼鏈箣鍓嶅姞杞? */
 (function (root) {
     'use strict';
 
-    // 生成 YYYY-MM-DD 字符串，距今天 n 天前
+    // 鐢熸垚 YYYY-MM-DD 瀛楃涓诧紝璺濅粖澶?n 澶╁墠
     function daysAgo(n) {
         var d = new Date();
         d.setDate(d.getDate() - parseInt(n));
@@ -15,18 +13,16 @@
             String(d.getDate()).padStart(2, '0');
     }
 
-    // 生成"N 天前开始"的日期
-    function startDaysAgo(n) {
+    // 鐢熸垚"N 澶╁墠寮€濮?鐨勬棩鏈?    function startDaysAgo(n) {
         return daysAgo(n);
     }
 
-    // 生成"年初"日期（当年 1 月某日）
+    // 鐢熸垚"骞村垵"鏃ユ湡锛堝綋骞?1 鏈堟煇鏃ワ級
     function earlyThisYear(day) {
         return new Date().getFullYear() + '-01-' + String(day || 15).padStart(2, '0');
     }
 
-    // 生成"去年某月"的日期
-    function lastYearMonth(month, day) {
+    // 鐢熸垚"鍘诲勾鏌愭湀"鐨勬棩鏈?    function lastYearMonth(month, day) {
         return (new Date().getFullYear() - 1) + '-' +
             String(month || 6).padStart(2, '0') + '-' +
             String(day || 15).padStart(2, '0');

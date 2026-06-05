@@ -16,10 +16,10 @@ export function MigrationPlaceholder({ title, description }: Props) {
       <h1 className="text-3xl font-bold mb-4 gradient-text">{title}</h1>
       <p className="mb-6" style={{ color: "var(--text-gray)" }}>
         {description ??
-          "此页面已从旧版 HTML 迁到 Next.js，功能正在逐步对接。可参考 legacy/ 目录中的原实现。"}
+          "姝ら〉闈㈠凡浠庢棫鐗?HTML 杩佸埌 Next.js锛屽姛鑳芥鍦ㄩ€愭瀵规帴銆傚彲鍙傝€?legacy/ 鐩綍涓殑鍘熷疄鐜般€?}
       </p>
       <Link href="/" className="btn-primary inline-flex items-center">
-        返回首页
+        杩斿洖棣栭〉
       </Link>
     </div>
   );

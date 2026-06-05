@@ -1,6 +1,5 @@
 /**
- * data.js — 统一数据层（localStorage + 与 cloud-sync 配合）
- */
+ * data.js 鈥?缁熶竴鏁版嵁灞傦紙localStorage + 涓?cloud-sync 閰嶅悎锛? */
 (function () {
     'use strict';
 
@@ -34,7 +33,7 @@
         FOLLOWED_GAME_DICTIONARY: 'followed_game_dictionary'
     };
 
-    /** 参与 Supabase site_data 同步的键（不含媒体表、密码锁、超大背景图） */
+    /** 鍙備笌 Supabase site_data 鍚屾鐨勯敭锛堜笉鍚獟浣撹〃銆佸瘑鐮侀攣銆佽秴澶ц儗鏅浘锛?*/
     var SYNC_KEYS = [
         KEYS.GAMES,
         KEYS.ACHIEVEMENTS,
@@ -69,7 +68,7 @@
 
     var OBJECT_SYNC_KEYS = [KEYS.PROFILE, KEYS.THEME, KEYS.USER_INTEREST_PROFILE, KEYS.DEAL_WATCH_RULES];
 
-    /** localStorage 存 plain string，非 JSON.stringify 包裹 */
+    /** localStorage 瀛?plain string锛岄潪 JSON.stringify 鍖呰９ */
     var RAW_STRING_SYNC_KEYS = [
         KEYS.MASCOT_ENABLED,
         KEYS.AUTO_TIME_BG,
@@ -96,7 +95,7 @@
             localStorage.setItem(key, JSON.stringify(data));
             return true;
         } catch (e) {
-            console.error('保存失败:', key, e);
+            console.error('淇濆瓨澶辫触:', key, e);
             return false;
         }
     }
@@ -117,7 +116,7 @@
             .map(function (a, i) {
                 return {
                     id: a.id != null ? a.id : Date.now() + i,
-                    title: a.title || a.name || '未知成就',
+                    title: a.title || a.name || '鏈煡鎴愬氨',
                     gameName: a.gameName || a.game || '',
                     description: a.description || '',
                     date: a.date || '',
@@ -272,7 +271,7 @@
         return getGames().find(function (g) { return String(g.id) === String(id); }) || null;
     }
 
-    /** 按名称在库中查找游戏 id；无匹配返回 null */
+    /** 鎸夊悕绉板湪搴撲腑鏌ユ壘娓告垙 id锛涙棤鍖归厤杩斿洖 null */
     function resolveGameIdByName(name) {
         if (!name) return null;
         var match = getGames().find(function (g) { return matchGameName(g.name, name); });
@@ -285,7 +284,7 @@
         return record.gameName || record.game || record.name || '';
     }
 
-    /** 判断记录是否属于某游戏：优先 gameId，回退名称匹配 */
+    /** 鍒ゆ柇璁板綍鏄惁灞炰簬鏌愭父鎴忥細浼樺厛 gameId锛屽洖閫€鍚嶇О鍖归厤 */
     function recordBelongsToGame(record, game, nameKey) {
         if (!record || !game) return false;
         nameKey = nameKey || 'gameName';
@@ -295,7 +294,7 @@
         return matchGameName(getRecordGameName(record, nameKey), game.name);
     }
 
-    /** 为单条记录补全 gameId，并同步标准名称 */
+    /** 涓哄崟鏉¤褰曡ˉ鍏?gameId锛屽苟鍚屾鏍囧噯鍚嶇О */
     function migrateRecordGameId(record, nameKey) {
         nameKey = nameKey || 'gameName';
         var migrated = Object.assign({}, record);
@@ -325,7 +324,7 @@
         return getGames().some(function (g) { return matchGameName(g.name, name); });
     }
 
-    /** 加载后迁移 reviews / achievements / media 的 gameId 关联 */
+    /** 鍔犺浇鍚庤縼绉?reviews / achievements / media 鐨?gameId 鍏宠仈 */
     function migrateGameLinks() {
         migrateLegacyAchievements();
         if (getGames().length === 0) return;
@@ -358,8 +357,8 @@
         });
         var current = selectEl.value;
         var html = options.includeAll
-            ? '<option value="all">全部游戏</option>'
-            : '<option value="">' + (options.placeholder || '选择游戏') + '</option>';
+            ? '<option value="all">鍏ㄩ儴娓告垙</option>'
+            : '<option value="">' + (options.placeholder || '閫夋嫨娓告垙') + '</option>';
         games.forEach(function (g) {
             var safeName = String(g.name || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
             html += '<option value="' + String(g.id) + '">' + safeName + '</option>';
@@ -384,7 +383,7 @@
             if (!res.ok) throw new Error('samples.json ' + res.status);
             samplesCache = await res.json();
         } catch (e) {
-            console.warn('无法加载 samples.json，使用内置示例', e);
+            console.warn('鏃犳硶鍔犺浇 samples.json锛屼娇鐢ㄥ唴缃ず渚?, e);
             samplesCache = { games: [], achievements: [], memos: [] };
         }
         return samplesCache;
@@ -445,7 +444,7 @@
         return achievements;
     }
 
-    /** 示例备忘录 id（与 data/samples.json 一致） */
+    /** 绀轰緥澶囧繕褰?id锛堜笌 data/samples.json 涓€鑷达級 */
     var SAMPLE_MEMO_IDS = [1001, 1002];
     var DISMISSED_SAMPLE_MEMOS_KEY = 'memos_dismissed_samples';
 
@@ -468,7 +467,7 @@
         return SAMPLE_MEMO_IDS.indexOf(Number(id)) !== -1;
     }
 
-    /** 补全缺失的示例备忘录（云同步后也会调用；用户主动删除的不再恢复） */
+    /** 琛ュ叏缂哄け鐨勭ず渚嬪蹇樺綍锛堜簯鍚屾鍚庝篃浼氳皟鐢紱鐢ㄦ埛涓诲姩鍒犻櫎鐨勪笉鍐嶆仮澶嶏級 */
     async function ensureSampleMemos() {
         var samples = await loadSamples();
         var sampleMemos = (samples.memos || []).map(hydrateMemo);
@@ -506,11 +505,11 @@
     }
 
     var DEFAULT_PROFILE = {
-        name: '游戏玩家',
-        title: '热爱游戏的冒险者',
-        bio: '热爱游戏的冒险者，喜欢探索各种类型的游戏世界，记录每一次精彩的游戏体验。',
+        name: '娓告垙鐜╁',
+        title: '鐑埍娓告垙鐨勫啋闄╄€?,
+        bio: '鐑埍娓告垙鐨勫啋闄╄€咃紝鍠滄鎺㈢储鍚勭绫诲瀷鐨勬父鎴忎笘鐣岋紝璁板綍姣忎竴娆＄簿褰╃殑娓告垙浣撻獙銆?,
         avatar: 'assets/default-avatar.svg',
-        tags: ['原神', '明日方舟', '王者荣耀', '闪耀暖暖'],
+        tags: ['鍘熺', '鏄庢棩鏂硅垷', '鐜嬭€呰崳鑰€', '闂€€鏆栨殩'],
         joinDate: SD.lastYearMonth ? SD.lastYearMonth(6, 15) : SD.daysAgo(200),
         playStyle: { singlePlayer: 80, multiPlayer: 60, pve: 90, pvp: 40 },
         favoriteGames: []

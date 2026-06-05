@@ -12,7 +12,7 @@ function compareMediaId(a, b) {
     return String(a) === String(b);
 }
 
-/** 纠正误标为 video 的图片（上传时 pendingFileType 被提前清空会导致此问题） */
+/** 绾犳璇爣涓?video 鐨勫浘鐗囷紙涓婁紶鏃?pendingFileType 琚彁鍓嶆竻绌轰細瀵艰嚧姝ら棶棰橈級 */
 function normalizeMediaType(item) {
     if (!item) return 'image';
     var t = (item.type || '').toLowerCase();
@@ -48,22 +48,22 @@ function saveData(key, data) {
     try {
         var json = JSON.stringify(data);
         if (json.length > 4 * 1024 * 1024) {
-            showToast('存储空间不足，请删除一些旧媒体', 'error');
+            showToast('瀛樺偍绌洪棿涓嶈冻锛岃鍒犻櫎涓€浜涙棫濯掍綋', 'error');
             return false;
         }
         if (window.GameData) return window.GameData.set(key, data);
         localStorage.setItem(key, json);
         return true;
     } catch (e) {
-        console.error('存储失败:', e);
+        console.error('瀛樺偍澶辫触:', e);
         if (e.name === 'QuotaExceededError') {
-            showToast('存储空间已满！请删除一些旧媒体后重试', 'error');
+            showToast('瀛樺偍绌洪棿宸叉弧锛佽鍒犻櫎涓€浜涙棫濯掍綋鍚庨噸璇?, 'error');
         }
         return false;
     }
 }
 
-/* 勿在此文件声明 escapeHtml / generateId / formatDate，否则会覆盖 utils.js 挂到 window 上的同名函数导致死循环 */
+/* 鍕垮湪姝ゆ枃浠跺０鏄?escapeHtml / generateId / formatDate锛屽惁鍒欎細瑕嗙洊 utils.js 鎸傚埌 window 涓婄殑鍚屽悕鍑芥暟瀵艰嚧姝诲惊鐜?*/
 
 function showToast(message, type) {
     if (type === undefined) type = 'info';
@@ -77,7 +77,7 @@ function showToast(message, type) {
 }
 
 function formatSupabaseError(err) {
-    if (!err) return '未知错误';
+    if (!err) return '鏈煡閿欒';
     if (typeof err === 'string') return err;
     var msg = err.message || err.error_description || err.msg || '';
     if (err.statusCode) msg = (msg ? msg + ' ' : '') + '(' + err.statusCode + ')';
@@ -114,7 +114,7 @@ function storagePathFromPublicUrl(url) {
     return null;
 }
 
-/** 云端上传失败时写入本机，避免完全传不上去 */
+/** 浜戠涓婁紶澶辫触鏃跺啓鍏ユ湰鏈猴紝閬垮厤瀹屽叏浼犱笉涓婂幓 */
 async function saveMediaLocally(file, gameId, gameName, type) {
     var allMedia = getData('game_record_media');
     var dataUrl = await readFile(file);
@@ -143,19 +143,19 @@ async function saveMediaLocally(file, gameId, gameName, type) {
 }
 
 async function checkMediaCloudHealth() {
-    if (!window.SB) return { ok: false, reason: '未加载 Supabase（将使用本机存储）' };
+    if (!window.SB) return { ok: false, reason: '鏈姞杞?Supabase锛堝皢浣跨敤鏈満瀛樺偍锛? };
     try {
         var userId = await resolveMediaUserId();
         if (!userId) {
-            return { ok: false, reason: '未登录，无法使用云端媒体库' };
+            return { ok: false, reason: '鏈櫥褰曪紝鏃犳硶浣跨敤浜戠濯掍綋搴? };
         }
         var tableCheck = await window.SB.from(TABLE).select('id').eq('user_id', userId).limit(1);
         if (tableCheck.error) {
-            return { ok: false, reason: '数据库 media 表：' + formatSupabaseError(tableCheck.error) };
+            return { ok: false, reason: '鏁版嵁搴?media 琛細' + formatSupabaseError(tableCheck.error) };
         }
         var bucketCheck = await window.SB.storage.from(BUCKET).list(userId, { limit: 1 });
         if (bucketCheck.error) {
-            return { ok: false, reason: 'Storage 桶 media：' + formatSupabaseError(bucketCheck.error) };
+            return { ok: false, reason: 'Storage 妗?media锛? + formatSupabaseError(bucketCheck.error) };
         }
         return { ok: true, reason: '' };
     } catch (e) {
@@ -167,13 +167,13 @@ async function checkMediaCloudHealth() {
 // Clear All Media
 // ========================================
 async function clearAllMedia() {
-    if (!confirm('确定要清空所有媒体文件吗？此操作不可恢复！')) return;
+    if (!confirm('纭畾瑕佹竻绌烘墍鏈夊獟浣撴枃浠跺悧锛熸鎿嶄綔涓嶅彲鎭㈠锛?)) return;
 
     if (window.SB) {
         try {
             var userId = await resolveMediaUserId();
             if (!userId) {
-                showToast('请先登录', 'error');
+                showToast('璇峰厛鐧诲綍', 'error');
                 return;
             }
             var result = await window.SB.from(TABLE).select('url, thumbnail').eq('user_id', userId);
@@ -191,15 +191,15 @@ async function clearAllMedia() {
                 await window.SB.from(TABLE).delete().eq('user_id', userId);
             }
             renderGallery();
-            showToast('已清空所有媒体', 'success');
+            showToast('宸叉竻绌烘墍鏈夊獟浣?, 'success');
         } catch (e) {
-            console.error('清空失败:', e);
-            showToast('清空失败', 'error');
+            console.error('娓呯┖澶辫触:', e);
+            showToast('娓呯┖澶辫触', 'error');
         }
     } else {
         saveData('game_record_media', []);
         renderGallery();
-        showToast('已清空所有媒体', 'success');
+        showToast('宸叉竻绌烘墍鏈夊獟浣?, 'success');
     }
 }
 
@@ -207,16 +207,14 @@ async function clearAllMedia() {
 // Compression & Thumbnail Functions
 // ========================================
 
-// 压缩图片以节省空间
-function compressImage(dataUrl, maxWidth, quality) {
+// 鍘嬬缉鍥剧墖浠ヨ妭鐪佺┖闂?function compressImage(dataUrl, maxWidth, quality) {
     return new Promise(function(resolve) {
         var img = new Image();
         img.onload = function() {
             var canvas = document.createElement('canvas');
             var ctx = canvas.getContext('2d');
 
-            // 计算新尺寸
-            var width = img.width;
+            // 璁＄畻鏂板昂瀵?            var width = img.width;
             var height = img.height;
             if (width > maxWidth) {
                 height = (maxWidth / width) * height;
@@ -227,7 +225,7 @@ function compressImage(dataUrl, maxWidth, quality) {
             canvas.height = height;
             ctx.drawImage(img, 0, 0, width, height);
 
-            // 压缩为 JPEG
+            // 鍘嬬缉涓?JPEG
             var compressed = canvas.toDataURL('image/jpeg', quality);
             resolve(compressed);
         };
@@ -235,8 +233,7 @@ function compressImage(dataUrl, maxWidth, quality) {
     });
 }
 
-// 生成缩略图（保持比例，最大宽度 1080px）
-function generateThumbnail(imageUrl, maxWidth) {
+// 鐢熸垚缂╃暐鍥撅紙淇濇寔姣斾緥锛屾渶澶у搴?1080px锛?function generateThumbnail(imageUrl, maxWidth) {
     if (!maxWidth) maxWidth = 1080;
     return new Promise(function(resolve) {
         var img = new Image();
@@ -244,7 +241,7 @@ function generateThumbnail(imageUrl, maxWidth) {
         img.onload = function() {
             var canvas = document.createElement('canvas');
             
-            // 保持原始比例
+            // 淇濇寔鍘熷姣斾緥
             var scale = Math.min(1, maxWidth / img.width);
             var width = img.width * scale;
             var height = img.height * scale;
@@ -262,13 +259,11 @@ function generateThumbnail(imageUrl, maxWidth) {
     });
 }
 
-// 生成视频缩略图（使用 SVG 占位图）- 本地模式用
-function generateVideoThumbnail() {
+// 鐢熸垚瑙嗛缂╃暐鍥撅紙浣跨敤 SVG 鍗犱綅鍥撅級- 鏈湴妯″紡鐢?function generateVideoThumbnail() {
     return 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150"><rect fill="%231a2744" width="150" height="150"/><rect fill="%23f0c040" x="55" y="50" width="40" height="40" rx="6"/><polygon fill="%231a2744" points="65,60 85,70 65,80"/></svg>');
 }
 
-// 截取视频第一帧作为封面（云存储模式用）
-function generateVideoCover(file) {
+// 鎴彇瑙嗛绗竴甯т綔涓哄皝闈紙浜戝瓨鍌ㄦā寮忕敤锛?function generateVideoCover(file) {
     return new Promise(function(resolve, reject) {
         var video = document.createElement('video');
         var canvas = document.createElement('canvas');
@@ -280,14 +275,12 @@ function generateVideoCover(file) {
         video.playsInline = true;
         
         video.onloadedmetadata = function() {
-            // 设置 canvas 尺寸（保持比例，最大宽度 1080）
-            var maxWidth = 1080;
+            // 璁剧疆 canvas 灏哄锛堜繚鎸佹瘮渚嬶紝鏈€澶у搴?1080锛?            var maxWidth = 1080;
             var scale = Math.min(1, maxWidth / video.videoWidth);
             canvas.width = video.videoWidth * scale;
             canvas.height = video.videoHeight * scale;
             
-            video.currentTime = 0.1; // 跳到第一帧附近
-        };
+            video.currentTime = 0.1; // 璺冲埌绗竴甯ч檮杩?        };
         
         video.onseeked = function() {
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -301,8 +294,7 @@ function generateVideoCover(file) {
             reject(e);
         };
         
-        // 创建 blob URL 来加载视频
-        video.src = URL.createObjectURL(file);
+        // 鍒涘缓 blob URL 鏉ュ姞杞借棰?        video.src = URL.createObjectURL(file);
     });
 }
 
@@ -316,7 +308,7 @@ function getAllMedia() {
     return getData('game_record_media');
 }
 
-// 从 Supabase 获取媒体列表
+// 浠?Supabase 鑾峰彇濯掍綋鍒楄〃
 async function fetchMediaFromCloud() {
     if (window.GameCloud && window.GameCloud.fetchMedia) {
         return window.GameCloud.fetchMedia();
@@ -330,7 +322,7 @@ async function fetchMediaFromCloud() {
             .eq('user_id', userId)
             .order('created_at', { ascending: false });
         if (result.error) throw result.error;
-        // 映射字段：created_at → time, game_name → gameName
+        // 鏄犲皠瀛楁锛歝reated_at 鈫?time, game_name 鈫?gameName
         return (result.data || []).map(function(row) {
             var item = {
                 id: row.id,
@@ -346,7 +338,7 @@ async function fetchMediaFromCloud() {
             return item;
         });
     } catch (e) {
-        console.error('获取媒体失败:', e);
+        console.error('鑾峰彇濯掍綋澶辫触:', e);
         return [];
     }
 }
@@ -450,7 +442,7 @@ async function renderGallery() {
         var displayDate = item.time ? window.formatDateISO(item.time) : '';
         var nameHtml = displayName ? '<span class="text-sm font-medium">' + displayName + '</span>' : '';
 
-        // 根据类型显示不同图标
+        // 鏍规嵁绫诲瀷鏄剧ず涓嶅悓鍥炬爣
         var typeIcon = '';
         if (item.type === 'video') {
             typeIcon = '<div class="absolute top-2 right-2 bg-purple-500 text-white p-1 rounded"><i data-lucide="video" class="w-4 h-4"></i></div>';
@@ -458,21 +450,21 @@ async function renderGallery() {
 
         var actionButtons = '';
         if (item.type === 'video') {
-            actionButtons = '<button class="gallery-btn" onclick="openLightbox(\'' + item.id + '\')" title="播放">' +
+            actionButtons = '<button class="gallery-btn" onclick="openLightbox(\'' + item.id + '\')" title="鎾斁">' +
                 '<i data-lucide="play" class="w-4 h-4"></i></button>';
         } else {
-            actionButtons = '<button class="gallery-btn" onclick="openLightbox(\'' + item.id + '\')" title="查看">' +
+            actionButtons = '<button class="gallery-btn" onclick="openLightbox(\'' + item.id + '\')" title="鏌ョ湅">' +
                 '<i data-lucide="eye" class="w-4 h-4"></i></button>' +
-                '<button class="gallery-btn" onclick="openImageEditor(\'' + item.id + '\')" title="编辑">' +
+                '<button class="gallery-btn" onclick="openImageEditor(\'' + item.id + '\')" title="缂栬緫">' +
                 '<i data-lucide="edit" class="w-4 h-4"></i></button>';
         }
 
         return '<div class="gallery-item" data-id="' + item.id + '" onclick="openLightbox(\'' + item.id + '\')">' +
-            '<img src="' + thumbnailUrl + '" alt="' + (displayName || '媒体') + '" loading="lazy" onerror="this.src=\'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect fill="%23E8F0F8" width="400" height="300"/><text x="200" y="150" text-anchor="middle" dy=".3em" fill="%2394A3B8" font-size="16">图片加载失败</text></svg>') + '\'">' +
+            '<img src="' + thumbnailUrl + '" alt="' + (displayName || '濯掍綋') + '" loading="lazy" onerror="this.src=\'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300"><rect fill="%23E8F0F8" width="400" height="300"/><text x="200" y="150" text-anchor="middle" dy=".3em" fill="%2394A3B8" font-size="16">鍥剧墖鍔犺浇澶辫触</text></svg>') + '\'">' +
             typeIcon +
             '<div class="gallery-actions" onclick="event.stopPropagation()">' +
             actionButtons +
-            '<button class="gallery-btn gallery-btn-danger" onclick="deleteMedia(\'' + item.id + '\')" title="删除">' +
+            '<button class="gallery-btn gallery-btn-danger" onclick="deleteMedia(\'' + item.id + '\')" title="鍒犻櫎">' +
             '<i data-lucide="trash-2" class="w-4 h-4"></i></button></div>' +
             '<div class="gallery-overlay">' +
             nameHtml +
@@ -504,19 +496,18 @@ function showLightbox(allMedia, id) {
     var container = document.getElementById('lightbox-media-container');
     var info = document.getElementById('lightbox-info');
 
-    // 根据类型渲染不同的内容
-    if (item.type === 'video') {
+    // 鏍规嵁绫诲瀷娓叉煋涓嶅悓鐨勫唴瀹?    if (item.type === 'video') {
         container.innerHTML = '<video src="' + item.url + '" controls class="max-w-full max-h-[70vh] rounded-lg"></video>';
     } else {
-        container.innerHTML = '<img id="lightbox-image" src="' + item.url + '" alt="' + (item.gameName || '图片') + '" class="max-w-full max-h-[70vh] rounded-lg">';
+        container.innerHTML = '<img id="lightbox-image" src="' + item.url + '" alt="' + (item.gameName || '鍥剧墖') + '" class="max-w-full max-h-[70vh] rounded-lg">';
     }
 
-    var nameText = item.gameName ? window.escapeHtml(item.gameName) : '未指定游戏';
+    var nameText = item.gameName ? window.escapeHtml(item.gameName) : '鏈寚瀹氭父鎴?;
     var dateText = item.time ? window.formatDateISO(item.time) : '';
-    var typeText = item.type === 'video' ? '视频' : '截图';
+    var typeText = item.type === 'video' ? '瑙嗛' : '鎴浘';
     info.innerHTML = '<p class="text-lg font-medium">' + nameText + '</p>' +
         '<p class="text-sm text-gray-300 mt-1">' + typeText + '</p>' +
-        (dateText ? '<p class="text-sm text-gray-300 mt-1">上传于 ' + dateText + '</p>' : '');
+        (dateText ? '<p class="text-sm text-gray-300 mt-1">涓婁紶浜?' + dateText + '</p>' : '');
 
     lightbox.classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -525,7 +516,7 @@ function showLightbox(allMedia, id) {
 function closeLightbox() {
     document.getElementById('lightbox').classList.remove('open');
     document.body.style.overflow = '';
-    // 停止视频播放
+    // 鍋滄瑙嗛鎾斁
     var video = document.querySelector('#lightbox-media-container video');
     if (video) {
         video.pause();
@@ -536,7 +527,7 @@ function closeLightbox() {
 // Delete Media
 // ========================================
 function deleteMedia(id) {
-    if (confirm('确定要删除这个媒体文件吗？')) {
+    if (confirm('纭畾瑕佸垹闄よ繖涓獟浣撴枃浠跺悧锛?)) {
         if (window.SB) {
             deleteFromCloud(id);
             return;
@@ -548,7 +539,7 @@ function deleteMedia(id) {
 async function deleteFromCloud(id) {
     try {
         var userId = await resolveMediaUserId();
-        if (!userId) throw new Error('未登录');
+        if (!userId) throw new Error('鏈櫥褰?);
         var rowResult = await window.SB.from(TABLE).select('url, thumbnail').eq('id', id).eq('user_id', userId).maybeSingle();
         if (rowResult.error) throw rowResult.error;
         var paths = [];
@@ -559,15 +550,15 @@ async function deleteFromCloud(id) {
             if (thumbPath) paths.push(thumbPath);
         }
         var dbResult = await window.SB.from(TABLE).delete().eq('id', id).eq('user_id', userId);
-        if (dbResult.error) console.error('删除数据库记录失败:', dbResult.error);
+        if (dbResult.error) console.error('鍒犻櫎鏁版嵁搴撹褰曞け璐?', dbResult.error);
         if (paths.length > 0) {
             var storageResult = await window.SB.storage.from(BUCKET).remove(paths);
-            if (storageResult.error) console.error('删除存储文件失败:', storageResult.error);
+            if (storageResult.error) console.error('鍒犻櫎瀛樺偍鏂囦欢澶辫触:', storageResult.error);
         }
         renderGallery();
-        showToast('媒体已删除', 'success');
+        showToast('濯掍綋宸插垹闄?, 'success');
     } catch (e) {
-        console.error('删除失败:', e);
+        console.error('鍒犻櫎澶辫触:', e);
         deleteFromLocal(id);
     }
 }
@@ -579,18 +570,18 @@ function deleteFromLocal(id) {
     });
     saveData('game_record_media', allMedia);
     renderGallery();
-    showToast('媒体已删除', 'success');
+    showToast('濯掍綋宸插垹闄?, 'success');
 }
 
 // ========================================
 // Upload Functions
 // ========================================
 
-// 待上传的文件队列
+// 寰呬笂浼犵殑鏂囦欢闃熷垪
 var pendingFiles = [];
 var pendingFileType = ''; // 'image', 'video'
 
-// 截图上传处理
+// 鎴浘涓婁紶澶勭悊
 document.getElementById('gallery-upload-input').addEventListener('change', function (e) {
     var files = Array.from(e.target.files);
     if (files.length === 0) return;
@@ -599,7 +590,7 @@ document.getElementById('gallery-upload-input').addEventListener('change', funct
     pendingFiles = files.filter(isImageFile);
 
     if (pendingFiles.length === 0) {
-        showToast('请选择图片文件', 'error');
+        showToast('璇烽€夋嫨鍥剧墖鏂囦欢', 'error');
         return;
     }
 
@@ -608,7 +599,7 @@ document.getElementById('gallery-upload-input').addEventListener('change', funct
     this.value = '';
 });
 
-// 视频上传处理
+// 瑙嗛涓婁紶澶勭悊
 document.getElementById('video-upload-input').addEventListener('change', function (e) {
     var files = Array.from(e.target.files);
     if (files.length === 0) return;
@@ -616,14 +607,13 @@ document.getElementById('video-upload-input').addEventListener('change', functio
     pendingFiles = files.filter(isVideoFile);
 
     if (pendingFiles.length === 0) {
-        showToast('请选择视频文件', 'error');
+        showToast('璇烽€夋嫨瑙嗛鏂囦欢', 'error');
         return;
     }
 
-    // 检查文件大小
-    var validFiles = pendingFiles.filter(function(f) {
+    // 妫€鏌ユ枃浠跺ぇ灏?    var validFiles = pendingFiles.filter(function(f) {
         if (f.size > 50 * 1024 * 1024) {
-            showToast(f.name + ' 太大，已跳过（最大 50MB）', 'warning');
+            showToast(f.name + ' 澶ぇ锛屽凡璺宠繃锛堟渶澶?50MB锛?, 'warning');
             return false;
         }
         return true;
@@ -640,11 +630,11 @@ document.getElementById('video-upload-input').addEventListener('change', functio
     this.value = '';
 });
 
-// 显示上传弹窗
+// 鏄剧ず涓婁紶寮圭獥
 function showUploadModal() {
     var select = document.getElementById('upload-type-game-select');
     if (window.GameData) {
-        window.GameData.populateGameSelect(select, { placeholder: '选择游戏（可选）' });
+        window.GameData.populateGameSelect(select, { placeholder: '閫夋嫨娓告垙锛堝彲閫夛級' });
     } else {
         var games = getLibraryGames();
         while (select.options.length > 1) select.remove(1);
@@ -657,27 +647,26 @@ function showUploadModal() {
     }
     select.value = '';
 
-    // 显示上传类型和数量
-    var typeLabel = document.getElementById('upload-type-label');
+    // 鏄剧ず涓婁紶绫诲瀷鍜屾暟閲?    var typeLabel = document.getElementById('upload-type-label');
     var uploadCount = document.getElementById('upload-count');
     var btnText = document.getElementById('upload-btn-text');
 
-    var typeName = pendingFileType === 'image' ? '截图' : '视频';
+    var typeName = pendingFileType === 'image' ? '鎴浘' : '瑙嗛';
     typeLabel.textContent = typeName;
     uploadCount.textContent = pendingFiles.length;
-    btnText.textContent = '确认上传 ' + pendingFiles.length + ' 个' + typeName;
+    btnText.textContent = '纭涓婁紶 ' + pendingFiles.length + ' 涓? + typeName;
 
     document.getElementById('upload-type-modal').classList.add('active');
 }
 
-// 关闭上传弹窗
+// 鍏抽棴涓婁紶寮圭獥
 function closeUploadTypeModal() {
     document.getElementById('upload-type-modal').classList.remove('active');
     pendingFiles = [];
     pendingFileType = '';
 }
 
-// 确认上传
+// 纭涓婁紶
 async function confirmTypeUpload() {
     var select = document.getElementById('upload-type-game-select');
     var selected = resolveSelectedGame(select.value);
@@ -685,7 +674,7 @@ async function confirmTypeUpload() {
     var gameName = selected.gameName;
 
     if (pendingFiles.length === 0 || !pendingFileType) {
-        showToast('没有选择文件', 'error');
+        showToast('娌℃湁閫夋嫨鏂囦欢', 'error');
         return;
     }
 
@@ -697,7 +686,7 @@ async function confirmTypeUpload() {
 
     var btnText = document.getElementById('upload-btn-text');
     var btn = document.getElementById('confirm-upload-type-btn');
-    btnText.textContent = '上传中...';
+    btnText.textContent = '涓婁紶涓?..';
     btn.disabled = true;
 
     var lastError = '';
@@ -705,8 +694,8 @@ async function confirmTypeUpload() {
     if (window.SB) {
         var health = await checkMediaCloudHealth();
         if (!health.ok) {
-            showToast('云端不可用：' + health.reason + '，已改存本机', 'error');
-            console.error('[媒体库]', health.reason);
+            showToast('浜戠涓嶅彲鐢細' + health.reason + '锛屽凡鏀瑰瓨鏈満', 'error');
+            console.error('[濯掍綋搴揮', health.reason);
         }
 
         for (var i = 0; i < pendingFiles.length; i++) {
@@ -720,19 +709,19 @@ async function confirmTypeUpload() {
                 loadedCount++;
             } catch (err) {
                 lastError = formatSupabaseError(err);
-                console.error('上传失败:', file.name, err);
+                console.error('涓婁紶澶辫触:', file.name, err);
                 try {
                     await saveMediaLocally(file, gameId, gameName, uploadType);
                     loadedCount++;
                     errorCount++;
                 } catch (localErr) {
-                    console.error('本机备份也失败:', file.name, localErr);
+                    console.error('鏈満澶囦唤涔熷け璐?', file.name, localErr);
                     errorCount++;
                 }
             }
         }
     } else {
-        // 本地存储
+        // 鏈湴瀛樺偍
         var allMedia = await getAllMedia();
         for (var i = 0; i < pendingFiles.length; i++) {
             var file = pendingFiles[i];
@@ -751,49 +740,47 @@ async function confirmTypeUpload() {
                     item.url = await compressImage(dataUrl, 1920, 0.9);
                     item.thumbnail = await generateThumbnail(item.url);
                 } else if (uploadType === 'video') {
-                    // 本地模式也尝试生成视频封面
-                    try {
+                    // 鏈湴妯″紡涔熷皾璇曠敓鎴愯棰戝皝闈?                    try {
                         item.thumbnail = await generateVideoCover(file);
                     } catch (e) {
-                        item.thumbnail = generateVideoThumbnail(); // 失败用占位图
+                        item.thumbnail = generateVideoThumbnail(); // 澶辫触鐢ㄥ崰浣嶅浘
                     }
                 }
                 allMedia.push(item);
                 loadedCount++;
             } catch (err) {
-                console.error('上传失败:', file.name, err);
+                console.error('涓婁紶澶辫触:', file.name, err);
                 errorCount++;
             }
         }
         saveData('game_record_media', allMedia);
     }
 
-    var typeName = uploadType === 'image' ? '截图' : '视频';
+    var typeName = uploadType === 'image' ? '鎴浘' : '瑙嗛';
     closeUploadTypeModal();
     populateGameFilter();
     renderGallery();
     if (loadedCount > 0) {
-        showToast('成功上传 ' + loadedCount + ' 个' + typeName, 'success');
+        showToast('鎴愬姛涓婁紶 ' + loadedCount + ' 涓? + typeName, 'success');
     }
     if (errorCount > 0) {
-        var hint = lastError ? '。原因：' + lastError : '';
-        showToast(errorCount + ' 个文件云端失败，已尝试存本机' + hint, 'error');
+        var hint = lastError ? '銆傚師鍥狅細' + lastError : '';
+        showToast(errorCount + ' 涓枃浠朵簯绔け璐ワ紝宸插皾璇曞瓨鏈満' + hint, 'error');
     }
-    btnText.textContent = '确认上传';
+    btnText.textContent = '纭涓婁紶';
     btn.disabled = false;
 }
 
-// 上传单个文件到 Supabase（fileType 必须为 'image' 或 'video'，勿依赖全局 pendingFileType）
-async function uploadFileToCloud(file, gameId, gameName, fileType) {
+// 涓婁紶鍗曚釜鏂囦欢鍒?Supabase锛坒ileType 蹇呴』涓?'image' 鎴?'video'锛屽嬁渚濊禆鍏ㄥ眬 pendingFileType锛?async function uploadFileToCloud(file, gameId, gameName, fileType) {
     var userId = await resolveMediaUserId();
-    if (!userId) throw new Error('未登录，无法上传到云端');
+    if (!userId) throw new Error('鏈櫥褰曪紝鏃犳硶涓婁紶鍒颁簯绔?);
 
     var resolved = window.GameData ? window.GameData.resolveGameFieldsFromSelect(gameId) : { gameId: gameId, gameName: gameName };
     gameName = resolved.gameName || gameName || '';
 
     if (window.GameCloud && window.GameCloud.uploadMedia && fileType === 'image') {
         var ok = await window.GameCloud.uploadMedia(file, fileType, gameName);
-        if (!ok) throw new Error('云端上传失败');
+        if (!ok) throw new Error('浜戠涓婁紶澶辫触');
         return;
     }
 
@@ -802,7 +789,7 @@ async function uploadFileToCloud(file, gameId, gameName, fileType) {
     var prefix = mediaStoragePrefix(userId);
     var storagePath = prefix + id + '.' + ext;
 
-    // 处理图片：压缩后上传
+    // 澶勭悊鍥剧墖锛氬帇缂╁悗涓婁紶
     if (fileType === 'image') {
         var dataUrl = await readFile(file);
         var compressed = await compressImage(dataUrl, 1920, 0.9);
@@ -867,7 +854,7 @@ async function uploadFileToCloud(file, gameId, gameName, fileType) {
     }
 }
 
-// 将 dataURL 转换为 Blob
+// 灏?dataURL 杞崲涓?Blob
 function dataURLtoBlob(dataUrl) {
     var parts = dataUrl.split(',');
     var mime = parts[0].match(/:(.*?);/)[1];
@@ -904,8 +891,7 @@ var currentFilters = {
 var cropMode = false;
 var cropArea = { x: 0, y: 0, width: 200, height: 200 };
 
-// 打开图片编辑器
-function openImageEditor(id) {
+// 鎵撳紑鍥剧墖缂栬緫鍣?function openImageEditor(id) {
     var allMedia = getAllMedia();
     if (window.SB) {
         allMedia.then(function(media) { openEditorWithData(media, id); });
@@ -917,12 +903,12 @@ function openImageEditor(id) {
 function openEditorWithData(allMedia, id) {
     var item = allMedia.find(function (m) { return compareMediaId(m.id, id); });
     if (!item) {
-        showToast('找不到该媒体', 'error');
+        showToast('鎵句笉鍒拌濯掍綋', 'error');
         return;
     }
     item.type = normalizeMediaType(item);
     if (item.type === 'video') {
-        showToast('视频暂不支持编辑', 'info');
+        showToast('瑙嗛鏆備笉鏀寔缂栬緫', 'info');
         return;
     }
 
@@ -964,7 +950,7 @@ function openEditorWithData(allMedia, id) {
             originalImageData = ctx.getImageData(0, 0, width, height);
         } catch (e) {
             originalImageData = null;
-            console.warn('[媒体库] 无法读取像素数据，滤镜可能受限', e);
+            console.warn('[濯掍綋搴揮 鏃犳硶璇诲彇鍍忕礌鏁版嵁锛屾护闀滃彲鑳藉彈闄?, e);
         }
 
         modal.classList.add('active');
@@ -978,7 +964,7 @@ function openEditorWithData(allMedia, id) {
             if (useCors) {
                 loadViaImage(src, false);
             } else {
-                showToast('无法加载图片进行编辑', 'error');
+                showToast('鏃犳硶鍔犺浇鍥剧墖杩涜缂栬緫', 'error');
             }
         };
         img.src = src;
@@ -1007,8 +993,7 @@ function openEditorWithData(allMedia, id) {
         });
 }
 
-// 关闭图片编辑器
-function closeImageEditor() {
+// 鍏抽棴鍥剧墖缂栬緫鍣?function closeImageEditor() {
     document.getElementById('image-editor-modal').classList.remove('active');
     currentImageData = null;
     originalImageData = null;
@@ -1016,7 +1001,7 @@ function closeImageEditor() {
     document.getElementById('crop-overlay').classList.add('hidden');
 }
 
-// 应用滤镜
+// 搴旂敤婊ら暅
 function applyFilter(filter) {
     currentFilters.filter = filter;
     document.querySelectorAll('.filter-item').forEach(function(el) { el.classList.remove('active'); });
@@ -1026,8 +1011,7 @@ function applyFilter(filter) {
     applyFiltersToCanvas();
 }
 
-// 应用滤镜到画布
-function applyFiltersToCanvas() {
+// 搴旂敤婊ら暅鍒扮敾甯?function applyFiltersToCanvas() {
     if (!originalImageData) return;
 
     var canvas = document.getElementById('editor-canvas');
@@ -1076,7 +1060,7 @@ function applyFiltersToCanvas() {
     ctx.filter = 'none';
 }
 
-// 切换裁剪模式
+// 鍒囨崲瑁佸壀妯″紡
 function toggleCropMode() {
     cropMode = !cropMode;
     var overlay = document.getElementById('crop-overlay');
@@ -1096,8 +1080,7 @@ function toggleCropMode() {
     }
 }
 
-// 更新裁剪框
-function updateCropBox() {
+// 鏇存柊瑁佸壀妗?function updateCropBox() {
     var cropBox = document.getElementById('crop-box');
     cropBox.style.left = cropArea.x + 'px';
     cropBox.style.top = cropArea.y + 'px';
@@ -1118,7 +1101,7 @@ function updateCropBox() {
     }
 }
 
-// 重置图片
+// 閲嶇疆鍥剧墖
 function resetImage() {
     currentFilters = { brightness: 100, contrast: 100, saturation: 100, filter: 'none' };
 
@@ -1134,12 +1117,12 @@ function resetImage() {
     applyFiltersToCanvas();
 }
 
-// 保存编辑后的图片
+// 淇濆瓨缂栬緫鍚庣殑鍥剧墖
 async function saveEditedImage() {
     var canvas = document.getElementById('editor-canvas');
     var thumbnailSize = parseInt(document.getElementById('thumbnail-size').value);
 
-    // 获取裁剪或完整的图片
+    // 鑾峰彇瑁佸壀鎴栧畬鏁寸殑鍥剧墖
     var editedDataUrl;
     if (cropMode) {
         var tempCanvas = document.createElement('canvas');
@@ -1153,10 +1136,10 @@ async function saveEditedImage() {
     }
 
     if (window.SB) {
-        // 云存储：重新上传编辑后的图片
+        // 浜戝瓨鍌細閲嶆柊涓婁紶缂栬緫鍚庣殑鍥剧墖
         try {
             var userId = await resolveMediaUserId();
-            if (!userId) throw new Error('未登录');
+            if (!userId) throw new Error('鏈櫥褰?);
             var id = currentImageData.id;
             var prefix = mediaStoragePrefix(userId);
             var storagePath = prefix + 'edited_' + window.generateId() + '.jpg';
@@ -1185,13 +1168,13 @@ async function saveEditedImage() {
 
             closeImageEditor();
             renderGallery();
-            showToast('图片编辑保存成功', 'success');
+            showToast('鍥剧墖缂栬緫淇濆瓨鎴愬姛', 'success');
         } catch (e) {
-            console.error('保存失败:', e);
-            showToast('保存失败，请重试', 'error');
+            console.error('淇濆瓨澶辫触:', e);
+            showToast('淇濆瓨澶辫触锛岃閲嶈瘯', 'error');
         }
     } else {
-        // 本地存储
+        // 鏈湴瀛樺偍
         var allMedia = await getAllMedia();
         var index = allMedia.findIndex(function(item) { return item.id === currentImageData.id; });
         if (index !== -1) {
@@ -1200,7 +1183,7 @@ async function saveEditedImage() {
             saveData('game_record_media', allMedia);
             closeImageEditor();
             renderGallery();
-            showToast('图片编辑保存成功', 'success');
+            showToast('鍥剧墖缂栬緫淇濆瓨鎴愬姛', 'success');
         }
     }
 }
@@ -1272,7 +1255,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     if (window.SB) {
         var health = await checkMediaCloudHealth();
         if (!health.ok) {
-            showToast('媒体库云端异常：' + health.reason, 'error');
+            showToast('濯掍綋搴撲簯绔紓甯革細' + health.reason, 'error');
         }
     }
     populateGameFilter();
