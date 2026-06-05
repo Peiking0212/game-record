@@ -28,13 +28,13 @@ export default function RootLayout({
     <html lang="zh-CN" suppressHydrationWarning>
       <body className="min-h-screen flex flex-col">
         <ThemeProvider>
-          <MascotProvider>
-            <ToastProvider>
+          <ToastProvider>
+            <MascotProvider>
               <SiteHeader />
               <main className="flex-1">{children}</main>
               <SiteFooter />
-            </ToastProvider>
-          </MascotProvider>
+            </MascotProvider>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

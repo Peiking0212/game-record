@@ -38,8 +38,10 @@ export function StatsClient() {
   const { showToast } = useToast();
   const chartsSectionRef = useRef<HTMLElement | null>(null);
   const summaryContentRef = useRef<HTMLDivElement | null>(null);
-  const [games, setGames] = useState(() => getAllGames());
-  const [achievements, setAchievements] = useState(() => getAllAchievements());
+  const [games, setGames] = useState<ReturnType<typeof getAllGames>>([]);
+  const [achievements, setAchievements] = useState<
+    ReturnType<typeof getAllAchievements>
+  >([]);
 
   const [formFilters, setFormFilters] = useState<StatsFilters>({
     year: String(new Date().getFullYear()),

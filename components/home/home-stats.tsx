@@ -9,8 +9,8 @@ import type { GameRecord } from "@/lib/game-types";
 import { getStatusText } from "@/lib/game-utils";
 
 export function HomeStats() {
-  const [stats, setStats] = useState(() =>
-    typeof window !== "undefined" ? getHomeStats() : null,
+  const [stats, setStats] = useState<ReturnType<typeof getHomeStats> | null>(
+    null,
   );
 
   useEffect(() => {
