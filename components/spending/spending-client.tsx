@@ -57,7 +57,7 @@ function todayIso(): string {
 }
 
 function fmtMoney(v: number): string {
-  return `¥${(Number(v) || 0).toFixed(2)}`;
+  return `?${(Number(v) || 0).toFixed(2)}`;
 }
 
 function normalizeType(
@@ -93,8 +93,8 @@ function buildPurchaseLinks(): LinkOption[] {
     .sort((a, b) => (a.name || "").localeCompare(b.name || "", "zh-CN"));
   return wishlist.map((w) => ({
     value: String(w.id),
-    label: w.name || "未命名",
-    game: w.name || "未命名",
+    label: w.name || "δ����",
+    game: w.name || "δ����",
     wishlistId: w.id,
   }));
 }
@@ -104,11 +104,11 @@ function buildRechargeLinks(): LinkOption[] {
     .slice()
     .sort((a, b) => (a.name || "").localeCompare(b.name || "", "zh-CN"));
   return [
-    { value: RECHARGE_OTHER, label: "其他 / 账户充值", game: DEFAULT_GAME_LABEL },
+    { value: RECHARGE_OTHER, label: "���� / �˻���ֵ", game: DEFAULT_GAME_LABEL },
     ...games.map((g) => ({
       value: String(g.id),
-      label: g.name || "未命名",
-      game: g.name || "未命名",
+      label: g.name || "δ����",
+      game: g.name || "δ����",
       gameId: g.id,
     })),
   ];
@@ -180,7 +180,7 @@ export function SpendingClient() {
 
   const persist = (next: SpendingItem[], okMessage: string) => {
     if (!saveSpending(next)) {
-      showToast("保存失败，请稍后重试", "error");
+      showToast("����ʧ�ܣ����Ժ�����", "error");
       return false;
     }
     setItems(next);
@@ -195,7 +195,7 @@ export function SpendingClient() {
     if (form.recordType === "purchase") {
       const link = links.find((x) => x.value === form.linkValue);
       if (!link?.wishlistId) {
-        showToast("请选择愿望单中的游戏", "error");
+        showToast("��ѡ��Ը�����е���Ϸ", "error");
         return null;
       }
       return {
@@ -216,7 +216,7 @@ export function SpendingClient() {
     }
     const link = links.find((x) => x.value === form.linkValue);
     if (!link) {
-      showToast("请选择充值对应的游戏", "error");
+      showToast("��ѡ���ֵ��Ӧ����Ϸ", "error");
       return null;
     }
     return {
@@ -230,11 +230,11 @@ export function SpendingClient() {
   const validateMoneyAndDate = (form: FormState): boolean => {
     const amount = Number(form.amount);
     if (Number.isNaN(amount) || amount < 0) {
-      showToast("请输入有效金额", "error");
+      showToast("��������Ч���", "error");
       return false;
     }
     if (!form.date) {
-      showToast("请选择消费日期", "error");
+      showToast("��ѡ����������", "error");
       return false;
     }
     return true;
@@ -254,7 +254,7 @@ export function SpendingClient() {
       note: addForm.note.trim(),
       ...recordFields,
     };
-    if (!persist([...items, next], "消费记录已添加")) return;
+    if (!persist([...items, next], "���Ѽ�¼������")) return;
     setAddForm({
       ...defaultForm(),
       linkValue: (addLinks[0]?.value ?? ""),
@@ -303,14 +303,14 @@ export function SpendingClient() {
             ...recordFields,
           },
     );
-    if (!persist(next, "消费记录已更新")) return;
+    if (!persist(next, "���Ѽ�¼�Ѹ���")) return;
     setEditing(null);
   };
 
   const onDelete = (id: string) => {
-    if (!window.confirm("确定要删除这条消费记录吗？")) return;
+    if (typeof window !== 'undefined' && !window.confirm("ȷ��Ҫɾ���������Ѽ�¼��")) return;
     const next = items.filter((x) => String(x.id) !== String(id));
-    persist(next, "消费记录已删除");
+    persist(next, "���Ѽ�¼��ɾ��");
   };
 
   return (
@@ -318,10 +318,10 @@ export function SpendingClient() {
       <section className="bg-gradient-to-br from-[#52B6FF15] to-[#94D8FF15] py-14">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
-            消费记录
+            ���Ѽ�¼
           </h1>
           <p className="text-lg text-gray-600 mb-6 max-w-xl mx-auto">
-            记录你的游戏花费，理性消费
+            ��¼�����Ϸ���ѣ���������
           </p>
           <div className="inline-flex items-center gap-3 bg-white rounded-full px-5 py-2 shadow-md">
             <Calendar className="w-5 h-5 text-[#52B6FF]" />
@@ -330,10 +330,10 @@ export function SpendingClient() {
               value={year}
               onChange={(e) => setYear(e.target.value)}
             >
-              <option value="all">全部年份</option>
+              <option value="all">ȫ�����</option>
               {years.map((y) => (
                 <option key={y} value={y}>
-                  {y} 年
+                  {y} ��
                 </option>
               ))}
             </select>
@@ -346,7 +346,7 @@ export function SpendingClient() {
           <div className="chart-card">
             <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2 mb-6">
               <PlusCircle className="w-6 h-6 text-[#52B6FF]" />
-              添加消费记录
+              �������Ѽ�¼
             </h2>
             <form className="space-y-5" onSubmit={onAddSubmit}>
               <SpendingFormFields
@@ -357,14 +357,14 @@ export function SpendingClient() {
               <div className="flex gap-3 pt-2">
                 <button type="submit" className="btn-primary">
                   <Save className="w-5 h-5 inline mr-2" />
-                  添加记录
+                  ���Ӽ�¼
                 </button>
                 <button
                   type="button"
                   className="btn-secondary"
                   onClick={() => setAddForm({ ...defaultForm(), linkValue: addLinks[0]?.value ?? "" })}
                 >
-                  重置
+                  ����
                 </button>
               </div>
             </form>
@@ -375,14 +375,14 @@ export function SpendingClient() {
       <section className="py-10 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
-            <StatCard title="总花费" value={fmtMoney(stats.total)} />
+            <StatCard title="�ܻ���" value={fmtMoney(stats.total)} />
             <StatCard
-              title="消费笔数"
+              title="���ѱ���"
               value={String(stats.count)}
-              sub={stats.count ? `${stats.purchaseCount} 笔购买 · ${stats.rechargeCount} 笔充值` : ""}
+              sub={stats.count ? `${stats.purchaseCount} �ʹ��� �� ${stats.rechargeCount} �ʳ�ֵ` : ""}
             />
-            <StatCard title="平均每笔消费" value={fmtMoney(stats.avg)} />
-            <StatCard title="月均消费" value={fmtMoney(stats.monthly)} />
+            <StatCard title="ƽ��ÿ������" value={fmtMoney(stats.avg)} />
+            <StatCard title="�¾�����" value={fmtMoney(stats.monthly)} />
           </div>
         </div>
       </section>
@@ -392,28 +392,28 @@ export function SpendingClient() {
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
               <List className="w-6 h-6 text-[#52B6FF]" />
-              消费记录列表
+              ���Ѽ�¼�б�
             </h2>
           </div>
 
           {filtered.length === 0 ? (
             <div className="text-center py-16">
               <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-gray-700 mb-2">暂无消费记录</h3>
-              <p className="text-gray-500">在上方表单添加你的第一条消费记录吧</p>
+              <h3 className="text-xl font-bold text-gray-700 mb-2">�������Ѽ�¼</h3>
+              <p className="text-gray-500">���Ϸ�����������ĵ�һ�����Ѽ�¼��</p>
             </div>
           ) : (
             <div className="spending-table-wrap overflow-x-auto">
               <table className="spending-table">
                 <thead>
                   <tr>
-                    <th>类型</th>
-                    <th>项目</th>
-                    <th>金额 (¥)</th>
-                    <th>日期</th>
-                    <th>平台</th>
-                    <th>备注</th>
-                    <th>操作</th>
+                    <th>����</th>
+                    <th>��Ŀ</th>
+                    <th>��� (?)</th>
+                    <th>����</th>
+                    <th>ƽ̨</th>
+                    <th>��ע</th>
+                    <th>����</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -467,7 +467,7 @@ export function SpendingClient() {
                         <button
                           type="button"
                           className="spending-action-btn edit-btn"
-                          title="编辑"
+                          title="�༭"
                           onClick={() => startEdit(r)}
                         >
                           <Pencil className="w-4 h-4" />
@@ -475,7 +475,7 @@ export function SpendingClient() {
                         <button
                           type="button"
                           className="spending-action-btn delete-btn"
-                          title="删除"
+                          title="ɾ��"
                           onClick={() => onDelete(String(r.id))}
                         >
                           <Trash2 className="w-4 h-4" />
@@ -493,21 +493,21 @@ export function SpendingClient() {
       <Modal
         open={!!editing}
         onClose={() => setEditing(null)}
-        title="编辑消费记录"
+        title="�༭���Ѽ�¼"
       >
         <form className="space-y-5" onSubmit={onEditSubmit}>
           <SpendingFormFields form={editForm} setForm={setEditForm} links={editLinks} />
           <div className="flex gap-3 pt-2">
             <button type="submit" className="btn-primary flex-1">
               <Save className="w-5 h-5 inline mr-2" />
-              保存更改
+              �������
             </button>
             <button
               type="button"
               className="btn-secondary flex-1"
               onClick={() => setEditing(null)}
             >
-              取消
+              ȡ��
             </button>
           </div>
         </form>
@@ -550,14 +550,14 @@ function SpendingFormFields({
 }) {
   const linkHelp =
     form.recordType === "purchase"
-      ? "购买游戏：从愿望单选择要购买的游戏，记录会显示在愿望单页面。"
-      : "账户充值：从游戏库选择充值对应的游戏，记录会显示在该游戏详情页。";
+      ? "������Ϸ����Ը����ѡ��Ҫ�������Ϸ����¼����ʾ��Ը����ҳ�档"
+      : "�˻���ֵ������Ϸ��ѡ���ֵ��Ӧ����Ϸ����¼����ʾ�ڸ���Ϸ����ҳ��";
 
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">消费类型</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">��������</label>
           <select
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={form.recordType}
@@ -569,12 +569,12 @@ function SpendingFormFields({
               }))
             }
           >
-            <option value="purchase">购买游戏</option>
-            <option value="recharge">账户充值</option>
+            <option value="purchase">������Ϸ</option>
+            <option value="recharge">�˻���ֵ</option>
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">关联项目</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">������Ŀ</label>
           <select
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={form.linkValue}
@@ -583,8 +583,8 @@ function SpendingFormFields({
             {links.length === 0 ? (
               <option value="">
                 {form.recordType === "purchase"
-                  ? "愿望单为空，请先在愿望单页添加"
-                  : "游戏库为空，默认记录为账户充值"}
+                  ? "Ը����Ϊ�գ�������Ը����ҳ����"
+                  : "��Ϸ��Ϊ�գ�Ĭ�ϼ�¼Ϊ�˻���ֵ"}
               </option>
             ) : (
               links.map((opt) => (
@@ -597,19 +597,19 @@ function SpendingFormFields({
           <p className="spending-link-help">{linkHelp}</p>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">金额 (¥)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">��� (?)</label>
           <input
             type="number"
             min={0}
             step="0.01"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={form.amount}
-            placeholder="例如：298.00"
+            placeholder="���磺298.00"
             onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">消费日期</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">��������</label>
           <input
             type="date"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -618,7 +618,7 @@ function SpendingFormFields({
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">平台</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">ƽ̨</label>
           <select
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={form.platform}
@@ -633,11 +633,11 @@ function SpendingFormFields({
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">备注</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">��ע</label>
         <textarea
           rows={2}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="例如：预购豪华版、DLC、游戏内购、Steam 钱包充值..."
+          placeholder="���磺Ԥ�������桢DLC����Ϸ�ڹ���Steam Ǯ����ֵ..."
           value={form.note}
           onChange={(e) => setForm((f) => ({ ...f, note: e.target.value }))}
         />

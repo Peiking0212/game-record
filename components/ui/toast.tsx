@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -31,10 +32,16 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   const showToast = useCallback((message: string, type: ToastType = "info") => {
     setToast({ message, type, visible: true });
-    window.setTimeout(() => {
-      setToast((t) => ({ ...t, visible: false }));
-    }, 3000);
   }, []);
+
+  useEffect(() => {
+    if (toast.visible) {
+      const timer = setTimeout(() => {
+        setToast((t) => ({ ...t, visible: false }));
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast.visible]);
 
   const value = useMemo(() => ({ showToast }), [showToast]);
 

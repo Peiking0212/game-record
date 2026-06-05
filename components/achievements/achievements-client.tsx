@@ -82,7 +82,7 @@ function AchievementForm({
   return (
     <form className="space-y-6" onSubmit={onSubmit}>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">æˆå°±åç§°</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">³É¾ÍÃû³Æ</label>
         <input
           type="text"
           required
@@ -93,7 +93,7 @@ function AchievementForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">æˆå°±æè¿°</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">³É¾ÍÃèÊö</label>
         <textarea
           required
           rows={3}
@@ -104,14 +104,14 @@ function AchievementForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">æ‰€å±æ¸¸æˆ</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">ËùÊôÓÎÏ·</label>
         <select
           required
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           value={values.gameId}
           onChange={(e) => setValues((v) => ({ ...v, gameId: e.target.value }))}
         >
-          <option value="">é€‰æ‹©æ¸¸æˆ</option>
+          <option value="">Ñ¡ÔñÓÎÏ·</option>
           {games.map((g) => (
             <option key={String(g.id)} value={String(g.id)}>
               {g.name}
@@ -121,7 +121,7 @@ function AchievementForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">è·å¾—æ—¥æœŸ</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">»ñµÃÈÕÆÚ</label>
         <input
           required
           type="date"
@@ -132,7 +132,7 @@ function AchievementForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">æˆå°±å›¾æ ‡</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">³É¾ÍÍ¼±ê</label>
         <select
           required
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -149,7 +149,7 @@ function AchievementForm({
 
       {showScreenshotField && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">æˆå°±æˆªå›¾</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">³É¾Í½ØÍ¼</label>
           <label className="upload-area block cursor-pointer">
             <input
               type="file"
@@ -166,13 +166,13 @@ function AchievementForm({
               }}
             />
             <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 mb-2 text-center">ç‚¹å‡»ä¸Šä¼ æˆªå›¾ï¼ˆJPG/PNGï¼‰</p>
+            <p className="text-gray-600 mb-2 text-center">µã»÷ÉÏ´«½ØÍ¼£¨JPG/PNG£©</p>
           </label>
           {values.screenshot ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={values.screenshot}
-              alt="æˆªå›¾é¢„è§ˆ"
+              alt="½ØÍ¼Ô¤ÀÀ"
               className="w-full mt-3 rounded-lg border border-gray-100"
             />
           ) : null}
@@ -221,7 +221,7 @@ export function AchievementsClient() {
 
   const persist = (next: AchievementItem[], message: string) => {
     if (!saveAchievements(next)) {
-      showToast("ä¿å­˜å¤±è´¥ï¼Œè¯·ç¨åé‡è¯•", "error");
+      showToast("±£´æÊ§°Ü£¬ÇëÉÔºóÖØÊÔ", "error");
       return false;
     }
     setItems(next);
@@ -264,7 +264,7 @@ export function AchievementsClient() {
     e.preventDefault();
     const gameFields = resolveGameFieldsFromSelect(addForm.gameId);
     if (!gameFields?.gameId) {
-      showToast("è¯·é€‰æ‹©æ‰€å±æ¸¸æˆ", "error");
+      showToast("ÇëÑ¡ÔñËùÊôÓÎÏ·", "error");
       return;
     }
     const nextItem: AchievementItem = {
@@ -277,7 +277,7 @@ export function AchievementsClient() {
       icon: addForm.icon,
       screenshot: addForm.screenshot,
     };
-    if (!persist([...items, nextItem], "æˆå°±å·²æ·»åŠ ")) return;
+    if (!persist([...items, nextItem], "³É¾ÍÒÑÌí¼Ó")) return;
     setAddOpen(false);
     setAddForm({
       title: "",
@@ -305,7 +305,7 @@ export function AchievementsClient() {
     if (!editItem) return;
     const gameFields = resolveGameFieldsFromSelect(editForm.gameId);
     if (!gameFields?.gameId) {
-      showToast("è¯·é€‰æ‹©æ‰€å±æ¸¸æˆ", "error");
+      showToast("ÇëÑ¡ÔñËùÊôÓÎÏ·", "error");
       return;
     }
     const next = items.map((it) =>
@@ -321,14 +321,14 @@ export function AchievementsClient() {
             icon: editForm.icon,
           },
     );
-    if (!persist(next, "æˆå°±ä¿¡æ¯å·²æ›´æ–°")) return;
+    if (!persist(next, "³É¾ÍĞÅÏ¢ÒÑ¸üĞÂ")) return;
     setEditItem(null);
   };
 
   const onDelete = (id: number | string) => {
-    if (!window.confirm("ç¡®å®šè¦åˆ é™¤è¿™ä¸ªæˆå°±å—ï¼Ÿæ­¤æ“ä½œä¸å¯æ’¤é”€ã€‚")) return;
+    if (typeof window !== 'undefined' && !window.confirm("È·¶¨ÒªÉ¾³ıÕâ¸ö³É¾ÍÂğ£¿´Ë²Ù×÷²»¿É³·Ïú¡£")) return;
     const next = items.filter((it) => String(it.id) !== String(id));
-    persist(next, "æˆå°±å·²åˆ é™¤");
+    persist(next, "³É¾ÍÒÑÉ¾³ı");
     if (detailItem && String(detailItem.id) === String(id)) setDetailItem(null);
   };
 
@@ -337,14 +337,14 @@ export function AchievementsClient() {
       <section className="bg-gradient-to-br from-blue-50 to-cyan-100 py-16">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
-            æˆå°±ç³»ç»Ÿ
+            ³É¾ÍÏµÍ³
           </h1>
           <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
-            è®°å½•ä½ çš„æ¸¸æˆæˆå°±ï¼Œå±•ç¤ºä½ çš„æ¸¸æˆå®åŠ›å’Œå†ç¨‹
+            ¼ÇÂ¼ÄãµÄÓÎÏ·³É¾Í£¬Õ¹Ê¾ÄãµÄÓÎÏ·ÊµÁ¦ºÍÀú³Ì
           </p>
           <button className="btn-primary" onClick={() => setAddOpen(true)}>
             <Plus className="w-5 h-5 inline mr-2" />
-            æ·»åŠ æ–°æˆå°±
+            Ìí¼ÓĞÂ³É¾Í
           </button>
         </div>
       </section>
@@ -356,19 +356,19 @@ export function AchievementsClient() {
               icon={<Trophy className="w-8 h-8" />}
               iconClass="bg-yellow-100 text-yellow-500"
               value={String(stats.total)}
-              label="æ€»æˆå°±æ•°"
+              label="×Ü³É¾ÍÊı"
             />
             <StatCard
               icon={<Calendar className="w-8 h-8" />}
               iconClass="bg-blue-100 text-blue-500"
               value={String(stats.recent)}
-              label="æœ€è¿‘è·å¾—"
+              label="×î½ü»ñµÃ"
             />
             <StatCard
               icon={<Trophy className="w-8 h-8" />}
               iconClass="bg-green-100 text-green-500"
               value={String(stats.gameCount)}
-              label="è·å¾—æˆå°±çš„æ¸¸æˆ"
+              label="»ñµÃ³É¾ÍµÄÓÎÏ·"
             />
           </div>
         </div>
@@ -378,12 +378,12 @@ export function AchievementsClient() {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto mb-12 grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">æœç´¢æˆå°±</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">ËÑË÷³É¾Í</label>
               <div className="relative">
                 <input
                   type="text"
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="è¾“å…¥æˆå°±åç§°æˆ–æ¸¸æˆ..."
+                  placeholder="ÊäÈë³É¾ÍÃû³Æ»òÓÎÏ·..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -391,13 +391,13 @@ export function AchievementsClient() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">æŒ‰æ¸¸æˆç­›é€‰</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">°´ÓÎÏ·É¸Ñ¡</label>
               <select
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={gameFilter}
                 onChange={(e) => setGameFilter(e.target.value)}
               >
-                <option value="all">å…¨éƒ¨æ¸¸æˆ</option>
+                <option value="all">È«²¿ÓÎÏ·</option>
                 {games.map((g) => (
                   <option key={String(g.id)} value={String(g.id)}>
                     {g.name}
@@ -411,11 +411,11 @@ export function AchievementsClient() {
             {filtered.length === 0 ? (
               <div className="text-center py-16">
                 <Trophy className="w-20 h-20 text-gray-300 mx-auto mb-6" />
-                <h3 className="text-2xl font-bold text-gray-700 mb-4">è¿˜æ²¡æœ‰æˆå°±</h3>
-                <p className="text-gray-600 mb-8">ç‚¹å‡»ã€Œæ·»åŠ æ–°æˆå°±ã€æŒ‰é’®å¼€å§‹è®°å½•ä½ çš„æ¸¸æˆæˆå°±</p>
+                <h3 className="text-2xl font-bold text-gray-700 mb-4">»¹Ã»ÓĞ³É¾Í</h3>
+                <p className="text-gray-600 mb-8">µã»÷¡¸Ìí¼ÓĞÂ³É¾Í¡¹°´Å¥¿ªÊ¼¼ÇÂ¼ÄãµÄÓÎÏ·³É¾Í</p>
                 <button className="btn-primary" onClick={() => setAddOpen(true)}>
                   <Plus className="w-5 h-5 inline mr-2" />
-                  æ·»åŠ æ–°æˆå°±
+                  Ìí¼ÓĞÂ³É¾Í
                 </button>
               </div>
             ) : (
@@ -458,7 +458,7 @@ export function AchievementsClient() {
                         </div>
                       </div>
                       <p className="text-gray-600 mb-3 line-clamp-2">{achievement.description}</p>
-                      <div className="text-sm text-gray-500">è·å¾—æ—¶é—´: {formatDateISO(achievement.date)}</div>
+                      <div className="text-sm text-gray-500">»ñµÃÊ±¼ä: {formatDateISO(achievement.date)}</div>
                       {achievement.screenshot ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -478,7 +478,7 @@ export function AchievementsClient() {
 
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">æˆå°±æ—¶é—´çº¿</h2>
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">³É¾ÍÊ±¼äÏß</h2>
           <div className="max-w-3xl mx-auto">
             <div className="relative pl-8 border-l-2 border-blue-200">
               {timeline.map((achievement) => (
@@ -504,31 +504,31 @@ export function AchievementsClient() {
         </div>
       </section>
 
-      <Modal open={addOpen} onClose={() => setAddOpen(false)} title="æ·»åŠ æ–°æˆå°±">
+      <Modal open={addOpen} onClose={() => setAddOpen(false)} title="Ìí¼ÓĞÂ³É¾Í">
         <AchievementForm
           values={addForm}
           setValues={setAddForm}
           games={games}
           onSubmit={onAddSubmit}
-          submitText="æ·»åŠ æˆå°±"
+          submitText="Ìí¼Ó³É¾Í"
           showScreenshotField
         />
       </Modal>
 
-      <Modal open={!!editItem} onClose={() => setEditItem(null)} title="ç¼–è¾‘æˆå°±">
+      <Modal open={!!editItem} onClose={() => setEditItem(null)} title="±à¼­³É¾Í">
         <AchievementForm
           values={editForm}
           setValues={setEditForm}
           games={games}
           onSubmit={onEditSubmit}
-          submitText="ä¿å­˜ä¿®æ”¹"
+          submitText="±£´æĞŞ¸Ä"
         />
       </Modal>
 
       <Modal
         open={!!detailItem}
         onClose={() => setDetailItem(null)}
-        title={detailItem?.title || "æˆå°±è¯¦æƒ…"}
+        title={detailItem?.title || "³É¾ÍÏêÇé"}
         maxWidth="xl"
       >
         {detailItem ? (
@@ -540,18 +540,18 @@ export function AchievementsClient() {
               <p className="text-lg text-gray-600">{detailItem.gameName}</p>
             </div>
             <div>
-              <h4 className="font-semibold text-gray-800 mb-2">æˆå°±æè¿°</h4>
+              <h4 className="font-semibold text-gray-800 mb-2">³É¾ÍÃèÊö</h4>
               <p className="text-gray-600">{detailItem.description}</p>
             </div>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">è·å¾—æ—¥æœŸ:</span>
+                <span className="text-gray-600">»ñµÃÈÕÆÚ:</span>
                 <span className="font-medium">{formatDateISO(detailItem.date)}</span>
               </div>
             </div>
             {detailItem.screenshot ? (
               <div>
-                <h4 className="font-semibold text-gray-800 mb-2">æˆå°±æˆªå›¾</h4>
+                <h4 className="font-semibold text-gray-800 mb-2">³É¾Í½ØÍ¼</h4>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={detailItem.screenshot} alt={detailItem.title} className="w-full rounded-lg" />
               </div>
@@ -565,14 +565,14 @@ export function AchievementsClient() {
                 }}
               >
                 <Edit className="w-5 h-5 inline mr-2" />
-                ç¼–è¾‘æˆå°±
+                ±à¼­³É¾Í
               </button>
               <button
                 className="btn-danger"
                 onClick={() => onDelete(detailItem.id)}
               >
                 <Trash2 className="w-5 h-5 inline mr-2" />
-                åˆ é™¤æˆå°±
+                É¾³ı³É¾Í
               </button>
             </div>
           </div>
