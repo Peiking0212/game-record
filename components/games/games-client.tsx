@@ -61,7 +61,7 @@ export function GamesClient() {
 
   function persist(next: GameRecord[], message: string) {
     if (!saveGames(next)) {
-      showToast("淇濆瓨澶辫触锛岃妫€鏌ュ瓨鍌ㄧ┖闂?, "error");
+      showToast("保存失败，请检查存储空间", "error");
       return;
     }
     setGames(next);
@@ -82,7 +82,7 @@ export function GamesClient() {
       screenshots: [],
       videos: [],
     };
-    persist([...games, newGame], "娓告垙宸叉坊鍔?);
+    persist([...games, newGame], "游戏添加成功");
   }
 
   function handleEdit(values: GameFormValues, gameId?: number | string) {
@@ -102,13 +102,13 @@ export function GamesClient() {
     };
     const next = [...games];
     next[idx] = updated;
-    persist(next, "娓告垙淇℃伅宸叉洿鏂?);
+    persist(next, "游戏信息已更新");
   }
 
   if (!ready) {
     return (
       <p className="text-center py-24" style={{ color: "var(--text-gray)" }}>
-        鍔犺浇涓€?
+        加载中…
       </p>
     );
   }
@@ -118,10 +118,10 @@ export function GamesClient() {
       <section className="bg-gradient-to-br from-blue-50 to-cyan-100 py-16">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
-            鎴戠殑娓告垙鏀惰棌
+            我的游戏收藏
           </h1>
           <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
-            璁板綍鍜岀鐞嗘垜鐜╄繃鐨勬瘡涓€娆℃父鎴忥紝杩借釜娓告垙杩涘害鍜屾垚灏?
+            记录和管理玩过的每一款游戏，追踪游戏进度与成就
           </p>
           <button
             type="button"
@@ -129,7 +129,7 @@ export function GamesClient() {
             onClick={() => setAddOpen(true)}
           >
             <Plus className="w-5 h-5 mr-2" />
-            娣诲姞鏂版父鎴?
+            添加新游戏
           </button>
         </div>
       </section>
@@ -142,14 +142,14 @@ export function GamesClient() {
                 htmlFor="search"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                鎼滅储娓告垙
+                搜索游戏
               </label>
               <div className="relative">
                 <input
                   id="search"
                   type="text"
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="杈撳叆娓告垙鍚嶇О..."
+                  placeholder="输入游戏名称..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -162,7 +162,7 @@ export function GamesClient() {
                 htmlFor="status-filter"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                娓告垙鐘舵€?
+                游戏状态
               </label>
               <select
                 id="status-filter"
@@ -170,7 +170,7 @@ export function GamesClient() {
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
-                <option value="all">鍏ㄩ儴鐘舵€?/option>
+                <option value="all">全部状态</option>
                 {GAME_STATUS_OPTIONS.map((s) => (
                   <option key={s.value} value={s.value}>
                     {s.label}
@@ -184,7 +184,7 @@ export function GamesClient() {
                 htmlFor="type-filter"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                娓告垙绫诲瀷
+                游戏类型
               </label>
               <select
                 id="type-filter"
@@ -192,7 +192,7 @@ export function GamesClient() {
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
               >
-                <option value="all">鍏ㄩ儴绫诲瀷</option>
+                <option value="all">全部类型</option>
                 {GAME_TYPE_OPTIONS.map((t) => (
                   <option key={t} value={t}>
                     {t}
@@ -209,10 +209,10 @@ export function GamesClient() {
               <div className="text-center py-16">
                 <Gamepad2 className="w-20 h-20 text-gray-300 mx-auto mb-6" />
                 <h3 className="text-2xl font-bold text-gray-700 mb-4">
-                  杩樻病鏈夋父鎴?
+                  暂无游戏
                 </h3>
                 <p className="text-gray-600 mb-8">
-                  鐐瑰嚮銆屾坊鍔犳柊娓告垙銆嶆寜閽紑濮嬭褰曚綘鐨勬父鎴忎箣鏃?
+                  点击「添加新游戏」按钮开始记录你的游戏之旅
                 </p>
                 <button
                   type="button"
@@ -220,7 +220,7 @@ export function GamesClient() {
                   onClick={() => setAddOpen(true)}
                 >
                   <Plus className="w-5 h-5 mr-2" />
-                  娣诲姞鏂版父鎴?
+                  添加新游戏
                 </button>
               </div>
             ) : (
@@ -244,11 +244,11 @@ export function GamesClient() {
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
-            鏈€杩戞坊鍔犵殑娓告垙
+            最近添加的游戏
           </h2>
           <div className="max-w-6xl mx-auto">
             {recentlyAdded.length === 0 ? (
-              <p className="text-center text-gray-500">鏆傛棤鏈€杩戞坊鍔犵殑娓告垙</p>
+              <p className="text-center text-gray-500">暂无最近添加的游戏</p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {recentlyAdded.map((game) => (

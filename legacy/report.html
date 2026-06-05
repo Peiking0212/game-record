@@ -1,17 +1,17 @@
-﻿<!DOCTYPE html>
+﻿?<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="记录游戏时光：游戏收藏、成就、数据统计与媒体库。">
-    <meta name="keywords" content="游戏记录,游戏收藏,成就,游戏统计,媒体库">
-    <meta property="og:title" content="游戏记录">
-    <meta property="og:description" content="记录每一次游戏冒险，分享每一份游戏喜悦。">
+    <meta name="description" content="��¼��Ϸʱ�⣺��Ϸ�ղء��ɾ͡�����ͳ����ý��⡣">
+    <meta name="keywords" content="��Ϸ��¼,��Ϸ�ղ�,�ɾ�,��Ϸͳ��,ý���">
+    <meta property="og:title" content="��Ϸ��¼">
+    <meta property="og:description" content="��¼ÿһ����Ϸð�գ�����ÿһ����Ϸϲ�á�">
     <meta property="og:type" content="website">
     <meta name="app:supabase-url" content="https://oxbyshstrvzshxpaztzg.supabase.co">
     <meta name="app:supabase-anon-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im94YnlzaHN0cnZ6c2h4cGF6dHpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzOTc0OTgsImV4cCI6MjA5NDk3MzQ5OH0.d4hsB6sxUzlcJu3VfA42ncp9KZPZrGPM40pXsCarn3s">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <title>游戏记录 - 年度报告</title>
+    <title>��Ϸ��¼ - ��ȱ���</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/lucide@0.544.0/dist/umd/lucide.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
@@ -19,7 +19,7 @@
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css?v=16">
     <style>
-/* 导航栏响应式显示 - 不依赖 Tailwind CDN */
+/* ��������Ӧʽ��ʾ - ������ Tailwind CDN */
 .desktop-nav { display: none; }
 .mobile-nav { display: flex; }
 .mobile-menu { display: none; }
@@ -240,50 +240,50 @@
                 <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] rounded-lg flex-shrink-0 flex items-center justify-center"><i data-lucide="gamepad-2" class="text-white w-5 h-5"></i></div>
                     <h1 class="text-2xl font-bold bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] bg-clip-text text-transparent">
-                        游戏记录
+                        ��Ϸ��¼
                     </h1>
                 </div>
                 <div class="desktop-nav items-center space-x-3">
                     <a href="index.html" class="nav-link">
                         <i data-lucide="home" class="w-5 h-5 inline mr-2"></i>
-                        首页
+                        ��ҳ
                     </a>
                     <a href="profile.html" class="nav-link">
                         <i data-lucide="user" class="w-5 h-5 inline mr-2"></i>
-                        个人简介</a>
+                        ���˼��</a>
                     <a href="games.html" class="nav-link">
                         <i data-lucide="gamepad-2" class="w-5 h-5 inline mr-2"></i>
-                        游戏收藏
+                        ��Ϸ�ղ�
                     </a>
                     <a href="achievements.html" class="nav-link">
                         <i data-lucide="trophy" class="w-5 h-5 inline mr-2"></i>
-                        成就系统
+                        �ɾ�ϵͳ
                     </a>
                     <a href="stats.html" class="nav-link">
                         <i data-lucide="bar-chart-3" class="w-5 h-5 inline mr-2"></i>
-                        数据统计
+                        ����ͳ��
                     </a>
                     <a href="report.html" class="nav-link active">
                         <i data-lucide="sparkles" class="w-5 h-5 inline mr-2"></i>
-                        年度报告
+                        ��ȱ���
                     </a>
                     <a href="spending.html" class="nav-link">
                         <i data-lucide="shopping-cart" class="w-5 h-5 inline mr-2"></i>
-                        消费记录
+                        ���Ѽ�¼
                     </a>
                     <div id="nav-more-wrap" class="relative">
                         <a href="#" class="nav-link" id="nav-more-btn" onclick="event.preventDefault();document.getElementById('nav-more-menu').classList.toggle('hidden')">
                             <i data-lucide="more-horizontal" class="w-5 h-5 inline mr-2"></i>
-                            更多
+                            ����
                         </a>
                         <div id="nav-more-menu" class="hidden absolute top-full right-0 bg-[var(--bg-card)] border border-[var(--border-light)] rounded-xl shadow-xl z-[60] min-w-40 p-2">
                             <a href="gallery.html" class="nav-link flex items-center p-2 rounded-lg whitespace-nowrap">
-                                <i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体库
+                                <i data-lucide="image" class="w-4 h-4 inline mr-2"></i>ý���
                             </a>
                             <a href="wishlist.html" class="nav-link flex items-center p-2 rounded-lg whitespace-nowrap">
-                                <i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单</a>
+                                <i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>��ϷԸ����</a>
                             <a href="reviews.html" class="nav-link flex items-center p-2 rounded-lg whitespace-nowrap">
-                                <i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测
+                                <i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>��Ϸ����
                             </a>
                         </div>
                     </div>
@@ -295,16 +295,16 @@
             <!-- Mobile Menu -->
             <div class="mobile-menu" id="mobile-menu">
                 <div class="flex flex-col space-y-2 pb-2">
-                    <a href="index.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="home" class="w-4 h-4 inline mr-2"></i>首页</a>
-                    <a href="profile.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="user" class="w-4 h-4 inline mr-2"></i>个人简介</a>
-                    <a href="games.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="gamepad-2" class="w-4 h-4 inline mr-2"></i>游戏收藏</a>
-                    <a href="achievements.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="trophy" class="w-4 h-4 inline mr-2"></i>成就系统</a>
-                    <a href="stats.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="bar-chart-3" class="w-4 h-4 inline mr-2"></i>数据统计</a>
-                    <a href="report.html" class="nav-link py-2 px-4 rounded-lg active"><i data-lucide="sparkles" class="w-4 h-4 inline mr-2"></i>年度报告</a>
-                    <a href="spending.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="shopping-cart" class="w-4 h-4 inline mr-2"></i>消费记录</a>
-                    <a href="gallery.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体库</a>
-                    <a href="wishlist.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单</a>
-                    <a href="reviews.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测</a>
+                    <a href="index.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="home" class="w-4 h-4 inline mr-2"></i>��ҳ</a>
+                    <a href="profile.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="user" class="w-4 h-4 inline mr-2"></i>���˼��</a>
+                    <a href="games.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="gamepad-2" class="w-4 h-4 inline mr-2"></i>��Ϸ�ղ�</a>
+                    <a href="achievements.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="trophy" class="w-4 h-4 inline mr-2"></i>�ɾ�ϵͳ</a>
+                    <a href="stats.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="bar-chart-3" class="w-4 h-4 inline mr-2"></i>����ͳ��</a>
+                    <a href="report.html" class="nav-link py-2 px-4 rounded-lg active"><i data-lucide="sparkles" class="w-4 h-4 inline mr-2"></i>��ȱ���</a>
+                    <a href="spending.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="shopping-cart" class="w-4 h-4 inline mr-2"></i>���Ѽ�¼</a>
+                    <a href="gallery.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="image" class="w-4 h-4 inline mr-2"></i>ý���</a>
+                    <a href="wishlist.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>��ϷԸ����</a>
+                    <a href="reviews.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>��Ϸ����</a>
                 </div>
             </div>
         </div>
@@ -316,10 +316,10 @@
             <div class="inline-flex items-center gap-3 bg-white rounded-full px-5 py-2 shadow-md">
                 <i data-lucide="calendar" class="w-5 h-5 text-[#52B6FF]"></i>
                 <select id="report-year" class="text-lg font-bold bg-transparent border-none outline-none cursor-pointer text-gray-800">
-                    <option value="">选择年份</option>
+                    <option value="">ѡ�����</option>
                 </select>
                 <button id="generate-report" class="px-4 py-1.5 rounded-full text-white font-semibold text-sm cursor-pointer border-none btn-primary">
-                    生成报告 ✨                </button>
+                    ���ɱ��� ?                </button>
             </div>
         </div>
     </section>
@@ -338,9 +338,9 @@
     <section class="py-20" id="report-empty">
         <div class="container mx-auto px-4 text-center">
             <i data-lucide="sparkles" class="w-20 h-20 text-gray-300 mx-auto mb-4"></i>
-            <h2 class="text-2xl font-bold text-gray-800 mb-2">年度游戏报告</h2>
-            <p class="text-gray-500 mb-6">选择年份，生成你的专属游戏年度报告 ✨</p>
-            <p class="text-gray-400 text-sm">像 Spotify Wrapped 一样，回顾你的游戏之旅</p>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">�����Ϸ����</h2>
+            <p class="text-gray-500 mb-6">ѡ����ݣ��������ר����Ϸ��ȱ��� ?</p>
+            <p class="text-gray-400 text-sm">�� Spotify Wrapped һ�����ع������Ϸ֮��</p>
         </div>
     </section>
 
@@ -353,39 +353,39 @@
                         <div class="w-8 h-8 bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] rounded-lg flex items-center justify-center">
                             <i data-lucide="gamepad-2" class="text-white w-5 h-5"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-white">游戏记录</h3>
+                        <h3 class="text-xl font-bold text-white">��Ϸ��¼</h3>
                     </div>
-                    <p class="text-gray-300">记录每一次游戏冒险，分享每一份游戏喜悦。</p>
+                    <p class="text-gray-300">��¼ÿһ����Ϸð�գ�����ÿһ����Ϸϲ�á�</p>
                 </div>
                 <div>
-                    <h4 class="text-lg font-semibold mb-4 text-white">快速链接</h4>
+                    <h4 class="text-lg font-semibold mb-4 text-white">��������</h4>
                     <ul class="space-y-2">
-                        <li><a href="index.html" class="text-gray-300 hover:text-[#52B6FF]">首页</a></li>
-                        <li><a href="profile.html" class="text-gray-300 hover:text-[#52B6FF]">个人简介</a></li>
-                        <li><a href="games.html" class="text-gray-300 hover:text-[#52B6FF]">游戏收藏</a></li>
-                        <li><a href="achievements.html" class="text-gray-300 hover:text-[#52B6FF]">成就系统</a></li>
-                        <li><a href="stats.html" class="text-gray-300 hover:text-[#52B6FF]">数据统计</a></li>
+                        <li><a href="index.html" class="text-gray-300 hover:text-[#52B6FF]">��ҳ</a></li>
+                        <li><a href="profile.html" class="text-gray-300 hover:text-[#52B6FF]">���˼��</a></li>
+                        <li><a href="games.html" class="text-gray-300 hover:text-[#52B6FF]">��Ϸ�ղ�</a></li>
+                        <li><a href="achievements.html" class="text-gray-300 hover:text-[#52B6FF]">�ɾ�ϵͳ</a></li>
+                        <li><a href="stats.html" class="text-gray-300 hover:text-[#52B6FF]">����ͳ��</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-lg font-semibold mb-4 text-white">更多功能</h4>
+                    <h4 class="text-lg font-semibold mb-4 text-white">���๦��</h4>
                     <ul class="space-y-2">
-                        <li><a href="wishlist.html" class="text-gray-300 hover:text-[#52B6FF]">游戏愿望单</a></li>
-                        <li><a href="reviews.html" class="text-gray-300 hover:text-[#52B6FF]">游戏评测</a></li>
-                        <li><a href="report.html" class="text-gray-300 hover:text-[#52B6FF]">年度报告</a></li>
+                        <li><a href="wishlist.html" class="text-gray-300 hover:text-[#52B6FF]">��ϷԸ����</a></li>
+                        <li><a href="reviews.html" class="text-gray-300 hover:text-[#52B6FF]">��Ϸ����</a></li>
+                        <li><a href="report.html" class="text-gray-300 hover:text-[#52B6FF]">��ȱ���</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h4 class="text-lg font-semibold mb-4 text-white">联系我</h4>
+                    <h4 class="text-lg font-semibold mb-4 text-white">��ϵ��</h4>
                     <div class="space-y-2 text-gray-300">
                         <div class="flex items-center"><i data-lucide="mail" class="w-4 h-4 mr-2"></i><span>gamer@example.com</span></div>
-                        <div class="flex items-center"><i data-lucide="message-circle" class="w-4 h-4 mr-2"></i><span>@游戏玩家</span></div>
+                        <div class="flex items-center"><i data-lucide="message-circle" class="w-4 h-4 mr-2"></i><span>@��Ϸ���</span></div>
                         <div class="flex items-center"><i data-lucide="github" class="w-4 h-4 mr-2"></i><span>GitHub</span></div>
                     </div>
                 </div>
             </div>
             <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; <span id="current-year"></span> 游戏记录. All rights reserved.</p>
+                <p>&copy; <span id="current-year"></span> ��Ϸ��¼. All rights reserved.</p>
             </div>
         </div>
     </footer>

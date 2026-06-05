@@ -71,7 +71,7 @@ export function GalleryClient() {
       if (supabase) {
         const health = await checkMediaCloudHealth(supabase);
         if (!health.ok) {
-          showToast(`濯掍綋搴撲簯绔紓甯革細${health.reason}`, "error");
+          showToast(`媒体库服务异常：${health.reason}`, "error");
         }
       }
       await loadGallery();
@@ -83,7 +83,7 @@ export function GalleryClient() {
     if (!files?.length) return;
     const list = Array.from(files).filter(isImageFile);
     if (!list.length) {
-      showToast("璇烽€夋嫨鍥剧墖鏂囦欢", "error");
+      showToast("请选择图片文件", "error");
       return;
     }
     setPendingFiles(list);
@@ -97,7 +97,7 @@ export function GalleryClient() {
     if (!files?.length) return;
     const valid = Array.from(files).filter(isVideoFile).filter((f) => {
       if (f.size > 50 * 1024 * 1024) {
-        showToast(`${f.name} 澶ぇ锛屽凡璺宠繃锛堟渶澶?50MB锛塦, "error");
+        showToast(`${f.name} 过大，已超限（最大50MB）`, "error");
         return false;
       }
       return true;
@@ -112,7 +112,7 @@ export function GalleryClient() {
 
   async function confirmUpload() {
     if (!pendingFiles.length) {
-      showToast("娌℃湁閫夋嫨鏂囦欢", "error");
+      showToast("没有选中文件", "error");
       return;
     }
     const resolved = resolveGameFieldsFromSelect(uploadGameId || null);
@@ -124,13 +124,13 @@ export function GalleryClient() {
         resolved.gameName,
         pendingType,
       );
-      const typeName = pendingType === "image" ? "鎴浘" : "瑙嗛";
+      const typeName = pendingType === "image" ? "图片" : "视频";
       if (loaded > 0) {
-        showToast(`鎴愬姛涓婁紶 ${loaded} 涓?{typeName}`, "success");
+        showToast(`成功上传 ${loaded} 个${typeName}`, "success");
       }
       if (errors > 0) {
         showToast(
-          `${errors} 涓枃浠朵簯绔け璐ワ紝宸插皾璇曞瓨鏈満${lastError ? `銆傚師鍥狅細${lastError}` : ""}`,
+          `${errors} 个文件上传失败，已保存到本地${lastError ? `，原因：${lastError}` : ""}`,
           "error",
         );
       }
@@ -138,23 +138,23 @@ export function GalleryClient() {
       setPendingFiles([]);
       await loadGallery();
     } catch (e) {
-      showToast(e instanceof Error ? e.message : "涓婁紶澶辫触", "error");
+      showToast(e instanceof Error ? e.message : "上传失败", "error");
     } finally {
       setUploading(false);
     }
   }
 
   async function handleDelete(id: string | number) {
-    if (!confirm("纭畾瑕佸垹闄よ繖涓獟浣撴枃浠跺悧锛?)) return;
+    if (!confirm("确定要删除这个媒体文件吗？")) return;
     await deleteMedia(id);
-    showToast("濯掍綋宸插垹闄?, "success");
+    showToast("媒体已删除", "success");
     await loadGallery();
   }
 
   if (!ready) {
     return (
       <p className="text-center py-24" style={{ color: "var(--text-gray)" }}>
-        鍔犺浇涓€?
+        加载中…
       </p>
     );
   }
@@ -164,10 +164,10 @@ export function GalleryClient() {
       <section className="py-20" style={{ background: "var(--primary-light)" }} data-hero>
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
-            娓告垙濯掍綋搴?
+            游戏图库
           </h1>
           <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
-            璁板綍姣忎竴涓簿褰╃灛闂?
+            记录每一个精彩瞬间
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <button
@@ -177,7 +177,7 @@ export function GalleryClient() {
               onClick={() => imageInputRef.current?.click()}
             >
               <UploadCloud className="w-5 h-5 mr-2" />
-              涓婁紶鎴浘
+              上传图片
             </button>
             <button
               type="button"
@@ -185,7 +185,7 @@ export function GalleryClient() {
               onClick={() => videoInputRef.current?.click()}
             >
               <Video className="w-5 h-5 mr-2" />
-              涓婁紶瑙嗛
+              上传视频
             </button>
           </div>
           <input
@@ -213,7 +213,7 @@ export function GalleryClient() {
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
               <div className="flex items-center gap-3">
                 <ImageIcon className="w-6 h-6 text-blue-500" />
-                <span className="text-lg font-semibold text-gray-800">濯掍綋鎬绘暟</span>
+                <span className="text-lg font-semibold text-gray-800">媒体总数</span>
                 <span className="bg-blue-100 text-blue-600 px-3 py-1 rounded-full text-sm font-bold">
                   {filtered.length}
                 </span>
@@ -225,7 +225,7 @@ export function GalleryClient() {
                   onClick={() => imageInputRef.current?.click()}
                 >
                   <Plus className="w-4 h-4 mr-1" />
-                  涓婁紶鎴浘
+                  上传图片
                 </button>
                 <button
                   type="button"
@@ -233,7 +233,7 @@ export function GalleryClient() {
                   onClick={() => videoInputRef.current?.click()}
                 >
                   <Video className="w-4 h-4 mr-1" />
-                  涓婁紶瑙嗛
+                  上传视频
                 </button>
               </div>
             </div>
@@ -243,7 +243,7 @@ export function GalleryClient() {
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="鎼滅储娓告垙鍚嶇О..."
+                  placeholder="搜索游戏名称..."
                   className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   value={filters.search}
                   onChange={(e) =>
@@ -260,7 +260,7 @@ export function GalleryClient() {
                     setFilters((f) => ({ ...f, gameId: e.target.value }))
                   }
                 >
-                  <option value="all">鍏ㄩ儴娓告垙</option>
+                  <option value="all">全部游戏</option>
                   {games.map((g) => (
                     <option key={String(g.id)} value={String(g.id)}>
                       {g.name}
@@ -277,9 +277,9 @@ export function GalleryClient() {
                     setFilters((f) => ({ ...f, type: e.target.value }))
                   }
                 >
-                  <option value="all">鍏ㄩ儴绫诲瀷</option>
-                  <option value="image">鍥剧墖</option>
-                  <option value="video">瑙嗛</option>
+                  <option value="all">全部类型</option>
+                  <option value="image">图片</option>
+                  <option value="video">视频</option>
                 </select>
               </div>
               <div className="relative min-w-[140px]">
@@ -294,8 +294,8 @@ export function GalleryClient() {
                     }))
                   }
                 >
-                  <option value="newest">鏈€鏂颁笂浼?/option>
-                  <option value="oldest">鏈€鏃╀笂浼?/option>
+                  <option value="newest">最新上传</option>
+                  <option value="oldest">最早上传</option>
                 </select>
               </div>
             </div>
@@ -305,9 +305,9 @@ export function GalleryClient() {
             {filtered.length === 0 ? (
               <div className="empty-state">
                 <Camera className="w-20 h-20 text-gray-300 mx-auto mb-6" />
-                <h3 className="text-2xl font-bold text-gray-700 mb-4">杩樻病鏈夊獟浣?/h3>
+                <h3 className="text-2xl font-bold text-gray-700 mb-4">暂无媒体资源</h3>
                 <p className="text-gray-600 mb-8">
-                  涓婁紶浣犵殑娓告垙鎴浘鎴栬棰戯紝鎵撻€犱笓灞炵殑瑙嗚璁板繂搴?
+                  上传你的游戏截图或录像，打造专属的影像记录库
                 </p>
                 <button
                   type="button"
@@ -315,7 +315,7 @@ export function GalleryClient() {
                   onClick={() => imageInputRef.current?.click()}
                 >
                   <UploadCloud className="w-5 h-5 mr-2" />
-                  涓婁紶绗竴寮犳埅鍥?
+                  上传第一张截图
                 </button>
               </div>
             ) : (
@@ -339,7 +339,7 @@ export function GalleryClient() {
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={thumb}
-                        alt={item.gameName || "濯掍綋"}
+                        alt={item.gameName || "媒体"}
                         loading="lazy"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src = MEDIA_FAIL_PLACEHOLDER;
@@ -357,7 +357,7 @@ export function GalleryClient() {
                         <button
                           type="button"
                           className="gallery-btn"
-                          title={type === "video" ? "鎾斁" : "鏌ョ湅"}
+                          title={type === "video" ? "播放" : "查看"}
                           onClick={() => setLightboxItem(item)}
                         >
                           {type === "video" ? (
@@ -370,7 +370,7 @@ export function GalleryClient() {
                           <button
                             type="button"
                             className="gallery-btn"
-                            title="缂栬緫"
+                            title="编辑"
                             onClick={() => setEditorItem(item)}
                           >
                             <Edit className="w-4 h-4" />
@@ -379,7 +379,7 @@ export function GalleryClient() {
                         <button
                           type="button"
                           className="gallery-btn gallery-btn-danger"
-                          title="鍒犻櫎"
+                          title="删除"
                           onClick={() => handleDelete(item.id)}
                         >
                           <Trash2 className="w-4 h-4" />

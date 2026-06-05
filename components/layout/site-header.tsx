@@ -44,7 +44,7 @@ export function SiteHeader() {
               <Gamepad2 className="text-white w-5 h-5" />
             </div>
             <h1 className="text-2xl font-bold" style={{ color: "var(--primary)" }}>
-              娓告垙璁板綍
+              游戏记录
             </h1>
           </Link>
 
@@ -70,7 +70,7 @@ export function SiteHeader() {
                 aria-expanded={moreOpen}
               >
                 <MoreHorizontal className="w-5 h-5 inline mr-2" />
-                鏇村
+                更多
               </button>
               {moreOpen && (
                 <div
@@ -109,7 +109,7 @@ export function SiteHeader() {
               type="button"
               className="nav-link"
               onClick={toggleTheme}
-              title={theme === "dark" ? "娴呰壊妯″紡" : "娣辫壊妯″紡"}
+              title={theme === "dark" ? "浅色模式" : "深色模式"}
             >
               {theme === "dark" ? (
                 <Sun className="w-5 h-5" />
@@ -123,7 +123,7 @@ export function SiteHeader() {
             type="button"
             className="mobile-nav text-gray-700 hover:text-blue-500"
             onClick={() => setMobileOpen((v) => !v)}
-            aria-label="鑿滃崟"
+            aria-label="菜单"
           >
             {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -150,7 +150,7 @@ export function SiteHeader() {
                 className="nav-link py-2 px-4 rounded-lg text-left"
                 onClick={toggleTheme}
               >
-                {theme === "dark" ? "娴呰壊妯″紡" : "娣辫壊妯″紡"}
+                {theme === "dark" ? "浅色模式" : "深色模式"}
               </button>
             </div>
           </div>

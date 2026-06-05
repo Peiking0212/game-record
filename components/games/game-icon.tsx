@@ -19,6 +19,7 @@ export function GameIcon({
   width = 80,
   height = 80,
 }: Props) {
+  // 初始化拼接图标地址
   const [imgSrc, setImgSrc] = useState(() => gameIconUrl(src, name));
 
   return (
@@ -29,6 +30,7 @@ export function GameIcon({
       height={height}
       className={className}
       unoptimized
+      // 图片加载失败自动替换默认封面
       onError={() => setImgSrc(defaultGameCover(name))}
     />
   );

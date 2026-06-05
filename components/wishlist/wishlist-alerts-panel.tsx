@@ -65,7 +65,7 @@ export function WishlistAlertsPanel({ signedIn, items, refreshKey }: Props) {
     const displayName =
       gameId != null
         ? resolveDisplayGameName(gameId, cloudName, items, ctx)
-        : cloudName || "娓告垙";
+        : cloudName || "游戏";
     notifyLatestUnreadEvent({ ...newest, _displayName: displayName });
   }, [signedIn, events, ctx, items]);
 
@@ -76,7 +76,7 @@ export function WishlistAlertsPanel({ signedIn, items, refreshKey }: Props) {
         className="max-w-6xl mx-auto mb-8 p-5 rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50/80 to-white"
       >
         <p id="alerts-login-hint" className="text-sm text-gray-500">
-          鐧诲綍鍚庡彲鏌ョ湅浜戠闄嶄环鎻愰啋骞惰缃洰鏍囦环
+          登录后可查看云端降价提醒并设置目标价
         </p>
       </div>
     );
@@ -90,12 +90,12 @@ export function WishlistAlertsPanel({ signedIn, items, refreshKey }: Props) {
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
           <Bell className="w-5 h-5 text-blue-500" />
-          绔欏唴鎻愰啋
+          站内提醒
           {events.length > 0 && (
             <span
               id="alerts-unread-badge"
               className="wishlist-alerts-badge"
-              aria-label={`${events.length} 鏉℃湭璇籤}
+              aria-label={`${events.length} 条未读`}
             >
               {events.length}
             </span>
@@ -110,16 +110,16 @@ export function WishlistAlertsPanel({ signedIn, items, refreshKey }: Props) {
             onClick={() => {
               dismissAllAlertEventIds(events.map((e) => e.id));
               setEvents([]);
-              showToast("宸插叏閮ㄦ爣璁颁负宸茶", "success");
+              showToast("已全部标记为已读", "success");
             }}
           >
-            鍏ㄩ儴鐭ラ亾浜?
+            全部知道了
           </button>
         )}
       </div>
 
       {loading && (
-        <p className="text-sm text-gray-500 mb-2">鍔犺浇鎻愰啋涓€?/p>
+        <p className="text-sm text-gray-500 mb-2">加载提醒中…</p>
       )}
 
       <ul id="wishlist-alerts-list" className="wishlist-alerts-list space-y-2">
@@ -129,7 +129,7 @@ export function WishlistAlertsPanel({ signedIn, items, refreshKey }: Props) {
           const displayName =
             ctx && gameId != null
               ? resolveDisplayGameName(gameId, cloudName, items, ctx)
-              : cloudName || "娓告垙";
+              : cloudName || "游戏";
           return (
             <li
               key={ev.id}
@@ -153,7 +153,7 @@ export function WishlistAlertsPanel({ signedIn, items, refreshKey }: Props) {
                   setEvents((prev) => prev.filter((x) => x.id !== ev.id));
                 }}
               >
-                鐭ラ亾浜?
+                知道了
               </button>
             </li>
           );
@@ -162,7 +162,7 @@ export function WishlistAlertsPanel({ signedIn, items, refreshKey }: Props) {
 
       {events.length === 0 && !loading && (
         <p id="wishlist-alerts-empty" className="text-sm text-gray-500">
-          鏆傛棤鏈闄嶄环鎻愰啋銆傚湪涓嬫柟鎰挎湜鍗＄墖涓缃洰鏍囦环鍚庯紝绯荤粺浼氭娴嬪苟鎻愰啋銆?
+          暂无未读降价提醒。在下方愿望卡片设置目标价后，系统会自动监测并提醒。
         </p>
       )}
     </div>

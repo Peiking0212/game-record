@@ -24,10 +24,10 @@ type SortBy =
 
 function Stars({ rating }: { rating: number }) {
   return (
-    <div className="review-stars" aria-label={`${rating} 鏄焋}>
+    <div className="review-stars" aria-label={`${rating} 星`}>
       {[1, 2, 3, 4, 5].map((i) => (
         <span key={i} style={{ color: i <= rating ? "#f59e0b" : "#9ca3af" }}>
-          {i <= rating ? "鈽? : "鈽?}
+          {i <= rating ? "★" : "☆"}
         </span>
       ))}
     </div>
@@ -130,7 +130,7 @@ export function ReviewsClient() {
 
   function persist(next: ReviewItem[], msg: string) {
     if (!saveReviews(next)) {
-      showToast("淇濆瓨澶辫触锛岃妫€鏌ュ瓨鍌ㄧ┖闂?, "error");
+      showToast("保存失败，请检查存储空间", "error");
       return;
     }
     setItems(next);
@@ -142,10 +142,10 @@ export function ReviewsClient() {
       <section className="bg-gradient-to-br from-blue-50 to-cyan-100 py-16">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
-            娓告垙璇勬祴
+            游戏评测
           </h1>
           <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
-            璁板綍姣忔娓告垙鐨勬父鐜╀綋楠岋紝鍒嗕韩浣犵殑鐪熷疄璇勪环涓庢劅鍙?
+            记录每款游戏的游玩体验，分享你的真实评价与感受
           </p>
           <button
             type="button"
@@ -153,7 +153,7 @@ export function ReviewsClient() {
             onClick={() => setAddOpen(true)}
           >
             <Plus className="w-5 h-5 mr-2" />
-            娣诲姞璇勬祴
+            添加评测
           </button>
         </div>
       </section>
@@ -163,13 +163,13 @@ export function ReviewsClient() {
           <div className="max-w-6xl mx-auto mb-12 grid grid-cols-1 md:grid-cols-4 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                鎼滅储娓告垙
+                搜索游戏
               </label>
               <div className="relative">
                 <input
                   type="text"
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="杈撳叆娓告垙鍚嶇О..."
+                  placeholder="输入游戏名称..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -179,17 +179,17 @@ export function ReviewsClient() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                璇勫垎绛涢€?
+                评分筛选
               </label>
               <select
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={ratingFilter}
                 onChange={(e) => setRatingFilter(e.target.value)}
               >
-                <option value="all">鍏ㄩ儴璇勫垎</option>
+                <option value="all">全部评分</option>
                 {[5, 4, 3, 2, 1].map((v) => (
                   <option key={v} value={String(v)}>
-                    {v} 鏄?
+                    {v} 星
                   </option>
                 ))}
               </select>
@@ -197,14 +197,14 @@ export function ReviewsClient() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                鏍囩绛涢€?
+                标签筛选
               </label>
               <select
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={tagFilter}
                 onChange={(e) => setTagFilter(e.target.value)}
               >
-                <option value="all">鍏ㄩ儴鏍囩</option>
+                <option value="all">全部标签</option>
                 {tagOptions.map((t) => (
                   <option key={t} value={t}>
                     {t}
@@ -215,19 +215,19 @@ export function ReviewsClient() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                鎺掑簭鏂瑰紡
+                排序方式
               </label>
               <select
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortBy)}
               >
-                <option value="date-desc">璇勬祴鏃ユ湡锛堟渶鏂帮級</option>
-                <option value="date-asc">璇勬祴鏃ユ湡锛堟渶鏃╋級</option>
-                <option value="rating-desc">璇勫垎锛堥珮鍒颁綆锛?/option>
-                <option value="rating-asc">璇勫垎锛堜綆鍒伴珮锛?/option>
-                <option value="hours-desc">娓哥帺鏃堕暱锛堝鍒板皯锛?/option>
-                <option value="hours-asc">娓哥帺鏃堕暱锛堝皯鍒板锛?/option>
+                <option value="date-desc">评测日期（最新）</option>
+                <option value="date-asc">评测日期（最早）</option>
+                <option value="rating-desc">评分（高到低）</option>
+                <option value="rating-asc">评分（低到高）</option>
+                <option value="hours-desc">游玩时长（多到少）</option>
+                <option value="hours-asc">游玩时长（少到多）</option>
               </select>
             </div>
           </div>
@@ -237,10 +237,10 @@ export function ReviewsClient() {
               <div className="text-center py-16">
                 <MessageSquare className="w-20 h-20 text-gray-300 mx-auto mb-6" />
                 <h3 className="text-2xl font-bold text-gray-700 mb-4">
-                  杩樻病鏈夋父鎴忚瘎娴?
+                  暂无游戏评测
                 </h3>
                 <p className="text-gray-600 mb-8">
-                  鐐瑰嚮銆屾坊鍔犺瘎娴嬨€嶆寜閽紝寮€濮嬭褰曚綘鐨勬父鎴忎綋楠屽惂
+                  点击「添加评测」按钮，开始记录你的游戏体验吧
                 </p>
                 <button
                   type="button"
@@ -248,7 +248,7 @@ export function ReviewsClient() {
                   onClick={() => setAddOpen(true)}
                 >
                   <Plus className="w-5 h-5 mr-2" />
-                  娣诲姞璇勬祴
+                  添加评测
                 </button>
               </div>
             ) : (
@@ -273,7 +273,7 @@ export function ReviewsClient() {
                               className="btn-edit-review"
                               onClick={() => setEditItem(item)}
                             >
-                              缂栬緫
+                              编辑
                             </button>
                             <button
                               type="button"
@@ -290,7 +290,7 @@ export function ReviewsClient() {
                         <div className="review-meta">
                           {playtime ? (
                             <span className="review-playtime">
-                              鏃堕暱: {String(playtime)} 灏忔椂
+                              时长: {String(playtime)} 小时
                             </span>
                           ) : null}
                           <span className="review-date">{formatDate(item.date)}</span>
@@ -308,18 +308,18 @@ export function ReviewsClient() {
 
       <ReviewModal
         open={addOpen}
-        title="娣诲姞娓告垙璇勬祴"
+        title="添加游戏评测"
         initial={null}
         games={games}
         onClose={() => setAddOpen(false)}
         onSubmit={(values) => {
           if (!values.gameId) {
-            showToast("璇蜂粠娓告垙搴撻€夋嫨娓告垙", "error");
+            showToast("请从游戏库选择游戏", "error");
             return;
           }
           const gameFields = resolveGameFieldsFromSelect(values.gameId);
           if (!gameFields.gameId) {
-            showToast("璇蜂粠娓告垙搴撻€夋嫨娓告垙", "error");
+            showToast("请从游戏库选择游戏", "error");
             return;
           }
           const newItem: ReviewItem = {
@@ -334,20 +334,20 @@ export function ReviewsClient() {
             notes: values.notes.trim(),
             date: new Date().toISOString(),
           };
-          persist([...items, newItem], "璇勬祴宸叉坊鍔?);
+          persist([...items, newItem], "评测添加成功");
         }}
       />
 
       <ReviewModal
         open={!!editItem}
-        title="缂栬緫娓告垙璇勬祴"
+        title="编辑游戏评测"
         initial={editItem}
         games={games}
         onClose={() => setEditItem(null)}
         onSubmit={(values) => {
           if (!editItem) return;
           if (!values.gameId) {
-            showToast("璇蜂粠娓告垙搴撻€夋嫨娓告垙", "error");
+            showToast("请从游戏库选择游戏", "error");
             return;
           }
           const gameFields = resolveGameFieldsFromSelect(values.gameId);
@@ -366,7 +366,7 @@ export function ReviewsClient() {
                 }
               : it,
           );
-          persist(next, "璇勬祴宸叉洿鏂?);
+          persist(next, "评测修改成功");
           setEditItem(null);
         }}
       />
@@ -374,24 +374,24 @@ export function ReviewsClient() {
       <Modal
         open={!!deleteItem}
         onClose={() => setDeleteItem(null)}
-        title="纭鍒犻櫎"
+        title="确认删除"
         maxWidth="md"
       >
-        <p className="text-gray-700 mb-6">纭畾瑕佸垹闄よ繖绡囨父鎴忚瘎娴嬪悧锛?/p>
+        <p className="text-gray-700 mb-6">确定要删除这条游戏评测吗？</p>
         <div className="flex gap-3 justify-end">
           <button type="button" className="btn-secondary" onClick={() => setDeleteItem(null)}>
-            鍙栨秷
+            取消
           </button>
           <button
             type="button"
             className="btn-primary"
             onClick={() => {
               if (!deleteItem) return;
-              persist(items.filter((it) => it.id !== deleteItem.id), "璇勬祴宸插垹闄?);
+              persist(items.filter((it) => it.id !== deleteItem.id), "评测已删除");
               setDeleteItem(null);
             }}
           >
-            鍒犻櫎
+            删除
           </button>
         </div>
       </Modal>
@@ -458,7 +458,7 @@ function ReviewModal({
       >
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            娓告垙锛堜粠娓告垙搴撻€夋嫨锛?<span className="text-red-500">*</span>
+            游戏（从游戏库选择）<span className="text-red-500">*</span>
           </label>
           <select
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -470,7 +470,7 @@ function ReviewModal({
               if (gf?.name) setName(gf.name);
             }}
           >
-            <option value="">閫夋嫨娓告垙搴撲腑鐨勬父鎴?/option>
+            <option value="">选择游戏库内的游戏</option>
             {games.map((g) => (
               <option key={String(g.id)} value={String(g.id)}>
                 {g.name}
@@ -481,29 +481,29 @@ function ReviewModal({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            娓告垙鍚嶇О锛堣嚜鍔ㄥ～鍏咃級
+            游戏名称（自动回填）
           </label>
           <input
             className="w-full px-4 py-2 border border-gray-300 rounded-lg"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="閫夋嫨娓告垙鍚庤嚜鍔ㄥ～鍏?
+            placeholder="选择游戏后自动回填"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">娓告垙灏侀潰 URL</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">游戏封面 URL</label>
           <input
             className="w-full px-4 py-2 border border-gray-300 rounded-lg"
             value={coverUrl}
             onChange={(e) => setCoverUrl(e.target.value)}
-            placeholder="杈撳叆灏侀潰鍥剧墖URL锛堝彲閫夛級"
+            placeholder="输入封面图片URL（选填）"
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            璇勫垎 <span className="text-red-500">*</span>
+            评分 <span className="text-red-500">*</span>
           </label>
           <div className="flex gap-2">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -514,7 +514,7 @@ function ReviewModal({
                 onClick={() => setRating(i)}
               >
                 <span style={{ color: i <= rating ? "#f59e0b" : "#9ca3af" }}>
-                  {i <= rating ? "鈽? : "鈽?}
+                  {i <= rating ? "★" : "☆"}
                 </span>
               </button>
             ))}
@@ -522,7 +522,7 @@ function ReviewModal({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">鏍囩锛堝彲澶氶€夛級</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">标签（可多选）</label>
           <div className="flex flex-wrap gap-2">
             {REVIEW_TAGS.map((t) => {
               const active = tags.includes(t);
@@ -547,12 +547,12 @@ function ReviewModal({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">璇勮</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">评语</label>
           <textarea
             rows={3}
             maxLength={200}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-            placeholder="鍐欎笅浣犵殑绠€鐭瘎浠?.."
+            placeholder="写下你的简短评价……"
             value={comment}
             onChange={(e) => setComment(e.target.value)}
           />
@@ -562,7 +562,7 @@ function ReviewModal({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">娓哥帺鏃堕暱锛堝皬鏃讹級</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">游玩时长（小时）</label>
           <input
             type="number"
             min={0}
@@ -570,12 +570,12 @@ function ReviewModal({
             className="w-full px-4 py-2 border border-gray-300 rounded-lg"
             value={hours}
             onChange={(e) => setHours(e.target.value)}
-            placeholder="杈撳叆娓哥帺鎬绘椂闀?
+            placeholder="输入游玩总时长"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">澶囨敞</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">备注</label>
           <textarea
             rows={2}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg"
@@ -586,14 +586,13 @@ function ReviewModal({
 
         <div className="flex justify-end gap-3 pt-2">
           <button type="button" className="btn-secondary" onClick={onClose}>
-            鍙栨秷
+            取消
           </button>
           <button type="submit" className="btn-primary">
-            淇濆瓨
+            保存
           </button>
         </div>
       </form>
     </Modal>
   );
 }
-

@@ -1,0 +1,518 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="记录游戏时光：游戏收藏、成就、数据统计与媒体库。">
+    <meta name="keywords" content="游戏记录,游戏收藏,成就,游戏统计,媒体库">
+    <meta property="og:title" content="游戏记录">
+    <meta property="og:description" content="记录每一次游戏冒险，分享每一份游戏喜悦。">
+    <meta property="og:type" content="website">
+    <!-- Inject at deploy time or via window.__APP_ENV__ (see SUPABASE_SETUP.md) -->
+    <meta name="app:supabase-url" content="https://oxbyshstrvzshxpaztzg.supabase.co">
+    <meta name="app:supabase-anon-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im94YnlzaHN0cnZ6c2h4cGF6dHpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzOTc0OTgsImV4cCI6MjA5NDk3MzQ5OH0.d4hsB6sxUzlcJu3VfA42ncp9KZPZrGPM40pXsCarn3s">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <title>游戏记录 - 游戏愿望单</title>
+    <style>
+/* 导航栏响应式显示 - 不依赖 Tailwind CDN */
+.desktop-nav { display: none; }
+.mobile-nav { display: flex; }
+.mobile-menu { display: none; }
+@media (min-width: 768px) {
+    .desktop-nav { display: flex; }
+    .mobile-nav { display: none; }
+}
+</style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.544.0/dist/umd/lucide.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <link rel="stylesheet" href="styles.css?v=16">
+</head>
+<body>
+    <!-- Header -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <nav class="flex items-center justify-between py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] rounded-lg flex-shrink-0 flex items-center justify-center"><i data-lucide="gamepad-2" class="text-white w-5 h-5"></i></div>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] bg-clip-text text-transparent">
+                        游戏记录
+                    </h1>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <div class="desktop-nav items-center space-x-3">
+                    <a href="index.html" class="nav-link">
+                        <i data-lucide="home" class="w-5 h-5 inline mr-2"></i>
+                        首页
+                    </a>
+                    <a href="profile.html" class="nav-link">
+                        <i data-lucide="user" class="w-5 h-5 inline mr-2"></i>
+                        个人简介</a>
+                    <a href="games.html" class="nav-link">
+                        <i data-lucide="gamepad-2" class="w-5 h-5 inline mr-2"></i>
+                        游戏收藏
+                    </a>
+                    <a href="achievements.html" class="nav-link">
+                        <i data-lucide="trophy" class="w-5 h-5 inline mr-2"></i>
+                        成就系统
+                    </a>
+                    <a href="stats.html" class="nav-link">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5 inline mr-2"></i>
+                        数据统计
+                    </a>
+                    <a href="report.html" class="nav-link">
+                        <i data-lucide="sparkles" class="w-5 h-5 inline mr-2"></i>
+                        年度报告
+                    </a>
+                    <a href="spending.html" class="nav-link">
+                        <i data-lucide="shopping-cart" class="w-5 h-5 inline mr-2"></i>
+                        消费记录
+                    </a>
+                    <div style="position:relative;" id="nav-more-wrap">
+                        <a href="#" class="nav-link active" id="nav-more-btn" onclick="event.preventDefault();document.getElementById('nav-more-menu').classList.toggle('hidden')">
+                            <i data-lucide="more-horizontal" class="w-5 h-5 inline mr-2"></i>
+                            更多
+                        </a>
+                        <div id="nav-more-menu" class="hidden" style="position:absolute;top:100%;right:0;background:var(--bg-card);border:1px solid var(--border-light);border-radius:0.75rem;box-shadow:0 8px 24px var(--shadow-color);z-index:60;min-width:160px;padding:0.5rem;">
+                            <a href="gallery.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体库
+                            </a>
+                            <a href="wishlist.html" class="nav-link active" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单</a>
+                            <a href="reviews.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mobile Navigation Toggle -->
+                <button class="mobile-nav text-gray-700 hover:text-blue-500" id="mobile-menu-toggle">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </nav>
+            
+            <!-- Mobile Navigation Menu -->
+            <div class="mobile-menu" id="mobile-menu">
+                <div class="flex flex-col space-y-2 pb-2">
+                    <a href="index.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="home" class="w-4 h-4 inline mr-2"></i>首页</a>
+                    <a href="profile.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="user" class="w-4 h-4 inline mr-2"></i>个人简介</a>
+                    <a href="games.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="gamepad-2" class="w-4 h-4 inline mr-2"></i>游戏收藏</a>
+                    <a href="achievements.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="trophy" class="w-4 h-4 inline mr-2"></i>成就系统</a>
+                    <a href="stats.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="bar-chart-3" class="w-4 h-4 inline mr-2"></i>数据统计</a>
+                    <a href="report.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="sparkles" class="w-4 h-4 inline mr-2"></i>年度报告</a>
+                    <a href="spending.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="shopping-cart" class="w-4 h-4 inline mr-2"></i>消费记录</a>
+                    <a href="gallery.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体库</a>
+                    <a href="wishlist.html" class="nav-link py-2 px-4 rounded-lg active"><i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单</a>
+                    <a href="reviews.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-br from-blue-50 to-cyan-100 py-16">
+        <div class="container mx-auto px-4 text-center">
+            <div data-aos="fade-up">
+                <h1 class="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
+                    游戏愿望单
+                </h1>
+                <p class="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
+                    记录你想玩的每一款游戏，追踪期望，规划你的游戏预算
+                </p>
+                <button class="btn-primary" onclick="openAddWishlistModal()">
+                    <i data-lucide="plus" class="w-5 h-5 inline mr-2"></i>
+                    添加愿望
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Wishlist Management -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <div id="wishlist-alerts-panel" class="max-w-6xl mx-auto mb-8 p-5 rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50/80 to-white">
+                <div class="flex items-center justify-between gap-3 mb-3 flex-wrap">
+                    <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                        <span class="relative inline-flex">
+                            <i data-lucide="bell" class="w-5 h-5 text-blue-500"></i>
+                            <span id="alerts-unread-badge" class="wishlist-alerts-badge hidden" aria-hidden="true"></span>
+                        </span>
+                        站内提醒
+                    </h3>
+                    <div class="flex items-center gap-2">
+                        <span id="alerts-login-hint" class="text-xs text-gray-500 hidden">登录后可同步云端降价提醒</span>
+                        <button type="button" id="alerts-dismiss-all-btn" class="wishlist-alert-dismiss-all hidden text-sm">全部知道了</button>
+                    </div>
+                </div>
+                <ul id="wishlist-alerts-list" class="wishlist-alerts-list space-y-2"></ul>
+                <p id="wishlist-alerts-empty" class="text-sm text-gray-500 hidden">暂无降价提醒，设置目标价后由系统定时检测</p>
+            </div>
+            <div class="max-w-6xl mx-auto mb-8 p-5 rounded-xl border border-gray-200 bg-gray-50">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                    <i data-lucide="bell-ring" class="w-5 h-5 text-blue-500"></i>
+                    折扣提醒规则
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <label class="text-sm text-gray-600">
+                        最低折扣（%）
+                        <input id="deal-min-discount" type="number" inputmode="numeric" name="deal-min-discount" autocomplete="off" data-lpignore="true" data-1p-ignore data-form-type="other" min="1" max="95" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg" />
+                    </label>
+                    <label class="text-sm text-gray-600">
+                        平台偏好（留空为全部）
+                        <input id="deal-platform-preferred" type="text" class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg" placeholder="例如：PC, PlayStation" />
+                    </label>
+                    <label class="inline-flex items-center gap-2 text-sm text-gray-700 mt-6">
+                        <input id="deal-only-new-low" type="checkbox" />
+                        仅提醒历史新低
+                    </label>
+                </div>
+                <div class="mt-4 flex gap-3">
+                    <button id="save-deal-rules-btn" class="btn-primary" type="button">
+                        <i data-lucide="save" class="w-4 h-4 inline mr-2"></i>保存规则
+                    </button>
+                    <button id="refresh-deals-btn" class="btn-secondary" type="button">
+                        <i data-lucide="refresh-cw" class="w-4 h-4 inline mr-2"></i>刷新折扣
+                    </button>
+                </div>
+            </div>
+            <!-- Search and Filters -->
+            <div class="max-w-6xl mx-auto mb-12 grid grid-cols-1 md:grid-cols-4 gap-6">
+                <!-- Search -->
+                <div>
+                    <label for="search" class="block text-sm font-medium text-gray-700 mb-2">搜索游戏</label>
+                    <div class="relative">
+                        <input type="text" id="search" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="输入游戏名称...">
+                        <i data-lucide="search" class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+                    </div>
+                </div>
+
+                <!-- Filter by Platform -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">平台筛选</label>
+                    <select id="platform-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="all">全部平台</option>
+                        <option value="PC">PC</option>
+                        <option value="PlayStation">PlayStation</option>
+                        <option value="Xbox">Xbox</option>
+                        <option value="Nintendo Switch">Nintendo Switch</option>
+                        <option value="手机">手机</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+
+                <!-- Filter by Priority -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">优先级筛选</label>
+                    <select id="priority-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="all">全部优先级</option>
+                        <option value="high">高优先级</option>
+                        <option value="medium">中优先级</option>
+                        <option value="low">低优先级</option>
+                    </select>
+                </div>
+
+                <!-- Sort By -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">排序方式</label>
+                    <select id="sort-by" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="date-desc">添加日期（最新）</option>
+                        <option value="date-asc">添加日期（最早）</option>
+                        <option value="rating-desc">最期望度（高到低）</option>
+                        <option value="rating-asc">最期望度（低到高）</option>
+                        <option value="price-asc">价格（低到高）</option>
+                        <option value="price-desc">价格（高到低）</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Wishlist Items -->
+            <div class="max-w-6xl mx-auto">
+                <div class="grid grid-cols-1 gap-6" id="wishlist-items">
+                    <!-- Wishlist items will be dynamically loaded -->
+                </div>
+                
+                <!-- Empty State -->
+                <div id="empty-state" class="text-center py-16 hidden">
+                    <i data-lucide="heart" class="w-20 h-20 text-gray-300 mx-auto mb-6"></i>
+                    <h3 class="text-2xl font-bold text-gray-700 mb-4">愿望单空空如也</h3>
+                    <p class="text-gray-600 mb-8">点击「添加愿望」按钮，开始记录你想玩的游戏吧</p>
+                    <button class="btn-primary" onclick="openAddWishlistModal()">
+                        <i data-lucide="plus" class="w-5 h-5 inline mr-2"></i>
+                        添加愿望
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Add Wishlist Modal -->
+    <div id="add-wishlist-modal" class="modal">
+        <div class="modal-content max-w-lg">
+            <button class="modal-close" onclick="closeAddWishlistModal()">&times;</button>
+            <h3 class="text-xl font-semibold mb-6 text-gray-800">添加游戏愿望</h3>
+            <form id="add-wishlist-form" class="space-y-6">
+                <div>
+                    <label for="wish-name" class="block text-sm font-medium text-gray-700 mb-2">游戏名称 <span class="text-red-500">*</span></label>
+                    <input type="text" id="wish-name" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="输入游戏名称" required>
+                </div>
+                
+                <div>
+                    <label for="wish-cover" class="block text-sm font-medium text-gray-700 mb-2">封面图 URL</label>
+                    <input type="text" id="wish-cover" name="cover" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="输入封面图片URL（可选）">
+                </div>
+                
+                <div>
+                    <label for="wish-platform" class="block text-sm font-medium text-gray-700 mb-2">平台 <span class="text-red-500">*</span></label>
+                    <select id="wish-platform" name="platform" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        <option value="">选择平台</option>
+                        <option value="PC">PC</option>
+                        <option value="PlayStation">PlayStation</option>
+                        <option value="Xbox">Xbox</option>
+                        <option value="Nintendo Switch">Nintendo Switch</option>
+                        <option value="手机">手机</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">期望度<span class="text-red-500">*</span></label>
+                    <div class="flex gap-2" id="rating-select">
+                        <i data-lucide="star" class="w-8 h-8 cursor-pointer rating-star" data-value="1" onclick="setRating(1)"></i>
+                        <i data-lucide="star" class="w-8 h-8 cursor-pointer rating-star" data-value="2" onclick="setRating(2)"></i>
+                        <i data-lucide="star" class="w-8 h-8 cursor-pointer rating-star" data-value="3" onclick="setRating(3)"></i>
+                        <i data-lucide="star" class="w-8 h-8 cursor-pointer rating-star" data-value="4" onclick="setRating(4)"></i>
+                        <i data-lucide="star" class="w-8 h-8 cursor-pointer rating-star" data-value="5" onclick="setRating(5)"></i>
+                    </div>
+                    <input type="hidden" id="wish-rating" name="rating" value="0" required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">优先级<span class="text-red-500">*</span></label>
+                    <div class="flex gap-4">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="priority" value="high" class="form-radio text-red-500" checked>
+                            <span class="ml-2 text-sm text-gray-700">高</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="priority" value="medium" class="form-radio text-yellow-500">
+                            <span class="ml-2 text-sm text-gray-700">中</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="priority" value="low" class="form-radio text-green-500">
+                            <span class="ml-2 text-sm text-gray-700">低</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="wish-price" class="block text-sm font-medium text-gray-700 mb-2">预计价格（¥）</label>
+                    <input type="number" inputmode="decimal" id="wish-price" name="wish-price" autocomplete="off" data-lpignore="true" data-1p-ignore data-form-type="other" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="0" min="0" step="0.01">
+                </div>
+                
+                <div>
+                    <label for="wish-notes" class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+                    <textarea id="wish-notes" name="notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="添加一些备注信息?.."></textarea>
+                </div>
+                
+                <button type="submit" class="btn-primary w-full">
+                    <i data-lucide="save" class="w-5 h-5 inline mr-2"></i>
+                    添加愿望
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Wishlist Modal -->
+    <div id="edit-wishlist-modal" class="modal">
+        <div class="modal-content max-w-lg">
+            <button class="modal-close" onclick="closeEditWishlistModal()">&times;</button>
+            <h3 class="text-xl font-semibold mb-6 text-gray-800">编辑游戏愿望</h3>
+            <form id="edit-wishlist-form" class="space-y-6">
+                <input type="hidden" id="edit-wish-id">
+                
+                <div>
+                    <label for="edit-wish-name" class="block text-sm font-medium text-gray-700 mb-2">游戏名称 <span class="text-red-500">*</span></label>
+                    <input type="text" id="edit-wish-name" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="输入游戏名称" required>
+                </div>
+                
+                <div>
+                    <label for="edit-wish-cover" class="block text-sm font-medium text-gray-700 mb-2">封面图 URL</label>
+                    <input type="text" id="edit-wish-cover" name="cover" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="输入封面图片URL（可选）">
+                </div>
+                
+                <div>
+                    <label for="edit-wish-platform" class="block text-sm font-medium text-gray-700 mb-2">平台 <span class="text-red-500">*</span></label>
+                    <select id="edit-wish-platform" name="platform" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        <option value="">选择平台</option>
+                        <option value="PC">PC</option>
+                        <option value="PlayStation">PlayStation</option>
+                        <option value="Xbox">Xbox</option>
+                        <option value="Nintendo Switch">Nintendo Switch</option>
+                        <option value="手机">手机</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">期望度<span class="text-red-500">*</span></label>
+                    <div class="flex gap-2" id="edit-rating-select">
+                        <i data-lucide="star" class="w-8 h-8 cursor-pointer edit-rating-star" data-value="1" onclick="setEditRating(1)"></i>
+                        <i data-lucide="star" class="w-8 h-8 cursor-pointer edit-rating-star" data-value="2" onclick="setEditRating(2)"></i>
+                        <i data-lucide="star" class="w-8 h-8 cursor-pointer edit-rating-star" data-value="3" onclick="setEditRating(3)"></i>
+                        <i data-lucide="star" class="w-8 h-8 cursor-pointer edit-rating-star" data-value="4" onclick="setEditRating(4)"></i>
+                        <i data-lucide="star" class="w-8 h-8 cursor-pointer edit-rating-star" data-value="5" onclick="setEditRating(5)"></i>
+                    </div>
+                    <input type="hidden" id="edit-wish-rating" name="rating" value="0" required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">优先级<span class="text-red-500">*</span></label>
+                    <div class="flex gap-4" id="edit-priority-group">
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="edit-priority" value="high" class="form-radio text-red-500">
+                            <span class="ml-2 text-sm text-gray-700">高</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="edit-priority" value="medium" class="form-radio text-yellow-500">
+                            <span class="ml-2 text-sm text-gray-700">中</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="edit-priority" value="low" class="form-radio text-green-500">
+                            <span class="ml-2 text-sm text-gray-700">低</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="edit-wish-price" class="block text-sm font-medium text-gray-700 mb-2">预计价格（¥）</label>
+                    <input type="number" inputmode="decimal" id="edit-wish-price" name="edit-wish-price" autocomplete="off" data-lpignore="true" data-1p-ignore data-form-type="other" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="0" min="0" step="0.01">
+                </div>
+                
+                <div>
+                    <label for="edit-wish-notes" class="block text-sm font-medium text-gray-700 mb-2">备注</label>
+                    <textarea id="edit-wish-notes" name="notes" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="添加一些备注信息?.."></textarea>
+                </div>
+                
+                <button type="submit" class="btn-primary w-full">
+                    <i data-lucide="save" class="w-5 h-5 inline mr-2"></i>
+                    保存修改
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content max-w-sm">
+            <button class="modal-close" onclick="closeDeleteModal()">&times;</button>
+            <div class="text-center">
+                <i data-lucide="alert-triangle" class="w-16 h-16 text-red-500 mx-auto mb-4"></i>
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">确认删除</h3>
+                <p class="text-gray-600 mb-6" id="delete-message">确定要从愿望单中移除这款游戏吗？</p>
+                <div class="flex gap-4 justify-center">
+                    <button class="btn-secondary" onclick="closeDeleteModal()">
+                        <i data-lucide="x" class="w-5 h-5 inline mr-2"></i>
+                        取消
+                    </button>
+                    <button class="btn-danger" id="confirm-delete-btn">
+                        <i data-lucide="trash-2" class="w-5 h-5 inline mr-2"></i>
+                        确认删除
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-8 h-8 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-lg flex items-center justify-center">
+                            <i data-lucide="gamepad-2" class="text-white w-5 h-5"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">游戏记录</h3>
+                    </div>
+                    <p class="text-gray-300">
+                        记录每一次游戏冒险，分享每一份游戏喜悦。                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">快速链接</h4>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="text-gray-300 hover:text-blue-400">首页</a></li>
+                        <li><a href="profile.html" class="text-gray-300 hover:text-blue-400">个人简介</a></li>
+                        <li><a href="games.html" class="text-gray-300 hover:text-blue-400">游戏收藏</a></li>
+                        <li><a href="achievements.html" class="text-gray-300 hover:text-blue-400">成就系统</a></li>
+                        <li><a href="stats.html" class="text-gray-300 hover:text-blue-400">数据统计</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">游戏分类</h4>
+                    <ul class="space-y-2">
+                        <li><a href="games.html" class="text-gray-300 hover:text-blue-400">原神</a></li>
+                        <li><a href="games.html" class="text-gray-300 hover:text-blue-400">明日方舟</a></li>
+                        <li><a href="games.html" class="text-gray-300 hover:text-blue-400">王者荣耀</a></li>
+                        <li><a href="games.html" class="text-gray-300 hover:text-blue-400">闪耀暖暖</a></li>
+                        <li><a href="games.html" class="text-gray-300 hover:text-blue-400">更多游戏</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">联系我</h4>
+                    <div class="space-y-2 text-gray-300">
+                        <div class="flex items-center">
+                            <i data-lucide="mail" class="w-4 h-4 mr-2"></i>
+                            <span>gamer@example.com</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i data-lucide="message-circle" class="w-4 h-4 mr-2"></i>
+                            <span>@游戏玩家</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i data-lucide="github" class="w-4 h-4 mr-2"></i>
+                            <span>GitHub</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; <span id="current-year"></span> 游戏记录. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <span id="toast-message"></span>
+    </div>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+            AOS.init({ duration: 800, once: true });
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/lib/supabase-browser.js"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js?v=1"></script>
+    <script src="js/sample-data-utils.js?v=12"></script>
+    <script src="js/data.js?v=2"></script>
+    <script src="js/cloud-sync.js?v=6"></script>
+    <script src="js/cloud-library.js?v=1"></script>
+    <script src="js/personalized-feed.js?v=1"></script>
+    <script src="utils.js?v=13"></script>
+    <script src="js/mascot-notify.js?v=1"></script>
+    <script src="theme.js?v=10"></script>
+    <script src="js/wishlist.js?v=9"></script>
+</body>
+</html>
+

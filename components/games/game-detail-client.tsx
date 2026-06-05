@@ -48,10 +48,10 @@ function EmptySection({ message }: { message: string }) {
 
 function Stars({ rating }: { rating: number }) {
   return (
-    <div className="review-stars" aria-label={`${rating} 鏄焋}>
+    <div className="review-stars" aria-label={`${rating} 颗星`}>
       {[1, 2, 3, 4, 5].map((i) => (
         <span key={i} style={{ color: i <= rating ? "#f59e0b" : "#d1d5db" }}>
-          {i <= rating ? "鈽? : "鈽?}
+          {i <= rating ? "★" : "☆"}
         </span>
       ))}
     </div>
@@ -97,7 +97,7 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
 
       if (!gameId && !gameNameQuery) {
         if (!cancelled) {
-          setNotFound("缂哄皯娓告垙鍙傛暟銆傝浠庢父鎴忔敹钘忛〉鐐瑰嚮杩涘叆銆?);
+          setNotFound("缺少游戏参数，请从游戏收藏页点击进入。");
           setReady(true);
         }
         return;
@@ -109,7 +109,7 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
           ? decodeURIComponent(gameNameQuery)
           : `ID ${gameId}`;
         if (!cancelled) {
-          setNotFound(`鎵句笉鍒板悕涓恒€?{label}銆嶇殑娓告垙銆俙);
+          setNotFound(`找不到名为「${label}」的游戏。`);
           setReady(true);
         }
         return;
@@ -119,7 +119,7 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
         setHub(loadGameHubData(game));
         setNotFound(null);
         setReady(true);
-        document.title = `${game.name} 路 娓告垙璁板綍`;
+        document.title = `${game.name} - 游戏记录`;
       }
     }
 
@@ -142,7 +142,7 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
   if (!ready) {
     return (
       <p className="text-center py-24" style={{ color: "var(--text-gray)" }}>
-        鍔犺浇涓€?
+        加载中…
       </p>
     );
   }
@@ -152,11 +152,11 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
       <section className="py-24">
         <div className="container mx-auto px-4 text-center max-w-lg">
           <SearchX className="w-20 h-20 text-gray-300 mx-auto mb-6" />
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">鏈壘鍒拌娓告垙</h2>
+          <h2 className="text-3xl font-bold text-gray-800 mb-4">未找到该游戏</h2>
           <p className="text-gray-600 mb-8">{notFound}</p>
           <Link href="/games" className="btn-primary inline-flex items-center">
             <ArrowLeft className="w-5 h-5 mr-2" />
-            杩斿洖娓告垙鏀惰棌
+            返回游戏收藏
           </Link>
         </div>
       </section>
@@ -183,7 +183,7 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
             className="game-hub-back inline-flex items-center text-sm text-gray-600 hover:text-blue-600 mb-6"
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
-            杩斿洖娓告垙鏀惰棌
+            返回游戏收藏
           </Link>
           <div className="game-hub-hero-grid">
             <div className="game-hub-cover">
@@ -197,7 +197,7 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
             </div>
             <div className="game-hub-hero-info">
               <div className="flex flex-wrap items-center gap-3 mb-3">
-                <span className="game-hub-tag">{game.type || "鍏朵粬"}</span>
+                <span className="game-hub-tag">{game.type || "其他"}</span>
                 <span
                   className={`game-hub-status ${getStatusClass(game.status)}`}
                 >
@@ -208,19 +208,19 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
                 {game.name}
               </h1>
               <p className="text-gray-600 mb-6 max-w-2xl">
-                {game.description || "鏆傛棤鎻忚堪"}
+                {game.description || "暂无描述"}
               </p>
               <div className="game-hub-stats-row">
                 <div className="game-hub-stat">
                   <Clock className="w-4 h-4" />
                   <span>
-                    <strong>{playtime}</strong> 灏忔椂
+                    <strong>{playtime}</strong> 小时
                   </span>
                 </div>
               </div>
               <div className="game-hub-progress-wrap mt-6">
                 <div className="flex justify-between text-sm text-gray-600 mb-2">
-                  <span>瀹屾垚杩涘害</span>
+                  <span>完成进度</span>
                   <span>{progress}%</span>
                 </div>
                 <div className="game-hub-progress-bar">
@@ -244,15 +244,15 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
             <div className="game-hub-section-header">
               <h2>
                 <MessageSquare className="w-5 h-5 inline mr-2" />
-                娓告垙璇勬祴
+                游戏评测
               </h2>
               <Link href="/reviews" className="game-hub-section-link">
-                鏌ョ湅鍏ㄩ儴
+                查看全部
               </Link>
             </div>
             <div className="game-hub-list">
               {hub.reviews.length === 0 ? (
-                <EmptySection message="鏆傛棤璇ユ父鎴忕殑璇勬祴" />
+                <EmptySection message="暂无该游戏的评测" />
               ) : (
                 hub.reviews.map((item) => {
                   const reviewText = item.review || item.comment || "";
@@ -309,15 +309,15 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
             <div className="game-hub-section-header">
               <h2>
                 <Trophy className="w-5 h-5 inline mr-2" />
-                鎴愬氨璁板綍
+                成就记录
               </h2>
               <Link href="/achievements" className="game-hub-section-link">
-                鏌ョ湅鍏ㄩ儴
+                查看全部
               </Link>
             </div>
             <div className="game-hub-achievements-grid">
               {hub.achievements.length === 0 ? (
-                <EmptySection message="鏆傛棤璇ユ父鎴忕殑鎴愬氨" />
+                <EmptySection message="暂无该游戏的成就" />
               ) : (
                 hub.achievements.map((a) => (
                   <div key={String(a.id ?? a.title)} className="game-hub-achievement-item">
@@ -344,14 +344,14 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
             <div className="game-hub-section-header">
               <h2>
                 <Camera className="w-5 h-5 inline mr-2" />
-                娓告垙鎴浘涓庤棰?
+                游戏截图与视频
               </h2>
               <Link href="/gallery" className="game-hub-section-link">
-                濯掍綋搴?
+                媒体库
               </Link>
             </div>
             {hub.mediaItems.length === 0 ? (
-              <EmptySection message="鏆傛棤鎴浘鎴栬棰? />
+              <EmptySection message="暂无截图或视频" />
             ) : (
               <div className="media-gallery">
                 {hub.mediaItems.map((item, i) =>
@@ -368,7 +368,7 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={item.url}
-                        alt={`鎴浘 ${i + 1}`}
+                        alt={`截图 ${i + 1}`}
                         loading="lazy"
                         className="w-full h-full object-cover"
                       />
@@ -386,22 +386,22 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
             <div className="game-hub-section-header">
               <h2>
                 <ShoppingCart className="w-5 h-5 inline mr-2" />
-                娑堣垂璁板綍
+                消费记录
               </h2>
               <Link href="/spending" className="game-hub-section-link">
-                鏌ョ湅鍏ㄩ儴
+                查看全部
               </Link>
             </div>
             {hub.spending.length === 0 ? (
-              <EmptySection message="鏆傛棤璇ユ父鎴忕殑娑堣垂璁板綍" />
+              <EmptySection message="暂无该游戏的消费记录" />
             ) : (
               <>
                 <div className="game-hub-spending-summary">
                   <div className="game-hub-spending-total">
-                    <span>绱娑堣垂</span>
-                    <strong>楼{spendingTotal.toFixed(2)}</strong>
+                    <span>累计消费</span>
+                    <strong>¥{spendingTotal.toFixed(2)}</strong>
                     <span className="text-sm text-gray-500">
-                      {hub.spending.length} 绗旇褰?
+                      {hub.spending.length} 条记录
                     </span>
                   </div>
                 </div>
@@ -409,24 +409,24 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
                   <table className="game-hub-table">
                     <thead>
                       <tr>
-                        <th>绫诲瀷</th>
-                        <th>閲戦</th>
-                        <th>鏃ユ湡</th>
-                        <th>骞冲彴</th>
-                        <th>澶囨敞</th>
+                        <th>类型</th>
+                        <th>金额</th>
+                        <th>日期</th>
+                        <th>平台</th>
+                        <th>备注</th>
                       </tr>
                     </thead>
                     <tbody>
                       {sortedSpending.map((r) => {
                         const typeLabel =
                           getSpendingRecordType(r) === "purchase"
-                            ? "璐拱"
-                            : "鍏呭€?;
+                            ? "购买"
+                            : "充值";
                         return (
                           <tr key={String(r.id ?? `${r.date}-${r.amount}`)}>
                             <td>{typeLabel}</td>
                             <td className="font-medium">
-                              楼{(parseFloat(String(r.amount)) || 0).toFixed(2)}
+                              ¥{(parseFloat(String(r.amount)) || 0).toFixed(2)}
                             </td>
                             <td>{formatDateISO(r.date) || "-"}</td>
                             <td>{r.platform || "-"}</td>
@@ -445,18 +445,18 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
             <div className="game-hub-section-header">
               <h2>
                 <Sparkles className="w-5 h-5 inline mr-2" />
-                鐩稿叧鏂伴椈涓庢姌鎵?
+                相关资讯与折扣
               </h2>
               <Link href="/wishlist" className="game-hub-section-link">
-                绠＄悊鎻愰啋
+                管理提醒
               </Link>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div>
-                <h3 className="text-sm font-semibold text-gray-600 mb-2">璧勮</h3>
+                <h3 className="text-sm font-semibold text-gray-600 mb-2">资讯</h3>
                 <div className="game-hub-list">
                   {hub.news.length === 0 ? (
-                    <EmptySection message="鏆傛棤璇ユ父鎴忚祫璁? />
+                    <EmptySection message="暂无该游戏资讯" />
                   ) : (
                     hub.news.slice(0, 4).map((item, idx) => (
                       <article
@@ -464,7 +464,7 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
                         className="p-3 rounded-lg border border-gray-200 bg-white/70"
                       >
                         <h4 className="font-semibold text-gray-800">
-                          {item.title || "娓告垙璧勮"}
+                          {item.title || "游戏资讯"}
                         </h4>
                         <p className="text-sm text-gray-600 mt-1">
                           {item.summary || ""}
@@ -475,10 +475,10 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
                 </div>
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-gray-600 mb-2">鎶樻墸</h3>
+                <h3 className="text-sm font-semibold text-gray-600 mb-2">折扣</h3>
                 <div className="game-hub-list">
                   {hub.deals.length === 0 ? (
-                    <EmptySection message="鏆傛棤璇ユ父鎴忔姌鎵? />
+                    <EmptySection message="暂无该游戏折扣" />
                   ) : (
                     hub.deals.slice(0, 4).map((item, idx) => (
                       <article
@@ -487,16 +487,16 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
                       >
                         <div className="flex items-center justify-between gap-2">
                           <strong className="text-gray-800">
-                            {item.platform || "骞冲彴"}
+                            {item.platform || "平台"}
                           </strong>
                           <span className="badge badge-green">
                             {String(item.discountPercent ?? 0)}% OFF
                           </span>
                         </div>
                         <p className="text-sm text-gray-700 mt-2">
-                          楼{Number(item.currentPrice ?? 0).toFixed(2)}
+                          ¥{Number(item.currentPrice ?? 0).toFixed(2)}
                           <span className="text-gray-400 line-through ml-1">
-                            楼{Number(item.originalPrice ?? 0).toFixed(2)}
+                            ¥{Number(item.originalPrice ?? 0).toFixed(2)}
                           </span>
                         </p>
                       </article>

@@ -1,17 +1,17 @@
-﻿<!DOCTYPE html>
+﻿?<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="游戏详情页：汇总该游戏的所有记录、成就、评测与媒体。">
-    <meta name="keywords" content="游戏记录,游戏详情,成就,评测,媒体库">
-    <meta property="og:title" content="游戏记录 - 游戏详情">
-    <meta property="og:description" content="查看某款游戏的全部相关内容。">
+    <meta name="description" content="��Ϸ����ҳ�����ܸ���Ϸ�����м�¼���ɾ͡�������ý�塣">
+    <meta name="keywords" content="��Ϸ��¼,��Ϸ����,�ɾ�,����,ý���">
+    <meta property="og:title" content="��Ϸ��¼ - ��Ϸ����">
+    <meta property="og:description" content="�鿴ĳ����Ϸ��ȫ��������ݡ�">
     <meta property="og:type" content="website">
     <meta name="app:supabase-url" content="https://oxbyshstrvzshxpaztzg.supabase.co">
     <meta name="app:supabase-anon-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im94YnlzaHN0cnZ6c2h4cGF6dHpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzOTc0OTgsImV4cCI6MjA5NDk3MzQ5OH0.d4hsB6sxUzlcJu3VfA42ncp9KZPZrGPM40pXsCarn3s">
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-    <title>游戏详情 - 游戏记录</title>
+    <title>��Ϸ���� - ��Ϸ��¼</title>
     <style>
 .desktop-nav { display: none; }
 .mobile-nav { display: flex; }
@@ -33,24 +33,24 @@
             <nav class="flex items-center justify-between py-4">
                 <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] rounded-lg flex-shrink-0 flex items-center justify-center"><i data-lucide="gamepad-2" class="text-white w-5 h-5"></i></div>
-                    <h1 class="text-2xl font-bold bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] bg-clip-text text-transparent">游戏记录</h1>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] bg-clip-text text-transparent">��Ϸ��¼</h1>
                 </div>
                 <div class="desktop-nav items-center space-x-3">
-                    <a href="index.html" class="nav-link"><i data-lucide="home" class="w-5 h-5 inline mr-2"></i>首页</a>
-                    <a href="profile.html" class="nav-link"><i data-lucide="user" class="w-5 h-5 inline mr-2"></i>个人简介</a>
-                    <a href="games.html" class="nav-link active"><i data-lucide="gamepad-2" class="w-5 h-5 inline mr-2"></i>游戏收藏</a>
-                    <a href="achievements.html" class="nav-link"><i data-lucide="trophy" class="w-5 h-5 inline mr-2"></i>成就系统</a>
-                    <a href="stats.html" class="nav-link"><i data-lucide="bar-chart-3" class="w-5 h-5 inline mr-2"></i>数据统计</a>
-                    <a href="report.html" class="nav-link"><i data-lucide="sparkles" class="w-5 h-5 inline mr-2"></i>年度报告</a>
-                    <a href="spending.html" class="nav-link"><i data-lucide="shopping-cart" class="w-5 h-5 inline mr-2"></i>消费记录</a>
+                    <a href="index.html" class="nav-link"><i data-lucide="home" class="w-5 h-5 inline mr-2"></i>��ҳ</a>
+                    <a href="profile.html" class="nav-link"><i data-lucide="user" class="w-5 h-5 inline mr-2"></i>���˼��</a>
+                    <a href="games.html" class="nav-link active"><i data-lucide="gamepad-2" class="w-5 h-5 inline mr-2"></i>��Ϸ�ղ�</a>
+                    <a href="achievements.html" class="nav-link"><i data-lucide="trophy" class="w-5 h-5 inline mr-2"></i>�ɾ�ϵͳ</a>
+                    <a href="stats.html" class="nav-link"><i data-lucide="bar-chart-3" class="w-5 h-5 inline mr-2"></i>����ͳ��</a>
+                    <a href="report.html" class="nav-link"><i data-lucide="sparkles" class="w-5 h-5 inline mr-2"></i>��ȱ���</a>
+                    <a href="spending.html" class="nav-link"><i data-lucide="shopping-cart" class="w-5 h-5 inline mr-2"></i>���Ѽ�¼</a>
                     <div style="position:relative;" id="nav-more-wrap">
                         <a href="#" class="nav-link" id="nav-more-btn" onclick="event.preventDefault();document.getElementById('nav-more-menu').classList.toggle('hidden')">
-                            <i data-lucide="more-horizontal" class="w-5 h-5 inline mr-2"></i>更多
+                            <i data-lucide="more-horizontal" class="w-5 h-5 inline mr-2"></i>����
                         </a>
                         <div id="nav-more-menu" class="hidden" style="position:absolute;top:100%;right:0;background:var(--bg-card);border:1px solid var(--border-light);border-radius:0.75rem;box-shadow:0 8px 24px var(--shadow-color);z-index:60;min-width:160px;padding:0.5rem;">
-                            <a href="gallery.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;"><i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体库</a>
-                            <a href="wishlist.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;"><i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单</a>
-                            <a href="reviews.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;"><i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测</a>
+                            <a href="gallery.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;"><i data-lucide="image" class="w-4 h-4 inline mr-2"></i>ý���</a>
+                            <a href="wishlist.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;"><i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>��ϷԸ����</a>
+                            <a href="reviews.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;"><i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>��Ϸ����</a>
                         </div>
                     </div>
                 </div>
@@ -60,16 +60,16 @@
             </nav>
             <div class="mobile-menu" id="mobile-menu">
                 <div class="flex flex-col space-y-2 pb-2">
-                    <a href="index.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="home" class="w-4 h-4 inline mr-2"></i>首页</a>
-                    <a href="profile.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="user" class="w-4 h-4 inline mr-2"></i>个人简介</a>
-                    <a href="games.html" class="nav-link py-2 px-4 rounded-lg active"><i data-lucide="gamepad-2" class="w-4 h-4 inline mr-2"></i>游戏收藏</a>
-                    <a href="achievements.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="trophy" class="w-4 h-4 inline mr-2"></i>成就系统</a>
-                    <a href="stats.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="bar-chart-3" class="w-4 h-4 inline mr-2"></i>数据统计</a>
-                    <a href="report.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="sparkles" class="w-4 h-4 inline mr-2"></i>年度报告</a>
-                    <a href="spending.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="shopping-cart" class="w-4 h-4 inline mr-2"></i>消费记录</a>
-                    <a href="gallery.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体库</a>
-                    <a href="wishlist.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单</a>
-                    <a href="reviews.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测</a>
+                    <a href="index.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="home" class="w-4 h-4 inline mr-2"></i>��ҳ</a>
+                    <a href="profile.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="user" class="w-4 h-4 inline mr-2"></i>���˼��</a>
+                    <a href="games.html" class="nav-link py-2 px-4 rounded-lg active"><i data-lucide="gamepad-2" class="w-4 h-4 inline mr-2"></i>��Ϸ�ղ�</a>
+                    <a href="achievements.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="trophy" class="w-4 h-4 inline mr-2"></i>�ɾ�ϵͳ</a>
+                    <a href="stats.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="bar-chart-3" class="w-4 h-4 inline mr-2"></i>����ͳ��</a>
+                    <a href="report.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="sparkles" class="w-4 h-4 inline mr-2"></i>��ȱ���</a>
+                    <a href="spending.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="shopping-cart" class="w-4 h-4 inline mr-2"></i>���Ѽ�¼</a>
+                    <a href="gallery.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="image" class="w-4 h-4 inline mr-2"></i>ý���</a>
+                    <a href="wishlist.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>��ϷԸ����</a>
+                    <a href="reviews.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>��Ϸ����</a>
                 </div>
             </div>
         </div>
@@ -79,11 +79,11 @@
     <section id="game-not-found" class="py-24 hidden">
         <div class="container mx-auto px-4 text-center max-w-lg">
             <i data-lucide="search-x" class="w-20 h-20 text-gray-300 mx-auto mb-6"></i>
-            <h2 class="text-3xl font-bold text-gray-800 mb-4">未找到该游戏</h2>
-            <p class="text-gray-600 mb-8" id="not-found-message">请检查链接是否正确，或返回游戏收藏页浏览。</p>
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">δ�ҵ�����Ϸ</h2>
+            <p class="text-gray-600 mb-8" id="not-found-message">���������Ƿ���ȷ���򷵻���Ϸ�ղ�ҳ�����</p>
             <a href="games.html" class="btn-primary inline-flex items-center">
                 <i data-lucide="arrow-left" class="w-5 h-5 inline mr-2"></i>
-                返回游戏收藏
+                ������Ϸ�ղ�
             </a>
         </div>
     </section>
@@ -94,7 +94,7 @@
         <section class="game-hub-hero bg-gradient-to-br from-blue-50 to-cyan-100 py-10 md:py-16">
             <div class="container mx-auto px-4">
                 <a href="games.html" class="game-hub-back inline-flex items-center text-sm text-gray-600 hover:text-blue-600 mb-6">
-                    <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i>返回游戏收藏
+                    <i data-lucide="arrow-left" class="w-4 h-4 mr-1"></i>������Ϸ�ղ�
                 </a>
                 <div class="game-hub-hero-grid">
                     <div class="game-hub-cover" id="game-hero-cover"></div>
@@ -108,7 +108,7 @@
                         <div class="game-hub-stats-row" id="game-quick-stats"></div>
                         <div class="game-hub-progress-wrap mt-6">
                             <div class="flex justify-between text-sm text-gray-600 mb-2">
-                                <span>完成进度</span>
+                                <span>��ɽ���</span>
                                 <span id="game-progress-label">0%</span>
                             </div>
                             <div class="game-hub-progress-bar">
@@ -125,32 +125,32 @@
             <div class="container mx-auto px-4 max-w-6xl space-y-10">
                 <section class="game-hub-section" id="section-reviews">
                     <div class="game-hub-section-header">
-                        <h2><i data-lucide="message-square" class="w-5 h-5"></i>游戏评测</h2>
-                        <a href="reviews.html" class="game-hub-section-link">查看全部</a>
+                        <h2><i data-lucide="message-square" class="w-5 h-5"></i>��Ϸ����</h2>
+                        <a href="reviews.html" class="game-hub-section-link">�鿴ȫ��</a>
                     </div>
                     <div id="game-reviews-list" class="game-hub-list"></div>
                 </section>
 
                 <section class="game-hub-section" id="section-achievements">
                     <div class="game-hub-section-header">
-                        <h2><i data-lucide="trophy" class="w-5 h-5"></i>成就记录</h2>
-                        <a href="achievements.html" class="game-hub-section-link">查看全部</a>
+                        <h2><i data-lucide="trophy" class="w-5 h-5"></i>�ɾͼ�¼</h2>
+                        <a href="achievements.html" class="game-hub-section-link">�鿴ȫ��</a>
                     </div>
                     <div id="game-achievements-list" class="game-hub-achievements-grid"></div>
                 </section>
 
                 <section class="game-hub-section" id="section-screenshots">
                     <div class="game-hub-section-header">
-                        <h2><i data-lucide="camera" class="w-5 h-5"></i>游戏截图与视频</h2>
-                        <a href="gallery.html" class="game-hub-section-link">媒体库</a>
+                        <h2><i data-lucide="camera" class="w-5 h-5"></i>��Ϸ��ͼ����Ƶ</h2>
+                        <a href="gallery.html" class="game-hub-section-link">ý���</a>
                     </div>
                     <div id="game-screenshots-grid" class="media-gallery"></div>
                 </section>
 
                 <section class="game-hub-section" id="section-spending">
                     <div class="game-hub-section-header">
-                        <h2><i data-lucide="shopping-cart" class="w-5 h-5"></i>消费记录</h2>
-                        <a href="spending.html" class="game-hub-section-link">查看全部</a>
+                        <h2><i data-lucide="shopping-cart" class="w-5 h-5"></i>���Ѽ�¼</h2>
+                        <a href="spending.html" class="game-hub-section-link">�鿴ȫ��</a>
                     </div>
                     <div id="game-spending-summary" class="game-hub-spending-summary"></div>
                     <div id="game-spending-list" class="game-hub-spending-table-wrap"></div>
@@ -158,16 +158,16 @@
 
                 <section class="game-hub-section" id="section-personalized">
                     <div class="game-hub-section-header">
-                        <h2><i data-lucide="sparkles" class="w-5 h-5"></i>相关新闻与折扣</h2>
-                        <a href="wishlist.html" class="game-hub-section-link">管理提醒</a>
+                        <h2><i data-lucide="sparkles" class="w-5 h-5"></i>����������ۿ�</h2>
+                        <a href="wishlist.html" class="game-hub-section-link">��������</a>
                     </div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                         <div>
-                            <h3 class="text-sm font-semibold text-gray-600 mb-2">资讯</h3>
+                            <h3 class="text-sm font-semibold text-gray-600 mb-2">��Ѷ</h3>
                             <div id="game-news-list" class="game-hub-list"></div>
                         </div>
                         <div>
-                            <h3 class="text-sm font-semibold text-gray-600 mb-2">折扣</h3>
+                            <h3 class="text-sm font-semibold text-gray-600 mb-2">�ۿ�</h3>
                             <div id="game-deals-list" class="game-hub-list"></div>
                         </div>
                     </div>
@@ -179,7 +179,7 @@
 
     <footer class="bg-gray-800 text-white py-12">
         <div class="container mx-auto px-4 text-center text-gray-400">
-            <p>&copy; <span id="current-year"></span> 游戏记录. All rights reserved.</p>
+            <p>&copy; <span id="current-year"></span> ��Ϸ��¼. All rights reserved.</p>
         </div>
     </footer>
 

@@ -57,18 +57,18 @@ export function GameFormModal({ mode, open, game, onClose, onSubmit }: Props) {
 
   function handleFile(file: File | undefined) {
     if (!file || !file.type.startsWith("image/")) {
-      showToast("璇烽€夋嫨鍥剧墖鏂囦欢", "error");
+      showToast("请选择图片文件", "error");
       return;
     }
     if (file.size > 2 * 1024 * 1024) {
-      showToast("鍥剧墖鏂囦欢杩囧ぇ锛岃閫夋嫨灏忎簬2MB鐨勬枃浠?, "error");
+      showToast("图片过大，请选择小于2MB的文件", "error");
       return;
     }
     const reader = new FileReader();
     reader.onload = (ev) => {
       const result = String(ev.target?.result ?? "");
       setValues((v) => ({ ...v, icon: result }));
-      showToast("鍥炬爣宸蹭笂浼?, "success");
+      showToast("图标上传成功", "success");
     };
     reader.readAsDataURL(file);
   }
@@ -92,7 +92,7 @@ export function GameFormModal({ mode, open, game, onClose, onSubmit }: Props) {
     onClose();
   }
 
-  const title = mode === "add" ? "娣诲姞鏂版父鎴? : "缂栬緫娓告垙";
+  const title = mode === "add" ? "添加新游戏" : "编辑游戏";
   const previewIcon = values.icon || (values.name ? defaultGameCover(values.name) : "");
 
   return (
@@ -101,7 +101,7 @@ export function GameFormModal({ mode, open, game, onClose, onSubmit }: Props) {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              娓告垙鍚嶇О
+              游戏名称
             </label>
             <input
               type="text"
@@ -114,13 +114,13 @@ export function GameFormModal({ mode, open, game, onClose, onSubmit }: Props) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              娓告垙鍥炬爣
+              游戏图标
             </label>
             <div className="flex gap-2">
               <input
                 type="text"
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="杈撳叆鍥剧墖 URL"
+                placeholder="输入图片 URL"
                 value={values.icon}
                 onChange={(e) => setValues((v) => ({ ...v, icon: e.target.value }))}
               />
@@ -129,7 +129,7 @@ export function GameFormModal({ mode, open, game, onClose, onSubmit }: Props) {
                 className="btn-secondary"
                 onClick={() => fileRef.current?.click()}
               >
-                涓婁紶
+                上传
               </button>
             </div>
             {previewIcon && (
@@ -147,7 +147,7 @@ export function GameFormModal({ mode, open, game, onClose, onSubmit }: Props) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              娓告垙绫诲瀷
+              游戏类型
             </label>
             <select
               required
@@ -155,7 +155,7 @@ export function GameFormModal({ mode, open, game, onClose, onSubmit }: Props) {
               value={values.type}
               onChange={(e) => setValues((v) => ({ ...v, type: e.target.value }))}
             >
-              <option value="">閫夋嫨绫诲瀷</option>
+              <option value="">选择类型</option>
               {GAME_TYPE_OPTIONS.map((t) => (
                 <option key={t} value={t}>
                   {t}
@@ -166,7 +166,7 @@ export function GameFormModal({ mode, open, game, onClose, onSubmit }: Props) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              娓告垙鐘舵€?
+              游戏状态
             </label>
             <select
               required
@@ -186,7 +186,7 @@ export function GameFormModal({ mode, open, game, onClose, onSubmit }: Props) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              瀹屾垚杩涘害
+              完成进度
             </label>
             <div className="flex items-center gap-4">
               <input
@@ -208,7 +208,7 @@ export function GameFormModal({ mode, open, game, onClose, onSubmit }: Props) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              娓告垙鏃堕暱锛堝皬鏃讹級
+              游玩时长（小时）
             </label>
             <input
               type="number"
@@ -227,12 +227,12 @@ export function GameFormModal({ mode, open, game, onClose, onSubmit }: Props) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              娓告垙鎻忚堪
+              游戏描述
             </label>
             <textarea
               rows={3}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="鎻忚堪涓€涓嬭繖娆炬父鎴?."
+              placeholder="描述一下这款游戏..."
               value={values.description}
               onChange={(e) =>
                 setValues((v) => ({ ...v, description: e.target.value }))
@@ -242,7 +242,7 @@ export function GameFormModal({ mode, open, game, onClose, onSubmit }: Props) {
 
           <button type="submit" className="btn-primary w-full inline-flex items-center justify-center">
             <Save className="w-5 h-5 mr-2" />
-            {mode === "add" ? "娣诲姞娓告垙" : "淇濆瓨淇敼"}
+            {mode === "add" ? "添加游戏" : "保存修改"}
           </button>
         </form>
       </Modal>

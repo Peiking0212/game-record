@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -20,7 +20,7 @@ export function HomeStats() {
   if (!stats) {
     return (
       <p className="text-center py-12" style={{ color: "var(--text-gray)" }}>
-        鍔犺浇涓€?
+        加载中…
       </p>
     );
   }
@@ -30,30 +30,30 @@ export function HomeStats() {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12 gradient-text">
-            娓告垙缁熻姒傝
+            我的游戏数据统计
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
             <StatCard
               icon={<Gamepad2 className="w-8 h-8 text-blue-500" />}
               value={String(stats.totalGames)}
-              label="娓告垙鎬绘暟"
+              label="收藏游戏总数"
             />
             <StatCard
               icon={<Clock className="w-8 h-8 text-cyan-500" />}
               value={`${stats.totalHours}h`}
-              label="娓告垙鏃堕暱"
+              label="累计游玩时长"
               iconBg="bg-cyan-50"
             />
             <StatCard
               icon={<Trophy className="w-8 h-8 text-green-500" />}
               value={String(stats.totalAchievements)}
-              label="鑾峰緱鎴愬氨"
+              label="解锁成就总数"
               iconBg="bg-green-100"
             />
             <StatCard
               icon={<Star className="w-8 h-8 text-purple-500" />}
               value={stats.avgRating}
-              label="骞冲潎璇勫垎"
+              label="平均游戏评分"
               iconBg="bg-purple-100"
             />
           </div>
@@ -64,21 +64,21 @@ export function HomeStats() {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-8">
             <Flame className="w-8 h-8 inline mr-2 text-cyan-500" />
-            鎴戠殑娓告垙
+            最近游玩
           </h2>
           <p
             className="text-center mb-6 max-w-xl mx-auto"
             style={{ color: "var(--text-gray)" }}
           >
-            鎸夋€绘父鐜╂椂闀垮睍绀猴紝鐐瑰嚮杩涘叆娓告垙璇︽儏
+            展示近期添加与经常游玩的游戏，快速继续你的游戏旅程
           </p>
           <div className="max-w-6xl mx-auto">
             {stats.recentGames.length === 0 ? (
               <div className="text-center py-8">
                 <Gamepad2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">杩樻病鏈夋父鎴忚褰?/p>
+                <p className="text-gray-500">暂无收藏的游戏</p>
                 <Link href="/games" className="text-blue-500 hover:underline">
-                  鍘绘坊鍔犱竴娆炬父鎴忓惂
+                  前往收藏页添加第一款游戏
                 </Link>
               </div>
             ) : (
@@ -90,7 +90,7 @@ export function HomeStats() {
             )}
             <div className="text-center mt-8">
               <Link href="/games" className="btn-secondary inline-flex items-center">
-                鏌ョ湅鍏ㄩ儴娓告垙
+                查看全部游戏
               </Link>
             </div>
           </div>
@@ -144,7 +144,7 @@ function GameCard({ game }: { game: GameRecord }) {
       <div className="p-4">
         <h4 className="font-semibold text-gray-800 truncate">{game.name}</h4>
         <p className="text-sm text-gray-600">
-          {game.type || "鍏朵粬"} 路 {hours} 灏忔椂
+          {game.type || "其他"} · {hours} 小时
         </p>
         <div className="mt-2">
           <span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700">

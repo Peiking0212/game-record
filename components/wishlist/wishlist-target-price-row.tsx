@@ -59,7 +59,7 @@ export function WishlistTargetPriceRow({
     return (
       <div className="wishlist-alert-row wishlist-alert-unmatched mt-2">
         <span className="wishlist-alert-inline text-amber-900">
-          鏈湪浜戠鐩綍涓€傚叆搴撳悗鍙鐩爣浠锋彁閱掋€?
+          未在云端清单，入库后可设置目标价提醒
         </span>
         <button
           type="button"
@@ -67,7 +67,7 @@ export function WishlistTargetPriceRow({
           className="wishlist-lookup-cloud-btn mt-2"
           onClick={onLookup}
         >
-          浠?Steam 鎼滅储鍏ュ簱
+          从Steam搜索入库
         </button>
       </div>
     );
@@ -77,7 +77,7 @@ export function WishlistTargetPriceRow({
     if (!gameId) return;
     const price = parseFloat(targetInput);
     if (!Number.isFinite(price) || price <= 0) {
-      setFeedback({ text: "璇疯緭鍏ユ湁鏁堢洰鏍囦环", tone: "error" });
+      setFeedback({ text: "请输入有效目标价", tone: "error" });
       return;
     }
 
@@ -85,7 +85,7 @@ export function WishlistTargetPriceRow({
     if (!supabase) return;
 
     setSaving(true);
-    setFeedback({ text: "淇濆瓨涓€?, tone: "idle" });
+    setFeedback({ text: "保存中", tone: "idle" });
     try {
       const body = await invokeUpsertAlert(
         supabase,
@@ -96,11 +96,11 @@ export function WishlistTargetPriceRow({
       );
       await invokeAlertEvaluator(supabase, gameId).catch(() => undefined);
       const t = toastForUpsertEvaluation(body.evaluation);
-      setFeedback({ text: "宸蹭繚瀛?, tone: "success" });
+      setFeedback({ text: "已保存", tone: "success" });
       showToast(t.message, t.variant);
       onSaved();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "淇濆瓨澶辫触";
+      const msg = e instanceof Error ? e.message : "保存失败";
       setFeedback({ text: msg, tone: "error" });
       showToast(msg, "error");
     } finally {
@@ -117,18 +117,18 @@ export function WishlistTargetPriceRow({
           </span>
         ) : (
           <span className="wishlist-alert-inline text-gray-500 text-sm">
-            鏆傛棤浜戠鏈€浣庝环
+            暂无云端历史低价
           </span>
         )}
         {alertRow?.target_price != null && (
           <span className="text-sm text-green-700 ml-2">
-            宸茶鐩爣 楼{alertRow.target_price}
+            已设目标 ¥{alertRow.target_price}
           </span>
         )}
       </div>
       <div className="wishlist-alert-form mt-2 flex flex-wrap items-end gap-2">
         <label className="wishlist-alert-inline text-sm text-gray-600 flex-1 min-w-[140px]">
-          鐩爣浠凤紙CNY锛?
+          目标价(CNY)
           <input
             type="number"
             inputMode="decimal"
@@ -138,7 +138,7 @@ export function WishlistTargetPriceRow({
             className="wishlist-target-price-input w-full mt-1 px-3 py-1.5 border border-gray-300 rounded-lg"
             value={targetInput}
             onChange={(e) => setTargetInput(e.target.value)}
-            placeholder="渚嬪 50"
+            placeholder="例如 50"
             autoComplete="off"
           />
         </label>
@@ -149,7 +149,7 @@ export function WishlistTargetPriceRow({
             checked={notifyEmail}
             onChange={(e) => setNotifyEmail(e.target.checked)}
           />
-          闄嶄环鍙戦偖浠?
+          降价发邮件
         </label>
         <button
           type="button"
@@ -158,7 +158,7 @@ export function WishlistTargetPriceRow({
           disabled={saving}
           onClick={() => void saveTarget()}
         >
-          淇濆瓨鎻愰啋
+          保存提醒
         </button>
         {feedback.text && (
           <span

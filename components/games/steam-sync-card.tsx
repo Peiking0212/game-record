@@ -35,7 +35,7 @@ export function SteamSyncCard({ onSynced }: { onSynced?: () => void }) {
   async function handleSync() {
     const clean = steamId.replace(/\D/g, "");
     if (clean.length < 17) {
-      setStatus("璇疯緭鍏?17 浣?SteamID64锛堜釜浜鸿祫鏂欓』鍏紑锛?);
+      setStatus("请输入17位SteamID64（个人资料设置公开）");
       return;
     }
 
@@ -43,19 +43,19 @@ export function SteamSyncCard({ onSynced }: { onSynced?: () => void }) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     if (!supabase || !url || !anonKey) {
-      showToast("Supabase 鏈厤缃?, "error");
+      showToast("Supabase未配置", "error");
       return;
     }
 
     const { data: sessionData } = await supabase.auth.getSession();
     const token = sessionData.session?.access_token;
     if (!token) {
-      showToast("璇峰厛鐧诲綍", "error");
+      showToast("请先登录", "error");
       return;
     }
 
     setLoading(true);
-    setStatus("姝ｅ湪浠?Steam 鎷夊彇娓告垙搴撯€?);
+    setStatus("正在从Steam拉取游戏库");
     try {
       const res = await fetch(`${url.replace(/\/$/, "")}/functions/v1/sync-user-games`, {
         method: "POST",
@@ -81,16 +81,16 @@ export function SteamSyncCard({ onSynced }: { onSynced?: () => void }) {
       localStorage.setItem(STEAM_ID_KEY, clean);
       if (data.mode === "steam") {
         setStatus(
-          `宸插悓姝?${data.ownedCount ?? 0} 娆撅紙搴撳唴鍏?${data.gameCount ?? 0} 娆撅級`,
+          `已同步${data.ownedCount ?? 0}款（库内共${data.gameCount ?? 0}款）`,
         );
       } else {
-        setStatus(`宸插悓姝?${data.syncedCount ?? 0} 鏉);
+        setStatus(`已同步${data.syncedCount ?? 0}条`);
       }
-      showToast("Steam 搴撳悓姝ュ畬鎴?, "success");
+      showToast("Steam库同步完成", "success");
       onSynced?.();
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "鍚屾澶辫触";
-      setStatus(`鍚屾澶辫触锛?{msg}`);
+      const msg = e instanceof Error ? e.message : "同步失败";
+      setStatus(`同步失败：${msg}`);
       showToast(msg, "error");
     } finally {
       setLoading(false);
@@ -106,10 +106,10 @@ export function SteamSyncCard({ onSynced }: { onSynced?: () => void }) {
           <div className="flex-1">
             <h3 className="font-semibold text-gray-800 flex items-center gap-2">
               <Library className="w-5 h-5" />
-              鍚屾 Steam 娓告垙搴?
+              同步 Steam 游戏库
             </h3>
             <p className="text-sm text-gray-600 mt-1">
-              杈撳叆浣犵殑 SteamID64锛?7 浣嶏紝涓汉璧勬枡 / 娓告垙璇︽儏椤昏涓哄叕寮€锛夛紝涓€閿妸宸茶喘娓告垙涓庢椂闀垮悓姝ュ埌浜戠銆?
+              输入你的SteamID64（17位，个人资料/游戏详情页设为公开），一键将已购游戏与时长同步到云端。
             </p>
             {status && (
               <p className="text-xs text-gray-500 mt-1">{status}</p>
@@ -131,7 +131,7 @@ export function SteamSyncCard({ onSynced }: { onSynced?: () => void }) {
               disabled={loading}
               onClick={handleSync}
             >
-              {loading ? "鍚屾涓€? : "鍚屾"}
+              {loading ? "同步中…" : "同步"}
             </button>
           </div>
         </div>

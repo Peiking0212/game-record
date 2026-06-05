@@ -1,4 +1,4 @@
-var SD = window.SampleDate || {
+﻿var SD = window.SampleDate || {
     daysAgo: function (n) {
         var d = new Date();
         d.setDate(d.getDate() - parseInt(n, 10));
@@ -93,7 +93,7 @@ function renderAchievements() {
                     </div>
                     <p class="text-gray-600 mb-3">${escapeHtml(achievement.description)}</p>
                     <div class="text-sm text-gray-500">
-                        鑾峰緱鏃堕棿: ${formatDateISO(achievement.date)}
+                        获得时间: ${formatDateISO(achievement.date)}
                     </div>
                     ${achievement.screenshot ? `
                         <div class="mt-4">
@@ -146,8 +146,8 @@ function updateGameFilter() {
     const addGameFilter = document.getElementById('achievement-game');
 
     GD.populateGameSelect(gameFilter, { includeAll: true });
-    GD.populateGameSelect(editGameFilter, { placeholder: '閫夋嫨娓告垙' });
-    GD.populateGameSelect(addGameFilter, { placeholder: '閫夋嫨娓告垙' });
+    GD.populateGameSelect(editGameFilter, { placeholder: '选择游戏' });
+    GD.populateGameSelect(addGameFilter, { placeholder: '选择游戏' });
 }
 
 // Add achievement form submission
@@ -158,7 +158,7 @@ document.getElementById('add-achievement-form').addEventListener('submit', (e) =
     const screenshotFile = document.getElementById('achievement-screenshot').files[0];
     const gameFields = GD.resolveGameFieldsFromSelect(formData.get('gameId'));
     if (!gameFields || !gameFields.gameId) {
-        showToast('璇烽€夋嫨鎵€灞炴父鎴?, 'error');
+        showToast('请选择所属游�?, 'error');
         return;
     }
 
@@ -193,7 +193,7 @@ function saveAchievement(achievement) {
     renderAchievements();
     renderAchievementTimeline();
     closeAddAchievementModal();
-    showToast('鎴愬氨宸叉坊鍔?, 'success');
+    showToast('成就已添�?, 'success');
 }
 
 // Edit achievement form submission
@@ -207,7 +207,7 @@ document.getElementById('edit-achievement-form').addEventListener('submit', (e) 
     if (achievementIndex !== -1) {
         const gameFields = GD.resolveGameFieldsFromSelect(formData.get('gameId'));
         if (!gameFields || !gameFields.gameId) {
-            showToast('璇烽€夋嫨鎵€灞炴父鎴?, 'error');
+            showToast('请选择所属游�?, 'error');
             return;
         }
         achievements[achievementIndex] = {
@@ -225,19 +225,19 @@ document.getElementById('edit-achievement-form').addEventListener('submit', (e) 
         renderAchievements();
         renderAchievementTimeline();
         closeEditAchievementModal();
-        showToast('鎴愬氨淇℃伅宸叉洿鏂?, 'success');
+        showToast('成就信息已更�?, 'success');
     }
 });
 
 // Delete achievement
 function deleteAchievement(id) {
-    if (confirm('纭畾瑕佸垹闄よ繖涓垚灏卞悧锛熸鎿嶄綔涓嶅彲鎾ら攢銆?)) {
+    if (confirm('确定要删除这个成就吗？此操作不可撤销�?)) {
         achievements = achievements.filter(achievement => achievement.id !== id);
         GD.set(GD.KEYS.ACHIEVEMENTS, achievements);
         updateAchievementStats();
         renderAchievements();
         renderAchievementTimeline();
-        showToast('鎴愬氨宸插垹闄?, 'success');
+        showToast('成就已删�?, 'success');
     }
 }
 
@@ -260,19 +260,19 @@ function openAchievementDetailModal(id) {
         
         <div class="space-y-6">
             <div>
-                <h4 class="font-semibold text-gray-800 mb-2">鎴愬氨鎻忚堪</h4>
+                <h4 class="font-semibold text-gray-800 mb-2">成就描述</h4>
                 <p class="text-gray-600">${achievement.description}</p>
             </div>
             
             <div>
-                <h4 class="font-semibold text-gray-800 mb-2">鑾峰緱淇℃伅</h4>
+                <h4 class="font-semibold text-gray-800 mb-2">获得信息</h4>
                 <div class="space-y-2 text-sm">
                     <div class="flex justify-between">
-                        <span class="text-gray-600">鑾峰緱鏃ユ湡:</span>
+                        <span class="text-gray-600">获得日期:</span>
                         <span class="font-medium">${formatDateISO(achievement.date)}</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-gray-600">鎵€灞炴父鎴?</span>
+                        <span class="text-gray-600">所属游�?</span>
                         <span class="font-medium">${achievement.gameName}</span>
                     </div>
                 </div>
@@ -280,7 +280,7 @@ function openAchievementDetailModal(id) {
             
             ${achievement.screenshot ? `
                 <div>
-                    <h4 class="font-semibold text-gray-800 mb-2">鎴愬氨鎴浘</h4>
+                    <h4 class="font-semibold text-gray-800 mb-2">成就截图</h4>
                     <img src="${achievement.screenshot}" alt="${achievement.title}" class="w-full rounded-lg">
                 </div>
             ` : ''}
@@ -288,11 +288,11 @@ function openAchievementDetailModal(id) {
             <div class="flex gap-3">
                 <button class="btn-primary flex-1" onclick="openEditAchievementModal(${achievement.id})">
                     <i data-lucide="edit" class="w-5 h-5 inline mr-2"></i>
-                    缂栬緫鎴愬氨
+                    编辑成就
                 </button>
                 <button class="btn-danger" onclick="deleteAchievement(${achievement.id})">
                     <i data-lucide="trash-2" class="w-5 h-5 inline mr-2"></i>
-                    鍒犻櫎鎴愬氨
+                    删除成就
                 </button>
             </div>
         </div>

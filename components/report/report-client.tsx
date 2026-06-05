@@ -65,7 +65,7 @@ export function ReportClient() {
     const maxType = sortedTypes[0]?.[1] || 1;
 
     const gameSpending = report.spending.reduce<Record<string, number>>((acc, s) => {
-      const key = s.game || "鍏朵粬";
+      const key = s.game || "其他";
       acc[key] = (acc[key] || 0) + (Number(s.amount) || 0);
       return acc;
     }, {});
@@ -82,35 +82,35 @@ export function ReportClient() {
 
     return [
       <Slide key="cover" bg={SLIDE_BGS[0]}>
-        <YearBadge text={`${report.year} 路 骞村害鍥為【`} />
-        <div className="text-7xl my-4">馃幃</div>
+        <YearBadge text={`${report.year} 年度报告`} />
+        <div className="text-7xl my-4">🎮</div>
         <div className="text-7xl font-black bg-gradient-to-r from-[#52B6FF] via-[#f59e0b] to-[#94D8FF] bg-clip-text text-transparent">
           {report.year}
         </div>
-        <p className="text-xl font-semibold text-gray-800 mt-4">浣犵殑娓告垙骞村害鎶ュ憡</p>
+        <p className="text-xl font-semibold text-gray-800 mt-4">你的游戏年度报告</p>
         <p className="text-gray-600 mt-2">
-          璁板綍浜?{report.games.length} 娆炬父鎴忋€亄report.achievements.length} 涓垚灏辩殑绮惧僵涓€骞?
+          记录了{report.games.length}款游戏、{report.achievements.length}个成就的精彩一年
         </p>
       </Slide>,
 
       <Slide key="overview" bg={SLIDE_BGS[1]}>
-        <YearBadge text="鏁版嵁鎬昏" />
-        <h2 className="text-3xl font-extrabold text-gray-800 mb-6">杩欎竴骞达紝浣犫€︹€?/h2>
+        <YearBadge text="数据总览" />
+        <h2 className="text-3xl font-extrabold text-gray-800 mb-6">这一年，你……</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl w-full">
-          <MiniCard value={String(report.games.length)} label="娓哥帺娓告垙" />
-          <MiniCard value={`${report.totalHours}h`} label="娓告垙鏃堕暱" />
-          <MiniCard value={String(report.achievements.length)} label="瑙ｉ攣鎴愬氨" />
-          <MiniCard value={String(completed)} label="宸查€氬叧" />
-          <MiniCard value={String(playing)} label="杩涜涓? />
+          <MiniCard value={String(report.games.length)} label="入库游戏" />
+          <MiniCard value={`${report.totalHours}h`} label="游玩时长" />
+          <MiniCard value={String(report.achievements.length)} label="解锁成就" />
+          <MiniCard value={String(completed)} label="已通关" />
+          <MiniCard value={String(playing)} label="进行中" />
         </div>
       </Slide>,
 
       <Slide key="genre" bg={SLIDE_BGS[2]}>
-        <YearBadge text="娓告垙绫诲瀷" />
-        <h2 className="text-3xl font-extrabold text-gray-800 mb-6">浣犳渶鐖辩帺鐨勭被鍨?/h2>
+        <YearBadge text="游戏类型" />
+        <h2 className="text-3xl font-extrabold text-gray-800 mb-6">你最爱玩的品类</h2>
         <div className="w-full max-w-xl space-y-3">
           {sortedTypes.length === 0 ? (
-            <p className="text-gray-500">鏆傛棤绫诲瀷鏁版嵁</p>
+            <p className="text-gray-500">暂无类型数据</p>
           ) : (
             sortedTypes.map(([name, count], i) => {
               const pct = Math.round((count / maxType) * 100);
@@ -123,7 +123,7 @@ export function ReportClient() {
                       style={{ width: `${pct}%`, background: BAR_COLORS[i % BAR_COLORS.length] }}
                     />
                   </div>
-                  <span className="text-sm font-bold text-gray-700 min-w-12">{count}娆?/span>
+                  <span className="text-sm font-bold text-gray-700 min-w-12">{count}款</span>
                 </div>
               );
             })
@@ -131,23 +131,23 @@ export function ReportClient() {
         </div>
         {sortedTypes[0] ? (
           <p className="mt-4 text-gray-600">
-            鏈€鐖憋細<strong className="text-[#52B6FF]">{sortedTypes[0][0]}</strong>
+            最爱：<strong className="text-[#52B6FF]">{sortedTypes[0][0]}</strong>
           </p>
         ) : null}
       </Slide>,
 
       <Slide key="spending" bg={SLIDE_BGS[3]}>
-        <YearBadge text="娑堣垂璁板綍" />
+        <YearBadge text="消费记录" />
         <div className="text-7xl font-black bg-gradient-to-r from-[#f59e0b] via-[#fbbf24] to-[#f59e0b] bg-clip-text text-transparent">
-          楼{report.totalSpent.toFixed(0)}
+          ¥{report.totalSpent.toFixed(0)}
         </div>
-        <p className="text-gray-600 mt-2">骞村害娓告垙鎬昏姳璐?/p>
+        <p className="text-gray-600 mt-2">年度游戏总花销</p>
         <div className="grid grid-cols-2 gap-4 max-w-md w-full my-5">
           <MiniCard
-            value={`楼${report.totalHours > 0 ? (report.totalSpent / report.totalHours).toFixed(2) : "0.00"}`}
-            label="姣忓皬鏃舵垚鏈?
+            value={`¥${report.totalHours > 0 ? (report.totalSpent / report.totalHours).toFixed(2) : "0.00"}`}
+            label="每小时成本"
           />
-          <MiniCard value={String(report.spending.length)} label="娑堣垂绗旀暟" />
+          <MiniCard value={String(report.spending.length)} label="消费笔数" />
         </div>
         {sortedSpending.length > 0 ? (
           <div className="w-full max-w-xl space-y-2">
@@ -163,21 +163,21 @@ export function ReportClient() {
                     }}
                   />
                 </div>
-                <span className="text-xs font-bold text-gray-700 min-w-14">楼{amount.toFixed(0)}</span>
+                <span className="text-xs font-bold text-gray-700 min-w-14">¥{amount.toFixed(0)}</span>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-gray-500 mt-4">鏆傛棤娑堣垂璁板綍</p>
+          <p className="text-gray-500 mt-4">暂无消费记录</p>
         )}
       </Slide>,
 
       <Slide key="top" bg={SLIDE_BGS[4]}>
-        <YearBadge text="鏈€甯哥帺鐨勬父鎴? />
-        <h2 className="text-3xl font-extrabold text-gray-800 mb-6">浣犵殑骞村害 TOP 3</h2>
+        <YearBadge text="常玩游戏" />
+        <h2 className="text-3xl font-extrabold text-gray-800 mb-6">你的年度 TOP 3</h2>
         <div className="w-full max-w-xl space-y-3">
           {top3.length === 0 ? (
-            <p className="text-gray-500">鏆傛棤娓告垙鏃堕暱璁板綍</p>
+            <p className="text-gray-500">暂无游戏时长记录</p>
           ) : (
             top3.map((g, i) => (
               <div key={String(g.id)} className="flex items-center gap-4 p-3 bg-white rounded-2xl shadow-sm">
@@ -198,7 +198,7 @@ export function ReportClient() {
                 <div className="text-left flex-1">
                   <div className="font-bold text-gray-800">{g.name}</div>
                   <div className="text-xs text-gray-500">
-                    {parseInt(String(g.playtime), 10) || 0} 灏忔椂 路 杩涘害 {parseInt(String(g.progress), 10) || 0}%
+                    {parseInt(String(g.playtime), 10) || 0} 小时 · 进度 {parseInt(String(g.progress), 10) || 0}%
                   </div>
                 </div>
               </div>
@@ -208,12 +208,12 @@ export function ReportClient() {
       </Slide>,
 
       <Slide key="end" bg={SLIDE_BGS[5]}>
-        <div className="text-6xl my-3">馃弳</div>
-        <h2 className="text-4xl font-extrabold text-gray-800 my-2">绮惧僵鐨勪竴骞达紒</h2>
-        <p className="text-gray-600">{report.year} 骞达紝浣犳€诲叡鐜╀簡 <strong>{report.games.length}</strong> 娆炬父鎴?/p>
-        <p className="text-gray-600">绱 <strong>{report.totalHours}</strong> 灏忔椂</p>
-        <p className="text-gray-600">瑙ｉ攣浜?<strong>{report.achievements.length}</strong> 涓垚灏?/p>
-        <p className="mt-8 text-sm text-gray-500">鏈熷緟鏂扮殑涓€骞达紝缁х画鍐掗櫓锛佲湪</p>
+        <div className="text-6xl my-3">🎉</div>
+        <h2 className="text-4xl font-extrabold text-gray-800 my-2">精彩的一年！</h2>
+        <p className="text-gray-600">{report.year}年，你一共游玩了 <strong>{report.games.length}</strong> 款游戏</p>
+        <p className="text-gray-600">累计 <strong>{report.totalHours}</strong> 小时</p>
+        <p className="text-gray-600">解锁了<strong>{report.achievements.length}</strong> 个成就</p>
+        <p className="mt-8 text-sm text-gray-500">期待新的一年，继续冒险！</p>
       </Slide>,
     ];
   }, [report]);
@@ -236,10 +236,10 @@ export function ReportClient() {
               value={year ?? ""}
               onChange={(e) => setYear(e.target.value ? Number(e.target.value) : null)}
             >
-              <option value="">閫夋嫨骞翠唤</option>
+              <option value="">选择年份</option>
               {years.map((y) => (
                 <option key={y} value={y}>
-                  {y} 骞?
+                  {y} 年
                 </option>
               ))}
             </select>
@@ -247,19 +247,19 @@ export function ReportClient() {
               className="px-4 py-1.5 rounded-full text-white font-semibold text-sm border-none btn-primary"
               onClick={() => {
                 if (!year) {
-                  showToast("璇峰厛閫夋嫨骞翠唤", "error");
+                  showToast("请先选择年份", "error");
                   return;
                 }
                 const next = buildReport(year);
                 if (next.games.length === 0 && next.achievements.length === 0) {
-                  showToast(`${year} 骞存殏鏃犳父鎴忔暟鎹甡, "info");
+                  showToast(`${year}年暂无游戏数据`, "info");
                   return;
                 }
                 setReport(next);
                 setCurrentSlide(0);
               }}
             >
-              鐢熸垚鎶ュ憡 鉁?
+              生成报告 ✅
             </button>
           </div>
         </div>
@@ -269,9 +269,9 @@ export function ReportClient() {
         <section className="py-20">
           <div className="container mx-auto px-4 text-center">
             <Sparkles className="w-20 h-20 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">骞村害娓告垙鎶ュ憡</h2>
-            <p className="text-gray-500 mb-6">閫夋嫨骞翠唤锛岀敓鎴愪綘鐨勪笓灞炴父鎴忓勾搴︽姤鍛?鉁?/p>
-            <p className="text-gray-400 text-sm">鍍?Spotify Wrapped 涓€鏍凤紝鍥為【浣犵殑娓告垙涔嬫梾</p>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">年度游戏报告</h2>
+            <p className="text-gray-500 mb-6">选择年份，生成专属的年度游戏报告 ✨</p>
+            <p className="text-gray-400 text-sm">如同Spotify Wrapped，回顾你的游戏旅程</p>
           </div>
         </section>
       ) : (
@@ -302,7 +302,7 @@ export function ReportClient() {
                 key={i}
                 className={`w-2.5 h-2.5 rounded-full transition-all ${i === currentSlide ? "bg-[#52B6FF] scale-125" : "bg-gray-300"}`}
                 onClick={() => go(i)}
-                aria-label={`璺宠浆鍒扮 ${i + 1} 椤礰}
+                aria-label={`跳转到第 ${i + 1} 页`}
               />
             ))}
           </div>

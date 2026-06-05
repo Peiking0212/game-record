@@ -1,8 +1,9 @@
+﻿@charset "UTF-8";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* 导航栏响应式（来自旧版 index.html） */
+/* ��������Ӧʽ�����Ծɰ� index.html�� */
 .desktop-nav {
   display: none;
 }
@@ -26,7 +27,7 @@
 
 @import "../legacy/styles.css";
 
-/* 媒体库图片编辑器 */
+/* ý���ͼƬ�༭�� */
 .filter-item {
   cursor: pointer;
   transition: all 0.3s ease;

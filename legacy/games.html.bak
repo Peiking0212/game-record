@@ -1,0 +1,481 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="记录游戏时光：游戏收藏、成就、数据统计与媒体库。">
+    <meta name="keywords" content="游戏记录,游戏收藏,成就,游戏统计,媒体库">
+    <meta property="og:title" content="游戏记录">
+    <meta property="og:description" content="记录每一次游戏冒险，分享每一份游戏喜悦。">
+    <meta property="og:type" content="website">
+    <meta name="app:supabase-url" content="https://oxbyshstrvzshxpaztzg.supabase.co">
+    <meta name="app:supabase-anon-key" content="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im94YnlzaHN0cnZ6c2h4cGF6dHpnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzOTc0OTgsImV4cCI6MjA5NDk3MzQ5OH0.d4hsB6sxUzlcJu3VfA42ncp9KZPZrGPM40pXsCarn3s">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    <title>游戏记录 - 游戏收藏</title>
+    <style>
+/* 导航栏响应式显示 - 不依赖 Tailwind CDN */
+.desktop-nav { display: none; }
+.mobile-nav { display: flex; }
+.mobile-menu { display: none; }
+@media (min-width: 768px) {
+    .desktop-nav { display: flex; }
+    .mobile-nav { display: none; }
+}
+</style>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lucide@0.544.0/dist/umd/lucide.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <link rel="stylesheet" href="styles.css?v=16">
+</head>
+<body>
+    <!-- Header -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <nav class="flex items-center justify-between py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] rounded-lg flex-shrink-0 flex items-center justify-center"><i data-lucide="gamepad-2" class="text-white w-5 h-5"></i></div>
+                    <h1 class="text-2xl font-bold bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] bg-clip-text text-transparent">
+                        游戏记录
+                    </h1>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <div class="desktop-nav items-center space-x-3">
+                    <a href="index.html" class="nav-link">
+                        <i data-lucide="home" class="w-5 h-5 inline mr-2"></i>
+                        首页
+                    </a>
+                    <a href="profile.html" class="nav-link">
+                        <i data-lucide="user" class="w-5 h-5 inline mr-2"></i>
+                        个人简介</a>
+                    <a href="games.html" class="nav-link active">
+                        <i data-lucide="gamepad-2" class="w-5 h-5 inline mr-2"></i>
+                        游戏收藏
+                    </a>
+                    <a href="achievements.html" class="nav-link">
+                        <i data-lucide="trophy" class="w-5 h-5 inline mr-2"></i>
+                        成就系统
+                    </a>
+                    <a href="stats.html" class="nav-link">
+                        <i data-lucide="bar-chart-3" class="w-5 h-5 inline mr-2"></i>
+                        数据统计
+                    </a>
+                    <a href="report.html" class="nav-link">
+                        <i data-lucide="sparkles" class="w-5 h-5 inline mr-2"></i>
+                        年度报告
+                    </a>
+                    <a href="spending.html" class="nav-link">
+                        <i data-lucide="shopping-cart" class="w-5 h-5 inline mr-2"></i>
+                        消费记录
+                    </a>
+                    <div style="position:relative;" id="nav-more-wrap">
+                        <a href="#" class="nav-link" id="nav-more-btn" onclick="event.preventDefault();document.getElementById('nav-more-menu').classList.toggle('hidden')">
+                            <i data-lucide="more-horizontal" class="w-5 h-5 inline mr-2"></i>
+                            更多
+                        </a>
+                        <div id="nav-more-menu" class="hidden" style="position:absolute;top:100%;right:0;background:var(--bg-card);border:1px solid var(--border-light);border-radius:0.75rem;box-shadow:0 8px 24px var(--shadow-color);z-index:60;min-width:160px;padding:0.5rem;">
+                            <a href="gallery.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体库
+                            </a>
+                            <a href="wishlist.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单</a>
+                            <a href="reviews.html" class="nav-link" style="display:flex;align-items:center;padding:0.5rem 1rem;border-radius:0.5rem;white-space:nowrap;">
+                                <i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Mobile Navigation Toggle -->
+                <button class="mobile-nav text-gray-700 hover:text-blue-500" id="mobile-menu-toggle">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </nav>
+            
+            <!-- Mobile Navigation Menu -->
+            <div class="mobile-menu" id="mobile-menu">
+                <div class="flex flex-col space-y-2 pb-2">
+                    <a href="index.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="home" class="w-4 h-4 inline mr-2"></i>首页</a>
+                    <a href="profile.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="user" class="w-4 h-4 inline mr-2"></i>个人简介</a>
+                    <a href="games.html" class="nav-link py-2 px-4 rounded-lg active"><i data-lucide="gamepad-2" class="w-4 h-4 inline mr-2"></i>游戏收藏</a>
+                    <a href="achievements.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="trophy" class="w-4 h-4 inline mr-2"></i>成就系统</a>
+                    <a href="stats.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="bar-chart-3" class="w-4 h-4 inline mr-2"></i>数据统计</a>
+                    <a href="report.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="sparkles" class="w-4 h-4 inline mr-2"></i>年度报告</a>
+                    <a href="spending.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="shopping-cart" class="w-4 h-4 inline mr-2"></i>消费记录</a>
+                    <a href="gallery.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="image" class="w-4 h-4 inline mr-2"></i>媒体库</a>
+                    <a href="wishlist.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="heart" class="w-4 h-4 inline mr-2"></i>游戏愿望单</a>
+                    <a href="reviews.html" class="nav-link py-2 px-4 rounded-lg"><i data-lucide="message-square" class="w-4 h-4 inline mr-2"></i>游戏评测</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-br from-blue-50 to-cyan-100 py-16">
+        <div class="container mx-auto px-4 text-center">
+            <div data-aos="fade-up">
+                <h1 class="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
+                    我的游戏收藏
+                </h1>
+                <p class="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
+                    记录和管理我玩过的每一次游戏，追踪游戏进度和成就
+                </p>
+                <button class="btn-primary" onclick="openAddGameModal()">
+                    <i data-lucide="plus" class="w-5 h-5 inline mr-2"></i>
+                    添加新游戏                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Games Management -->
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4">
+            <!-- Search and Filters -->
+            <div class="max-w-6xl mx-auto mb-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Search -->
+                <div>
+                    <label for="search" class="block text-sm font-medium text-gray-700 mb-2">搜索游戏</label>
+                    <div class="relative">
+                        <input type="text" id="search" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="输入游戏名称...">
+                        <i data-lucide="search" class="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2"></i>
+                    </div>
+                </div>
+
+                <!-- Filter by Status -->
+                <div>
+                    <label for="status-filter" class="block text-sm font-medium text-gray-700 mb-2">游戏状态</label>
+                    <select id="status-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="all">全部状态</option>
+                        <option value="playing">正在玩</option>
+                        <option value="completed">已完成</option>
+                        <option value="paused">暂停中</option>
+                        <option value="dropped">已放弃</option>
+                    </select>
+                </div>
+
+                <!-- Filter by Type -->
+                <div>
+                    <label for="type-filter" class="block text-sm font-medium text-gray-700 mb-2">游戏类型</label>
+                    <select id="type-filter" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="all">全部类型</option>
+                        <option value="开放世界">开放世界</option>
+                        <option value="策略">策略</option>
+                        <option value="MOBA">MOBA</option>
+                        <option value="养成">养成</option>
+                        <option value="RPG">RPG</option>
+                        <option value="FPS">FPS</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Steam 库同步（登录后可见） -->
+            <div class="max-w-6xl mx-auto mb-12 hidden" id="steam-sync-card">
+                <div class="bg-gradient-to-br from-slate-50 to-blue-50 border border-blue-100 rounded-xl p-5">
+                    <div class="flex flex-col md:flex-row md:items-center gap-4">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-gray-800 flex items-center gap-2">
+                                <i data-lucide="library" class="w-5 h-5"></i> 同步 Steam 游戏库
+                            </h3>
+                            <p class="text-sm text-gray-600 mt-1">输入你的 SteamID64（17 位，个人资料 / 游戏详情须设为公开），一键把已购游戏与时长同步到云端，全站可见。</p>
+                            <p id="steam-sync-status" class="text-xs text-gray-500 mt-1"></p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="steam-id-input" inputmode="numeric" autocomplete="off" placeholder="76561198XXXXXXXXX" class="px-3 py-2 border border-gray-300 rounded-lg w-56 focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <button id="steam-sync-btn" class="btn-primary whitespace-nowrap">同步</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Games List -->
+            <div class="max-w-6xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="games-list">
+                    <!-- Games will be dynamically loaded -->
+                </div>
+                
+                <!-- Empty State -->
+                <div id="empty-state" class="text-center py-16 hidden">
+                    <i data-lucide="gamepad-2" class="w-20 h-20 text-gray-300 mx-auto mb-6"></i>
+                    <h3 class="text-2xl font-bold text-gray-700 mb-4">还没有游戏</h3>
+                    <p class="text-gray-600 mb-8">点击「添加新游戏」按钮开始记录你的游戏之旅</p>
+                    <button class="btn-primary" onclick="openAddGameModal()">
+                        <i data-lucide="plus" class="w-5 h-5 inline mr-2"></i>
+                        添加新游戏                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recently Added Games -->
+    <section class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">最近添加的游戏</h2>
+            
+            <div class="max-w-6xl mx-auto">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="recently-added">
+                    <!-- Recently added games will be dynamically loaded -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-3 mb-4">
+                        <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-400 rounded-lg flex items-center justify-center">
+                            <i data-lucide="gamepad-2" class="text-white w-5 h-5"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">游戏记录</h3>
+                    </div>
+                    <p class="text-gray-300">
+                        记录每一次游戏冒险，分享每一份游戏喜悦。                    </p>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">快速链接</h4>
+                    <ul class="space-y-2">
+                        <li><a href="index.html" class="text-gray-300 hover:text-blue-400">首页</a></li>
+                        <li><a href="profile.html" class="text-gray-300 hover:text-blue-400">个人简介</a></li>
+                        <li><a href="games.html" class="text-gray-300 hover:text-blue-400">游戏收藏</a></li>
+                        <li><a href="achievements.html" class="text-gray-300 hover:text-blue-400">成就系统</a></li>
+                        <li><a href="stats.html" class="text-gray-300 hover:text-blue-400">数据统计</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">游戏分类</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-300 hover:text-blue-400">原神</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-blue-400">明日方舟</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-blue-400">王者荣耀</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-blue-400">闪耀暖暖</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-blue-400">更多游戏</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4 text-white">联系我</h4>
+                    <div class="space-y-2 text-gray-300">
+                        <div class="flex items-center">
+                            <i data-lucide="mail" class="w-4 h-4 mr-2"></i>
+                            <span>gamer@example.com</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i data-lucide="message-circle" class="w-4 h-4 mr-2"></i>
+                            <span>@游戏玩家</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i data-lucide="github" class="w-4 h-4 mr-2"></i>
+                            <span>GitHub</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; <span id="current-year"></span> 游戏记录. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Add Game Modal -->
+    <div id="add-game-modal" class="modal">
+        <div class="modal-content max-w-lg">
+            <button class="modal-close" onclick="closeAddGameModal()">&times;</button>
+            <h3 class="text-xl font-semibold mb-6 text-gray-800">添加新游戏</h3>
+            <form id="add-game-form" class="space-y-6">
+                <div>
+                    <label for="game-name" class="block text-sm font-medium text-gray-700 mb-2">游戏名称</label>
+                    <input type="text" id="game-name" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                </div>
+                
+                <div>
+                    <label for="game-icon" class="block text-sm font-medium text-gray-700 mb-2">游戏图标</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="game-icon" name="icon" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="输入图片URL">
+                        <button type="button" class="btn-secondary" onclick="openIconUpload()">上传</button>
+                    </div>
+                    <img id="add-icon-preview" src="" alt="预览" style="max-width:80px;max-height:80px;border-radius:0.5rem;margin-top:0.5rem;display:none;" onerror="this.style.display='none'">
+                </div>
+                
+                <div>
+                    <label for="game-type" class="block text-sm font-medium text-gray-700 mb-2">游戏类型</label>
+                    <select id="game-type" name="type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        <option value="">选择类型</option>
+                        <option value="开放世界">开放世界</option>
+                        <option value="策略">策略</option>
+                        <option value="MOBA">MOBA</option>
+                        <option value="养成">养成</option>
+                        <option value="RPG">RPG</option>
+                        <option value="FPS">FPS</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="game-status" class="block text-sm font-medium text-gray-700 mb-2">游戏状态</label>
+                    <select id="game-status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        <option value="playing">正在玩</option>
+                        <option value="completed">已完成</option>
+                        <option value="paused">暂停中</option>
+                        <option value="dropped">已放弃</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="game-progress" class="block text-sm font-medium text-gray-700 mb-2">完成进度</label>
+                    <div class="flex items-center gap-4">
+                        <input type="range" id="game-progress" name="progress" min="0" max="100" value="0" class="flex-1">
+                        <span id="progress-value" class="text-gray-700 font-medium">0%</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="game-playtime" class="block text-sm font-medium text-gray-700 mb-2">游戏时长（小时）</label>
+                    <input type="number" id="game-playtime" name="playtime" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" min="0" value="0" required>
+                </div>
+                
+                <div>
+                    <label for="game-description" class="block text-sm font-medium text-gray-700 mb-2">游戏描述</label>
+                    <textarea id="game-description" name="description" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="描述一下这款游戏.."></textarea>
+                </div>
+                
+                <button type="submit" class="btn-primary w-full">
+                    <i data-lucide="save" class="w-5 h-5 inline mr-2"></i>
+                    添加游戏
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Game Modal -->
+    <div id="edit-game-modal" class="modal">
+        <div class="modal-content max-w-lg">
+            <button class="modal-close" onclick="closeEditGameModal()">&times;</button>
+            <h3 class="text-xl font-semibold mb-6 text-gray-800">编辑游戏</h3>
+            <form id="edit-game-form" class="space-y-6">
+                <input type="hidden" id="edit-game-id">
+                
+                <div>
+                    <label for="edit-game-name" class="block text-sm font-medium text-gray-700 mb-2">游戏名称</label>
+                    <input type="text" id="edit-game-name" name="name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                </div>
+                
+                <div>
+                    <label for="edit-game-icon" class="block text-sm font-medium text-gray-700 mb-2">游戏图标</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="edit-game-icon" name="icon" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="输入图片URL">
+                        <button type="button" class="btn-secondary" onclick="openEditIconUpload()">上传</button>
+                    </div>
+                    <img id="edit-icon-preview" src="" alt="预览" style="max-width:80px;max-height:80px;border-radius:0.5rem;margin-top:0.5rem;display:none;" onerror="this.style.display='none'">
+                </div>
+                
+                <div>
+                    <label for="edit-game-type" class="block text-sm font-medium text-gray-700 mb-2">游戏类型</label>
+                    <select id="edit-game-type" name="type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        <option value="">选择类型</option>
+                        <option value="开放世界">开放世界</option>
+                        <option value="策略">策略</option>
+                        <option value="MOBA">MOBA</option>
+                        <option value="养成">养成</option>
+                        <option value="RPG">RPG</option>
+                        <option value="FPS">FPS</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="edit-game-status" class="block text-sm font-medium text-gray-700 mb-2">游戏状态</label>
+                    <select id="edit-game-status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        <option value="playing">正在玩</option>
+                        <option value="completed">已完成</option>
+                        <option value="paused">暂停中</option>
+                        <option value="dropped">已放弃</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="edit-game-progress" class="block text-sm font-medium text-gray-700 mb-2">完成进度</label>
+                    <div class="flex items-center gap-4">
+                        <input type="range" id="edit-game-progress" name="progress" min="0" max="100" class="flex-1">
+                        <span id="edit-progress-value" class="text-gray-700 font-medium">0%</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="edit-game-playtime" class="block text-sm font-medium text-gray-700 mb-2">游戏时长（小时）</label>
+                    <input type="number" id="edit-game-playtime" name="playtime" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" min="0" required>
+                </div>
+                
+                <div>
+                    <label for="edit-game-description" class="block text-sm font-medium text-gray-700 mb-2">游戏描述</label>
+                    <textarea id="edit-game-description" name="description" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="描述一下这款游戏.."></textarea>
+                </div>
+                
+                <button type="submit" class="btn-primary w-full">
+                    <i data-lucide="save" class="w-5 h-5 inline mr-2"></i>
+                    保存修改
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Game Detail Modal -->
+    <div id="game-detail-modal" class="modal">
+        <div class="modal-content max-w-4xl">
+            <button class="modal-close" onclick="closeGameDetailModal()">&times;</button>
+            <div id="game-detail-content">
+                <!-- Game detail will be dynamically loaded -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Icon Upload Modal -->
+    <div id="icon-upload-modal" class="modal">
+        <div class="modal-content max-w-md">
+            <button class="modal-close" onclick="closeIconUploadModal()">&times;</button>
+            <h3 class="text-xl font-semibold mb-6 text-gray-800">上传游戏图标</h3>
+            <div class="upload-area" id="icon-upload-area" style="cursor:pointer;position:relative;">
+                <input type="file" id="icon-upload-input" accept="image/*" style="display:block;position:absolute;inset:0;opacity:0;cursor:pointer;z-index:1;">
+                <i data-lucide="upload-cloud" class="w-12 h-12 text-gray-400 mx-auto mb-4"></i>
+                <p class="text-gray-600 mb-2">点击或拖拽文件到此处上传</p>
+                <p class="text-sm text-gray-500">支持 JPG、PNG 格式（最大 2MB）</p>
+            </div>
+            <div class="mt-6 text-center">
+                <button class="btn-secondary" onclick="closeIconUploadModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <span id="toast-message"></span>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+            AOS.init({
+                duration: 800,
+                once: true
+            });
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/lib/supabase-browser.js"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js?v=1"></script>
+    <script src="js/sample-data-utils.js?v=12"></script>
+    <script src="js/data.js?v=2"></script>
+    <script src="js/cloud-sync.js?v=6"></script>
+    <script src="js/cloud-library.js?v=1"></script>
+    <script src="utils.js?v=13"></script>
+    <script src="js/games.js?v=11"></script>
+    <script src="theme.js?v=10"></script>
+</body>
+</html>

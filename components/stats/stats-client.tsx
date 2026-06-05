@@ -28,10 +28,10 @@ import {
 } from "@/lib/stats";
 
 const STATUS_OPTIONS = [
-  { value: "playing", label: "娓哥帺涓? },
-  { value: "completed", label: "宸插畬鎴? },
-  { value: "planned", label: "璁″垝涓? },
-  { value: "dropped", label: "宸叉斁寮? },
+  { value: "playing", label: "游玩中" },
+  { value: "completed", label: "已通关" },
+  { value: "planned", label: "计划中" },
+  { value: "dropped", label: "已弃坑" },
 ] as const;
 
 export function StatsClient() {
@@ -78,7 +78,7 @@ export function StatsClient() {
     filename: string,
   ) => {
     if (!el) {
-      showToast("鎵句笉鍒拌瀵煎嚭鐨勫唴瀹?, "error");
+      showToast("找不到需要导出的内容", "error");
       return;
     }
     try {
@@ -92,10 +92,10 @@ export function StatsClient() {
       link.download = filename;
       link.href = canvas.toDataURL("image/png");
       link.click();
-      showToast("宸蹭繚瀛樹负鍥剧墖", "success");
+      showToast("已保存为图片", "success");
     } catch (e) {
       console.error("[stats] export failed", e);
-      showToast("瀵煎嚭鍥剧墖澶辫触锛岃閲嶈瘯", "error");
+      showToast("导出图片失败，请重试", "error");
     }
   };
 
@@ -104,10 +104,10 @@ export function StatsClient() {
       <section className="bg-gradient-to-br from-blue-50 to-cyan-100 py-12 md:py-16">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
-            鏁版嵁缁熻鍒嗘瀽
+            数据统计分析
           </h1>
           <p className="text-lg md:text-xl text-gray-700 mb-6 max-w-2xl mx-auto">
-            娣卞叆浜嗚В浣犵殑娓告垙涔犳儻锛屽彂鐜伴殣钘忕殑娓告垙瑙勫緥
+            深入了解你的游玩习惯，发现隐藏的游戏规律
           </p>
         </div>
       </section>
@@ -116,7 +116,7 @@ export function StatsClient() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="text-sm font-medium text-gray-600">绛涢€夛細</span>
+              <span className="text-sm font-medium text-gray-600">筛选：</span>
               <select
                 className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm"
                 value={formFilters.year}
@@ -124,10 +124,10 @@ export function StatsClient() {
                   setFormFilters((f) => ({ ...f, year: e.target.value }))
                 }
               >
-                <option value="all">鍏ㄩ儴骞翠唤</option>
+                <option value="all">全部年份</option>
                 {years.map((y) => (
                   <option key={y} value={y}>
-                    {y}骞?
+                    {y}年
                   </option>
                 ))}
               </select>
@@ -138,7 +138,7 @@ export function StatsClient() {
                   setFormFilters((f) => ({ ...f, type: e.target.value }))
                 }
               >
-                <option value="all">鍏ㄩ儴绫诲瀷</option>
+                <option value="all">全部类型</option>
                 {gameTypes.map((t) => (
                   <option key={t} value={t}>
                     {t}
@@ -152,7 +152,7 @@ export function StatsClient() {
                   setFormFilters((f) => ({ ...f, status: e.target.value }))
                 }
               >
-                <option value="all">鍏ㄩ儴鐘舵€?/option>
+                <option value="all">全部状态</option>
                 {STATUS_OPTIONS.map((s) => (
                   <option key={s.value} value={s.value}>
                     {s.label}
@@ -163,7 +163,7 @@ export function StatsClient() {
                 className="btn-secondary text-sm py-1.5"
                 onClick={() => setActiveFilters(formFilters)}
               >
-                搴旂敤
+                应用
               </button>
               <button
                 className="text-gray-500 hover:text-gray-700 text-sm"
@@ -177,7 +177,7 @@ export function StatsClient() {
                   setActiveFilters(reset);
                 }}
               >
-                娓呴櫎
+                清空
               </button>
             </div>
 
@@ -187,12 +187,12 @@ export function StatsClient() {
                 onClick={() =>
                   exportElementAsImage(
                     chartsSectionRef.current,
-                    `娓告垙缁熻_${new Date().toISOString().slice(0, 10)}.png`,
+                    `游戏统计_${new Date().toISOString().slice(0, 10)}.png`,
                   )
                 }
               >
                 <ImageIcon className="w-4 h-4" />
-                淇濆瓨鍥剧墖
+                保存图片
               </button>
               <button
                 className="export-btn export-btn-primary"
@@ -206,7 +206,7 @@ export function StatsClient() {
                 }}
               >
                 <Sparkles className="w-4 h-4" />
-                骞村害鎬荤粨
+                年度总结
               </button>
             </div>
           </div>
@@ -220,25 +220,25 @@ export function StatsClient() {
               icon={<Gamepad2 className="w-8 h-8" />}
               iconClass="bg-blue-100 text-blue-500"
               value={String(overview.totalGames)}
-              label="娓告垙鎬绘暟"
+              label="游戏总数"
             />
             <StatCard
               icon={<Clock className="w-8 h-8" />}
               iconClass="bg-cyan-50 text-cyan-500"
               value={String(overview.totalPlaytime)}
-              label="鎬绘父鎴忔椂闀?灏忔椂)"
+              label="总游玩时长(小时)"
             />
             <StatCard
               icon={<CheckCircle className="w-8 h-8" />}
               iconClass="bg-green-100 text-green-500"
               value={String(overview.completed)}
-              label="宸插畬鎴愭父鎴?
+              label="已通关游戏"
             />
             <StatCard
               icon={<Trophy className="w-8 h-8" />}
               iconClass="bg-purple-100 text-purple-500"
               value={String(overview.achievements)}
-              label="鑾峰緱鎴愬氨"
+              label="获得成就"
             />
           </div>
         </div>
@@ -247,16 +247,16 @@ export function StatsClient() {
       <section ref={chartsSectionRef} className="py-8 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <SimplePanel title="娓告垙绫诲瀷鍒嗗竷">
+            <SimplePanel title="游戏类型分布">
               <TypeDistribution games={filteredGames} />
             </SimplePanel>
-            <SimplePanel title="鍚勭被鍨嬫父鎴忔椂闀?>
+            <SimplePanel title="各类型时长">
               <TypePlaytime games={filteredGames} />
             </SimplePanel>
-            <SimplePanel title="娓告垙杩涘害姒傝">
+            <SimplePanel title="游戏进度概览">
               <ProgressDistribution games={filteredGames} />
             </SimplePanel>
-            <SimplePanel title="娓告垙鏃堕暱瀵规瘮">
+            <SimplePanel title="时长排行">
               <TopPlaytimeList games={filteredGames} />
             </SimplePanel>
           </div>
@@ -265,16 +265,16 @@ export function StatsClient() {
 
       <section className="py-8 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold mb-6 text-gray-800">娓告垙璇︾粏鏁版嵁</h2>
+          <h2 className="text-2xl font-bold mb-6 text-gray-800">游戏明细数据</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-4 font-semibold text-gray-700">娓告垙鍚嶇О</th>
-                  <th className="px-6 py-4 font-semibold text-gray-700">绫诲瀷</th>
-                  <th className="px-6 py-4 font-semibold text-gray-700">鐘舵€?/th>
-                  <th className="px-6 py-4 font-semibold text-gray-700">娓告垙鏃堕暱</th>
-                  <th className="px-6 py-4 font-semibold text-gray-700">杩涘害</th>
+                  <th className="px-6 py-4 font-semibold text-gray-700">游戏名称</th>
+                  <th className="px-6 py-4 font-semibold text-gray-700">类型</th>
+                  <th className="px-6 py-4 font-semibold text-gray-700">状态</th>
+                  <th className="px-6 py-4 font-semibold text-gray-700">游玩时长</th>
+                  <th className="px-6 py-4 font-semibold text-gray-700">进度</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -299,7 +299,7 @@ export function StatsClient() {
                       </td>
                       <td className="px-6 py-4">
                         <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-sm">
-                          {game.type || "鍏朵粬"}
+                          {game.type || "其他"}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -310,7 +310,7 @@ export function StatsClient() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-gray-700">
-                        {parseInt(String(game.playtime), 10) || 0} 灏忔椂
+                        {parseInt(String(game.playtime), 10) || 0} 小时
                       </td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-2">
@@ -334,12 +334,12 @@ export function StatsClient() {
 
       <Modal open={summaryOpen} onClose={() => setSummaryOpen(false)} maxWidth="xl">
         <div className="flex justify-between items-center mb-6">
-          <h3 className="text-2xl font-bold text-gray-800">{summary.year}骞村害娓告垙鎬荤粨</h3>
+          <h3 className="text-2xl font-bold text-gray-800">{summary.year}年度游戏总结</h3>
           <button
             type="button"
             className="text-gray-400 hover:text-gray-600"
             onClick={() => setSummaryOpen(false)}
-            aria-label="鍏抽棴"
+            aria-label="关闭"
           >
             <X className="w-6 h-6" />
           </button>
@@ -348,29 +348,29 @@ export function StatsClient() {
         <div ref={summaryContentRef} className="space-y-6">
           <div className="text-center mb-6">
             <h2 className="text-3xl font-bold mb-2">{summary.year}</h2>
-            <p className="text-lg opacity-90">骞村害娓告垙鍥為【</p>
+            <p className="text-lg opacity-90">年度游戏图鉴</p>
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <SummaryStat value={String(summary.games)} label="娆炬父鎴? />
-            <SummaryStat value={String(summary.hours)} label="娓告垙灏忔椂" />
-            <SummaryStat value={String(summary.completed)} label="娆鹃€氬叧" />
-            <SummaryStat value={String(summary.achievements)} label="涓垚灏? />
+            <SummaryStat value={String(summary.games)} label="款游戏" />
+            <SummaryStat value={String(summary.hours)} label="游玩小时" />
+            <SummaryStat value={String(summary.completed)} label="款通关" />
+            <SummaryStat value={String(summary.achievements)} label="个成就" />
           </div>
 
           <div>
-            <h4 className="font-semibold mb-3">骞村害鏈€鐖辨父鎴?/h4>
+            <h4 className="font-semibold mb-3">年度最爱游戏</h4>
             <div className="space-y-2">
               {summary.topGames.length === 0 ? (
-                <p className="text-sm text-gray-500">鏆傛棤鏁版嵁</p>
+                <p className="text-sm text-gray-500">暂无数据</p>
               ) : (
                 summary.topGames.map((g, i) => (
                   <div key={String(g.id)} className="flex items-center gap-3">
-                    <span className="text-2xl">{["馃", "馃", "馃"][i] ?? "馃幃"}</span>
+                    <span className="text-2xl">{["🥇", "🥈", "🥉"][i] ?? "🏅"}</span>
                     <div>
                       <div className="font-medium">{g.name}</div>
                       <div className="text-sm opacity-80">
-                        {parseInt(String(g.playtime), 10) || 0} 灏忔椂
+                        {parseInt(String(g.playtime), 10) || 0} 小时
                       </div>
                     </div>
                   </div>
@@ -380,10 +380,10 @@ export function StatsClient() {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-3">娓告垙绫诲瀷鍋忓ソ</h4>
+            <h4 className="font-semibold mb-3">游戏类型偏好</h4>
             <div className="space-y-2">
               {summary.typeCounts.length === 0 ? (
-                <p className="text-sm text-gray-500">鏆傛棤鏁版嵁</p>
+                <p className="text-sm text-gray-500">暂无数据</p>
               ) : (
                 summary.typeCounts.map(([type, count]) => (
                   <div key={type} className="flex items-center justify-between gap-4">
@@ -413,12 +413,12 @@ export function StatsClient() {
             onClick={() =>
               exportElementAsImage(
                 summaryContentRef.current,
-                `骞村害鎬荤粨_${summary.year}.png`,
+                `年度总结_${summary.year}.png`,
               )
             }
           >
             <Camera className="w-4 h-4 inline mr-2" />
-            淇濆瓨涓哄浘鐗?
+            保存为图片
           </button>
         </div>
       </Modal>
@@ -467,14 +467,14 @@ function SimplePanel({
 function TypeDistribution({ games }: { games: Array<{ type?: string }> }) {
   const rows = useMemo(() => {
     const map = games.reduce<Record<string, number>>((acc, g) => {
-      const key = g.type || "鍏朵粬";
+      const key = g.type || "其他";
       acc[key] = (acc[key] || 0) + 1;
       return acc;
     }, {});
     return Object.entries(map).sort((a, b) => b[1] - a[1]);
   }, [games]);
 
-  if (!rows.length) return <p className="text-sm text-gray-500">鏆傛棤鏁版嵁</p>;
+  if (!rows.length) return <p className="text-sm text-gray-500">暂无数据</p>;
   const total = rows.reduce((s, x) => s + x[1], 0);
   return (
     <div className="space-y-2">
@@ -499,13 +499,13 @@ function TypeDistribution({ games }: { games: Array<{ type?: string }> }) {
 function TypePlaytime({ games }: { games: Array<{ type?: string; playtime?: number | string }> }) {
   const rows = useMemo(() => {
     const map = games.reduce<Record<string, number>>((acc, g) => {
-      const key = g.type || "鍏朵粬";
+      const key = g.type || "其他";
       acc[key] = (acc[key] || 0) + (parseInt(String(g.playtime), 10) || 0);
       return acc;
     }, {});
     return Object.entries(map).sort((a, b) => b[1] - a[1]);
   }, [games]);
-  if (!rows.length) return <p className="text-sm text-gray-500">鏆傛棤鏁版嵁</p>;
+  if (!rows.length) return <p className="text-sm text-gray-500">暂无数据</p>;
   const max = rows[0][1] || 1;
   return (
     <div className="space-y-2">
@@ -543,7 +543,7 @@ function ProgressDistribution({
         .slice(0, 8),
     [games],
   );
-  if (!top.length) return <p className="text-sm text-gray-500">鏆傛棤鏁版嵁</p>;
+  if (!top.length) return <p className="text-sm text-gray-500">暂无数据</p>;
   return (
     <div className="space-y-2">
       {top.map((g) => {
@@ -580,7 +580,7 @@ function TopPlaytimeList({
         .slice(0, 8),
     [games],
   );
-  if (!top.length) return <p className="text-sm text-gray-500">鏆傛棤鏁版嵁</p>;
+  if (!top.length) return <p className="text-sm text-gray-500">暂无数据</p>;
   const max = parseInt(String(top[0]?.playtime), 10) || 1;
   return (
     <div className="space-y-2">

@@ -46,20 +46,20 @@ const PLATFORM_OPTIONS = [
   "PlayStation",
   "Xbox",
   "Nintendo Switch",
-  "鎵嬫満",
-  "鍏朵粬",
+  "手机",
+  "其他",
 ] as const;
 
 function Stars({ rating }: { rating: number }) {
   return (
-    <span className="wishlist-stars" aria-label={`${rating} 鏄焋}>
+    <span className="wishlist-stars" aria-label={`${rating} 星`}>
       {[1, 2, 3, 4, 5].map((i) => (
         <span
           key={i}
           className="star"
           style={{ color: i <= rating ? "#f59e0b" : "#9ca3af" }}
         >
-          {i <= rating ? "鈽? : "鈽?}
+          {i <= rating ? "★" : "☆"}
         </span>
       ))}
     </span>
@@ -159,15 +159,15 @@ export function WishlistClient() {
     const next: WishlistItem = {
       ...item,
       supabaseGameId: Number(game.id),
-      steamAppId: game.steam_app_id ?? undefined,
-      cover: item.cover || game.cover_url || "",
+      steamAppId: game.steam_appId ?? undefined,
+      cover: item.cover || game.coverUrl || "",
     };
     if (result.candidates && result.candidates.length > 1) {
-      const note = `宸插尮閰嶏細${game.name}`;
-      next.notes = next.notes ? `${next.notes} 路 ${note}` : note;
+      const note = `已匹配：${game.name}`;
+      next.notes = next.notes ? `${next.notes} · ${note}` : note;
     }
     if (result.message) {
-      next.notes = next.notes ? `${next.notes} 路 ${result.message}` : result.message;
+      next.notes = next.notes ? `${next.notes} · ${result.message}` : result.message;
     }
     return next;
   }
@@ -216,7 +216,7 @@ export function WishlistClient() {
 
   function persist(next: WishlistItem[], msg: string) {
     if (!saveWishlist(next)) {
-      showToast("淇濆瓨澶辫触锛岃妫€鏌ュ瓨鍌ㄧ┖闂?, "error");
+      showToast("保存失败，请检查存储空间", "error");
       return false;
     }
     setItems(next);
@@ -228,27 +228,27 @@ export function WishlistClient() {
     invalidateWishlistCatalogCache();
     await reloadWishlist();
     bumpAlerts();
-    showToast("宸插悓姝ヤ簯绔洰褰曚笌浠锋牸", "success");
+    showToast("已同步云端清单与价格", "success");
   }
 
   async function refreshDeals() {
     const supabase = tryCreateClient();
     if (!supabase) {
-      showToast("闇€瑕侀厤缃?Supabase 鎵嶈兘鍒锋柊鎶樻墸", "error");
+      showToast("需要配置Supabase才能刷新折扣", "error");
       return;
     }
     const { data } = await supabase.auth.getSession();
     if (!data.session) {
-      showToast("璇峰厛鐧诲綍鍐嶅埛鏂版姌鎵ｄ笌璧勮", "error");
+      showToast("请先登录再刷新折扣与资料", "error");
       return;
     }
     try {
       await supabase.functions.invoke("fetch-personalized-feed", {
         body: { force: true },
       });
-      showToast("鎶樻墸涓庤祫璁凡鍒锋柊锛堝鏈彉鍖栧彲绋嶅悗鍐嶈瘯锛?, "success");
+      showToast("折扣与资讯已刷新（若无变化可稍后重试）", "success");
     } catch {
-      showToast("鍒锋柊澶辫触锛堝凡淇濈暀鏈湴缂撳瓨锛?, "error");
+      showToast("刷新失败（已保留本地缓存）", "error");
     }
   }
 
@@ -257,10 +257,10 @@ export function WishlistClient() {
       <section className="bg-gradient-to-br from-blue-50 to-cyan-100 py-16">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
-            娓告垙鎰挎湜鍗?
+            游戏愿望单
           </h1>
           <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
-            璁板綍浣犳兂鐜╃殑姣忎竴娆炬父鎴忥紝杩借釜鏈熸湜锛岃鍒掍綘鐨勬父鎴忛绠?
+            记录你想玩的每一款游戏，静待惊喜，规划你的游戏预算
           </p>
           <button
             type="button"
@@ -268,7 +268,7 @@ export function WishlistClient() {
             onClick={() => setAddOpen(true)}
           >
             <Plus className="w-5 h-5 mr-2" />
-            娣诲姞鎰挎湜
+            添加愿望
           </button>
         </div>
       </section>
@@ -289,11 +289,11 @@ export function WishlistClient() {
           <div className="max-w-6xl mx-auto mb-8 p-5 rounded-xl border border-gray-200 bg-gray-50">
             <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
               <Heart className="w-5 h-5 text-blue-500" />
-              鎶樻墸鎻愰啋瑙勫垯
+              折扣提醒规则
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <label className="text-sm text-gray-600">
-                鏈€浣庢姌鎵ｏ紙%锛?
+                最低折扣(%)
                 <input
                   type="number"
                   min={1}
@@ -312,11 +312,11 @@ export function WishlistClient() {
                 />
               </label>
               <label className="text-sm text-gray-600">
-                骞冲彴鍋忓ソ锛堢暀绌轰负鍏ㄩ儴锛?
+                偏好平台(留空为全部)
                 <input
                   type="text"
                   className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-lg"
-                  placeholder="渚嬪锛歅C, PlayStation"
+                  placeholder="例如：PC, PlayStation"
                   value={(rules.preferredPlatforms || []).join(", ")}
                   onChange={(e) =>
                     setRules((r) => ({
@@ -334,7 +334,7 @@ export function WishlistClient() {
                     setRules((r) => ({ ...r, notifyOnlyNewLows: e.target.checked }))
                   }
                 />
-                浠呮彁閱掑巻鍙叉柊浣?
+                仅提醒历史新低
               </label>
             </div>
             <div className="mt-4 flex flex-wrap gap-3">
@@ -345,7 +345,7 @@ export function WishlistClient() {
                   onClick={() => void syncCloudCatalog()}
                 >
                   <Cloud className="w-4 h-4 mr-2" />
-                  鍚屾浜戠鐩綍
+                  同步云端清单
                 </button>
               )}
               <button
@@ -354,15 +354,15 @@ export function WishlistClient() {
                 onClick={() => {
                   const next = { ...rules, updatedAt: new Date().toISOString() };
                   if (!saveDealWatchRules(next)) {
-                    showToast("淇濆瓨瑙勫垯澶辫触", "error");
+                    showToast("保存规则失败", "error");
                     return;
                   }
                   setRules(next);
-                  showToast("鎶樻墸鎻愰啋瑙勫垯宸蹭繚瀛?, "success");
+                  showToast("折扣提醒规则已保存", "success");
                 }}
               >
                 <Save className="w-4 h-4 mr-2" />
-                淇濆瓨瑙勫垯
+                保存规则
               </button>
               <button
                 type="button"
@@ -370,7 +370,7 @@ export function WishlistClient() {
                 onClick={refreshDeals}
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
-                鍒锋柊鎶樻墸
+                刷新折扣
               </button>
             </div>
           </div>
@@ -378,13 +378,13 @@ export function WishlistClient() {
           <div className="max-w-6xl mx-auto mb-12 grid grid-cols-1 md:grid-cols-4 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                鎼滅储娓告垙
+                搜索游戏
               </label>
               <div className="relative">
                 <input
                   type="text"
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="杈撳叆娓告垙鍚嶇О..."
+                  placeholder="输入游戏名称..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -394,14 +394,14 @@ export function WishlistClient() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                骞冲彴绛涢€?
+                平台筛选
               </label>
               <select
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={platformFilter}
                 onChange={(e) => setPlatformFilter(e.target.value)}
               >
-                <option value="all">鍏ㄩ儴骞冲彴</option>
+                <option value="all">全部平台</option>
                 {PLATFORM_OPTIONS.map((p) => (
                   <option key={p} value={p}>
                     {p}
@@ -412,50 +412,50 @@ export function WishlistClient() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                浼樺厛绾х瓫閫?
+                优先级筛选
               </label>
               <select
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
               >
-                <option value="all">鍏ㄩ儴浼樺厛绾?/option>
-                <option value="high">楂樹紭鍏堢骇</option>
-                <option value="medium">涓紭鍏堢骇</option>
-                <option value="low">浣庝紭鍏堢骇</option>
+                <option value="all">全部优先级</option>
+                <option value="high">高优先级</option>
+                <option value="medium">中优先级</option>
+                <option value="low">低优先级</option>
               </select>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                鎺掑簭鏂瑰紡
+                排序方式
               </label>
               <select
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortBy)}
               >
-                <option value="date-desc">娣诲姞鏃堕棿锛氭柊 鈫?鏃?/option>
-                <option value="date-asc">娣诲姞鏃堕棿锛氭棫 鈫?鏂?/option>
-                <option value="rating-desc">鏈熸湜搴︼細楂?鈫?浣?/option>
-                <option value="rating-asc">鏈熸湜搴︼細浣?鈫?楂?/option>
-                <option value="price-asc">鏈熸湜浠锋牸锛氫綆 鈫?楂?/option>
-                <option value="price-desc">鏈熸湜浠锋牸锛氶珮 鈫?浣?/option>
+                <option value="date-desc">添加时间：新 → 旧</option>
+                <option value="date-asc">添加时间：旧 → 新</option>
+                <option value="rating-desc">期待度：高 → 低</option>
+                <option value="rating-asc">期待度：低 → 高</option>
+                <option value="price-asc">目标价格：低 → 高</option>
+                <option value="price-desc">目标价格：高 → 低</option>
               </select>
             </div>
           </div>
 
           <div className="max-w-6xl mx-auto">
             {loading ? (
-              <p className="text-center py-12 text-gray-500">姝ｅ湪鍔犺浇鎰挎湜鍗曗€?/p>
+              <p className="text-center py-12 text-gray-500">正在加载愿望单…</p>
             ) : filtered.length === 0 ? (
               <div className="text-center py-16">
                 <Heart className="w-20 h-20 text-gray-300 mx-auto mb-6" />
                 <h3 className="text-2xl font-bold text-gray-700 mb-4">
-                  杩樻病鏈夋効鏈涘崟
+                  还没有愿望单
                 </h3>
                 <p className="text-gray-600 mb-8">
-                  鐐瑰嚮銆屾坊鍔犳効鏈涖€嶅紑濮嬭褰曚綘鎯崇帺鐨勬父鎴?
+                  点击「添加愿望」开始记录你想玩的游戏
                 </p>
                 <button
                   type="button"
@@ -463,7 +463,7 @@ export function WishlistClient() {
                   onClick={() => setAddOpen(true)}
                 >
                   <Plus className="w-5 h-5 mr-2" />
-                  娣诲姞鎰挎湜
+                  添加愿望
                 </button>
               </div>
             ) : (
@@ -483,18 +483,18 @@ export function WishlistClient() {
                           <button
                             type="button"
                             className="btn-edit-wishlist"
-                            title="缂栬緫"
+                            title="编辑"
                             onClick={() => setEditItem(item)}
                           >
-                            缂栬緫
+                            编辑
                           </button>
                           <button
                             type="button"
                             className="btn-delete-wishlist"
-                            title="鍒犻櫎"
+                            title="删除"
                             onClick={() => setDeleteItem(item)}
                           >
-                            鍒犻櫎
+                            删除
                           </button>
                         </div>
                       </div>
@@ -508,7 +508,7 @@ export function WishlistClient() {
                           {priorityLabel(item.priority)}
                         </span>
                         {item.price && (
-                          <span className="wishlist-price">楼{item.price}</span>
+                          <span className="wishlist-price">¥{item.price}</span>
                         )}
                       </div>
 
@@ -542,17 +542,17 @@ export function WishlistClient() {
 
       <WishlistItemModal
         open={addOpen}
-        title="娣诲姞鎰挎湜"
+        title="添加愿望"
         initial={null}
         enableCatalogSearch
         onClose={() => setAddOpen(false)}
         onSubmit={async (values) => {
           if (!values.name.trim()) {
-            showToast("璇疯緭鍏ユ父鎴忓悕绉?, "error");
+            showToast("请输入游戏名称", "error");
             return;
           }
           if (values.rating < 1) {
-            showToast("璇烽€夋嫨鏈熸湜搴?, "error");
+            showToast("请选择期待度", "error");
             return;
           }
           let newItem: WishlistItem = {
@@ -571,7 +571,7 @@ export function WishlistClient() {
           const supabase = tryCreateClient();
           if (supabase && signedIn && !newItem.supabaseGameId) {
             try {
-              showToast("姝ｅ湪浠?Steam 鎼滅储骞跺叆搴撯€?, "success");
+              showToast("正在从Steam搜索并入库…", "success");
               const lookup = await invokeLookupGame(supabase, {
                 query: newItem.name,
                 import: true,
@@ -581,7 +581,7 @@ export function WishlistClient() {
               invalidateWishlistCatalogCache();
             } catch (e) {
               showToast(
-                `${e instanceof Error ? e.message : "浜戠鍏ュ簱澶辫触"}锛屽凡浠呬繚瀛樻湰鍦癭,
+                `${e instanceof Error ? e.message : "云端入库失败"}，已仅保存本地`,
                 "error",
               );
             }
@@ -601,25 +601,25 @@ export function WishlistClient() {
           persist(
             [...items, newItem],
             newItem.supabaseGameId
-              ? "鎰挎湜鍗曞凡娣诲姞骞跺凡鍚屾浜戠"
-              : "鎰挎湜鍗曞凡娣诲姞",
+              ? "愿望单已添加并同步云端"
+              : "愿望单已添加",
           );
         }}
       />
 
       <WishlistItemModal
         open={!!editItem}
-        title="缂栬緫鎰挎湜"
+        title="编辑愿望"
         initial={editItem}
         onClose={() => setEditItem(null)}
         onSubmit={(values) => {
           if (!editItem) return;
           if (!values.name.trim()) {
-            showToast("璇疯緭鍏ユ父鎴忓悕绉?, "error");
+            showToast("请输入游戏名称", "error");
             return;
           }
           if (values.rating < 1) {
-            showToast("璇烽€夋嫨鏈熸湜搴?, "error");
+            showToast("请选择期待度", "error");
             return;
           }
           const next = items.map((it) =>
@@ -636,7 +636,7 @@ export function WishlistClient() {
                 }
               : it,
           );
-          persist(next, "鎰挎湜鍗曞凡鏇存柊");
+          persist(next, "愿望单已修改");
           setEditItem(null);
         }}
       />
@@ -644,11 +644,11 @@ export function WishlistClient() {
       <Modal
         open={!!deleteItem}
         onClose={() => setDeleteItem(null)}
-        title="纭鍒犻櫎"
+        title="确认删除"
         maxWidth="md"
       >
         <p className="text-gray-700 mb-6">
-          纭畾瑕佸垹闄ゃ€寋deleteItem?.name}銆嶅悧锛?
+          确定要删除「{deleteItem?.name}」吗？
         </p>
         <div className="flex gap-3 justify-end">
           <button
@@ -656,7 +656,7 @@ export function WishlistClient() {
             className="btn-secondary"
             onClick={() => setDeleteItem(null)}
           >
-            鍙栨秷
+            取消
           </button>
           <button
             type="button"
@@ -665,12 +665,12 @@ export function WishlistClient() {
               if (!deleteItem) return;
               persist(
                 items.filter((it) => it.id !== deleteItem.id),
-                "鎰挎湜鍗曞凡鍒犻櫎",
+                "愿望单已删除",
               );
               setDeleteItem(null);
             }}
           >
-            鍒犻櫎
+            删除
           </button>
         </div>
       </Modal>
@@ -685,7 +685,7 @@ export function WishlistClient() {
           const next = items.map((it) =>
             it.id === lookupTarget.id ? applyLookupToItem(it, result) : it,
           );
-          persist(next, `宸插叆搴擄細${result.game?.name || lookupTarget.name}`);
+          persist(next, `已入库：${result.game?.name || lookupTarget.name}`);
           bumpAlerts();
           const sb = tryCreateClient();
           if (sb) void loadAlertContext(sb).then(setAlertCtx);
@@ -784,7 +784,7 @@ function WishlistItemModal({
       >
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            娓告垙鍚嶇О
+            游戏名称
           </label>
           <input
             data-testid="wishlist-name-input"
@@ -796,7 +796,7 @@ function WishlistItemModal({
           {enableCatalogSearch && catalogHits.length > 0 && (
             <div className="mt-2 border border-gray-200 rounded-lg max-h-40 overflow-y-auto bg-gray-50">
               {catalogLoading && (
-                <p className="px-3 py-2 text-xs text-gray-500">鎼滅储涓€?/p>
+                <p className="px-3 py-2 text-xs text-gray-500">搜索中…</p>
               )}
               {!catalogLoading &&
                 catalogHits.map((g) => (
@@ -806,14 +806,14 @@ function WishlistItemModal({
                     className="w-full text-left px-3 py-2 text-sm hover:bg-white border-b border-gray-100 last:border-0"
                     onClick={() => {
                       setName(g.name);
-                      if (g.cover_url) setCover(g.cover_url);
+                      if (g.coverUrl) setCover(g.coverUrl);
                       setSupabaseGameId(g.id);
                     }}
                   >
                     <span className="font-medium text-gray-800">{g.name}</span>
-                    {g.steam_app_id != null && (
+                    {g.steamAppId != null && (
                       <span className="text-xs text-gray-500 ml-2">
-                        Steam #{g.steam_app_id}
+                        Steam #{g.steamAppId}
                       </span>
                     )}
                   </button>
@@ -824,27 +824,27 @@ function WishlistItemModal({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            灏侀潰锛堝彲閫夛級
+            封面(可选)
           </label>
           <input
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={cover}
             onChange={(e) => setCover(e.target.value)}
-            placeholder="杈撳叆鍥剧墖 URL"
+            placeholder="填入图片URL"
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              骞冲彴
+              平台
             </label>
             <select
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               value={platform}
               onChange={(e) => setPlatform(e.target.value)}
             >
-              <option value="">涓嶆寚瀹?/option>
+              <option value="">不指定</option>
               {PLATFORM_OPTIONS.map((p) => (
                 <option key={p} value={p}>
                   {p}
@@ -854,7 +854,7 @@ function WishlistItemModal({
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              浼樺厛绾?
+              优先级
             </label>
             <select
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -863,16 +863,16 @@ function WishlistItemModal({
                 setPriority(e.target.value as "high" | "medium" | "low")
               }
             >
-              <option value="high">楂樹紭鍏堢骇</option>
-              <option value="medium">涓紭鍏堢骇</option>
-              <option value="low">浣庝紭鍏堢骇</option>
+              <option value="high">高优先级</option>
+              <option value="medium">中优先级</option>
+              <option value="low">低优先级</option>
             </select>
           </div>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            鏈熸湜搴︼紙1-5锛?
+            期待度(1-5)
           </label>
           <div className="flex items-center gap-2">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -882,11 +882,11 @@ function WishlistItemModal({
                 data-testid={`wishlist-rating-${i}`}
                 className="px-2 py-1 rounded"
                 onClick={() => setRating(i)}
-                title={`${i} 鏄焋}
-                aria-label={`${i} 鏄焋}
+                title={`${i} 星`}
+                aria-label={`${i} 星`}
               >
                 <span style={{ color: i <= rating ? "#f59e0b" : "#9ca3af" }}>
-                  {i <= rating ? "鈽? : "鈽?}
+                  {i <= rating ? "★" : "☆"}
                 </span>
               </button>
             ))}
@@ -896,20 +896,20 @@ function WishlistItemModal({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            鏈熸湜浠锋牸锛堝彲閫夛級
+            目标价格(可选)
           </label>
           <input
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
-            placeholder="渚嬪 50"
+            placeholder="例如 50"
             inputMode="decimal"
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            澶囨敞锛堝彲閫夛級
+            备注(可选)
           </label>
           <textarea
             rows={3}
@@ -921,14 +921,13 @@ function WishlistItemModal({
 
         <div className="flex justify-end gap-3 pt-2">
           <button type="button" className="btn-secondary" onClick={onClose}>
-            鍙栨秷
+            取消
           </button>
           <button type="submit" className="btn-primary" data-testid="wishlist-save-btn">
-            淇濆瓨
+            保存
           </button>
         </div>
       </form>
     </Modal>
   );
 }
-

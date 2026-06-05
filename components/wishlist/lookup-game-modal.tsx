@@ -43,18 +43,18 @@ export function LookupGameModal({
   async function runLookup(pick?: LookupCandidate) {
     const q = query.trim();
     if (!pick && q.length < 2) {
-      setError("璇疯緭鍏ヨ嚦灏?2 涓瓧绗?);
+      setError("请输入至少2个字符");
       return;
     }
 
     const supabase = tryCreateClient();
     if (!supabase) {
-      setError("鏈厤缃?Supabase");
+      setError("未配置Supabase");
       return;
     }
     const { data: session } = await supabase.auth.getSession();
     if (!session.session) {
-      setError("璇峰厛鐧诲綍鍚庡啀浠?Steam 鍏ュ簱");
+      setError("请先登录后再从Steam导入");
       return;
     }
 
@@ -94,10 +94,10 @@ export function LookupGameModal({
   const selected = candidates[selectedIdx];
 
   return (
-    <Modal open={open} onClose={onClose} title="浠?Steam 鎼滅储鍏ュ簱" maxWidth="lg">
+    <Modal open={open} onClose={onClose} title="从Steam搜索导入" maxWidth="lg">
       <div className="space-y-4">
         <p className="text-sm text-gray-600">
-          鎼滅储 Steam / ITAD 骞跺啓鍏ヤ簯绔父鎴忕洰褰曪紝渚夸簬浠锋牸鎻愰啋涓庢姌鎵ｅ尮閰嶃€?
+          检索 Steam / ITAD 并录入云端游戏清单，方便价格提醒与折扣匹配。
         </p>
         <div className="flex gap-2">
           <input
@@ -105,7 +105,7 @@ export function LookupGameModal({
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="娓告垙鍚嶇О锛堜腑鑻辨枃鍧囧彲锛?
+            placeholder="游戏名称（中英文均可）"
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
@@ -124,7 +124,7 @@ export function LookupGameModal({
             ) : (
               <Search className="w-4 h-4" />
             )}
-            <span className="ml-2">鎼滅储</span>
+            <span className="ml-2">搜索</span>
           </button>
         </div>
 
@@ -137,7 +137,7 @@ export function LookupGameModal({
         {candidates.length > 1 && (
           <div className="border border-gray-200 rounded-lg max-h-48 overflow-y-auto">
             <p className="px-3 py-2 text-xs text-gray-500 bg-gray-50 border-b">
-              鎵惧埌澶氫釜缁撴灉锛岃閫夋嫨鍚庣偣鍑汇€岀‘璁ゅ叆搴撱€?
+              找到多个结果，请选择后点击【确认导入】
             </p>
             {candidates.map((c, i) => (
               <label
@@ -168,7 +168,7 @@ export function LookupGameModal({
 
         <div className="flex justify-end gap-3 pt-2">
           <button type="button" className="btn-secondary" onClick={onClose}>
-            鍙栨秷
+            取消
           </button>
           {candidates.length > 1 && selected && (
             <button
@@ -178,7 +178,7 @@ export function LookupGameModal({
               data-testid="wishlist-lookup-confirm"
               onClick={() => void runLookup(selected)}
             >
-              纭鍏ュ簱
+              确认导入
             </button>
           )}
         </div>

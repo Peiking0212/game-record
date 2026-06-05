@@ -55,9 +55,9 @@ function TagBadges({
               type="button"
               className="ml-1 text-xs"
               onClick={() => onRemove(tag)}
-              aria-label={`鍒犻櫎鏍囩 ${tag}`}
+              aria-label={`删除标签 ${tag}`}
             >
-              脳
+              ×
             </button>
           )}
         </span>
@@ -68,8 +68,8 @@ function TagBadges({
 
 function PlayStyleBars({ playStyle }: { playStyle: PlayStyle }) {
   const rows: { key: keyof PlayStyle; label: string }[] = [
-    { key: "singlePlayer", label: "鍗曚汉娓告垙" },
-    { key: "multiPlayer", label: "澶氫汉娓告垙" },
+    { key: "singlePlayer", label: "单机游戏" },
+    { key: "multiPlayer", label: "多人联机" },
     { key: "pve", label: "PVE" },
     { key: "pvp", label: "PVP" },
   ];
@@ -97,8 +97,8 @@ function FavoriteGamesList({ games }: { games: GameRecord[] }) {
   if (games.length === 0) {
     return (
       <div className="text-center py-4 text-gray-500">
-        <p>杩樻病鏈夐€夋嫨鏈€鍠滄鐨勬父鎴?/p>
-        <p className="text-sm">鐐瑰嚮銆岀紪杈戝亸濂姐€嶆寜閽坊鍔?/p>
+        <p>尚未选择喜欢的游戏</p>
+        <p className="text-sm">点击「编辑偏好」按钮添加</p>
       </div>
     );
   }
@@ -118,7 +118,7 @@ function FavoriteGamesList({ games }: { games: GameRecord[] }) {
               {game.name}
             </h4>
             <p className="text-sm text-gray-600">
-              {Number(game.playtime) || 0} 灏忔椂
+              {Number(game.playtime) || 0} 小时
             </p>
           </div>
           <Star className="w-5 h-5 text-yellow-500 fill-yellow-500 shrink-0" />
@@ -146,14 +146,14 @@ function PlayStyleModal({
   }, [open, initial]);
 
   const sliders: { key: keyof PlayStyle; label: string }[] = [
-    { key: "singlePlayer", label: "鍗曚汉娓告垙" },
-    { key: "multiPlayer", label: "澶氫汉娓告垙" },
+    { key: "singlePlayer", label: "单机游戏" },
+    { key: "multiPlayer", label: "多人联机" },
     { key: "pve", label: "PVE" },
     { key: "pvp", label: "PVP" },
   ];
 
   return (
-    <Modal open={open} onClose={onClose} title="缂栬緫娓告垙椋庢牸">
+    <Modal open={open} onClose={onClose} title="编辑游戏偏好">
       <div className="space-y-4">
         {sliders.map(({ key, label }) => (
           <div key={key}>
@@ -183,7 +183,7 @@ function PlayStyleModal({
           className="btn-primary w-full mt-4"
           onClick={() => onSave(style)}
         >
-          淇濆瓨
+          保存
         </button>
       </div>
     </Modal>
@@ -220,10 +220,10 @@ function FavoriteGamesModal({
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="缂栬緫鏈€鍠滄鐨勬父鎴?>
+    <Modal open={open} onClose={onClose} title="编辑喜爱游戏">
       <div className="space-y-4 max-h-80 overflow-y-auto">
         {allGames.length === 0 ? (
-          <p className="text-gray-500 text-center">杩樻病鏈夋坊鍔犱换浣曟父鎴?/p>
+          <p className="text-gray-500 text-center">暂无添加任何游戏</p>
         ) : (
           allGames.map((game) => (
             <label
@@ -262,7 +262,7 @@ function FavoriteGamesModal({
             onSave(ids);
           }}
         >
-          淇濆瓨
+          保存
         </button>
       </div>
     </Modal>
@@ -296,7 +296,7 @@ export function ProfileClient() {
     (next: UserProfile, message?: string) => {
       if (!saveProfile(next)) {
         showToast(
-          "淇濆瓨澶辫触锛氬ご鍍忔垨鏁版嵁杩囧ぇ锛岃鎹竴寮犺緝灏忕殑鍥剧墖",
+          "保存失败：头像或数据过大，请更换一张偏小的图片",
           "error",
         );
         return false;
@@ -305,7 +305,7 @@ export function ProfileClient() {
       setFormName(next.name);
       setFormTitle(next.title);
       setFormBio(next.bio);
-      showToast(message || "涓汉淇℃伅宸叉洿鏂?, "success");
+      showToast(message || "个人信息已更新", "success");
       return true;
     },
     [showToast],
@@ -340,7 +340,7 @@ export function ProfileClient() {
 
   if (!profile || !stats) {
     return (
-      <p className="text-center py-16 text-gray-500">鍔犺浇涓€?/p>
+      <p className="text-center py-16 text-gray-500">加载中…</p>
     );
   }
 
@@ -351,7 +351,7 @@ export function ProfileClient() {
       const dataUrl = reader.result as string;
       const next = { ...profile, avatar: dataUrl };
       setProfile(next);
-      persist(next, "澶村儚宸叉洿鏂?);
+      persist(next, "头像已更新");
     };
     reader.readAsDataURL(file);
   };
@@ -364,7 +364,7 @@ export function ProfileClient() {
       title: formTitle.trim() || profile.title,
       bio: formBio.trim() || profile.bio,
     };
-    persist(next, "涓汉淇℃伅宸蹭繚瀛?);
+    persist(next, "个人信息已保存");
   };
 
   const addTag = () => {
@@ -372,7 +372,7 @@ export function ProfileClient() {
     if (!tag || profile.tags.includes(tag)) return;
     const next = { ...profile, tags: [...profile.tags, tag] };
     setNewTag("");
-    persist(next, "鏍囩宸叉坊鍔?);
+    persist(next, "标签添加成功");
   };
 
   const removeTag = (tag: string) => {
@@ -380,7 +380,7 @@ export function ProfileClient() {
       ...profile,
       tags: profile.tags.filter((t) => t !== tag),
     };
-    persist(next, "鏍囩宸插垹闄?);
+    persist(next, "标签已删除");
   };
 
   const playStyle = profile.playStyle || DEFAULT_PLAY_STYLE;
@@ -396,7 +396,7 @@ export function ProfileClient() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={avatarSrc}
-                  alt="澶村儚"
+                  alt="头像"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = AVATAR_FALLBACK;
                   }}
@@ -412,7 +412,7 @@ export function ProfileClient() {
                     }}
                   />
                   <Camera className="w-4 h-4 inline mr-1" />
-                  鏇存崲澶村儚
+                  更换头像
                 </label>
               </div>
               <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
@@ -431,7 +431,7 @@ export function ProfileClient() {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
-            娓告垙鏁版嵁
+            游戏数据
           </h2>
           <div className="max-w-4xl mx-auto">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -440,28 +440,28 @@ export function ProfileClient() {
                   <Gamepad2 className="w-8 h-8" />
                 </div>
                 <div className="stat-number">{stats.totalGames}</div>
-                <div className="stat-label">娓告垙鎬绘暟</div>
+                <div className="stat-label">游戏总数</div>
               </div>
               <div className="stat-card">
                 <div className="stat-icon bg-cyan-50 text-cyan-500">
                   <Clock className="w-8 h-8" />
                 </div>
                 <div className="stat-number">{stats.totalPlaytime}</div>
-                <div className="stat-label">鎬绘父鎴忔椂闀?/div>
+                <div className="stat-label">总游玩时长</div>
               </div>
               <div className="stat-card">
                 <div className="stat-icon bg-purple-100 text-purple-500">
                   <Trophy className="w-8 h-8" />
                 </div>
                 <div className="stat-number">{stats.totalAchievements}</div>
-                <div className="stat-label">鑾峰緱鎴愬氨</div>
+                <div className="stat-label">解锁成就</div>
               </div>
               <div className="stat-card">
                 <div className="stat-icon bg-green-100 text-green-500">
                   <Calendar className="w-8 h-8" />
                 </div>
                 <div className="stat-number">{stats.memberDays}</div>
-                <div className="stat-label">鍔犲叆澶╂暟</div>
+                <div className="stat-label">入驻天数</div>
               </div>
             </div>
           </div>
@@ -471,14 +471,14 @@ export function ProfileClient() {
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
-            娓告垙鍋忓ソ
+            游戏偏好
           </h2>
           <div className="max-w-4xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="bg-white rounded-xl shadow-lg p-8">
                 <h3 className="text-xl font-semibold mb-6 text-gray-800 flex items-center">
                   <Heart className="w-6 h-6 text-red-500 mr-2" />
-                  鏈€鍠滄鐨勬父鎴?
+                  最爱游戏
                 </h3>
                 <FavoriteGamesList games={favoriteGames} />
                 <button
@@ -487,14 +487,14 @@ export function ProfileClient() {
                   onClick={() => setFavoritesOpen(true)}
                 >
                   <Edit className="w-5 h-5 inline mr-2" />
-                  缂栬緫鍋忓ソ
+                  编辑偏好
                 </button>
               </div>
 
               <div className="bg-white rounded-xl shadow-lg p-8">
                 <h3 className="text-xl font-semibold mb-6 text-gray-800 flex items-center">
                   <Settings className="w-6 h-6 text-blue-500 mr-2" />
-                  娓告垙椋庢牸
+                  游玩风格
                 </h3>
                 <PlayStyleBars playStyle={playStyle} />
                 <button
@@ -503,7 +503,7 @@ export function ProfileClient() {
                   onClick={() => setPlayStyleOpen(true)}
                 >
                   <Edit className="w-5 h-5 inline mr-2" />
-                  缂栬緫椋庢牸
+                  编辑风格
                 </button>
               </div>
             </div>
@@ -514,7 +514,7 @@ export function ProfileClient() {
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
-            涓汉璁剧疆
+            个人资料设置
           </h2>
           <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-8">
             <form onSubmit={handleFormSubmit} className="space-y-6">
@@ -523,7 +523,7 @@ export function ProfileClient() {
                   htmlFor="profile-name-input"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  鐢ㄦ埛鍚?
+                  用户昵称
                 </label>
                 <input
                   id="profile-name-input"
@@ -538,7 +538,7 @@ export function ProfileClient() {
                   htmlFor="profile-title-input"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  涓汉澶磋
+                  个人头衔
                 </label>
                 <input
                   id="profile-title-input"
@@ -553,7 +553,7 @@ export function ProfileClient() {
                   htmlFor="profile-bio-input"
                   className="block text-sm font-medium text-gray-700 mb-2"
                 >
-                  涓汉绠€浠?
+                  个人简介
                 </label>
                 <textarea
                   id="profile-bio-input"
@@ -565,7 +565,7 @@ export function ProfileClient() {
               </div>
               <div>
                 <span className="block text-sm font-medium text-gray-700 mb-2">
-                  娓告垙鏍囩
+                  游戏标签
                 </span>
                 <div className="flex flex-wrap gap-2 mb-2">
                   <TagBadges
@@ -578,7 +578,7 @@ export function ProfileClient() {
                   <input
                     type="text"
                     className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="娣诲姞鏂版爣绛?
+                    placeholder="添加新标签"
                     value={newTag}
                     onChange={(e) => setNewTag(e.target.value)}
                     onKeyDown={(e) => {
@@ -593,13 +593,13 @@ export function ProfileClient() {
                     className="btn-secondary"
                     onClick={addTag}
                   >
-                    娣诲姞
+                    添加
                   </button>
                 </div>
               </div>
               <button type="submit" className="btn-primary w-full">
                 <Save className="w-5 h-5 inline mr-2" />
-                淇濆瓨璁剧疆
+                保存设置
               </button>
             </form>
           </div>
@@ -613,7 +613,7 @@ export function ProfileClient() {
         onClose={() => setFavoritesOpen(false)}
         onSave={(ids) => {
           const next = { ...profile, favoriteGames: ids };
-          persist(next, "鏈€鍠滄鐨勬父鎴忓凡鏇存柊");
+          persist(next, "喜爱游戏列表已更新");
           setFavoritesOpen(false);
         }}
       />
@@ -624,7 +624,7 @@ export function ProfileClient() {
         onClose={() => setPlayStyleOpen(false)}
         onSave={(style) => {
           const next = { ...profile, playStyle: style };
-          persist(next, "娓告垙椋庢牸宸叉洿鏂?);
+          persist(next, "游玩风格已更新");
           setPlayStyleOpen(false);
         }}
       />

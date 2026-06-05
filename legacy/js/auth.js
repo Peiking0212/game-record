@@ -1,5 +1,5 @@
-/**
- * Supabase Auth锛氱櫥褰曘€佹敞鍐屻€佺櫥鍑恒€侀〉闈繚鎶? */
+﻿/**
+ * Supabase Auth：登录、注册、登出、页面保�? */
 (function () {
     'use strict';
 
@@ -54,14 +54,14 @@
     }
 
     async function signUp(email, password) {
-        if (!window.SB) throw new Error('Supabase 鏈厤缃?);
+        if (!window.SB) throw new Error('Supabase 未配�?);
         var result = await window.SB.auth.signUp({ email: email, password: password });
         if (result.error) throw result.error;
         return result.data;
     }
 
     async function signIn(email, password) {
-        if (!window.SB) throw new Error('Supabase 鏈厤缃?);
+        if (!window.SB) throw new Error('Supabase 未配�?);
         var prevUser = localStorage.getItem(LOCAL_USER_KEY);
         var result = await window.SB.auth.signInWithPassword({ email: email, password: password });
         if (result.error) throw result.error;
@@ -118,10 +118,10 @@
         btn.type = 'button';
         btn.id = 'btn-logout';
         btn.className = 'utils-toolbar-btn auth-logout-btn';
-        btn.title = '閫€鍑虹櫥褰?;
+        btn.title = '退出登�?;
         btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>';
         btn.addEventListener('click', function () {
-            if (confirm('纭畾閫€鍑虹櫥褰曪紵鏈湴娓告垙鏁版嵁灏嗕粠鏈満娓呴櫎銆?)) {
+            if (confirm('确定退出登录？本地游戏数据将从本机清除�?)) {
                 signOut();
             }
         });
@@ -136,7 +136,7 @@
             var mBtn = btn.cloneNode(true);
             mBtn.id = 'btn-logout-m';
             mBtn.addEventListener('click', function () {
-                if (confirm('纭畾閫€鍑虹櫥褰曪紵鏈湴娓告垙鏁版嵁灏嗕粠鏈満娓呴櫎銆?)) {
+                if (confirm('确定退出登录？本地游戏数据将从本机清除�?)) {
                     signOut();
                 }
             });

@@ -48,9 +48,9 @@ export function Modal({
           type="button"
           className="modal-close"
           onClick={onClose}
-          aria-label="鍏抽棴"
+          aria-label="关闭"
         >
-          脳
+          ×
         </button>
         {title && (
           <h3 className="text-xl font-semibold mb-6 text-gray-800">{title}</h3>
