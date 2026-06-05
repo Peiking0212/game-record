@@ -16,6 +16,15 @@ const nextConfig: NextConfig = {
         trailingSlash: true,
       }
     : {}),
+  async redirects() {
+    return [
+      {
+        source: '/legacy/:path*',
+        destination: '/',
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
