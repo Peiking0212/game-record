@@ -2,12 +2,12 @@ import { Suspense } from "react";
 import { AuthForm } from "@/components/auth/auth-form";
 
 export const metadata = {
-  title: "鐧诲綍",
+  title: "登录",
 };
 
 export default function AuthPage() {
   return (
-    <Suspense fallback={<p className="text-center py-16">鍔犺浇涓€?/p>}>
+    <Suspense fallback={<p className="text-center py-16">加载中...</p>}>
       <AuthForm />
     </Suspense>
   );
