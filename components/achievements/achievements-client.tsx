@@ -1,4 +1,4 @@
-ï»¿"use client";
+"use client";
 
 import {
   Calendar,
@@ -82,7 +82,7 @@ function AchievementForm({
   return (
     <form className="space-y-6" onSubmit={onSubmit}>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">³É¾ÍÃû³Æ</label>
         <input
           type="text"
           required
@@ -93,7 +93,7 @@ function AchievementForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">³É¾ÍÃèÊö</label>
         <textarea
           required
           rows={3}
@@ -104,14 +104,14 @@ function AchievementForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï·</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">ËùÊôÓÎÏ·</label>
         <select
           required
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           value={values.gameId}
           onChange={(e) => setValues((v) => ({ ...v, gameId: e.target.value }))}
         >
-          <option value="">Ñ¡ï¿½ï¿½ï¿½ï¿½Ï·</option>
+          <option value="">Ñ¡ÔñÓÎÏ·</option>
           {games.map((g) => (
             <option key={String(g.id)} value={String(g.id)}>
               {g.name}
@@ -121,7 +121,7 @@ function AchievementForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">»ñµÃÈÕÆÚ</label>
         <input
           required
           type="date"
@@ -132,7 +132,7 @@ function AchievementForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">ï¿½É¾ï¿½Í¼ï¿½ï¿½</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">³É¾ÍÍ¼±ê</label>
         <select
           required
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -149,7 +149,7 @@ function AchievementForm({
 
       {showScreenshotField && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">ï¿½É¾Í½ï¿½Í¼</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">³É¾Í½ØÍ¼</label>
           <label className="upload-area block cursor-pointer">
             <input
               type="file"
@@ -166,13 +166,13 @@ function AchievementForm({
               }}
             />
             <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 mb-2 text-center">ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ï¿½ï¿½Í¼ï¿½ï¿½JPG/PNGï¿½ï¿½</p>
+            <p className="text-gray-600 mb-2 text-center">µã»÷ÉÏ´«½ØÍ¼£¨JPG/PNG£©</p>
           </label>
           {values.screenshot ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={values.screenshot}
-              alt="ï¿½ï¿½Í¼Ô¤ï¿½ï¿½"
+              alt="½ØÍ¼Ô¤ÀÀ"
               className="w-full mt-3 rounded-lg border border-gray-100"
             />
           ) : null}
@@ -221,7 +221,7 @@ export function AchievementsClient() {
 
   const persist = (next: AchievementItem[], message: string) => {
     if (!saveAchievements(next)) {
-      showToast("ï¿½ï¿½ï¿½ï¿½Ê§ï¿½Ü£ï¿½ï¿½ï¿½ï¿½Ôºï¿½ï¿½ï¿½ï¿½ï¿½", "error");
+      showToast("±£´æÊ§°Ü£¬ÇëÉÔºóÖØÊÔ", "error");
       return false;
     }
     setItems(next);
@@ -264,7 +264,7 @@ export function AchievementsClient() {
     e.preventDefault();
     const gameFields = resolveGameFieldsFromSelect(addForm.gameId);
     if (!gameFields?.gameId) {
-      showToast("ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï·", "error");
+      showToast("ÇëÑ¡ÔñËùÊôÓÎÏ·", "error");
       return;
     }
     const nextItem: AchievementItem = {
@@ -277,7 +277,7 @@ export function AchievementsClient() {
       icon: addForm.icon,
       screenshot: addForm.screenshot,
     };
-    if (!persist([...items, nextItem], "ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")) return;
+    if (!persist([...items, nextItem], "³É¾ÍÒÑÌí¼Ó")) return;
     setAddOpen(false);
     setAddForm({
       title: "",
@@ -305,7 +305,7 @@ export function AchievementsClient() {
     if (!editItem) return;
     const gameFields = resolveGameFieldsFromSelect(editForm.gameId);
     if (!gameFields?.gameId) {
-      showToast("ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï·", "error");
+      showToast("ÇëÑ¡ÔñËùÊôÓÎÏ·", "error");
       return;
     }
     const next = items.map((it) =>
@@ -321,14 +321,14 @@ export function AchievementsClient() {
             icon: editForm.icon,
           },
     );
-    if (!persist(next, "ï¿½É¾ï¿½ï¿½ï¿½Ï¢ï¿½Ñ¸ï¿½ï¿½ï¿½")) return;
+    if (!persist(next, "³É¾ÍÐÅÏ¢ÒÑ¸üÐÂ")) return;
     setEditItem(null);
   };
 
   const onDelete = (id: number | string) => {
-    if (typeof window !== 'undefined' && !window.confirm("È·ï¿½ï¿½ÒªÉ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½ð£¿´Ë²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É³ï¿½ï¿½ï¿½ï¿½ï¿½")) return;
+    if (typeof window !== 'undefined' && !window.confirm("È·¶¨ÒªÉ¾³ýÕâ¸ö³É¾ÍÂð£¿´Ë²Ù×÷²»¿É³·Ïú¡£")) return;
     const next = items.filter((it) => String(it.id) !== String(id));
-    persist(next, "ï¿½É¾ï¿½ï¿½ï¿½É¾ï¿½ï¿½");
+    persist(next, "³É¾ÍÒÑÉ¾³ý");
     if (detailItem && String(detailItem.id) === String(id)) setDetailItem(null);
   };
 
@@ -337,14 +337,14 @@ export function AchievementsClient() {
       <section className="bg-gradient-to-br from-blue-50 to-cyan-100 py-16">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
-            ï¿½É¾ï¿½ÏµÍ³
+            ³É¾ÍÏµÍ³
           </h1>
           <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
-            ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½É¾Í£ï¿½Õ¹Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½Ï·Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            ¼ÇÂ¼ÄãµÄÓÎÏ·³É¾Í£¬Õ¹Ê¾ÄãµÄÓÎÏ·ÊµÁ¦ºÍÀú³Ì
           </p>
           <button className="btn-primary" onClick={() => setAddOpen(true)}>
             <Plus className="w-5 h-5 inline mr-2" />
-            ï¿½ï¿½ï¿½ï¿½Â³É¾ï¿½
+            Ìí¼ÓÐÂ³É¾Í
           </button>
         </div>
       </section>
@@ -356,19 +356,19 @@ export function AchievementsClient() {
               icon={<Trophy className="w-8 h-8" />}
               iconClass="bg-yellow-100 text-yellow-500"
               value={String(stats.total)}
-              label="ï¿½Ü³É¾ï¿½ï¿½ï¿½"
+              label="×Ü³É¾ÍÊý"
             />
             <StatCard
               icon={<Calendar className="w-8 h-8" />}
               iconClass="bg-blue-100 text-blue-500"
               value={String(stats.recent)}
-              label="ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½"
+              label="×î½ü»ñµÃ"
             />
             <StatCard
               icon={<Trophy className="w-8 h-8" />}
               iconClass="bg-green-100 text-green-500"
               value={String(stats.gameCount)}
-              label="ï¿½ï¿½Ã³É¾Íµï¿½ï¿½ï¿½Ï·"
+              label="»ñµÃ³É¾ÍµÄÓÎÏ·"
             />
           </div>
         </div>
@@ -378,12 +378,12 @@ export function AchievementsClient() {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto mb-12 grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">ï¿½ï¿½ï¿½ï¿½ï¿½É¾ï¿½</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">ËÑË÷³É¾Í</label>
               <div className="relative">
                 <input
                   type="text"
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="ï¿½ï¿½ï¿½ï¿½É¾ï¿½ï¿½ï¿½ï¿½Æ»ï¿½ï¿½ï¿½Ï·..."
+                  placeholder="ÊäÈë³É¾ÍÃû³Æ»òÓÎÏ·..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
@@ -391,13 +391,13 @@ export function AchievementsClient() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">ï¿½ï¿½ï¿½ï¿½Ï·É¸Ñ¡</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">°´ÓÎÏ·É¸Ñ¡</label>
               <select
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 value={gameFilter}
                 onChange={(e) => setGameFilter(e.target.value)}
               >
-                <option value="all">È«ï¿½ï¿½ï¿½ï¿½Ï·</option>
+                <option value="all">È«²¿ÓÎÏ·</option>
                 {games.map((g) => (
                   <option key={String(g.id)} value={String(g.id)}>
                     {g.name}
@@ -411,11 +411,11 @@ export function AchievementsClient() {
             {filtered.length === 0 ? (
               <div className="text-center py-16">
                 <Trophy className="w-20 h-20 text-gray-300 mx-auto mb-6" />
-                <h3 className="text-2xl font-bold text-gray-700 mb-4">ï¿½ï¿½Ã»ï¿½Ð³É¾ï¿½</h3>
-                <p className="text-gray-600 mb-8">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â³É¾Í¡ï¿½ï¿½ï¿½Å¥ï¿½ï¿½Ê¼ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½É¾ï¿½</p>
+                <h3 className="text-2xl font-bold text-gray-700 mb-4">»¹Ã»ÓÐ³É¾Í</h3>
+                <p className="text-gray-600 mb-8">µã»÷¡¸Ìí¼ÓÐÂ³É¾Í¡¹°´Å¥¿ªÊ¼¼ÇÂ¼ÄãµÄÓÎÏ·³É¾Í</p>
                 <button className="btn-primary" onClick={() => setAddOpen(true)}>
                   <Plus className="w-5 h-5 inline mr-2" />
-                  ï¿½ï¿½ï¿½ï¿½Â³É¾ï¿½
+                  Ìí¼ÓÐÂ³É¾Í
                 </button>
               </div>
             ) : (
@@ -458,7 +458,7 @@ export function AchievementsClient() {
                         </div>
                       </div>
                       <p className="text-gray-600 mb-3 line-clamp-2">{achievement.description}</p>
-                      <div className="text-sm text-gray-500">ï¿½ï¿½ï¿½Ê±ï¿½ï¿½: {formatDateISO(achievement.date)}</div>
+                      <div className="text-sm text-gray-500">»ñµÃÊ±¼ä: {formatDateISO(achievement.date)}</div>
                       {achievement.screenshot ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -478,7 +478,7 @@ export function AchievementsClient() {
 
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">ï¿½É¾ï¿½Ê±ï¿½ï¿½ï¿½ï¿½</h2>
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">³É¾ÍÊ±¼äÏß</h2>
           <div className="max-w-3xl mx-auto">
             <div className="relative pl-8 border-l-2 border-blue-200">
               {timeline.map((achievement) => (
@@ -504,31 +504,31 @@ export function AchievementsClient() {
         </div>
       </section>
 
-      <Modal open={addOpen} onClose={() => setAddOpen(false)} title="ï¿½ï¿½ï¿½ï¿½Â³É¾ï¿½">
+      <Modal open={addOpen} onClose={() => setAddOpen(false)} title="Ìí¼ÓÐÂ³É¾Í">
         <AchievementForm
           values={addForm}
           setValues={setAddForm}
           games={games}
           onSubmit={onAddSubmit}
-          submitText="ï¿½ï¿½Ó³É¾ï¿½"
+          submitText="Ìí¼Ó³É¾Í"
           showScreenshotField
         />
       </Modal>
 
-      <Modal open={!!editItem} onClose={() => setEditItem(null)} title="ï¿½à¼­ï¿½É¾ï¿½">
+      <Modal open={!!editItem} onClose={() => setEditItem(null)} title="±à¼­³É¾Í">
         <AchievementForm
           values={editForm}
           setValues={setEditForm}
           games={games}
           onSubmit={onEditSubmit}
-          submitText="ï¿½ï¿½ï¿½ï¿½ï¿½Þ¸ï¿½"
+          submitText="±£´æÐÞ¸Ä"
         />
       </Modal>
 
       <Modal
         open={!!detailItem}
         onClose={() => setDetailItem(null)}
-        title={detailItem?.title || "ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½"}
+        title={detailItem?.title || "³É¾ÍÏêÇé"}
         maxWidth="xl"
       >
         {detailItem ? (
@@ -540,18 +540,18 @@ export function AchievementsClient() {
               <p className="text-lg text-gray-600">{detailItem.gameName}</p>
             </div>
             <div>
-              <h4 className="font-semibold text-gray-800 mb-2">ï¿½É¾ï¿½ï¿½ï¿½ï¿½ï¿½</h4>
+              <h4 className="font-semibold text-gray-800 mb-2">³É¾ÍÃèÊö</h4>
               <p className="text-gray-600">{detailItem.description}</p>
             </div>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:</span>
+                <span className="text-gray-600">»ñµÃÈÕÆÚ:</span>
                 <span className="font-medium">{formatDateISO(detailItem.date)}</span>
               </div>
             </div>
             {detailItem.screenshot ? (
               <div>
-                <h4 className="font-semibold text-gray-800 mb-2">ï¿½É¾Í½ï¿½Í¼</h4>
+                <h4 className="font-semibold text-gray-800 mb-2">³É¾Í½ØÍ¼</h4>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={detailItem.screenshot} alt={detailItem.title} className="w-full rounded-lg" />
               </div>
@@ -565,14 +565,14 @@ export function AchievementsClient() {
                 }}
               >
                 <Edit className="w-5 h-5 inline mr-2" />
-                ï¿½à¼­ï¿½É¾ï¿½
+                ±à¼­³É¾Í
               </button>
               <button
                 className="btn-danger"
                 onClick={() => onDelete(detailItem.id)}
               >
                 <Trash2 className="w-5 h-5 inline mr-2" />
-                É¾ï¿½ï¿½ï¿½É¾ï¿½
+                É¾³ý³É¾Í
               </button>
             </div>
           </div>

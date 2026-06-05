@@ -1,4 +1,4 @@
-ï»¿"use client";
+"use client";
 
 import {
   Calendar,
@@ -93,8 +93,8 @@ function buildPurchaseLinks(): LinkOption[] {
     .sort((a, b) => (a.name || "").localeCompare(b.name || "", "zh-CN"));
   return wishlist.map((w) => ({
     value: String(w.id),
-    label: w.name || "Î´ï¿½ï¿½ï¿½ï¿½",
-    game: w.name || "Î´ï¿½ï¿½ï¿½ï¿½",
+    label: w.name || "Î´ÃüÃû",
+    game: w.name || "Î´ÃüÃû",
     wishlistId: w.id,
   }));
 }
@@ -104,11 +104,11 @@ function buildRechargeLinks(): LinkOption[] {
     .slice()
     .sort((a, b) => (a.name || "").localeCompare(b.name || "", "zh-CN"));
   return [
-    { value: RECHARGE_OTHER, label: "ï¿½ï¿½ï¿½ï¿½ / ï¿½Ë»ï¿½ï¿½ï¿½Öµ", game: DEFAULT_GAME_LABEL },
+    { value: RECHARGE_OTHER, label: "ÆäËû / ÕË»§³äÖµ", game: DEFAULT_GAME_LABEL },
     ...games.map((g) => ({
       value: String(g.id),
-      label: g.name || "Î´ï¿½ï¿½ï¿½ï¿½",
-      game: g.name || "Î´ï¿½ï¿½ï¿½ï¿½",
+      label: g.name || "Î´ÃüÃû",
+      game: g.name || "Î´ÃüÃû",
       gameId: g.id,
     })),
   ];
@@ -180,7 +180,7 @@ export function SpendingClient() {
 
   const persist = (next: SpendingItem[], okMessage: string) => {
     if (!saveSpending(next)) {
-      showToast("ï¿½ï¿½ï¿½ï¿½Ê§ï¿½Ü£ï¿½ï¿½ï¿½ï¿½Ôºï¿½ï¿½ï¿½ï¿½ï¿½", "error");
+      showToast("±£´æÊ§°Ü£¬ÇëÉÔºóÖØÊÔ", "error");
       return false;
     }
     setItems(next);
@@ -195,7 +195,7 @@ export function SpendingClient() {
     if (form.recordType === "purchase") {
       const link = links.find((x) => x.value === form.linkValue);
       if (!link?.wishlistId) {
-        showToast("ï¿½ï¿½Ñ¡ï¿½ï¿½Ô¸ï¿½ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½Ï·", "error");
+        showToast("ÇëÑ¡ÔñÔ¸Íûµ¥ÖÐµÄÓÎÏ·", "error");
         return null;
       }
       return {
@@ -216,7 +216,7 @@ export function SpendingClient() {
     }
     const link = links.find((x) => x.value === form.linkValue);
     if (!link) {
-      showToast("ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½Öµï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½Ï·", "error");
+      showToast("ÇëÑ¡Ôñ³äÖµ¶ÔÓ¦µÄÓÎÏ·", "error");
       return null;
     }
     return {
@@ -230,11 +230,11 @@ export function SpendingClient() {
   const validateMoneyAndDate = (form: FormState): boolean => {
     const amount = Number(form.amount);
     if (Number.isNaN(amount) || amount < 0) {
-      showToast("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð§ï¿½ï¿½ï¿½", "error");
+      showToast("ÇëÊäÈëÓÐÐ§½ð¶î", "error");
       return false;
     }
     if (!form.date) {
-      showToast("ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½", "error");
+      showToast("ÇëÑ¡ÔñÏû·ÑÈÕÆÚ", "error");
       return false;
     }
     return true;
@@ -254,7 +254,7 @@ export function SpendingClient() {
       note: addForm.note.trim(),
       ...recordFields,
     };
-    if (!persist([...items, next], "ï¿½ï¿½ï¿½Ñ¼ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½")) return;
+    if (!persist([...items, next], "Ïû·Ñ¼ÇÂ¼ÒÑÌí¼Ó")) return;
     setAddForm({
       ...defaultForm(),
       linkValue: (addLinks[0]?.value ?? ""),
@@ -303,14 +303,14 @@ export function SpendingClient() {
             ...recordFields,
           },
     );
-    if (!persist(next, "ï¿½ï¿½ï¿½Ñ¼ï¿½Â¼ï¿½Ñ¸ï¿½ï¿½ï¿½")) return;
+    if (!persist(next, "Ïû·Ñ¼ÇÂ¼ÒÑ¸üÐÂ")) return;
     setEditing(null);
   };
 
   const onDelete = (id: string) => {
-    if (typeof window !== 'undefined' && !window.confirm("È·ï¿½ï¿½ÒªÉ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¼ï¿½Â¼ï¿½ï¿½")) return;
+    if (typeof window !== 'undefined' && !window.confirm("È·¶¨ÒªÉ¾³ýÕâÌõÏû·Ñ¼ÇÂ¼Âð£¿")) return;
     const next = items.filter((x) => String(x.id) !== String(id));
-    persist(next, "ï¿½ï¿½ï¿½Ñ¼ï¿½Â¼ï¿½ï¿½É¾ï¿½ï¿½");
+    persist(next, "Ïû·Ñ¼ÇÂ¼ÒÑÉ¾³ý");
   };
 
   return (
@@ -318,10 +318,10 @@ export function SpendingClient() {
       <section className="bg-gradient-to-br from-[#52B6FF15] to-[#94D8FF15] py-14">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
-            ï¿½ï¿½ï¿½Ñ¼ï¿½Â¼
+            Ïû·Ñ¼ÇÂ¼
           </h1>
           <p className="text-lg text-gray-600 mb-6 max-w-xl mx-auto">
-            ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½ï¿½Ñ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            ¼ÇÂ¼ÄãµÄÓÎÏ·»¨·Ñ£¬ÀíÐÔÏû·Ñ
           </p>
           <div className="inline-flex items-center gap-3 bg-white rounded-full px-5 py-2 shadow-md">
             <Calendar className="w-5 h-5 text-[#52B6FF]" />
@@ -330,10 +330,10 @@ export function SpendingClient() {
               value={year}
               onChange={(e) => setYear(e.target.value)}
             >
-              <option value="all">È«ï¿½ï¿½ï¿½ï¿½ï¿½</option>
+              <option value="all">È«²¿Äê·Ý</option>
               {years.map((y) => (
                 <option key={y} value={y}>
-                  {y} ï¿½ï¿½
+                  {y} Äê
                 </option>
               ))}
             </select>
@@ -346,7 +346,7 @@ export function SpendingClient() {
           <div className="chart-card">
             <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2 mb-6">
               <PlusCircle className="w-6 h-6 text-[#52B6FF]" />
-              ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¼ï¿½Â¼
+              Ìí¼ÓÏû·Ñ¼ÇÂ¼
             </h2>
             <form className="space-y-5" onSubmit={onAddSubmit}>
               <SpendingFormFields
@@ -357,14 +357,14 @@ export function SpendingClient() {
               <div className="flex gap-3 pt-2">
                 <button type="submit" className="btn-primary">
                   <Save className="w-5 h-5 inline mr-2" />
-                  ï¿½ï¿½Ó¼ï¿½Â¼
+                  Ìí¼Ó¼ÇÂ¼
                 </button>
                 <button
                   type="button"
                   className="btn-secondary"
                   onClick={() => setAddForm({ ...defaultForm(), linkValue: addLinks[0]?.value ?? "" })}
                 >
-                  ï¿½ï¿½ï¿½ï¿½
+                  ÖØÖÃ
                 </button>
               </div>
             </form>
@@ -375,14 +375,14 @@ export function SpendingClient() {
       <section className="py-10 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
-            <StatCard title="ï¿½Ü»ï¿½ï¿½ï¿½" value={fmtMoney(stats.total)} />
+            <StatCard title="×Ü»¨·Ñ" value={fmtMoney(stats.total)} />
             <StatCard
-              title="ï¿½ï¿½ï¿½Ñ±ï¿½ï¿½ï¿½"
+              title="Ïû·Ñ±ÊÊý"
               value={String(stats.count)}
-              sub={stats.count ? `${stats.purchaseCount} ï¿½Ê¹ï¿½ï¿½ï¿½ ï¿½ï¿½ ${stats.rechargeCount} ï¿½Ê³ï¿½Öµ` : ""}
+              sub={stats.count ? `${stats.purchaseCount} ±Ê¹ºÂò ¡¤ ${stats.rechargeCount} ±Ê³äÖµ` : ""}
             />
-            <StatCard title="Æ½ï¿½ï¿½Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½" value={fmtMoney(stats.avg)} />
-            <StatCard title="ï¿½Â¾ï¿½ï¿½ï¿½ï¿½ï¿½" value={fmtMoney(stats.monthly)} />
+            <StatCard title="Æ½¾ùÃ¿±ÊÏû·Ñ" value={fmtMoney(stats.avg)} />
+            <StatCard title="ÔÂ¾ùÏû·Ñ" value={fmtMoney(stats.monthly)} />
           </div>
         </div>
       </section>
@@ -392,28 +392,28 @@ export function SpendingClient() {
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
               <List className="w-6 h-6 text-[#52B6FF]" />
-              ï¿½ï¿½ï¿½Ñ¼ï¿½Â¼ï¿½Ð±ï¿½
+              Ïû·Ñ¼ÇÂ¼ÁÐ±í
             </h2>
           </div>
 
           {filtered.length === 0 ? (
             <div className="text-center py-16">
               <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-gray-700 mb-2">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¼ï¿½Â¼</h3>
-              <p className="text-gray-500">ï¿½ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¼ï¿½Â¼ï¿½ï¿½</p>
+              <h3 className="text-xl font-bold text-gray-700 mb-2">ÔÝÎÞÏû·Ñ¼ÇÂ¼</h3>
+              <p className="text-gray-500">ÔÚÉÏ·½±íµ¥Ìí¼ÓÄãµÄµÚÒ»ÌõÏû·Ñ¼ÇÂ¼°É</p>
             </div>
           ) : (
             <div className="spending-table-wrap overflow-x-auto">
               <table className="spending-table">
                 <thead>
                   <tr>
-                    <th>ï¿½ï¿½ï¿½ï¿½</th>
-                    <th>ï¿½ï¿½Ä¿</th>
-                    <th>ï¿½ï¿½ï¿½ (?)</th>
-                    <th>ï¿½ï¿½ï¿½ï¿½</th>
+                    <th>ÀàÐÍ</th>
+                    <th>ÏîÄ¿</th>
+                    <th>½ð¶î (?)</th>
+                    <th>ÈÕÆÚ</th>
                     <th>Æ½Ì¨</th>
-                    <th>ï¿½ï¿½×¢</th>
-                    <th>ï¿½ï¿½ï¿½ï¿½</th>
+                    <th>±¸×¢</th>
+                    <th>²Ù×÷</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -467,7 +467,7 @@ export function SpendingClient() {
                         <button
                           type="button"
                           className="spending-action-btn edit-btn"
-                          title="ï¿½à¼­"
+                          title="±à¼­"
                           onClick={() => startEdit(r)}
                         >
                           <Pencil className="w-4 h-4" />
@@ -475,7 +475,7 @@ export function SpendingClient() {
                         <button
                           type="button"
                           className="spending-action-btn delete-btn"
-                          title="É¾ï¿½ï¿½"
+                          title="É¾³ý"
                           onClick={() => onDelete(String(r.id))}
                         >
                           <Trash2 className="w-4 h-4" />
@@ -493,21 +493,21 @@ export function SpendingClient() {
       <Modal
         open={!!editing}
         onClose={() => setEditing(null)}
-        title="ï¿½à¼­ï¿½ï¿½ï¿½Ñ¼ï¿½Â¼"
+        title="±à¼­Ïû·Ñ¼ÇÂ¼"
       >
         <form className="space-y-5" onSubmit={onEditSubmit}>
           <SpendingFormFields form={editForm} setForm={setEditForm} links={editLinks} />
           <div className="flex gap-3 pt-2">
             <button type="submit" className="btn-primary flex-1">
               <Save className="w-5 h-5 inline mr-2" />
-              ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+              ±£´æ¸ü¸Ä
             </button>
             <button
               type="button"
               className="btn-secondary flex-1"
               onClick={() => setEditing(null)}
             >
-              È¡ï¿½ï¿½
+              È¡Ïû
             </button>
           </div>
         </form>
@@ -550,14 +550,14 @@ function SpendingFormFields({
 }) {
   const linkHelp =
     form.recordType === "purchase"
-      ? "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ï¿½Ô¸ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ô¸ï¿½ï¿½ï¿½ï¿½Ò³ï¿½æ¡£"
-      : "ï¿½Ë»ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½Öµï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½Ú¸ï¿½ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½";
+      ? "¹ºÂòÓÎÏ·£º´ÓÔ¸Íûµ¥Ñ¡ÔñÒª¹ºÂòµÄÓÎÏ·£¬¼ÇÂ¼»áÏÔÊ¾ÔÚÔ¸Íûµ¥Ò³Ãæ¡£"
+      : "ÕË»§³äÖµ£º´ÓÓÎÏ·¿âÑ¡Ôñ³äÖµ¶ÔÓ¦µÄÓÎÏ·£¬¼ÇÂ¼»áÏÔÊ¾ÔÚ¸ÃÓÎÏ·ÏêÇéÒ³¡£";
 
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Ïû·ÑÀàÐÍ</label>
           <select
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={form.recordType}
@@ -569,12 +569,12 @@ function SpendingFormFields({
               }))
             }
           >
-            <option value="purchase">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï·</option>
-            <option value="recharge">ï¿½Ë»ï¿½ï¿½ï¿½Öµ</option>
+            <option value="purchase">¹ºÂòÓÎÏ·</option>
+            <option value="recharge">ÕË»§³äÖµ</option>
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¿</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">¹ØÁªÏîÄ¿</label>
           <select
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={form.linkValue}
@@ -583,8 +583,8 @@ function SpendingFormFields({
             {links.length === 0 ? (
               <option value="">
                 {form.recordType === "purchase"
-                  ? "Ô¸ï¿½ï¿½ï¿½ï¿½Îªï¿½Õ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô¸ï¿½ï¿½ï¿½ï¿½Ò³ï¿½ï¿½ï¿½"
-                  : "ï¿½ï¿½Ï·ï¿½ï¿½Îªï¿½Õ£ï¿½Ä¬ï¿½Ï¼ï¿½Â¼Îªï¿½Ë»ï¿½ï¿½ï¿½Öµ"}
+                  ? "Ô¸Íûµ¥Îª¿Õ£¬ÇëÏÈÔÚÔ¸Íûµ¥Ò³Ìí¼Ó"
+                  : "ÓÎÏ·¿âÎª¿Õ£¬Ä¬ÈÏ¼ÇÂ¼ÎªÕË»§³äÖµ"}
               </option>
             ) : (
               links.map((opt) => (
@@ -597,19 +597,19 @@ function SpendingFormFields({
           <p className="spending-link-help">{linkHelp}</p>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">ï¿½ï¿½ï¿½ (?)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">½ð¶î (?)</label>
           <input
             type="number"
             min={0}
             step="0.01"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             value={form.amount}
-            placeholder="ï¿½ï¿½ï¿½ç£º298.00"
+            placeholder="ÀýÈç£º298.00"
             onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))}
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Ïû·ÑÈÕÆÚ</label>
           <input
             type="date"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -633,11 +633,11 @@ function SpendingFormFields({
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">ï¿½ï¿½×¢</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">±¸×¢</label>
         <textarea
           rows={2}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="ï¿½ï¿½ï¿½ç£ºÔ¤ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ¡¢DLCï¿½ï¿½ï¿½ï¿½Ï·ï¿½Ú¹ï¿½ï¿½ï¿½Steam Ç®ï¿½ï¿½ï¿½ï¿½Öµ..."
+          placeholder="ÀýÈç£ºÔ¤¹ººÀ»ª°æ¡¢DLC¡¢ÓÎÏ·ÄÚ¹º¡¢Steam Ç®°ü³äÖµ..."
           value={form.note}
           onChange={(e) => setForm((f) => ({ ...f, note: e.target.value }))}
         />
