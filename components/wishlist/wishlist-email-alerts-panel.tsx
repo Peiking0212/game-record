@@ -109,7 +109,7 @@ export function WishlistEmailAlertsPanel({ signedIn, refreshKey }: Props) {
               className="flex flex-wrap justify-between gap-2 py-2 border-b border-violet-100 last:border-0"
             >
               <span className="text-gray-800">
-                <span className="font-medium">{row.gameName}</span>
+                <span className="font-medium">{row.game_name}</span>
                 {" · "}触发价¥{row.trigger_price}
               </span>
               <span className="text-gray-500 text-xs">

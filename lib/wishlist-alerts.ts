@@ -312,7 +312,7 @@ export type EmailDeliveryRow = {
   emailed_at: string | null;
   email_to: string | null;
   email_error: string | null;
-  gameName: string;
+  game_name: string;
 };
 
 export async function fetchRecentEmailDeliveries(
