@@ -9,9 +9,9 @@ export type LookupCandidate = {
 
 export type LookupGameRow = {
   id: number;
-  steam_app_id: number | null;
+  steamAppId: number | null;
   name: string;
-  cover_url: string | null;
+  coverUrl: string | null;
 };
 
 export type LookupGameResponse = {

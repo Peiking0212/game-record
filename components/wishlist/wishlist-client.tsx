@@ -159,8 +159,8 @@ export function WishlistClient() {
     const next: WishlistItem = {
       ...item,
       supabaseGameId: Number(game.id),
-      steamAppId: game.steam_app_id ?? undefined,
-      cover: item.cover || game.cover_url || "",
+      steamAppId: game.steamAppId ?? undefined,
+      cover: item.cover || game.coverUrl || "",
     };
     if (result.candidates && result.candidates.length > 1) {
       const note = `已匹配：${game.name}`;
@@ -806,7 +806,7 @@ function WishlistItemModal({
                     className="w-full text-left px-3 py-2 text-sm hover:bg-white border-b border-gray-100 last:border-0"
                     onClick={() => {
                       setName(g.name);
-                      if (g.cover) setCover(g.cover);
+                      if (g.coverUrl) setCover(g.coverUrl);
                       setSupabaseGameId(g.id);
                     }}
                   >

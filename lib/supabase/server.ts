@@ -1,4 +1,6 @@
-import { createServerClient, type CookieOptions, type CookieToSet } from "@supabase/ssr";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
+
+type CookieToSet = { name: string; value: string; options?: CookieOptions };
 import { cookies } from "next/headers";
 import type { SupabaseClient } from "@supabase/supabase-js";
 

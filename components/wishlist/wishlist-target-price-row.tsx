@@ -41,19 +41,19 @@ export function WishlistTargetPriceRow({
   const alertRow = gameId ? ctx.alertsByGameId[String(gameId)] : undefined;
   const priceRow = gameId ? ctx.pricesByGameId[String(gameId)] : undefined;
   const initialTarget =
-    alertRow?.target_price != null
-      ? String(alertRow.target_price)
+    alertRow?.targetPrice != null
+      ? String(alertRow.targetPrice)
       : item.price || "";
 
   const [targetInput, setTargetInput] = useState(initialTarget);
   const [notifyEmail, setNotifyEmail] = useState(
-    alertRow?.notify_email !== false,
+    alertRow?.notifyEmail !== false,
   );
 
   useEffect(() => {
     setTargetInput(initialTarget);
-    setNotifyEmail(alertRow?.notify_email !== false);
-  }, [initialTarget, item.id, alertRow?.notify_email]);
+    setNotifyEmail(alertRow?.notifyEmail !== false);
+  }, [initialTarget, item.id, alertRow?.notifyEmail]);
 
   if (!gameId) {
     return (
@@ -120,9 +120,9 @@ export function WishlistTargetPriceRow({
             暂无云端历史低价
           </span>
         )}
-        {alertRow?.target_price != null && (
+        {alertRow?.targetPrice != null && (
           <span className="text-sm text-green-700 ml-2">
-            已设目标 ¥{alertRow.target_price}
+            已设目标 ¥{alertRow.targetPrice}
           </span>
         )}
       </div>

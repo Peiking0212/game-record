@@ -15,19 +15,19 @@ type Props = {
 };
 
 function formatEmailStatus(row: EmailDeliveryRow): string {
-  if (row.emailed_at && row.email_to) {
-    return `已发送至 ${row.email_to}`;
+  if (row.emailedAt && row.emailTo) {
+    return `已发送至 ${row.emailTo}`;
   }
-  if (row.email_error === "email_disabled_by_user") {
+  if (row.emailError === "email_disabled_by_user") {
     return "已关闭邮件提醒";
   }
-  if (row.email_error?.startsWith("resend_")) {
+  if (row.emailError?.startsWith("resend_")) {
     return "发送失败(邮件服务异常)";
   }
-  if (row.email_error === "no_user_email") {
+  if (row.emailError === "no_user_email") {
     return "账号无邮箱，无法发送";
   }
-  if (row.email_error) {
+  if (row.emailError) {
     return "待重试或发送失败";
   }
   return "待发送(降价已记录)";
@@ -109,11 +109,11 @@ export function WishlistEmailAlertsPanel({ signedIn, refreshKey }: Props) {
               className="flex flex-wrap justify-between gap-2 py-2 border-b border-violet-100 last:border-0"
             >
               <span className="text-gray-800">
-                <span className="font-medium">{row.game_name}</span>
-                {" · "}触发价¥{row.trigger_price}
+                <span className="font-medium">{row.gameName}</span>
+                {" · "}触发价¥{row.triggerPrice}
               </span>
               <span className="text-gray-500 text-xs">
-                {formatDate(row.triggered_at)} · {formatEmailStatus(row)}
+                {formatDate(row.triggeredAt)} · {formatEmailStatus(row)}
               </span>
             </li>
           ))}

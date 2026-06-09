@@ -58,7 +58,7 @@ export function notifyLatestUnreadEvent(eventRow: AlertEventForMascot): boolean 
   let gameName = eventRow._displayName || "";
   let targetPrice: number | null = null;
   if (eventRow.alerts) {
-    targetPrice = eventRow.alerts.target_price;
+    targetPrice = eventRow.alerts.targetPrice;
     if (!gameName && eventRow.alerts.games?.name) {
       gameName = eventRow.alerts.games.name;
     }
@@ -66,7 +66,7 @@ export function notifyLatestUnreadEvent(eventRow: AlertEventForMascot): boolean 
 
   const ok = notifyPriceHit({
     gameName,
-    triggerPrice: eventRow.trigger_price,
+    triggerPrice: eventRow.triggerPrice,
     targetPrice,
   });
   if (ok) {

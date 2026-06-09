@@ -11,38 +11,38 @@ import {
 } from "@/lib/wishlist";
 
 export type BestPriceRow = {
-  game_id: number;
+  gameId: number;
   price: number;
   currency?: string | null;
-  best_store?: string | null;
+  bestStore?: string | null;
 };
 
 export type AlertRow = {
   id: number;
-  game_id: number;
-  target_price: number;
+  gameId: number;
+  targetPrice: number;
   enabled: boolean;
-  notify_email?: boolean;
+  notifyEmail?: boolean;
 };
 
 export type AlertContext = {
   signedIn: boolean;
   alertsByGameId: Record<string, AlertRow>;
   pricesByGameId: Record<string, BestPriceRow>;
-  gamesById: Record<string, { id: number; name: string; steam_app_id: number | null }>;
-  gamesList: { id: number; name: string; steam_app_id: number | null }[];
+  gamesById: Record<string, { id: number; name: string; steamAppId: number | null }>;
+  gamesList: { id: number; name: string; steamAppId: number | null }[];
 };
 
 export type AlertEvent = {
   id: number;
-  alert_id: number;
-  trigger_price: number;
+  alertId: number;
+  triggerPrice: number;
   channel: string;
   status: string;
-  triggered_at: string;
+  triggeredAt: string;
   alerts?: {
-    game_id: number;
-    target_price: number;
+    gameId: number;
+    targetPrice: number;
     games?: { name: string } | null;
   } | null;
 };
@@ -73,7 +73,7 @@ export function formatBestPriceLine(priceRow: BestPriceRow | undefined): string 
     priceRow.currency === "CNY" || !priceRow.currency
       ? "元"
       : `${priceRow.currency} `;
-  let store = priceRow.best_store ? String(priceRow.best_store) : "";
+  let store = priceRow.bestStore ? String(priceRow.bestStore) : "";
   if (store === "gog") store = "GOG";
   else if (store) store = store.charAt(0).toUpperCase() + store.slice(1);
   return `当前价${cur}${priceRow.price}${store ? ` @${store}` : ""}`;
@@ -92,7 +92,7 @@ export function resolveSupabaseGameId(
     alias?.name ? alias.name : normalizeWishlistGameName(item.name);
 
   for (const g of ctx.gamesList) {
-    if (wantSteamId && g.steam_app_id && String(g.steam_app_id) === String(wantSteamId)) {
+    if (wantSteamId && g.steamAppId && String(g.steamAppId) === String(wantSteamId)) {
       return g.id;
     }
     if (
@@ -145,21 +145,36 @@ export async function loadAlertContext(
     ]);
 
     const alertsByGameId: Record<string, AlertRow> = {};
-    (alertsRes.data || []).forEach((row) => {
-      const alert = row as AlertRow;
-      if (alert.notify_email === undefined) alert.notify_email = true;
+    (alertsRes.data || []).forEach((row: Record<string, unknown>) => {
+      const alert: AlertRow = {
+        id: row.id as number,
+        gameId: row.game_id as number,
+        targetPrice: row.target_price as number,
+        enabled: row.enabled as boolean,
+        notifyEmail: (row.notify_email as boolean | undefined) ?? true,
+      };
       alertsByGameId[String(row.game_id)] = alert;
     });
 
     const pricesByGameId: Record<string, BestPriceRow> = {};
-    (pricesRes.data || []).forEach((row) => {
-      pricesByGameId[String((row as BestPriceRow).game_id)] = row as BestPriceRow;
+    (pricesRes.data || []).forEach((row: Record<string, unknown>) => {
+      const priceRow: BestPriceRow = {
+        gameId: row.game_id as number,
+        price: row.price as number,
+        currency: row.currency as string | null | undefined,
+        bestStore: row.best_store as string | null | undefined,
+      };
+      pricesByGameId[String(row.game_id)] = priceRow;
     });
 
     const gamesById: AlertContext["gamesById"] = {};
     const gamesList: AlertContext["gamesList"] = [];
-    (gamesRes.data || []).forEach((g) => {
-      const game = g as AlertContext["gamesList"][0];
+    (gamesRes.data || []).forEach((g: Record<string, unknown>) => {
+      const game = {
+        id: g.id as number,
+        name: g.name as string,
+        steamAppId: g.steam_app_id as number | null,
+      };
       gamesById[String(game.id)] = game;
       gamesList.push(game);
     });
@@ -191,7 +206,19 @@ export async function fetchInAppAlertEvents(
     .limit(ALERT_EVENTS_LIMIT);
 
   if (!embed.error && embed.data) {
-    return embed.data as unknown as AlertEvent[];
+    return (embed.data as unknown[]).map((row) => ({
+      id: (row as Record<string, unknown>).id as number,
+      alertId: (row as Record<string, unknown>).alert_id as number,
+      triggerPrice: (row as Record<string, unknown>).trigger_price as number,
+      channel: (row as Record<string, unknown>).channel as string,
+      status: (row as Record<string, unknown>).status as string,
+      triggeredAt: (row as Record<string, unknown>).triggered_at as string,
+      alerts: (row as Record<string, unknown>).alerts ? {
+        gameId: ((row as Record<string, unknown>).alerts as Record<string, unknown>).game_id as number,
+        targetPrice: ((row as Record<string, unknown>).alerts as Record<string, unknown>).target_price as number,
+        games: (((row as Record<string, unknown>).alerts as Record<string, unknown>).games as { name: string } | null),
+      } : null,
+    }));
   }
 
   const plain = await supabase
@@ -203,37 +230,42 @@ export async function fetchInAppAlertEvents(
 
   if (plain.error || !plain.data?.length) return [];
 
-  const alertIds = plain.data.map((e) => e.alert_id);
+  const alertIds = plain.data.map((e: Record<string, unknown>) => e.alert_id);
   const alertsRes = await supabase
     .from("alerts")
     .select("id, game_id, target_price")
-    .in("id", alertIds);
-  const gameIds = (alertsRes.data || []).map((a) => a.game_id);
-  const gamesRes = await supabase.from("games").select("id, name").in("id", gameIds);
+    .in("id", alertIds as number[]);
+  const gameIds = (alertsRes.data || []).map((a: Record<string, unknown>) => a.game_id);
+  const gamesRes = await supabase.from("games").select("id, name").in("id", gameIds as number[]);
 
   const alertById: Record<number, { id: number; game_id: number; target_price: number }> =
     {};
-  (alertsRes.data || []).forEach((a) => {
-    alertById[a.id] = a;
+  (alertsRes.data || []).forEach((a: Record<string, unknown>) => {
+    alertById[a.id as number] = { id: a.id as number, game_id: a.game_id as number, target_price: a.target_price as number };
   });
   const gameById: Record<number, { id: number; name: string }> = {};
-  (gamesRes.data || []).forEach((g) => {
-    gameById[g.id] = g;
+  (gamesRes.data || []).forEach((g: Record<string, unknown>) => {
+    gameById[g.id as number] = { id: g.id as number, name: g.name as string };
   });
 
-  return plain.data.map((ev) => {
-    const alert = alertById[ev.alert_id];
+  return plain.data.map((ev: Record<string, unknown>) => {
+    const alert = alertById[ev.alert_id as number];
     const game = alert ? gameById[alert.game_id] : null;
     return {
-      ...ev,
+      id: ev.id as number,
+      alertId: ev.alert_id as number,
+      triggerPrice: ev.trigger_price as number,
+      channel: ev.channel as string,
+      status: ev.status as string,
+      triggeredAt: ev.triggered_at as string,
       alerts: alert
         ? {
-            game_id: alert.game_id,
-            target_price: alert.target_price,
+            gameId: alert.game_id,
+            targetPrice: alert.target_price,
             games: game ? { name: game.name } : null,
           }
         : null,
-    } as AlertEvent;
+    };
   });
 }
 
@@ -241,7 +273,7 @@ export function dedupeAlertEventsByGame(events: AlertEvent[]): AlertEvent[] {
   const seen = new Set<string>();
   const out: AlertEvent[] = [];
   for (const ev of events) {
-    const gid = ev.alerts?.game_id;
+    const gid = ev.alerts?.gameId;
     const key = gid != null ? `g:${gid}` : `e:${ev.id}`;
     if (seen.has(key)) continue;
     seen.add(key);
@@ -299,20 +331,20 @@ export function formatAlertEventMessage(
   if (!displayName && ev.alerts?.games?.name) {
     gameName = ev.alerts.games.name;
   }
-  if (ev.alerts?.target_price != null) {
-    target = ev.alerts.target_price;
+  if (ev.alerts?.targetPrice != null) {
+    target = ev.alerts.targetPrice;
   }
-  return formatPriceAlertMessage(gameName, ev.trigger_price, target);
+  return formatPriceAlertMessage(gameName, ev.triggerPrice, target);
 }
 
 export type EmailDeliveryRow = {
   id: number;
-  trigger_price: number;
-  triggered_at: string;
-  emailed_at: string | null;
-  email_to: string | null;
-  email_error: string | null;
-  game_name: string;
+  triggerPrice: number;
+  triggeredAt: string;
+  emailedAt: string | null;
+  emailTo: string | null;
+  emailError: string | null;
+  gameName: string;
 };
 
 export async function fetchRecentEmailDeliveries(
@@ -333,15 +365,16 @@ export async function fetchRecentEmailDeliveries(
     return [];
   }
 
-  return res.data.map((row) => {
-    const alerts = row.alerts as { games?: { name?: string } | null } | null;
+  return (res.data as unknown[]).map((row) => {
+    const r = row as Record<string, unknown>;
+    const alerts = r.alerts as { games?: { name?: string } | null } | null;
     return {
-      id: row.id as number,
-      trigger_price: Number(row.trigger_price),
-      triggered_at: String(row.triggered_at),
-      emailed_at: (row.emailed_at as string | null) ?? null,
-      email_to: (row.email_to as string | null) ?? null,
-      email_error: (row.email_error as string | null) ?? null,
+      id: r.id as number,
+      triggerPrice: Number(r.trigger_price),
+      triggeredAt: String(r.triggered_at),
+      emailedAt: (r.emailed_at as string | null) ?? null,
+      emailTo: (r.email_to as string | null) ?? null,
+      emailError: (r.email_error as string | null) ?? null,
       gameName: alerts?.games?.name || "游戏",
     };
   });

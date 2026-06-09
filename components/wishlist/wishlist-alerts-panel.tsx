@@ -60,7 +60,7 @@ export function WishlistAlertsPanel({ signedIn, items, refreshKey }: Props) {
   useEffect(() => {
     if (!signedIn || events.length === 0 || !ctx) return;
     const newest = events[0];
-    const gameId = newest.alerts?.game_id;
+    const gameId = newest.alerts?.gameId;
     const cloudName = newest.alerts?.games?.name;
     const displayName =
       gameId != null
@@ -124,7 +124,7 @@ export function WishlistAlertsPanel({ signedIn, items, refreshKey }: Props) {
 
       <ul id="wishlist-alerts-list" className="wishlist-alerts-list space-y-2">
         {events.map((ev) => {
-          const gameId = ev.alerts?.game_id;
+          const gameId = ev.alerts?.gameId;
           const cloudName = ev.alerts?.games?.name;
           const displayName =
             ctx && gameId != null
@@ -141,7 +141,7 @@ export function WishlistAlertsPanel({ signedIn, items, refreshKey }: Props) {
                   {formatAlertEventMessage(ev, displayName)}
                 </div>
                 <div className="text-xs text-gray-500 mt-1">
-                  {formatDate(ev.triggered_at)}
+                  {formatDate(ev.triggeredAt)}
                 </div>
               </div>
               <button
