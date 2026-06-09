@@ -159,7 +159,7 @@ export function WishlistClient() {
     const next: WishlistItem = {
       ...item,
       supabaseGameId: Number(game.id),
-      steamAppId: game.steam_appId ?? undefined,
+      steamAppId: game.steam_app_id ?? undefined,
       cover: item.cover || game.coverUrl || "",
     };
     if (result.candidates && result.candidates.length > 1) {
