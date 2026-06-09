@@ -1,12 +1,12 @@
 export const MASCOT_LAST_ALERT_KEY = "mascot_last_alert_event_id";
 
 const DEFAULT_QUOTES = [
-  "娆㈣繋鍥炴潵锛佷粖澶╃帺浠€涔堟父鎴忓憖锛?,
-  "璁板緱浼戞伅涓€涓嬪摝~",
-  "鏂版父鎴忓彂鍞暒锛屽揩鍘荤湅鐪嬶紒",
-  "浣犵殑娓告垙鏀惰棌鍙堝浜嗗憿~",
-  "鑲濇父鎴忚櫧濂斤紝鍙笉瑕佺啲澶滃摝锛?,
-  "浠婂ぉ涔熸槸鍏冩皵婊℃弧鐨勪竴澶╋紒",
+  "欢迎回来！今天玩什么游戏呀？",
+  "记得休息一下哦~",
+  "新游戏发售啦，快去看看！",
+  "你的游戏收藏又变多啦~",
+  "打游戏虽好，可不要熬夜哦！",
+  "今天也是元气满满的一天！",
 ];
 
 export function isMascotEnabled(): boolean {
@@ -58,7 +58,7 @@ export function setMascotLastAlertEventId(id: number): void {
 }
 
 export function pickRandomQuote(quotes: string[]): string {
-  return quotes[Math.floor(Math.random() * quotes.length)] ?? "璇寸偣浠€涔堝惂~";
+  return quotes[Math.floor(Math.random() * quotes.length)] ?? "说点什么吧~";
 }
 
 export const MASCOT_DEFAULT_IMAGE = "/assets/default-avatar.svg";

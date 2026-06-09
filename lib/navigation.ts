@@ -20,17 +20,17 @@ export type NavItem = {
 };
 
 export const MAIN_NAV: NavItem[] = [
-  { href: "/", label: "棣栭〉", icon: Home },
-  { href: "/profile", label: "涓汉绠€浠?, icon: User },
-  { href: "/games", label: "娓告垙鏀惰棌", icon: Gamepad2 },
-  { href: "/achievements", label: "鎴愬氨绯荤粺", icon: Trophy },
-  { href: "/stats", label: "鏁版嵁缁熻", icon: BarChart3 },
-  { href: "/report", label: "骞村害鎶ュ憡", icon: Sparkles },
-  { href: "/spending", label: "娑堣垂璁板綍", icon: ShoppingCart },
+  { href: "/", label: "首页", icon: Home },
+  { href: "/profile", label: "个人主页", icon: User },
+  { href: "/games", label: "游戏收藏", icon: Gamepad2 },
+  { href: "/achievements", label: "成就系统", icon: Trophy },
+  { href: "/stats", label: "数据统计", icon: BarChart3 },
+  { href: "/report", label: "年度报告", icon: Sparkles },
+  { href: "/spending", label: "消费记录", icon: ShoppingCart },
 ];
 
 export const MORE_NAV: NavItem[] = [
-  { href: "/gallery", label: "濯掍綋搴?, icon: Image, inMore: true },
-  { href: "/wishlist", label: "娓告垙鎰挎湜鍗?, icon: Heart, inMore: true },
-  { href: "/reviews", label: "娓告垙璇勬祴", icon: MessageSquare, inMore: true },
+  { href: "/gallery", label: "媒体库", icon: Image, inMore: true },
+  { href: "/wishlist", label: "游戏愿望单", icon: Heart, inMore: true },
+  { href: "/reviews", label: "游戏评测", icon: MessageSquare, inMore: true },
 ];

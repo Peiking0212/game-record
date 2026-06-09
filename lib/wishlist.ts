@@ -98,9 +98,9 @@ export function parsePlatformList(raw: string): string[] {
 
 export function priorityLabel(p: WishlistItem["priority"]): string {
   const map: Record<WishlistItem["priority"], string> = {
-    high: "楂樹紭鍏堢骇",
-    medium: "涓紭鍏堢骇",
-    low: "浣庝紭鍏堢骇",
+    high: "高优先级",
+    medium: "中优先级",
+    low: "低优先级",
   };
   return map[p];
 }
@@ -113,4 +113,3 @@ export function priorityClass(p: WishlistItem["priority"]): string {
   };
   return map[p];
 }
-

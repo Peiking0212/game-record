@@ -38,11 +38,11 @@ function lastYearMonth(month: number, day: number): string {
 }
 
 export const DEFAULT_PROFILE: UserProfile = {
-  name: "娓告垙鐜╁",
-  title: "鐑埍娓告垙鐨勫啋闄╄€?,
-  bio: "鐑埍娓告垙鐨勫啋闄╄€咃紝鍠滄鎺㈢储鍚勭绫诲瀷鐨勬父鎴忎笘鐣岋紝璁板綍姣忎竴娆＄簿褰╃殑娓告垙浣撻獙銆?,
+  name: "游戏玩家",
+  title: "热爱游戏的冒险家",
+  bio: "热爱游戏的冒险家，喜欢探索各类游戏世界，记录每一次精彩的游戏体验。",
   avatar: "/assets/default-avatar.svg",
-  tags: ["鍘熺", "鏄庢棩鏂硅垷", "鐜嬭€呰崳鑰€", "闂€€鏆栨殩"],
+  tags: ["原神", "明日方舟", "王国之泪", "艾尔登法环"],
   joinDate: lastYearMonth(6, 15),
   playStyle: { ...DEFAULT_PLAY_STYLE },
   favoriteGames: [],

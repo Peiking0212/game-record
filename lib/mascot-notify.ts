@@ -18,19 +18,16 @@ export function formatPriceAlertMessage(
   triggerPrice: number | string,
   targetPrice?: number | string | null,
 ): string {
-  const name = gameName || "杩欐娓告垙";
+  const name = gameName || "这款游戏";
   const price = Number(triggerPrice);
   const target = Number(targetPrice);
   const priceText = Number.isFinite(price)
     ? price.toFixed(price % 1 === 0 ? 0 : 2)
     : String(triggerPrice);
   if (Number.isFinite(target) && target > 0) {
-    return (
-      `${name}闄嶅埌 ${priceText} 鍏冨暒锛屼綆浜庝綘鐨勭洰鏍囦环 ` +
-      `${target.toFixed(target % 1 === 0 ? 0 : 2)} 鍏冿紒`
-    );
+    return `${name}降到 ${priceText} 元啦，低于你的目标价 ${target.toFixed(target % 1 === 0 ? 0 : 2)} 元！`;
   }
-  return `${name}闄嶅埌 ${priceText} 鍏冨暒锛屽揩鍘荤湅鐪嬫効鏈涘崟~`;
+  return `${name}降到 ${priceText} 元啦，快去看看愿望单~`;
 }
 
 export function mascotSpeak(text: string): boolean {

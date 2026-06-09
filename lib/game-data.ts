@@ -17,6 +17,7 @@ export const STORAGE_KEYS = {
   FOLLOWED_GAME_DICTIONARY: "followed_game_dictionary",
 } as const;
 
+/** 安全JSON解析，异常返回默认值 */
 function parseJson<T>(raw: string | null, fallback: T): T {
   if (!raw) return fallback;
   try {
@@ -26,18 +27,20 @@ function parseJson<T>(raw: string | null, fallback: T): T {
   }
 }
 
+/** 读取localStorage，SSR返回兜底 */
 function readJson<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
   return parseJson(localStorage.getItem(key), fallback);
 }
 
+/** 写入localStorage，捕获存储溢出/序列化异常 */
 function writeJson(key: string, data: unknown): boolean {
   if (typeof window === "undefined") return false;
   try {
     localStorage.setItem(key, JSON.stringify(data));
     return true;
   } catch (e) {
-    console.error("淇濆瓨澶辫触:", key, e);
+    console.error("save failed:", key, e);
     return false;
   }
 }
@@ -54,6 +57,7 @@ export function saveGames(games: GameRecord[]): boolean {
 
 type SampleGame = GameRecord & { lastPlayedDaysAgo?: number };
 
+/** 兼容老数据字段转换：lastPlayedDaysAgo → lastPlayed、路径补全icon */
 function hydrateGame(item: SampleGame): GameRecord {
   const g = { ...item };
   if (g.lastPlayedDaysAgo != null) {
@@ -66,9 +70,8 @@ function hydrateGame(item: SampleGame): GameRecord {
   return g;
 }
 
-export function bootstrapFollowedGameDictionaryFromGames(
-  games: GameRecord[],
-): void {
+/** 从游戏列表自动生成/补全游戏名字典 */
+export function bootstrapFollowedGameDictionaryFromGames(games: GameRecord[]): void {
   if (typeof window === "undefined") return;
   const existing = readJson<
     Array<{ gameId: string; nameZh?: string; aliases?: string[] }>
@@ -96,6 +99,7 @@ export function bootstrapFollowedGameDictionaryFromGames(
   writeJson(STORAGE_KEYS.FOLLOWED_GAME_DICTIONARY, [...byId.values()]);
 }
 
+/** 首次无数据时拉取示例游戏数据 */
 export async function seedGamesIfEmpty(): Promise<GameRecord[]> {
   let games = getGames();
   if (games.length > 0) {
@@ -159,6 +163,7 @@ export type MediaRecord = {
   gameId?: number | string;
 };
 
+/** 旧版成就数据迁移：legacy_key → achievements */
 export function migrateLegacyAchievements(): AchievementRecord[] {
   let list = readJson<AchievementRecord[]>(STORAGE_KEYS.ACHIEVEMENTS, []);
   if (list.length > 0) return list;
@@ -183,7 +188,7 @@ export function migrateLegacyAchievements(): AchievementRecord[] {
     .filter((a) => a.unlocked !== false)
     .map((a, i) => ({
       id: a.id ?? Date.now() + i,
-      title: a.title || a.name || "鏈煡鎴愬氨",
+      title: a.title || a.name || "未知成就",
       gameName: a.gameName || a.game || "",
       description: a.description || "",
       date: a.date || "",
@@ -214,14 +219,14 @@ export function saveMedia(items: MediaRecord[]): boolean {
   return writeJson(STORAGE_KEYS.MEDIA, items);
 }
 
-export function getGameById(id: string | number | null | undefined) {
+/** 根据ID查找游戏 */
+export function getGameById(id: string | number | null | undefined): GameRecord | null {
   if (id == null || id === "") return null;
   return getGames().find((g) => String(g.id) === String(id)) ?? null;
 }
 
-export function resolveGameFieldsFromSelect(
-  gameId: string | number | null | undefined,
-) {
+/** 通过gameId反填游戏名称 */
+export function resolveGameFieldsFromSelect(gameId: string | number | null | undefined) {
   const game = getGameById(gameId);
   return {
     gameId: game ? game.id : gameId || null,
@@ -230,6 +235,7 @@ export function resolveGameFieldsFromSelect(
   };
 }
 
+/** 获取缓存资讯+折扣数据流 */
 export function getCachedPersonalizedFeed() {
   return {
     news: readJson<
@@ -251,6 +257,7 @@ export function getCachedPersonalizedFeed() {
   };
 }
 
+/** 成就日期转时间戳用于排序 */
 export function achievementDateMs(a: AchievementRecord): number {
   if (!a?.date) return 0;
   const m = String(a.date).match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
@@ -259,6 +266,7 @@ export function achievementDateMs(a: AchievementRecord): number {
   return Number.isNaN(d.getTime()) ? 0 : d.getTime();
 }
 
+/** 首页统计数据：总游戏、总时长、成就数、均分、热门4款 */
 export function getHomeStats() {
   const games = getGames();
   const achievements = getAchievements();

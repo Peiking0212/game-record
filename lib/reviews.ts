@@ -1,14 +1,14 @@
 import { STORAGE_KEYS } from "@/lib/game-data";
 
 export const REVIEW_TAGS = [
-  "鍓ф儏浼樼",
-  "鐜╂硶鍑轰紬",
-  "鐢婚潰绮剧編",
-  "闊充箰鍔ㄥ惉",
-  "澶氫汉鏈夎叮",
-  "浼戦棽鏀炬澗",
-  "鎸戞垬鎬у己",
-  "鍊煎緱閲嶇帺",
+  "剧情优秀",
+  "玩法出众",
+  "画面精美",
+  "音乐动听",
+  "多人有趣",
+  "休闲放松",
+  "挑战性强",
+  "值得重玩",
 ] as const;
 
 export type ReviewItem = {
@@ -60,4 +60,3 @@ export function allUsedTags(items: ReviewItem[]): string[] {
   items.forEach((it) => (it.tags || []).forEach((t) => set.add(t)));
   return [...set.values()];
 }
-

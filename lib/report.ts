@@ -54,7 +54,7 @@ export function buildReport(year: number): ReportData {
   );
   const totalSpent = spending.reduce((sum, s) => sum + (Number(s.amount) || 0), 0);
   const typeCounts = games.reduce<Record<string, number>>((acc, g) => {
-    const type = g.type || "鍏朵粬";
+    const type = g.type || "其他";
     acc[type] = (acc[type] || 0) + 1;
     return acc;
   }, {});
