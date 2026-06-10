@@ -5,12 +5,14 @@ import {
   Camera,
   Clock,
   Edit,
+  Flame,
   Gamepad2,
   Heart,
   Save,
   Settings,
   Star,
   Trophy,
+  User,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { GameIcon } from "@/components/games/game-icon";
@@ -30,7 +32,14 @@ import {
   type UserProfile,
 } from "@/lib/profile";
 
-const AVATAR_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Crect width='96' height='96' fill='%236366f1'/%3E%3C/svg%3E";
+const AVATAR_FALLBACK =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Crect width='96' height='96' fill='%236366f1'/%3E%3C/svg%3E";
+
+// 玩家等级计算
+function calcLevel(stats: { totalGames: number; totalHours: number; achievements: number }): number {
+  const score = stats.totalGames * 5 + stats.totalHours * 0.5 + stats.achievements * 10;
+  return Math.max(1, Math.floor(Math.sqrt(score)));
+}
 
 function TagBadges({
   tags,
@@ -55,7 +64,7 @@ function TagBadges({
               type="button"
               className="ml-1 text-xs"
               onClick={() => onRemove(tag)}
-              aria-label={`删除标签 ${tag}`}
+              aria-label={"删除标签 " + tag}
             >
               ×
             </button>
@@ -77,14 +86,22 @@ function PlayStyleBars({ playStyle }: { playStyle: PlayStyle }) {
     <div className="space-y-4">
       {rows.map(({ key, label }) => (
         <div key={key} className="flex justify-between items-center gap-3">
-          <span className="text-gray-700 shrink-0">{label}</span>
-          <div className="w-32 bg-gray-200 rounded-full h-2 shrink-0">
+          <span style={{ color: "#64748b" }} className="shrink-0 text-sm">
+            {label}
+          </span>
+          <div className="w-32 rounded-full h-2 shrink-0" style={{ background: "#e2e8f0" }}>
             <div
-              className="progress-bar-fill"
-              style={{ width: `${playStyle[key]}%` }}
+              className="h-full rounded-full transition-all"
+              style={{
+                width: playStyle[key] + "%",
+                background: "linear-gradient(90deg, #3b82f6, #8b5cf6)",
+              }}
             />
           </div>
-          <span className="text-gray-600 font-medium shrink-0 w-10 text-right">
+          <span
+            className="font-medium shrink-0 w-10 text-right text-sm"
+            style={{ color: "#475569" }}
+          >
             {playStyle[key]}%
           </span>
         </div>
@@ -96,7 +113,7 @@ function PlayStyleBars({ playStyle }: { playStyle: PlayStyle }) {
 function FavoriteGamesList({ games }: { games: GameRecord[] }) {
   if (games.length === 0) {
     return (
-      <div className="text-center py-4 text-gray-500">
+      <div className="text-center py-4" style={{ color: "#94a3b8" }}>
         <p>尚未选择喜欢的游戏</p>
         <p className="text-sm">点击「编辑偏好」按钮添加</p>
       </div>
@@ -114,14 +131,14 @@ function FavoriteGamesList({ games }: { games: GameRecord[] }) {
             height={48}
           />
           <div className="flex-1 min-w-0">
-            <h4 className="font-semibold text-gray-800 truncate">
+            <h4 className="font-semibold truncate" style={{ color: "#1e293b" }}>
               {game.name}
             </h4>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm" style={{ color: "#64748b" }}>
               {Number(game.playtime) || 0} 小时
             </p>
           </div>
-          <Star className="w-5 h-5 text-yellow-500 fill-yellow-500 shrink-0" />
+          <Star className="w-5 h-5 shrink-0" style={{ color: "#f59e0b" }} fill="#f59e0b" />
         </div>
       ))}
     </div>
@@ -157,7 +174,9 @@ function PlayStyleModal({
       <div className="space-y-4">
         {sliders.map(({ key, label }) => (
           <div key={key}>
-            <label className="block mb-2 text-gray-700">{label}</label>
+            <label className="block mb-2" style={{ color: "#475569" }}>
+              {label}
+            </label>
             <input
               type="range"
               min={0}
@@ -171,7 +190,7 @@ function PlayStyleModal({
                 }))
               }
             />
-            <div className="flex justify-between text-sm text-gray-600">
+            <div className="flex justify-between text-sm" style={{ color: "#94a3b8" }}>
               <span>0%</span>
               <span>{style[key]}%</span>
               <span>100%</span>
@@ -180,7 +199,8 @@ function PlayStyleModal({
         ))}
         <button
           type="button"
-          className="btn-primary w-full mt-4"
+          className="w-full mt-4 px-5 py-2.5 rounded-lg font-semibold text-sm transition-all"
+          style={{ background: "#3b82f6", color: "#fff" }}
           onClick={() => onSave(style)}
         >
           保存
@@ -223,7 +243,9 @@ function FavoriteGamesModal({
     <Modal open={open} onClose={onClose} title="编辑喜爱游戏">
       <div className="space-y-4 max-h-80 overflow-y-auto">
         {allGames.length === 0 ? (
-          <p className="text-gray-500 text-center">暂无添加任何游戏</p>
+          <p className="text-center" style={{ color: "#94a3b8" }}>
+            暂无添加任何游戏
+          </p>
         ) : (
           allGames.map((game) => (
             <label
@@ -248,13 +270,14 @@ function FavoriteGamesModal({
                   );
                 }}
               />
-              <span>{game.name}</span>
+              <span style={{ color: "#475569" }}>{game.name}</span>
             </label>
           ))
         )}
         <button
           type="button"
-          className="btn-primary w-full mt-4"
+          className="w-full mt-4 px-5 py-2.5 rounded-lg font-semibold text-sm transition-all"
+          style={{ background: "#3b82f6", color: "#fff" }}
           onClick={() => {
             const ids = allGames
               .filter((g) => picked.has(String(g.id)))
@@ -317,11 +340,18 @@ export function ProfileClient() {
       (sum, g) => sum + (Number(g.playtime) || 0),
       0,
     );
+    const completed = allGames.filter((g) => g.status === "completed").length;
     return {
       totalGames: allGames.length,
       totalPlaytime,
       totalAchievements: achievements.length,
       memberDays: memberDaysSince(profile.joinDate),
+      completed,
+      level: calcLevel({
+        totalGames: allGames.length,
+        totalHours: totalPlaytime,
+        achievements: achievements.length,
+      }),
     };
   }, [profile, allGames, achievements]);
 
@@ -338,10 +368,20 @@ export function ProfileClient() {
     return new Set((profile?.favoriteGames || []).map(String));
   }, [profile?.favoriteGames]);
 
+  // 最近沉迷：按 playtime 排序 top 3
+  const topGames = useMemo(
+    () =>
+      [...allGames]
+        .sort((a, b) => (parseInt(String(b.playtime), 10) || 0) - (parseInt(String(a.playtime), 10) || 0))
+        .slice(0, 3),
+    [allGames],
+  );
+
+  // 成就墙：前 6 个
+  const recentAchievements = useMemo(() => achievements.slice(0, 6), [achievements]);
+
   if (!profile || !stats) {
-    return (
-      <p className="text-center py-16 text-gray-500">加载中…</p>
-    );
+    return <p className="text-center py-16" style={{ color: "#94a3b8" }}>加载中…</p>;
   }
 
   const handleAvatarChange = (file: File | undefined) => {
@@ -388,20 +428,36 @@ export function ProfileClient() {
 
   return (
     <>
-      <section className="bg-gradient-to-br from-blue-50 to-cyan-100 py-16">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div className="p-8 md:p-12 text-center">
-              <div className="profile-avatar mb-6 mx-auto">
+      {/* ── Steam 风格深色 Hero ── */}
+      <section
+        className="relative overflow-hidden"
+        style={{ background: "#0f172a" }}
+      >
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 30% 50%, #fff 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        />
+        <div className="container mx-auto px-4 py-16 md:py-20 relative z-10">
+          <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
+            {/* 头像 + 等级 */}
+            <div className="flex flex-col items-center shrink-0">
+              <div className="relative">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={avatarSrc}
                   alt="头像"
+                  className="w-28 h-28 rounded-2xl object-cover shadow-lg"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = AVATAR_FALLBACK;
                   }}
                 />
-                <label className="avatar-upload cursor-pointer">
+                <label className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-all hover:scale-110"
+                  style={{ background: "#3b82f6", color: "#fff" }}
+                >
                   <input
                     type="file"
                     accept="image/*"
@@ -411,98 +467,198 @@ export function ProfileClient() {
                       e.target.value = "";
                     }}
                   />
-                  <Camera className="w-4 h-4 inline mr-1" />
-                  更换头像
+                  <Camera className="w-4 h-4" />
                 </label>
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
+              {/* 等级徽章 */}
+              <div
+                className="mt-3 px-4 py-1 rounded-full text-sm font-bold"
+                style={{
+                  background: "linear-gradient(135deg, #f59e0b, #d97706)",
+                  color: "#fff",
+                }}
+              >
+                Lv.{stats.level}
+              </div>
+            </div>
+
+            {/* 信息 */}
+            <div className="flex-1 text-center md:text-left">
+              <h1 className="text-3xl md:text-4xl font-bold mb-1" style={{ color: "#f1f5f9" }}>
                 {profile.name}
               </h1>
-              <p className="text-xl text-gray-600 mb-4">{profile.title}</p>
-              <div className="flex flex-wrap justify-center gap-3 mb-6">
+              <p className="text-lg mb-1" style={{ color: "#60a5fa" }}>
+                {profile.title}
+              </p>
+              <p className="text-sm max-w-lg" style={{ color: "#94a3b8" }}>
+                {profile.bio}
+              </p>
+              <div className="flex flex-wrap gap-2 mt-3 justify-center md:justify-start">
                 <TagBadges tags={profile.tags} />
               </div>
-              <p className="text-gray-600 max-w-2xl mx-auto">{profile.bio}</p>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
-            游戏数据
-          </h2>
-          <div className="max-w-4xl mx-auto">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div className="stat-card">
-                <div className="stat-icon bg-blue-100 text-blue-500">
-                  <Gamepad2 className="w-8 h-8" />
-                </div>
-                <div className="stat-number">{stats.totalGames}</div>
-                <div className="stat-label">游戏总数</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-icon bg-cyan-50 text-cyan-500">
-                  <Clock className="w-8 h-8" />
-                </div>
-                <div className="stat-number">{stats.totalPlaytime}</div>
-                <div className="stat-label">总游玩时长</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-icon bg-purple-100 text-purple-500">
-                  <Trophy className="w-8 h-8" />
-                </div>
-                <div className="stat-number">{stats.totalAchievements}</div>
-                <div className="stat-label">解锁成就</div>
-              </div>
-              <div className="stat-card">
-                <div className="stat-icon bg-green-100 text-green-500">
-                  <Calendar className="w-8 h-8" />
-                </div>
-                <div className="stat-number">{stats.memberDays}</div>
-                <div className="stat-label">入驻天数</div>
+              {/* 入驻信息 */}
+              <div className="flex flex-wrap gap-6 mt-4 justify-center md:justify-start text-sm" style={{ color: "#64748b" }}>
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-4 h-4" /> {stats.memberDays} 天入驻
+                </span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="py-16 bg-gray-50">
+      {/* ── 深色数据面板 ── */}
+      <section style={{ background: "#111827" }} className="py-12">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
-            游戏偏好
-          </h2>
-          <div className="max-w-4xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-white rounded-xl shadow-lg p-8">
-                <h3 className="text-xl font-semibold mb-6 text-gray-800 flex items-center">
-                  <Heart className="w-6 h-6 text-red-500 mr-2" />
+          <div className="max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <StatsCard
+                icon={<Gamepad2 className="w-5 h-5" />}
+                value={String(stats.totalGames)}
+                label="游戏收藏"
+                color="#60a5fa"
+              />
+              <StatsCard
+                icon={<Clock className="w-5 h-5" />}
+                value={stats.totalPlaytime + "h"}
+                label="累计游玩"
+                color="#22c55e"
+                highlight
+              />
+              <StatsCard
+                icon={<Trophy className="w-5 h-5" />}
+                value={String(stats.totalAchievements)}
+                label="解锁成就"
+                color="#f59e0b"
+              />
+              <StatsCard
+                icon={<Star className="w-5 h-5" />}
+                value={stats.completed + " 款"}
+                label="已通关"
+                color="#ef4444"
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 成就墙 + 最近沉迷 ── */}
+      <section className="py-12" style={{ background: "#f8fafc" }}>
+        <div className="container mx-auto px-4">
+          <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* 最近沉迷 */}
+            <div
+              className="rounded-2xl p-6"
+              style={{ background: "#fff", border: "1px solid #e2e8f0" }}
+            >
+              <h3 className="text-lg font-bold mb-4 flex items-center gap-2" style={{ color: "#1e293b" }}>
+                <Flame className="w-5 h-5" style={{ color: "#f59e0b" }} />
+                最近沉迷
+              </h3>
+              {topGames.length === 0 ? (
+                <p style={{ color: "#94a3b8" }}>暂无游戏数据</p>
+              ) : (
+                <div className="space-y-3">
+                  {topGames.map((game, idx) => (
+                    <div key={String(game.id)} className="flex items-center gap-3">
+                      <span
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+                        style={{
+                          background: idx === 0 ? "#f59e0b" : idx === 1 ? "#94a3b8" : "#78716c",
+                          color: "#fff",
+                        }}
+                      >
+                        {idx + 1}
+                      </span>
+                      <GameIcon
+                        src={game.icon}
+                        name={game.name}
+                        className="w-10 h-10 rounded-lg object-cover"
+                        width={40}
+                        height={40}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-semibold truncate" style={{ color: "#1e293b" }}>
+                          {game.name}
+                        </div>
+                        <div className="text-xs" style={{ color: "#64748b" }}>
+                          {parseInt(String(game.playtime), 10) || 0} 小时
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 成就墙 */}
+            <div
+              className="rounded-2xl p-6"
+              style={{ background: "#fff", border: "1px solid #e2e8f0" }}
+            >
+              <h3 className="text-lg font-bold mb-4 flex items-center gap-2" style={{ color: "#1e293b" }}>
+                <Trophy className="w-5 h-5" style={{ color: "#f59e0b" }} />
+                成就墙
+              </h3>
+              {recentAchievements.length === 0 ? (
+                <p style={{ color: "#94a3b8" }}>暂无成就数据</p>
+              ) : (
+                <div className="grid grid-cols-3 gap-3">
+                  {recentAchievements.map((ach: any) => (
+                    <div
+                      key={ach.id || ach.name}
+                      className="aspect-square rounded-xl flex flex-col items-center justify-center text-center p-2"
+                      style={{ background: "#f1f5f9" }}
+                    >
+                      <Trophy className="w-6 h-6 mb-1" style={{ color: "#f59e0b" }} />
+                      <span className="text-[10px] font-medium leading-tight line-clamp-2" style={{ color: "#475569" }}>
+                        {ach.name || "成就"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 游戏偏好 ── */}
+      <section className="py-12" style={{ background: "#fff" }}>
+        <div className="container mx-auto px-4">
+          <div className="max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="rounded-2xl p-6" style={{ border: "1px solid #e2e8f0" }}>
+                <h3 className="text-lg font-bold mb-6 flex items-center gap-2" style={{ color: "#1e293b" }}>
+                  <Heart className="w-5 h-5" style={{ color: "#ef4444" }} />
                   最爱游戏
                 </h3>
                 <FavoriteGamesList games={favoriteGames} />
                 <button
                   type="button"
-                  className="btn-primary w-full mt-6"
+                  className="w-full mt-6 px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+                  style={{ background: "#f1f5f9", color: "#475569", border: "1px solid #e2e8f0" }}
                   onClick={() => setFavoritesOpen(true)}
                 >
-                  <Edit className="w-5 h-5 inline mr-2" />
+                  <Edit className="w-4 h-4 inline mr-2" />
                   编辑偏好
                 </button>
               </div>
 
-              <div className="bg-white rounded-xl shadow-lg p-8">
-                <h3 className="text-xl font-semibold mb-6 text-gray-800 flex items-center">
-                  <Settings className="w-6 h-6 text-blue-500 mr-2" />
+              <div className="rounded-2xl p-6" style={{ border: "1px solid #e2e8f0" }}>
+                <h3 className="text-lg font-bold mb-6 flex items-center gap-2" style={{ color: "#1e293b" }}>
+                  <Settings className="w-5 h-5" style={{ color: "#3b82f6" }} />
                   游玩风格
                 </h3>
                 <PlayStyleBars playStyle={playStyle} />
                 <button
                   type="button"
-                  className="btn-primary w-full mt-6"
+                  className="w-full mt-6 px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+                  style={{ background: "#f1f5f9", color: "#475569", border: "1px solid #e2e8f0" }}
                   onClick={() => setPlayStyleOpen(true)}
                 >
-                  <Edit className="w-5 h-5 inline mr-2" />
+                  <Edit className="w-4 h-4 inline mr-2" />
                   编辑风格
                 </button>
               </div>
@@ -511,24 +667,28 @@ export function ProfileClient() {
         </div>
       </section>
 
-      <section className="py-16 bg-gray-50">
+      {/* ── 个人资料设置 ── */}
+      <section className="py-12" style={{ background: "#f8fafc" }}>
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
-            个人资料设置
-          </h2>
-          <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-8">
+          <div className="max-w-2xl mx-auto rounded-2xl p-8" style={{ background: "#fff", border: "1px solid #e2e8f0" }}>
+            <h2 className="text-xl font-bold mb-8" style={{ color: "#1e293b" }}>
+              <User className="w-5 h-5 inline mr-2" />
+              个人资料设置
+            </h2>
             <form onSubmit={handleFormSubmit} className="space-y-6">
               <div>
                 <label
                   htmlFor="profile-name-input"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium mb-2"
+                  style={{ color: "#475569" }}
                 >
                   用户昵称
                 </label>
                 <input
                   id="profile-name-input"
                   type="text"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  style={{ border: "1px solid #e2e8f0" }}
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
                 />
@@ -536,14 +696,16 @@ export function ProfileClient() {
               <div>
                 <label
                   htmlFor="profile-title-input"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium mb-2"
+                  style={{ color: "#475569" }}
                 >
                   个人头衔
                 </label>
                 <input
                   id="profile-title-input"
                   type="text"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  style={{ border: "1px solid #e2e8f0" }}
                   value={formTitle}
                   onChange={(e) => setFormTitle(e.target.value)}
                 />
@@ -551,20 +713,22 @@ export function ProfileClient() {
               <div>
                 <label
                   htmlFor="profile-bio-input"
-                  className="block text-sm font-medium text-gray-700 mb-2"
+                  className="block text-sm font-medium mb-2"
+                  style={{ color: "#475569" }}
                 >
                   个人简介
                 </label>
                 <textarea
                   id="profile-bio-input"
                   rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  style={{ border: "1px solid #e2e8f0" }}
                   value={formBio}
                   onChange={(e) => setFormBio(e.target.value)}
                 />
               </div>
               <div>
-                <span className="block text-sm font-medium text-gray-700 mb-2">
+                <span className="block text-sm font-medium mb-2" style={{ color: "#475569" }}>
                   游戏标签
                 </span>
                 <div className="flex flex-wrap gap-2 mb-2">
@@ -577,7 +741,8 @@ export function ProfileClient() {
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="flex-1 px-4 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    style={{ border: "1px solid #e2e8f0" }}
                     placeholder="添加新标签"
                     value={newTag}
                     onChange={(e) => setNewTag(e.target.value)}
@@ -590,15 +755,20 @@ export function ProfileClient() {
                   />
                   <button
                     type="button"
-                    className="btn-secondary"
+                    className="px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+                    style={{ background: "#f1f5f9", color: "#475569", border: "1px solid #e2e8f0" }}
                     onClick={addTag}
                   >
                     添加
                   </button>
                 </div>
               </div>
-              <button type="submit" className="btn-primary w-full">
-                <Save className="w-5 h-5 inline mr-2" />
+              <button
+                type="submit"
+                className="w-full px-5 py-2.5 rounded-lg font-semibold text-sm transition-all"
+                style={{ background: "#3b82f6", color: "#fff" }}
+              >
+                <Save className="w-4 h-4 inline mr-2" />
                 保存设置
               </button>
             </form>
@@ -629,5 +799,44 @@ export function ProfileClient() {
         }}
       />
     </>
+  );
+}
+
+function StatsCard({
+  icon,
+  value,
+  label,
+  color,
+  highlight,
+}: {
+  icon: React.ReactNode;
+  value: string | number;
+  label: string;
+  color: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div
+      className="rounded-xl p-5 text-center transition-all"
+      style={{
+        background: highlight
+          ? "linear-gradient(135deg, #1e3a5f, #1e1b4b)"
+          : "rgba(255,255,255,0.05)",
+        border: highlight
+          ? "1px solid rgba(59,130,246,0.3)"
+          : "1px solid rgba(255,255,255,0.08)",
+      }}
+    >
+      <div className="flex justify-center mb-2" style={{ color }}>{icon}</div>
+      <div
+        className="text-2xl font-bold mb-0.5"
+        style={{ color: highlight ? "#f1f5f9" : "#e2e8f0" }}
+      >
+        {value}
+      </div>
+      <div className="text-xs" style={{ color: "#64748b" }}>
+        {label}
+      </div>
+    </div>
   );
 }

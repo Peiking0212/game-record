@@ -59,6 +59,11 @@ export function GamesClient() {
     [games],
   );
 
+  const totalHours = useMemo(
+    () => games.reduce((s, g) => s + (parseInt(String(g.playtime), 10) || 0), 0),
+    [games],
+  );
+
   function persist(next: GameRecord[], message: string) {
     if (!saveGames(next)) {
       showToast("保存失败，请检查存储空间", "error");
@@ -115,32 +120,58 @@ export function GamesClient() {
 
   return (
     <>
-      <section className="bg-gradient-to-br from-blue-50 to-cyan-100 py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
+      {/* ── 深色 Hero ── */}
+      <section
+        className="relative overflow-hidden"
+        style={{ background: "#0f172a" }}
+        data-hero
+      >
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 50% 0%, #fff 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        />
+        <div className="container mx-auto px-4 py-16 md:py-20 text-center relative z-10">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: "#f1f5f9" }}>
             我的游戏收藏
           </h1>
-          <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg max-w-2xl mx-auto mb-8" style={{ color: "#94a3b8" }}>
             记录和管理玩过的每一款游戏，追踪游戏进度与成就
           </p>
-          <button
-            type="button"
-            className="btn-primary inline-flex items-center"
-            onClick={() => setAddOpen(true)}
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            添加新游戏
-          </button>
+          <div className="flex flex-wrap justify-center gap-4 mb-4">
+            <button
+              type="button"
+              onClick={() => setAddOpen(true)}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm transition-all hover:scale-105"
+              style={{ background: "#3b82f6", color: "#fff" }}
+            >
+              <Plus className="w-4 h-4" />
+              添加新游戏
+            </button>
+          </div>
+          {/* 微统计 */}
+          <div className="flex justify-center gap-8 mt-6 text-sm" style={{ color: "#64748b" }}>
+            <span>{games.length} 款游戏</span>
+            <span>·</span>
+            <span>{totalHours} 小时</span>
+            <span>·</span>
+            <span>{games.filter((g) => g.status === "completed").length} 已通关</span>
+          </div>
         </div>
       </section>
 
-      <section className="py-16 bg-white">
+      {/* ── 过滤器 ── */}
+      <section className="py-10" style={{ background: "#f8fafc" }}>
         <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto mb-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="max-w-6xl mx-auto mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label
                 htmlFor="search"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium mb-2"
+                style={{ color: "#475569" }}
               >
                 搜索游戏
               </label>
@@ -148,25 +179,28 @@ export function GamesClient() {
                 <input
                   id="search"
                   type="text"
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  style={{ border: "1px solid #e2e8f0" }}
                   placeholder="输入游戏名称..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
-                <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "#94a3b8" }} />
               </div>
             </div>
 
             <div>
               <label
                 htmlFor="status-filter"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium mb-2"
+                style={{ color: "#475569" }}
               >
                 游戏状态
               </label>
               <select
                 id="status-filter"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                style={{ border: "1px solid #e2e8f0" }}
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
@@ -182,13 +216,15 @@ export function GamesClient() {
             <div>
               <label
                 htmlFor="type-filter"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium mb-2"
+                style={{ color: "#475569" }}
               >
                 游戏类型
               </label>
               <select
                 id="type-filter"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                style={{ border: "1px solid #e2e8f0" }}
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
               >
@@ -204,27 +240,29 @@ export function GamesClient() {
 
           <SteamSyncCard onSynced={loadGames} />
 
+          {/* ── 游戏列表 ── */}
           <div className="max-w-6xl mx-auto">
             {filtered.length === 0 ? (
               <div className="text-center py-16">
-                <Gamepad2 className="w-20 h-20 text-gray-300 mx-auto mb-6" />
-                <h3 className="text-2xl font-bold text-gray-700 mb-4">
+                <Gamepad2 className="w-20 h-20 mx-auto mb-6" style={{ color: "#cbd5e1" }} />
+                <h3 className="text-2xl font-bold mb-4" style={{ color: "#475569" }}>
                   暂无游戏
                 </h3>
-                <p className="text-gray-600 mb-8">
+                <p className="mb-8" style={{ color: "#94a3b8" }}>
                   点击「添加新游戏」按钮开始记录你的游戏之旅
                 </p>
                 <button
                   type="button"
-                  className="btn-primary inline-flex items-center"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-semibold text-sm transition-all hover:scale-105"
+                  style={{ background: "#3b82f6", color: "#fff" }}
                   onClick={() => setAddOpen(true)}
                 >
-                  <Plus className="w-5 h-5 mr-2" />
+                  <Plus className="w-4 h-4" />
                   添加新游戏
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {filtered.map((game) => (
                   <GameCassetteCard
                     key={String(game.id)}
@@ -241,46 +279,47 @@ export function GamesClient() {
         </div>
       </section>
 
-      <section className="py-14">
+      {/* ── 最近添加 ── */}
+      <section className="py-14" style={{ background: "#fff" }}>
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-xl font-bold text-gray-800">最近添加的游戏</h2>
+              <h2 className="text-xl font-bold" style={{ color: "#1e293b" }}>
+                最近添加的游戏
+              </h2>
               <Link
                 href="/achievements"
-                className="text-sm text-blue-500 hover:text-blue-700 transition-colors"
+                className="text-sm transition-colors"
+                style={{ color: "#3b82f6" }}
               >
                 查看全部 →
               </Link>
             </div>
             {recentlyAdded.length === 0 ? (
-              <p className="text-center text-gray-400 py-10">暂无最近添加的游戏</p>
+              <p className="text-center py-10" style={{ color: "#94a3b8" }}>暂无最近添加的游戏</p>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {recentlyAdded.map((game) => (
                   <Link
                     key={String(game.id)}
                     href={gameDetailPath(game.id)}
-                    className="game-card"
+                    className="block rounded-xl overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg"
+                    style={{ background: "#fff", border: "1px solid #e2e8f0" }}
                   >
-                    <div className="game-card-cover">
-                      <div className="game-card-img-wrapper">
-                        <GameIcon
-                          src={game.icon}
-                          name={game.name}
-                          width={200}
-                          height={200}
-                          className="game-card-img"
-                        />
-                        <div className="game-card-gradient" />
-                      </div>
+                    <div className="aspect-[3/4] relative overflow-hidden">
+                      <GameIcon
+                        src={game.icon}
+                        name={game.name}
+                        width={200}
+                        height={280}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0" style={{ background: "linear-gradient(transparent 50%, rgba(15,23,42,0.7))" }} />
                     </div>
-                    <div className="game-card-body">
-                      <h3 className="game-card-title">{game.name}</h3>
-                      <div className="game-card-meta">
-                        <span>{game.type || "其他"}</span>
-                        <span>·</span>
-                        <span>{parseInt(String(game.playtime), 10) || 0}h</span>
+                    <div className="p-3">
+                      <h3 className="text-sm font-semibold truncate" style={{ color: "#1e293b" }}>{game.name}</h3>
+                      <div className="text-xs mt-1" style={{ color: "#64748b" }}>
+                        {parseInt(String(game.playtime), 10) || 0}h
                       </div>
                     </div>
                   </Link>
