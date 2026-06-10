@@ -1,186 +1,141 @@
 "use client";
 
 import Link from "next/link";
-import { Clock, Flame, Gamepad2, Star, Trophy } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { getGames } from "@/lib/game-data";
+import Image from "next/image";
+import { Clock, Flame, Gamepad2, Star, Trophy, TrendingUp, Zap } from "lucide-react";
+import { useEffect, useState } from "react";
+import { getGames, getHomeStats } from "@/lib/game-data";
 import type { GameRecord } from "@/lib/game-types";
 import { getStatusText } from "@/lib/game-utils";
-import { GameIcon } from "@/components/games/game-icon";
 
 export function HomeStats() {
+  const [stats, setStats] = useState<ReturnType<typeof getHomeStats> | null>(null);
   const [games, setGames] = useState<GameRecord[]>([]);
 
   useEffect(() => {
+    setStats(getHomeStats());
     setGames(getGames());
   }, []);
 
-  const stats = useMemo(() => {
-    const totalHours = games.reduce(
-      (s, g) => s + (parseInt(String(g.playtime), 10) || 0),
-      0,
-    );
-    const completed = games.filter((g) => g.status === "completed").length;
-    const completionRate = games.length > 0
-      ? Math.round((completed / games.length) * 100)
-      : 0;
-    const achievements = 0; // placeholder - would need achievements count
-    const ratings = games
-      .filter((g) => (g.progress ?? 0) > 0)
-      .map((g) => Math.ceil((g.progress ?? 0) / 20));
-    const avgRating =
-      ratings.length > 0
-        ? (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1)
-        : "0.0";
-
-    // 最常玩的游戏
-    const sortedByPlaytime = [...games].sort(
-      (a, b) =>
-        (parseInt(String(b.playtime), 10) || 0) -
-        (parseInt(String(a.playtime), 10) || 0),
-    );
-    const favoriteGame = sortedByPlaytime[0] || null;
-
-    return {
-      totalGames: games.length,
-      totalHours,
-      completed,
-      completionRate,
-      achievements,
-      avgRating,
-      favoriteGame,
-      recentGames: sortedByPlaytime.slice(0, 4),
-    };
-  }, [games]);
-
-  if (games.length === 0) {
+  if (!stats) {
     return (
       <p className="text-center py-12" style={{ color: "var(--text-gray)" }}>
-        加载中…
+        加载中...
       </p>
     );
   }
 
   return (
     <>
-      {/* ── 深色数据面板 ── */}
-      <section style={{ background: "#111827" }} className="py-14">
+      {/* ====== 数据统计区域 - 主次分明 ====== */}
+      <section className="py-20">
         <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto">
-            {/* 主卡：总时长 */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <div
-                className="md:col-span-2 rounded-2xl p-6 md:p-8 flex items-center gap-6"
-                style={{
-                  background: "linear-gradient(135deg, #1e3a5f, #1e1b4b)",
-                  border: "1px solid rgba(59,130,246,0.2)",
-                }}
-              >
-                <div
-                  className="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0"
-                  style={{ background: "rgba(59,130,246,0.2)" }}
-                >
-                  <Clock className="w-8 h-8" style={{ color: "#60a5fa" }} />
-                </div>
-                <div>
-                  <div className="text-sm mb-1" style={{ color: "#94a3b8" }}>
-                    累计游戏时长
-                  </div>
-                  <div
-                    className="text-4xl md:text-5xl font-bold tracking-tight"
-                    style={{ color: "#f1f5f9" }}
-                  >
-                    {stats.totalHours}
-                    <span className="text-lg font-normal ml-1" style={{ color: "#64748b" }}>小时</span>
-                  </div>
-                </div>
-                {stats.favoriteGame && (
-                  <div className="ml-auto hidden sm:flex items-center gap-3 shrink-0">
-                    <GameIcon
-                      src={stats.favoriteGame.icon}
-                      name={stats.favoriteGame.name}
-                      width={48}
-                      height={48}
-                      className="w-12 h-12 rounded-lg object-cover"
-                    />
-                    <div>
-                      <div className="text-xs" style={{ color: "#64748b" }}>最常玩</div>
-                      <div className="text-sm font-semibold" style={{ color: "#e2e8f0" }}>
-                        {stats.favoriteGame.name}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold gradient-text mb-3">
+              我的游戏旅程
+            </h2>
+            <p className="text-base" style={{ color: "var(--text-gray)" }}>
+              每一款游戏，都是一段独特的冒险
+            </p>
+          </div>
 
-              {/* 副卡 1：游戏数 */}
-              <div
-                className="rounded-2xl p-6 flex flex-col justify-center"
-                style={{
-                  background: "rgba(255,255,255,0.05)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                }}
-              >
-                <Gamepad2 className="w-6 h-6 mb-2" style={{ color: "#60a5fa" }} />
-                <div className="text-2xl font-bold" style={{ color: "#e2e8f0" }}>
-                  {stats.totalGames}
+          {/* 主数据卡片 - 大 */}
+          <div className="max-w-2xl mx-auto mb-8">
+            <div className="stat-card stat-card-primary p-8">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-gradient-to-br from-violet-500 to-pink-500">
+                  <Clock className="w-7 h-7 text-white" />
                 </div>
-                <div className="text-sm" style={{ color: "#64748b" }}>游戏收藏</div>
+              </div>
+              <div className="stat-number text-5xl md:text-6xl">{stats.totalHours}h</div>
+              <div className="stat-label text-lg mt-2">累计游戏时长</div>
+              <div className="mt-4 flex justify-center gap-2">
+                <span className="badge badge-purple">{stats.totalGames} 款游戏</span>
+                <span className="badge badge-pink">{stats.avgRating} 平均评分</span>
               </div>
             </div>
+          </div>
 
-            {/* 副卡 2-4 */}
-            <div className="grid grid-cols-3 gap-4">
-              <MiniStatTile icon={<Trophy className="w-5 h-5" />} value={String(stats.completed)} label="已通关" color="#22c55e" />
-              <MiniStatTile icon={<Star className="w-5 h-5" />} value={stats.completionRate + "%"} label="通关率" color="#f59e0b" />
-              <MiniStatTile icon={<Flame className="w-5 h-5" />} value={stats.avgRating} label="平均评分" color="#ef4444" />
-            </div>
+          {/* 次数据卡片 - 小 */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
+            <SubStatCard
+              icon={<Gamepad2 className="w-6 h-6 text-violet-500" />}
+              value={String(stats.totalGames)}
+              label="收藏游戏"
+            />
+            <SubStatCard
+              icon={<Trophy className="w-6 h-6 text-pink-500" />}
+              value={String(stats.totalAchievements)}
+              label="解锁成就"
+            />
+            <SubStatCard
+              icon={<Star className="w-6 h-6 text-cyan-500" />}
+              value={stats.avgRating}
+              label="平均评分"
+            />
+            <SubStatCard
+              icon={<TrendingUp className="w-6 h-6 text-emerald-500" />}
+              value={stats.totalGames > 0
+                ? Math.round((games.filter((g) => g.status === "completed").length / stats.totalGames) * 100) + "%"
+                : "0%"}
+              label="通关率"
+            />
+            <SubStatCard
+              icon={<Zap className="w-6 h-6 text-amber-500" />}
+              value={stats.recentGames.length > 0 ? "活跃" : "休息中"}
+              label="当前状态"
+            />
+            <SubStatCard
+              icon={<Flame className="w-6 h-6 text-rose-500" />}
+              value={stats.recentGames[0]?.name || "-"}
+              label="最爱游戏"
+              isText
+            />
           </div>
         </div>
       </section>
 
-      {/* ── 浅色区：最近游玩 ── */}
-      <section className="py-16" style={{ background: "#f8fafc" }}>
+      {/* ====== 最近游玩 - 游戏封面展示 ====== */}
+      <section className="py-20 section-glass">
         <div className="container mx-auto px-4">
-          <h2 className="text-2xl font-bold text-center mb-2" style={{ color: "#1e293b" }}>
-            <Flame className="w-6 h-6 inline mr-2" style={{ color: "#f59e0b" }} />
-            最近游玩
-          </h2>
-          <p
-            className="text-center mb-8 max-w-xl mx-auto text-sm"
-            style={{ color: "#64748b" }}
-          >
-            展示近期添加与经常游玩的游戏，快速继续你的游戏旅程
-          </p>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold gradient-text mb-3">
+              最近游玩
+            </h2>
+            <p className="text-base" style={{ color: "var(--text-gray)" }}>
+              继续你的冒险，重温精彩时刻
+            </p>
+          </div>
+
           <div className="max-w-6xl mx-auto">
             {stats.recentGames.length === 0 ? (
-              <div className="text-center py-8">
-                <Gamepad2 className="w-16 h-16 mx-auto mb-4" style={{ color: "#cbd5e1" }} />
-                <p style={{ color: "#94a3b8" }}>暂无收藏的游戏</p>
-                <Link href="/games" className="text-sm hover:underline" style={{ color: "#3b82f6" }}>
-                  前往收藏页添加第一款游戏
+              <div className="text-center py-12 glass-card max-w-md mx-auto">
+                <Gamepad2 className="w-16 h-16 mx-auto mb-4" style={{ color: "var(--text-light)" }} />
+                <p className="text-lg font-medium mb-2" style={{ color: "var(--text-dark)" }}>
+                  暂无收藏的游戏
+                </p>
+                <p className="text-sm mb-6" style={{ color: "var(--text-gray)" }}>
+                  开始记录你的第一款游戏吧
+                </p>
+                <Link href="/games" className="btn-primary inline-flex items-center">
+                  <Gamepad2 className="w-5 h-5 mr-2" />
+                  前往收藏页
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                {stats.recentGames.map((game) => (
-                  <GameCard key={game.id} game={game} />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+                  {stats.recentGames.map((game) => (
+                    <GameCard key={game.id} game={game} />
+                  ))}
+                </div>
+                <div className="text-center mt-10">
+                  <Link href="/games" className="btn-secondary inline-flex items-center">
+                    查看全部游戏
+                  </Link>
+                </div>
+              </>
             )}
-            <div className="text-center mt-8">
-              <Link
-                href="/games"
-                className="inline-flex items-center px-5 py-2 rounded-lg text-sm font-semibold transition-all hover:scale-105"
-                style={{
-                  background: "#f1f5f9",
-                  color: "#475569",
-                  border: "1px solid #e2e8f0",
-                }}
-              >
-                查看全部游戏 →
-              </Link>
-            </div>
           </div>
         </div>
       </section>
@@ -188,29 +143,28 @@ export function HomeStats() {
   );
 }
 
-function MiniStatTile({
+function SubStatCard({
   icon,
   value,
   label,
-  color,
+  isText = false,
 }: {
   icon: React.ReactNode;
-  value: string | number;
+  value: string;
   label: string;
-  color: string;
+  isText?: boolean;
 }) {
   return (
-    <div
-      className="rounded-xl p-4 flex items-center gap-3"
-      style={{
-        background: "rgba(255,255,255,0.05)",
-        border: "1px solid rgba(255,255,255,0.08)",
-      }}
-    >
-      <div style={{ color }}>{icon}</div>
-      <div>
-        <div className="text-lg font-bold" style={{ color: "#e2e8f0" }}>{value}</div>
-        <div className="text-xs" style={{ color: "#64748b" }}>{label}</div>
+    <div className="glass-card p-5 text-center">
+      <div className="flex justify-center mb-3">{icon}</div>
+      <div
+        className={`font-bold mb-1 ${isText ? "text-base" : "text-2xl"}`}
+        style={{ color: "var(--text-dark)" }}
+      >
+        {value}
+      </div>
+      <div className="text-xs" style={{ color: "var(--text-gray)" }}>
+        {label}
       </div>
     </div>
   );
@@ -218,46 +172,89 @@ function MiniStatTile({
 
 function GameCard({ game }: { game: GameRecord }) {
   const hours = parseInt(String(game.playtime), 10) || 0;
+  const progress = parseInt(String(game.progress), 10) || 0;
+
   return (
     <Link
       href={`/games/${encodeURIComponent(game.id)}`}
-      className="block rounded-xl overflow-hidden transition-all hover:-translate-y-1 hover:shadow-lg"
-      style={{ background: "#fff", border: "1px solid #e2e8f0" }}
+      className="game-card game-card-link group"
     >
-      {/* 封面区 */}
-      <div className="aspect-[3/2] relative overflow-hidden">
-        <GameIcon
-          src={game.icon}
-          name={game.name}
-          width={400}
-          height={280}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
-        />
-        <div
-          className="absolute inset-0"
-          style={{ background: "linear-gradient(transparent 50%, rgba(0,0,0,0.4))" }}
-        />
+      {/* 封面 */}
+      <div className="game-card-cover">
+        <div className="game-card-img-wrapper">
+          {game.icon ? (
+            <Image
+              src={game.icon}
+              alt={game.name}
+              fill
+              className="game-card-img"
+              unoptimized
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-violet-100 to-pink-100 flex items-center justify-center">
+              <Gamepad2 className="w-12 h-12 text-violet-300" />
+            </div>
+          )}
+        </div>
+        <div className="game-card-gradient" />
+
+        {/* 状态标签 */}
+        <span className="game-card-status">{getStatusText(game.status)}</span>
+
+        {/* 进度条 */}
+        {progress > 0 && (
+          <div className="absolute bottom-3 left-3 right-3">
+            <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-violet-400 to-pink-400"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
+        )}
       </div>
-      {/* 信息区 */}
-      <div className="p-4">
-        <h4 className="font-semibold truncate" style={{ color: "#1e293b" }}>
-          {game.name}
-        </h4>
-        <div className="flex items-center gap-2 mt-1 text-sm" style={{ color: "#64748b" }}>
+
+      {/* 信息 */}
+      <div className="game-card-body">
+        <h4 className="game-card-title">{game.name}</h4>
+        <div className="game-card-meta">
           <span>{game.type || "其他"}</span>
           <span>·</span>
           <span>{hours}h</span>
+          {progress > 0 && (
+            <>
+              <span>·</span>
+              <span>{progress}%</span>
+            </>
+          )}
         </div>
-        <div className="mt-2">
-          <span
-            className="text-xs px-2 py-0.5 rounded-full"
-            style={{
-              background: "#f1f5f9",
-              color: "#475569",
-            }}
-          >
-            {getStatusText(game.status)}
-          </span>
+      </div>
+
+      {/* 悬浮遮罩 */}
+      <div className="game-card-overlay">
+        <div className="game-card-overlay-content">
+          <h3 className="game-card-overlay-title">{game.name}</h3>
+          <div className="game-card-info">
+            <div className="game-card-info-row">
+              <span className="game-card-info-label">类型</span>
+              <span>{game.type || "其他"}</span>
+            </div>
+            <div className="game-card-info-row">
+              <span className="game-card-info-label">时长</span>
+              <span>{hours} 小时</span>
+            </div>
+            <div className="game-card-info-row">
+              <span className="game-card-info-label">进度</span>
+              <span>{progress}%</span>
+            </div>
+            <div className="game-card-info-row">
+              <span className="game-card-info-label">状态</span>
+              <span>{getStatusText(game.status)}</span>
+            </div>
+          </div>
+          <div className="game-card-actions">
+            <span className="game-card-btn game-card-btn-primary">查看详情</span>
+          </div>
         </div>
       </div>
     </Link>

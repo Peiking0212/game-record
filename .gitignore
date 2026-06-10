@@ -47,3 +47,5 @@ playwright-report/
 .wrangler
 .dev.vars*
 !.dev.vars.example
+
+.vercel
