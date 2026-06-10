@@ -241,32 +241,47 @@ export function GamesClient() {
         </div>
       </section>
 
-      <section className="py-16 bg-gray-50">
+      <section className="py-14">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
-            最近添加的游戏
-          </h2>
           <div className="max-w-6xl mx-auto">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-xl font-bold text-gray-800">最近添加的游戏</h2>
+              <Link
+                href="/achievements"
+                className="text-sm text-blue-500 hover:text-blue-700 transition-colors"
+              >
+                查看全部 →
+              </Link>
+            </div>
             {recentlyAdded.length === 0 ? (
-              <p className="text-center text-gray-500">暂无最近添加的游戏</p>
+              <p className="text-center text-gray-400 py-10">暂无最近添加的游戏</p>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                 {recentlyAdded.map((game) => (
                   <Link
                     key={String(game.id)}
                     href={gameDetailPath(game.id)}
-                    className="bg-white rounded-lg shadow-lg overflow-hidden block hover:shadow-xl transition-shadow"
+                    className="game-card"
                   >
-                    <GameIcon
-                      src={game.icon}
-                      name={game.name}
-                      width={400}
-                      height={128}
-                      className="w-full h-32 object-cover"
-                    />
-                    <div className="p-4">
-                      <h4 className="font-semibold text-gray-800">{game.name}</h4>
-                      <p className="text-sm text-gray-600">{game.type}</p>
+                    <div className="game-card-cover">
+                      <div className="game-card-img-wrapper">
+                        <GameIcon
+                          src={game.icon}
+                          name={game.name}
+                          width={200}
+                          height={200}
+                          className="game-card-img"
+                        />
+                        <div className="game-card-gradient" />
+                      </div>
+                    </div>
+                    <div className="game-card-body">
+                      <h3 className="game-card-title">{game.name}</h3>
+                      <div className="game-card-meta">
+                        <span>{game.type || "其他"}</span>
+                        <span>·</span>
+                        <span>{parseInt(String(game.playtime), 10) || 0}h</span>
+                      </div>
                     </div>
                   </Link>
                 ))}

@@ -10,53 +10,84 @@ type Props = {
   onEdit: (id: number | string) => void;
 };
 
+const statusColors: Record<string, string> = {
+  playing: "bg-emerald-500",
+  completed: "bg-blue-500",
+  paused: "bg-amber-500",
+  dropped: "bg-gray-400",
+};
+
+const statusLabels: Record<string, string> = {
+  playing: "游玩中",
+  completed: "已通关",
+  paused: "暂停",
+  dropped: "弃坑",
+};
+
 export function GameCassetteCard({ game, onEdit }: Props) {
   const status = game.status || "playing";
   const href = gameDetailPath(game.id);
 
   return (
-    <div className={`cassette-3d cassette-${status}`}>
-      <div className="cassette-3d-inner">
-        <Link href={href} className="cassette-3d-front block" title={`查看 ${game.name} 详情页`}>
-          <div className="cassette-cover">
-            <div className="cassette-ribbon" />
+    <div className="game-card group">
+      <Link href={href} className="game-card-link">
+        <div className="game-card-cover">
+          <div className="game-card-img-wrapper">
             <GameIcon
               src={game.icon}
               name={game.name}
-              className=""
-              width={120}
-              height={120}
+              width={200}
+              height={200}
+              className="game-card-img"
             />
+            <div className="game-card-gradient" />
           </div>
-          <div className="cassette-label">{game.name}</div>
-          <span className="cassette-detail-link">进入详情页→</span>
-        </Link>
-        <div className="cassette-3d-back">
-          <h4>{game.name}</h4>
-          <div className="cassette-info-row">
-            <span>类型</span>
+          <span className={`game-card-status ${statusColors[status] || "bg-emerald-500"}`}>
+            {statusLabels[status] || "游玩中"}
+          </span>
+        </div>
+        <div className="game-card-body">
+          <h3 className="game-card-title">{game.name}</h3>
+          <div className="game-card-meta">
             <span>{game.type || "其他"}</span>
+            <span>·</span>
+            <span>{parseInt(String(game.playtime), 10) || 0}h</span>
           </div>
-          <div className="cassette-info-row">
-            <span>状态</span>
-            <span>{getStatusText(game.status)}</span>
+        </div>
+      </Link>
+
+      <div className="game-card-overlay">
+        <div className="game-card-overlay-content">
+          <h4 className="game-card-overlay-title">{game.name}</h4>
+          <div className="game-card-info">
+            <div className="game-card-info-row">
+              <span className="game-card-info-label">类型</span>
+              <span>{game.type || "其他"}</span>
+            </div>
+            <div className="game-card-info-row">
+              <span className="game-card-info-label">状态</span>
+              <span>{getStatusText(game.status)}</span>
+            </div>
+            <div className="game-card-info-row">
+              <span className="game-card-info-label">时长</span>
+              <span>{parseInt(String(game.playtime), 10) || 0} 小时</span>
+            </div>
+            <div className="game-card-info-row">
+              <span className="game-card-info-label">进度</span>
+              <span>{parseInt(String(game.progress), 10) || 0}%</span>
+            </div>
           </div>
-          <div className="cassette-info-row">
-            <span>时长</span>
-            <span>{parseInt(String(game.playtime), 10) || 0} 小时</span>
-          </div>
-          <div className="cassette-info-row">
-            <span>进度</span>
-            <span>{parseInt(String(game.progress), 10) || 0}%</span>
-          </div>
-          <div className="cassette-actions">
-            <Link className="cassette-btn-play" href={href}>
-              详情页
+          <div className="game-card-actions">
+            <Link className="game-card-btn game-card-btn-primary" href={href}>
+              查看详情
             </Link>
             <button
               type="button"
-              className="cassette-btn-edit"
-              onClick={() => onEdit(game.id)}
+              className="game-card-btn game-card-btn-secondary"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(game.id);
+              }}
             >
               编辑
             </button>

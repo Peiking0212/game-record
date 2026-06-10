@@ -46,3 +46,173 @@
   position: absolute;
   cursor: move;
 }
+
+/* ====== 游戏卡片 - 现代极简风格 ====== */
+.game-card {
+  position: relative;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+  cursor: pointer;
+}
+.game-card:hover {
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1), 0 4px 10px rgba(0,0,0,0.06);
+  transform: translateY(-4px);
+}
+.game-card-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* 封面区 */
+.game-card-cover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+}
+.game-card-img-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.game-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+.game-card:hover .game-card-img {
+  transform: scale(1.08);
+}
+.game-card-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.5) 100%);
+}
+
+/* 状态标记 */
+.game-card-status {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.3px;
+  backdrop-filter: blur(4px);
+}
+
+/* 信息区 */
+.game-card-body {
+  padding: 12px 14px 14px;
+}
+.game-card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a2e;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0;
+}
+.game-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+/* ====== 悬浮遮罩层（替代旧的 3D 背面） ====== */
+.game-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.game-card:hover .game-card-overlay {
+  opacity: 1;
+  pointer-events: auto;
+}
+.game-card-overlay-content {
+  padding: 20px;
+  width: 100%;
+  text-align: center;
+}
+.game-card-overlay-title {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 信息行 */
+.game-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.game-card-info-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #cbd5e1;
+  padding: 0 8px;
+}
+.game-card-info-label {
+  color: #94a3b8;
+}
+
+/* 按钮 */
+.game-card-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.game-card-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+.game-card-btn-primary {
+  background: #3b82f6;
+  color: #fff;
+}
+.game-card-btn-primary:hover {
+  background: #2563eb;
+}
+.game-card-btn-secondary {
+  background: rgba(255,255,255,0.1);
+  color: #e2e8f0;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+.game-card-btn-secondary:hover {
+  background: rgba(255,255,255,0.18);
+}

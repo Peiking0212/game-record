@@ -93,7 +93,6 @@ export function GameFormModal({ mode, open, game, onClose, onSubmit }: Props) {
   }
 
   const title = mode === "add" ? "添加新游戏" : "编辑游戏";
-  const previewIcon = values.icon || (values.name ? defaultGameCover(values.name) : "");
 
   return (
     <>
@@ -132,17 +131,26 @@ export function GameFormModal({ mode, open, game, onClose, onSubmit }: Props) {
                 上传
               </button>
             </div>
-            {previewIcon && (
-              <div className="mt-2">
+            <div className="mt-2 flex items-center gap-3">
+              {values.icon ? (
                 <GameIcon
-                  src={previewIcon}
+                  src={values.icon}
                   name={values.name || "preview"}
                   width={80}
                   height={80}
-                  className="rounded-lg object-cover"
+                  className="rounded-lg object-cover border"
                 />
-              </div>
-            )}
+              ) : (
+                <div className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-xs bg-gray-50">
+                  未选择图片
+                </div>
+              )}
+              {values.name && !values.icon && (
+                <span className="text-xs text-gray-400">
+                  保存后会自动生成封面
+                </span>
+              )}
+            </div>
           </div>
 
           <div>

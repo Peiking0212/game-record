@@ -16,19 +16,13 @@ export function getStatusText(status?: string): string {
   return STATUS_LABELS[status] ?? status;
 }
 
-export function defaultGameCover(seed?: string): string {
-  const text = String(seed ?? "");
-  let hash = 0;
-  for (let i = 0; i < text.length; i++) {
-    hash = (hash << 5) - hash + text.charCodeAt(i);
-  }
-  return Math.abs(hash) % 2 === 0
-    ? "/assets/default-cover-male.svg"
-    : "/assets/default-cover-female.svg";
+export function defaultGameCover(_seed?: string): string {
+  // 透明背景，完全融入页面底色
+  return `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'/%3E`;
 }
 
 export function gameIconUrl(icon?: string, name?: string): string {
-  if (!icon) return defaultGameCover(name);
+  if (!icon || icon.startsWith("/assets/default-cover-")) return defaultGameCover(name);
   if (icon.startsWith("assets/")) return `/${icon}`;
   return icon;
 }

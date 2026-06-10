@@ -1,18 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Gamepad2,
+  LogIn,
+  LogOut,
   Menu,
   Moon,
   MoreHorizontal,
+  Settings,
   Sun,
+  User,
   X,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { MAIN_NAV, MORE_NAV } from "@/lib/navigation";
 import { useTheme } from "@/components/providers/theme-provider";
+import { tryCreateClient } from "@/lib/supabase/client";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 function navClass(active: boolean) {
   return `nav-link${active ? " active" : ""}`;
@@ -20,14 +26,39 @@ function navClass(active: boolean) {
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const router = useRouter();
   const { theme, toggleTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [supabaseUser, setSupabaseUser] = useState<SupabaseUser | null>(null);
+  const [authLoaded, setAuthLoaded] = useState(false);
 
   useEffect(() => {
     setMobileOpen(false);
     setMoreOpen(false);
   }, [pathname]);
+
+  useEffect(() => {
+    const supabase = tryCreateClient();
+    if (!supabase) { setAuthLoaded(true); return; }
+    supabase.auth.getSession().then(({ data }) => {
+      setSupabaseUser(data.session?.user ?? null);
+      setAuthLoaded(true);
+    });
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSupabaseUser(session?.user ?? null);
+    });
+    return () => listener?.subscription.unsubscribe();
+  }, []);
+
+  async function handleLogout() {
+    const supabase = tryCreateClient();
+    if (!supabase) return;
+    await supabase.auth.signOut();
+    setSupabaseUser(null);
+    router.push("/");
+    router.refresh();
+  }
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -117,6 +148,36 @@ export function SiteHeader() {
                 <Moon className="w-5 h-5" />
               )}
             </button>
+            {authLoaded && (
+              <>
+                {supabaseUser ? (
+                  <>
+                    <Link
+                      href="/profile"
+                      className="nav-link"
+                      title={supabaseUser.email || "个人主页"}
+                    >
+                      <User className="w-5 h-5" />
+                    </Link>
+                    <Link href="/settings" className="nav-link" title="设置">
+                      <Settings className="w-5 h-5" />
+                    </Link>
+                    <button
+                      type="button"
+                      className="nav-link"
+                      onClick={handleLogout}
+                      title="退出登录"
+                    >
+                      <LogOut className="w-5 h-5" />
+                    </button>
+                  </>
+                ) : (
+                  <Link href="/auth" className="nav-link" title="登录">
+                    <LogIn className="w-5 h-5" />
+                  </Link>
+                )}
+              </>
+            )}
           </div>
 
           <button
@@ -152,6 +213,44 @@ export function SiteHeader() {
               >
                 {theme === "dark" ? "浅色模式" : "深色模式"}
               </button>
+              {authLoaded && (
+                <div className="border-t border-gray-100 pt-2 mt-2">
+                  {supabaseUser ? (
+                    <>
+                      <Link
+                        href="/profile"
+                        className="nav-link py-2 px-4 rounded-lg flex items-center"
+                      >
+                        <User className="w-4 h-4 mr-2" />
+                        个人主页
+                      </Link>
+                      <Link
+                        href="/settings"
+                        className="nav-link py-2 px-4 rounded-lg flex items-center"
+                      >
+                        <Settings className="w-4 h-4 mr-2" />
+                        设置
+                      </Link>
+                      <button
+                        type="button"
+                        className="nav-link py-2 px-4 rounded-lg text-left w-full flex items-center"
+                        onClick={handleLogout}
+                      >
+                        <LogOut className="w-4 h-4 mr-2" />
+                        退出登录
+                      </button>
+                    </>
+                  ) : (
+                    <Link
+                      href="/auth"
+                      className="nav-link py-2 px-4 rounded-lg flex items-center"
+                    >
+                      <LogIn className="w-4 h-4 mr-2" />
+                      登录
+                    </Link>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}

@@ -6,6 +6,7 @@ import {
   Home,
   Image,
   MessageSquare,
+  Settings,
   ShoppingCart,
   Sparkles,
   Trophy,
@@ -33,4 +34,5 @@ export const MORE_NAV: NavItem[] = [
   { href: "/gallery", label: "媒体库", icon: Image, inMore: true },
   { href: "/wishlist", label: "游戏愿望单", icon: Heart, inMore: true },
   { href: "/reviews", label: "游戏评测", icon: MessageSquare, inMore: true },
+  { href: "/settings", label: "设置", icon: Settings, inMore: true },
 ];

@@ -30,7 +30,7 @@ import {
   type UserProfile,
 } from "@/lib/profile";
 
-const AVATAR_FALLBACK = "/assets/default-cover-male.svg";
+const AVATAR_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Crect width='96' height='96' fill='%236366f1'/%3E%3C/svg%3E";
 
 function TagBadges({
   tags,

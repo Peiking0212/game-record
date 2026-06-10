@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { GalleryClient } from "@/components/gallery/gallery-client";
+import { GameDetailClient } from "@/components/games/game-detail-client";
 
-export const metadata: Metadata = { title: "图库" };
+export const metadata: Metadata = { title: "游戏详情" };
 
-export default function GalleryPage() {
-  return <GalleryClient />;
+export default function GameDetailPage() {
+  return <GameDetailClient />;
 }
