@@ -404,50 +404,51 @@ export function ProfileClient() {
       {/* ====== 玩家身份 Header ====== */}
       <section data-hero className="relative py-16 md:py-24">
         <div className="container mx-auto px-4 text-center relative z-10">
-          {/* 头像 */}
-          <div className="relative inline-block mb-6">
-            <div className="w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-white/30 shadow-2xl mx-auto">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={avatarSrc}
-                alt="头像"
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = AVATAR_FALLBACK;
-                }}
-              />
+          <div className="glass-card-strong inline-block px-8 py-8 rounded-2xl">
+            {/* 头像 */}
+            <div className="relative inline-block mb-6">
+              <div className="w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-white/30 shadow-2xl mx-auto">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={avatarSrc}
+                  alt="头像"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = AVATAR_FALLBACK;
+                  }}
+                />
+              </div>
+              <label className="absolute -bottom-1 -right-1 w-10 h-10 rounded-full glass-card flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={(e) => {
+                    handleAvatarChange(e.target.files?.[0]);
+                    e.target.value = "";
+                  }}
+                />
+                <Camera className="w-4 h-4 text-white" />
+              </label>
             </div>
-            <label className="absolute -bottom-1 -right-1 w-10 h-10 rounded-full glass-card flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
-              <input
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                onChange={(e) => {
-                  handleAvatarChange(e.target.files?.[0]);
-                  e.target.value = "";
-                }}
-              />
-              <Camera className="w-4 h-4 text-white" />
-            </label>
+
+            {/* 名字和头衔 */}
+            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 drop-shadow-lg">
+              {profile.name}
+            </h1>
+            <p className="text-lg text-white/90 mb-4">{profile.title}</p>
+
+            {/* 标签 */}
+            <div className="flex flex-wrap justify-center gap-2 mb-6">
+              <TagBadges tags={profile.tags} />
+            </div>
+
+            {/* 简介 */}
+            <p className="text-white/80 max-w-xl mx-auto text-base leading-relaxed">
+              {profile.bio}
+            </p>
           </div>
-
-          {/* 名字和头衔 */}
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2 drop-shadow-lg">
-            {profile.name}
-          </h1>
-          <p className="text-lg text-white/70 mb-4">{profile.title}</p>
-
-          {/* 标签 */}
-          <div className="flex flex-wrap justify-center gap-2 mb-6">
-            <TagBadges tags={profile.tags} />
-          </div>
-
-          {/* 简介 */}
-          <p className="text-white/60 max-w-xl mx-auto text-base leading-relaxed">
-            {profile.bio}
-          </p>
         </div>
-
       </section>
 
       {/* ====== 核心数据 - 毛玻璃卡片 ====== */}
