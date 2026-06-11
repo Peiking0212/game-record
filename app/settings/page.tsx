@@ -891,11 +891,13 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<Tab>("appearance");
 
   return (
-    <div className="container mx-auto px-4 py-10 max-w-3xl">
-      <h1 className="text-3xl font-bold mb-8 gradient-text">设置</h1>
+    <section data-hero className="relative py-10">
+      <div className="container mx-auto px-4 max-w-3xl">
+        <div className="glass-card-strong inline-block px-8 py-8 rounded-2xl w-full">
+          <h1 className="text-3xl font-bold mb-8 gradient-text">设置</h1>
 
-      {/* 标签栏 */}
-      <div className="flex gap-1 mb-6 overflow-x-auto pb-2">
+          {/* 标签栏 */}
+          <div className="flex gap-1 mb-6 overflow-x-auto pb-2">
         {TABS.map((tab) => (
           <button
             key={tab.id}
@@ -925,6 +927,8 @@ export default function SettingsPage() {
       <div className="mt-8 pt-6 border-t text-center text-xs" style={{ borderColor: "var(--border-glass)", color: "var(--text-light)" }}>
         游戏记录 v2.0 · Next.js 15 + Supabase
       </div>
-    </div>
+        </div>
+      </div>
+    </section>
   );
 }

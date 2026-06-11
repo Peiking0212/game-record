@@ -166,12 +166,14 @@ export function StatsClient() {
     <>
       <section data-hero className="relative py-16">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 gradient-text">
-            游戏统计
-          </h1>
-          <p className="text-xl mb-8 max-w-2xl mx-auto" style={{ color: "var(--text-dark)" }}>
-            全方位分析你的游戏数据，了解游戏习惯与消费趋势
-          </p>
+          <div className="glass-card-strong inline-block px-8 py-8 rounded-2xl">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 gradient-text">
+              游戏统计
+            </h1>
+            <p className="text-xl mb-8 max-w-2xl mx-auto text-white/90">
+              全方位分析你的游戏数据，了解游戏习惯与消费趋势
+            </p>
+          </div>
         </div>
       </section>
 

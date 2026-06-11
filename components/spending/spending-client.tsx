@@ -317,27 +317,29 @@ export function SpendingClient() {
     <>
       <section data-hero className="relative py-14">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 gradient-text">
-            消费记录
-          </h1>
-          <p className="text-lg mb-6 max-w-xl mx-auto" style={{ color: "var(--text-dark)" }}>
-            记录你的游戏开销，理性消费
-          </p>
-          <div className="inline-flex items-center gap-3 rounded-full px-5 py-2 shadow-md glass-card">
-            <Calendar className="w-5 h-5" style={{ color: "var(--primary)" }} />
-            <select
-              className="text-base font-bold bg-transparent border-none outline-none cursor-pointer"
-              style={{ color: "var(--text-dark)" }}
-              value={year}
-              onChange={(e) => setYear(e.target.value)}
-            >
-              <option value="all">全部年份</option>
-              {years.map((y) => (
-                <option key={y} value={y}>
-                  {y} 年
-                </option>
-              ))}
-            </select>
+          <div className="glass-card-strong inline-block px-8 py-8 rounded-2xl">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 gradient-text">
+              消费记录
+            </h1>
+            <p className="text-lg mb-6 max-w-xl mx-auto text-white/90">
+              记录你的游戏开销，理性消费
+            </p>
+            <div className="inline-flex items-center gap-3 rounded-full px-5 py-2 shadow-md glass-card">
+              <Calendar className="w-5 h-5" style={{ color: "var(--primary)" }} />
+              <select
+                className="text-base font-bold bg-transparent border-none outline-none cursor-pointer"
+                style={{ color: "var(--text-dark)" }}
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+              >
+                <option value="all">全部年份</option>
+                {years.map((y) => (
+                  <option key={y} value={y}>
+                    {y} 年
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
       </section>

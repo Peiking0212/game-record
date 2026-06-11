@@ -141,20 +141,22 @@ export function ReviewsClient() {
     <>
       <section data-hero className="relative py-16">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 gradient-text">
-            游戏评测
-          </h1>
-          <p className="text-xl mb-8 max-w-2xl mx-auto" style={{ color: "var(--text-dark)" }}>
-            记录每款游戏的游玩体验，分享你的真实评价与感受
-          </p>
-          <button
-            type="button"
-            className="btn-primary inline-flex items-center"
-            onClick={() => setAddOpen(true)}
-          >
-            <Plus className="w-5 h-5 mr-2" />
-            添加评测
-          </button>
+          <div className="glass-card-strong inline-block px-8 py-8 rounded-2xl">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 gradient-text">
+              游戏评测
+            </h1>
+            <p className="text-xl mb-8 max-w-2xl mx-auto text-white/90">
+              记录每款游戏的游玩体验，分享你的真实评价与感受
+            </p>
+            <button
+              type="button"
+              className="btn-primary inline-flex items-center"
+              onClick={() => setAddOpen(true)}
+            >
+              <Plus className="w-5 h-5 mr-2" />
+              添加评测
+            </button>
+          </div>
         </div>
       </section>
 
