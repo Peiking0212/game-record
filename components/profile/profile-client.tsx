@@ -4,7 +4,6 @@ import {
   Calendar,
   Camera,
   Clock,
-  Crown,
   Edit,
   Flame,
   Gamepad2,
@@ -402,16 +401,9 @@ export function ProfileClient() {
 
   return (
     <>
-      {/* ====== 玩家身份 Header - 深色二次元风格 ====== */}
-      <section className="anime-hero relative py-20 md:py-28">
+      {/* ====== 玩家身份 Header ====== */}
+      <section data-hero className="relative py-16 md:py-24">
         <div className="container mx-auto px-4 text-center relative z-10">
-          {/* 等级徽章 */}
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full glass-card mb-6">
-            <Crown className="w-5 h-5 text-yellow-400" />
-            <span className="text-sm font-bold text-white">Lv.{stats.level}</span>
-            <span className="text-sm text-white/70">{stats.title}</span>
-          </div>
-
           {/* 头像 */}
           <div className="relative inline-block mb-6">
             <div className="w-28 h-28 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-white/30 shadow-2xl mx-auto">
@@ -456,8 +448,6 @@ export function ProfileClient() {
           </p>
         </div>
 
-        {/* 底部渐变过渡 */}
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[var(--bg-light)] to-transparent" />
       </section>
 
       {/* ====== 核心数据 - 毛玻璃卡片 ====== */}
