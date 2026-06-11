@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Gamepad2, User, Clock, Trophy, Star, Zap } from "lucide-react";
+import { Gamepad2, User, Clock, Trophy, Star } from "lucide-react";
 import { HomeStats } from "@/components/home/home-stats";
 import { useEffect, useState } from "react";
 import { getHomeStats } from "@/lib/game-data";
@@ -15,15 +15,9 @@ export default function HomePage() {
 
   return (
     <>
-      {/* ====== 二次元动漫风格 Hero ====== */}
-      <section className="anime-hero relative py-24 md:py-32" data-hero>
+      {/* ====== Hero ====== */}
+      <section className="relative py-24 md:py-32" data-hero>
         <div className="container mx-auto px-4 text-center relative z-10">
-          {/* 玩家身份标签 */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card mb-8">
-            <Zap className="w-4 h-4 text-yellow-400" />
-            <span className="text-sm font-semibold text-white/90">Lv.{stats ? Math.floor(parseInt(String(stats.totalHours || "0"), 10) / 50) + 1 : 1} 游戏冒险家</span>
-          </div>
-
           {/* 主标题 */}
           <h1 className="text-5xl md:text-6xl font-extrabold mb-6 text-white drop-shadow-lg">
             游戏时光
@@ -49,32 +43,42 @@ export default function HomePage() {
 
           {/* CTA 按钮 */}
           <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/games" className="btn-primary inline-flex items-center text-base px-8 py-3">
-              <Gamepad2 className="w-5 h-5 mr-2" />
-              进入游戏库
+            <Link
+              href="/games"
+              className="btn-primary inline-flex items-center gap-2 px-8 py-3 text-lg"
+            >
+              <Gamepad2 className="w-5 h-5" />
+              浏览游戏库
             </Link>
-            <Link href="/profile" className="btn-secondary inline-flex items-center text-base px-8 py-3">
-              <User className="w-5 h-5 mr-2" />
-              个人中心
+            <Link
+              href="/profile"
+              className="btn-secondary inline-flex items-center gap-2 px-8 py-3 text-lg"
+            >
+              <User className="w-5 h-5" />
+              个人主页
             </Link>
           </div>
         </div>
-
-        {/* 底部渐变过渡 */}
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[var(--bg-light)] to-transparent" style={{ background: "linear-gradient(to top, var(--bg-light), transparent)" }} />
       </section>
 
-      <HomeStats />
+      {/* ====== 统计数据概览 ====== */}
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <HomeStats />
+        </div>
+      </section>
     </>
   );
 }
 
 function HeroStat({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
   return (
-    <div className="glass-card px-4 py-4 text-center">
-      <div className="flex justify-center mb-2 text-white/80">{icon}</div>
-      <div className="text-2xl font-bold text-white">{value}</div>
-      <div className="text-xs text-white/60 mt-1">{label}</div>
+    <div className="glass-card p-4 rounded-xl">
+      <div className="flex items-center justify-center mb-2" style={{ color: "var(--primary)" }}>
+        {icon}
+      </div>
+      <div className="text-2xl font-bold text-white mb-1">{value}</div>
+      <div className="text-xs text-white/60">{label}</div>
     </div>
   );
 }

@@ -82,7 +82,7 @@ function AchievementForm({
   return (
     <form className="space-y-6" onSubmit={onSubmit}>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">????</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">成就名称</label>
         <input
           type="text"
           required
@@ -93,7 +93,7 @@ function AchievementForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">????</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">成就描述</label>
         <textarea
           required
           rows={3}
@@ -104,14 +104,14 @@ function AchievementForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">????</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">关联游戏</label>
         <select
           required
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           value={values.gameId}
           onChange={(e) => setValues((v) => ({ ...v, gameId: e.target.value }))}
         >
-          <option value="">?????</option>
+          <option value="">请选择游戏</option>
           {games.map((g) => (
             <option key={String(g.id)} value={String(g.id)}>
               {g.name}
@@ -121,7 +121,7 @@ function AchievementForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">????</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">达成日期</label>
         <input
           required
           type="date"
@@ -132,7 +132,7 @@ function AchievementForm({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">????</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">图标</label>
         <select
           required
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -149,7 +149,7 @@ function AchievementForm({
 
       {showScreenshotField && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">????</label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">截图</label>
           <label className="upload-area block cursor-pointer">
             <input
               type="file"
@@ -166,13 +166,13 @@ function AchievementForm({
               }}
             />
             <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 mb-2 text-center">??????????JPG/PNG??</p>
+            <p className="text-gray-600 mb-2 text-center">点击上传截图，支持 JPG/PNG 格式</p>
           </label>
           {values.screenshot ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={values.screenshot}
-              alt="????"
+              alt="截图预览"
               className="w-full mt-3 rounded-lg border border-gray-100"
             />
           ) : null}
@@ -221,7 +221,7 @@ export function AchievementsClient() {
 
   const persist = (next: AchievementItem[], message: string) => {
     if (!saveAchievements(next)) {
-      showToast("??????????", "error");
+      showToast("保存失败，请重试", "error");
       return false;
     }
     setItems(next);
@@ -264,7 +264,7 @@ export function AchievementsClient() {
     e.preventDefault();
     const gameFields = resolveGameFieldsFromSelect(addForm.gameId);
     if (!gameFields?.gameId) {
-      showToast("????????", "error");
+      showToast("请选择关联游戏", "error");
       return;
     }
     const nextItem: AchievementItem = {
@@ -277,7 +277,7 @@ export function AchievementsClient() {
       icon: addForm.icon,
       screenshot: addForm.screenshot,
     };
-    if (!persist([...items, nextItem], "??????")) return;
+    if (!persist([...items, nextItem], "成就添加成功")) return;
     setAddOpen(false);
     setAddForm({
       title: "",
@@ -305,7 +305,7 @@ export function AchievementsClient() {
     if (!editItem) return;
     const gameFields = resolveGameFieldsFromSelect(editForm.gameId);
     if (!gameFields?.gameId) {
-      showToast("????????", "error");
+      showToast("请选择关联游戏", "error");
       return;
     }
     const next = items.map((it) =>
@@ -321,83 +321,85 @@ export function AchievementsClient() {
             icon: editForm.icon,
           },
     );
-    if (!persist(next, "??????")) return;
+    if (!persist(next, "成就更新成功")) return;
     setEditItem(null);
   };
 
   const onDelete = (id: number | string) => {
-    if (!window.confirm("?????????????????????")) return;
+    if (!window.confirm("确定要删除这个成就吗？此操作不可撤销。")) return;
     const next = items.filter((it) => String(it.id) !== String(id));
-    persist(next, "??????");
+    persist(next, "成就已删除");
     if (detailItem && String(detailItem.id) === String(id)) setDetailItem(null);
   };
 
   return (
     <>
-      <section className="bg-gradient-to-br from-blue-50 to-cyan-100 py-16">
+      <section data-hero className="relative py-16">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
-            ????
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 gradient-text">
+            成就殿堂
           </h1>
-          <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
-            ????????????????????
+          <p className="text-xl mb-8 max-w-2xl mx-auto" style={{ color: "var(--text-dark)" }}>
+            记录游戏中获得的每一个成就，见证你的游戏历程
           </p>
           <button className="btn-primary" onClick={() => setAddOpen(true)}>
             <Plus className="w-5 h-5 inline mr-2" />
-            ????
+            添加成就
           </button>
         </div>
       </section>
 
-      <section className="py-16 bg-white">
+      <section className="py-16">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <StatCard
               icon={<Trophy className="w-8 h-8" />}
               iconClass="bg-yellow-100 text-yellow-500"
               value={String(stats.total)}
-              label="????"
+              label="总成就数"
             />
             <StatCard
               icon={<Calendar className="w-8 h-8" />}
               iconClass="bg-blue-100 text-blue-500"
               value={String(stats.recent)}
-              label="????"
+              label="本月成就"
             />
             <StatCard
               icon={<Trophy className="w-8 h-8" />}
               iconClass="bg-green-100 text-green-500"
               value={String(stats.gameCount)}
-              label="?????"
+              label="涉及游戏"
             />
           </div>
         </div>
       </section>
 
-      <section className="py-16 bg-gray-50">
+      <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto mb-12 grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">????</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-gray)" }}>搜索成就</label>
               <div className="relative">
                 <input
                   type="text"
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="???????????..."
+                  className="w-full pl-10 pr-4 py-2 rounded-lg focus:ring-2 focus:border-transparent"
+                  style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)" }}
+                  placeholder="搜索成就名称或游戏..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
-                <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-light)" }} />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">????</label>
+              <label className="block text-sm font-medium mb-2" style={{ color: "var(--text-gray)" }}>筛选游戏</label>
               <select
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 rounded-lg focus:ring-2 focus:border-transparent"
+                style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)" }}
                 value={gameFilter}
                 onChange={(e) => setGameFilter(e.target.value)}
               >
-                <option value="all">????</option>
+                <option value="all">全部游戏</option>
                 {games.map((g) => (
                   <option key={String(g.id)} value={String(g.id)}>
                     {g.name}
@@ -410,12 +412,12 @@ export function AchievementsClient() {
           <div className="max-w-6xl mx-auto">
             {filtered.length === 0 ? (
               <div className="text-center py-16">
-                <Trophy className="w-20 h-20 text-gray-300 mx-auto mb-6" />
-                <h3 className="text-2xl font-bold text-gray-700 mb-4">??????</h3>
-                <p className="text-gray-600 mb-8">??????????????</p>
+                <Trophy className="w-20 h-20 mx-auto mb-6" style={{ color: "var(--text-light)" }} />
+                <h3 className="text-2xl font-bold mb-4" style={{ color: "var(--text-dark)" }}>暂无成就</h3>
+                <p className="mb-8" style={{ color: "var(--text-gray)" }}>还没有记录任何成就，添加你的第一个成就吧！</p>
                 <button className="btn-primary" onClick={() => setAddOpen(true)}>
                   <Plus className="w-5 h-5 inline mr-2" />
-                  ????
+                  添加成就
                 </button>
               </div>
             ) : (
@@ -427,18 +429,19 @@ export function AchievementsClient() {
                     className="achievement-card cursor-pointer text-left"
                     onClick={() => setDetailItem(achievement)}
                   >
-                    <div className="p-6 bg-white rounded-lg shadow-lg border border-gray-100 h-full">
+                    <div className="glass-card-strong p-6 h-full">
                       <div className="flex items-center gap-4 mb-4">
                         <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400 flex items-center justify-center">
                           <DynamicIcon name={achievement.icon} className="text-white w-6 h-6" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-bold text-gray-800 truncate">{achievement.title}</h4>
-                          <p className="text-sm text-gray-600 truncate">{achievement.gameName}</p>
+                          <h4 className="font-bold truncate" style={{ color: "var(--text-dark)" }}>{achievement.title}</h4>
+                          <p className="text-sm truncate" style={{ color: "var(--text-gray)" }}>{achievement.gameName}</p>
                         </div>
                         <div className="flex gap-2">
                           <button
-                            className="text-blue-500 hover:text-blue-600"
+                            className="hover:opacity-80"
+                            style={{ color: "var(--primary)" }}
                             onClick={(e) => {
                               e.stopPropagation();
                               openEdit(achievement);
@@ -457,8 +460,8 @@ export function AchievementsClient() {
                           </button>
                         </div>
                       </div>
-                      <p className="text-gray-600 mb-3 line-clamp-2">{achievement.description}</p>
-                      <div className="text-sm text-gray-500">?????{formatDateISO(achievement.date)}</div>
+                      <p className="mb-3 line-clamp-2" style={{ color: "var(--text-gray)" }}>{achievement.description}</p>
+                      <div className="text-sm" style={{ color: "var(--text-light)" }}>达成日期：{formatDateISO(achievement.date)}</div>
                       {achievement.screenshot ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
@@ -476,25 +479,25 @@ export function AchievementsClient() {
         </div>
       </section>
 
-      <section className="py-16 bg-white">
+      <section className="py-16">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">???????</h2>
+          <h2 className="text-3xl font-bold text-center mb-12" style={{ color: "var(--text-dark)" }}>成就时间线</h2>
           <div className="max-w-3xl mx-auto">
-            <div className="relative pl-8 border-l-2 border-blue-200">
+            <div className="relative pl-8 border-l-2" style={{ borderColor: "var(--border-glass)" }}>
               {timeline.map((achievement) => (
                 <div key={String(achievement.id)} className="mb-8 relative">
                   <div className="absolute -left-[25px] w-6 h-6 rounded-full bg-yellow-100 border-4 border-white flex items-center justify-center">
                     <DynamicIcon name={achievement.icon} className="w-3 h-3 text-yellow-500" />
                   </div>
-                  <div className="bg-white p-6 rounded-lg shadow-lg">
+                  <div className="glass-card p-6">
                     <div className="flex items-center gap-2 mb-2">
                       <DynamicIcon name={achievement.icon} className="w-5 h-5 text-yellow-500" />
-                      <h4 className="font-bold text-gray-800">{achievement.title}</h4>
+                      <h4 className="font-bold" style={{ color: "var(--text-dark)" }}>{achievement.title}</h4>
                     </div>
-                    <p className="text-gray-600 mb-2">{achievement.description}</p>
+                    <p className="mb-2" style={{ color: "var(--text-gray)" }}>{achievement.description}</p>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">{formatDateISO(achievement.date)}</span>
-                      <span className="text-sm font-medium text-blue-600">{achievement.gameName}</span>
+                      <span className="text-sm" style={{ color: "var(--text-light)" }}>{formatDateISO(achievement.date)}</span>
+                      <span className="text-sm font-medium" style={{ color: "var(--primary)" }}>{achievement.gameName}</span>
                     </div>
                   </div>
                 </div>
@@ -504,31 +507,31 @@ export function AchievementsClient() {
         </div>
       </section>
 
-      <Modal open={addOpen} onClose={() => setAddOpen(false)} title="????">
+      <Modal open={addOpen} onClose={() => setAddOpen(false)} title="添加成就">
         <AchievementForm
           values={addForm}
           setValues={setAddForm}
           games={games}
           onSubmit={onAddSubmit}
-          submitText="????"
+          submitText="添加成就"
           showScreenshotField
         />
       </Modal>
 
-      <Modal open={!!editItem} onClose={() => setEditItem(null)} title="????">
+      <Modal open={!!editItem} onClose={() => setEditItem(null)} title="编辑成就">
         <AchievementForm
           values={editForm}
           setValues={setEditForm}
           games={games}
           onSubmit={onEditSubmit}
-          submitText="????"
+          submitText="保存修改"
         />
       </Modal>
 
       <Modal
         open={!!detailItem}
         onClose={() => setDetailItem(null)}
-        title={detailItem?.title || "????"}
+        title={detailItem?.title || "成就详情"}
         maxWidth="xl"
       >
         {detailItem ? (
@@ -537,21 +540,21 @@ export function AchievementsClient() {
               <div className="w-20 h-20 rounded-full bg-gradient-to-r from-blue-400 to-cyan-400 flex items-center justify-center mx-auto mb-4">
                 <DynamicIcon name={detailItem.icon} className="text-white w-10 h-10" />
               </div>
-              <p className="text-lg text-gray-600">{detailItem.gameName}</p>
+              <p className="text-lg" style={{ color: "var(--text-gray)" }}>{detailItem.gameName}</p>
             </div>
             <div>
-              <h4 className="font-semibold text-gray-800 mb-2">????</h4>
-              <p className="text-gray-600">{detailItem.description}</p>
+              <h4 className="font-semibold mb-2" style={{ color: "var(--text-dark)" }}>成就描述</h4>
+              <p style={{ color: "var(--text-gray)" }}>{detailItem.description}</p>
             </div>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">????:</span>
+                <span style={{ color: "var(--text-gray)" }}>达成日期：</span>
                 <span className="font-medium">{formatDateISO(detailItem.date)}</span>
               </div>
             </div>
             {detailItem.screenshot ? (
               <div>
-                <h4 className="font-semibold text-gray-800 mb-2">????</h4>
+                <h4 className="font-semibold mb-2" style={{ color: "var(--text-dark)" }}>截图</h4>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={detailItem.screenshot} alt={detailItem.title} className="w-full rounded-lg" />
               </div>
@@ -565,14 +568,14 @@ export function AchievementsClient() {
                 }}
               >
                 <Edit className="w-5 h-5 inline mr-2" />
-                ????
+                编辑成就
               </button>
               <button
                 className="btn-danger"
                 onClick={() => onDelete(detailItem.id)}
               >
                 <Trash2 className="w-5 h-5 inline mr-2" />
-                ????
+                删除成就
               </button>
             </div>
           </div>

@@ -404,7 +404,7 @@ export function SpendingClient() {
               <p style={{ color: "var(--text-gray)" }}>在上方表单添加你的第一条消费记录吧</p>
             </div>
           ) : (
-            <div className="spending-table-wrap overflow-x-auto">
+            <div className="glass-card-strong overflow-x-auto">
               <table className="spending-table">
                 <thead>
                   <tr>
