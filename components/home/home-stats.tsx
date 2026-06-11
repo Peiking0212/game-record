@@ -31,12 +31,14 @@ export function HomeStats() {
       <section className="py-20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold gradient-text mb-3">
-              我的游戏旅程
-            </h2>
-            <p className="text-base" style={{ color: "var(--text-gray)" }}>
-              每一款游戏，都是一段独特的冒险
-            </p>
+            <div className="glass-card-strong inline-block px-8 py-6 rounded-2xl">
+              <h2 className="text-3xl md:text-4xl font-bold gradient-text mb-3">
+                我的游戏旅程
+              </h2>
+              <p className="text-base text-white/90">
+                每一款游戏，都是一段独特的冒险
+              </p>
+            </div>
           </div>
 
           {/* 主数据卡片 - 大 */}
@@ -99,12 +101,14 @@ export function HomeStats() {
       <section className="py-20 section-glass">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold gradient-text mb-3">
-              最近游玩
-            </h2>
-            <p className="text-base" style={{ color: "var(--text-gray)" }}>
-              继续你的冒险，重温精彩时刻
-            </p>
+            <div className="glass-card-strong inline-block px-8 py-6 rounded-2xl">
+              <h2 className="text-3xl md:text-4xl font-bold gradient-text mb-3">
+                最近游玩
+              </h2>
+              <p className="text-base text-white/90">
+                继续你的冒险，重温精彩时刻
+              </p>
+            </div>
           </div>
 
           <div className="max-w-6xl mx-auto">
