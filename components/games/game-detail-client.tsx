@@ -176,7 +176,7 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
 
   return (
     <div id="game-hub-content">
-      <section className="game-hub-hero anime-hero py-10 md:py-16">
+      <section data-hero className="game-hub-hero relative py-10 md:py-16">
         <div className="container mx-auto px-4">
           <Link
             href="/games"

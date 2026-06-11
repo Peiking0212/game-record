@@ -161,7 +161,7 @@ export function GalleryClient() {
 
   return (
     <>
-      <section className="anime-hero py-20" data-hero>
+      <section data-hero className="relative py-20">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-6 gradient-text">
             游戏图库

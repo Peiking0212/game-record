@@ -227,7 +227,7 @@ export function ReportClient() {
 
   return (
     <>
-      <section className="anime-hero py-6">
+      <section data-hero className="relative py-6">
         <div className="container mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-3 rounded-full px-5 py-2 shadow-md glass-card">
             <Calendar className="w-5 h-5" style={{ color: "var(--primary)" }} />

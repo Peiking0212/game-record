@@ -267,7 +267,7 @@ function applyBackground() {
     heroSections.forEach((el) => {
       clearHeroDecorations(el);
       if (!heroBg && !videoBg && !autoTimeBg) {
-        // No custom background, keep default anime-hero gradient
+        // No custom background, keep default anime-hero gradient (anime-hero class remains on element)
         return;
       }
       // When global bg is set, make hero transparent

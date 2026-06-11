@@ -315,7 +315,7 @@ export function SpendingClient() {
 
   return (
     <>
-      <section className="anime-hero py-14">
+      <section data-hero className="relative py-14">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-4 gradient-text">
             消费记录
