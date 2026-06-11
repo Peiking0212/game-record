@@ -120,22 +120,38 @@ function createVideoBackground(el: HTMLElement, videoUrl: string) {
   el.style.overflow = "hidden";
   el.style.color = "#fff";
 
-  const videoEl = document.createElement("video");
-  videoEl.className = HERO_VIDEO_CLASS;
-  videoEl.autoplay = true;
-  videoEl.muted = true;
-  videoEl.loop = true;
-  videoEl.playsInline = true;
-  videoEl.src = videoUrl;
-  videoEl.style.cssText =
-    "position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;";
-  el.insertBefore(videoEl, el.firstChild);
+  // Check if it's a Bilibili video
+  const bilibiliMatch = videoUrl.match(/bilibili\.com\/video\/(BV[\w]+)/i) ||
+                        videoUrl.match(/bilibili\.com\/video\/(av\d+)/i) ||
+                        videoUrl.match(/BV[\w]+/i);
+
+  if (bilibiliMatch) {
+    const bvid = bilibiliMatch[1] || bilibiliMatch[0];
+    const iframe = document.createElement("iframe");
+    iframe.className = HERO_VIDEO_CLASS;
+    iframe.src = `https://player.bilibili.com/player.html?bvid=${bvid}&autoplay=1&muted=1&loop=1&danmaku=0&high_quality=1`;
+    iframe.style.cssText =
+      "position:absolute;top:0;left:0;width:100%;height:100%;border:none;z-index:0;";
+    iframe.allow = "autoplay; fullscreen";
+    el.insertBefore(iframe, el.firstChild);
+  } else {
+    const videoEl = document.createElement("video");
+    videoEl.className = HERO_VIDEO_CLASS;
+    videoEl.autoplay = true;
+    videoEl.muted = true;
+    videoEl.loop = true;
+    videoEl.playsInline = true;
+    videoEl.src = videoUrl;
+    videoEl.style.cssText =
+      "position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:0;";
+    el.insertBefore(videoEl, el.firstChild);
+  }
 
   const overlay = document.createElement("div");
   overlay.className = HERO_VIDEO_CLASS;
   overlay.style.cssText =
     "position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.55);z-index:1;";
-  el.insertBefore(overlay, videoEl.nextSibling);
+  el.insertBefore(overlay, el.firstChild?.nextSibling || null);
 
   const children = Array.from(el.children);
   children.forEach((c) => {

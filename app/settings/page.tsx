@@ -221,6 +221,23 @@ function BackgroundTab() {
     { label: "清新薄荷", bg: "linear-gradient(135deg, #c7f9cc 0%, #a8e6cf 100%)" },
   ];
 
+  function handleImageUpload(file: File | undefined) {
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      showToast("图片过大，请上传 5MB 以内的图片", "error");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setHeroBg(dataUrl);
+      handleHeroBgChange(dataUrl);
+      showToast("背景图片已上传", "success");
+    };
+    reader.onerror = () => showToast("图片读取失败", "error");
+    reader.readAsDataURL(file);
+  }
+
   function clearBackground() {
     setHeroBg("");
     handleHeroBgChange("");
@@ -232,11 +249,40 @@ function BackgroundTab() {
       <section className="glass-card-strong p-5">
         <h3 className="text-base font-semibold mb-3" style={{ color: "var(--text-dark)" }}>Hero 区域背景</h3>
         <p className="text-xs mb-3" style={{ color: "var(--text-light)" }}>
-          支持：纯色（如 #1e1b4b）、渐变（如 linear-gradient(...)）、图片 URL
+          支持：纯色、渐变、图片 URL，或上传本地图片
         </p>
+
+        {/* 本地上传 */}
+        <div className="mb-3">
+          <label className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed cursor-pointer transition-all hover:border-purple-400 hover:bg-purple-50/10"
+            style={{ borderColor: "var(--border-glass)" }}
+          >
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleImageUpload(e.target.files?.[0])}
+            />
+            <svg className="w-5 h-5" style={{ color: "var(--primary)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span className="text-sm" style={{ color: "var(--text-gray)" }}>点击上传本地图片（最大 5MB）</span>
+          </label>
+        </div>
+
+        {/* 图片预览 */}
+        {heroBg && heroBg.startsWith("data:image") && (
+          <div className="mb-3 relative rounded-lg overflow-hidden" style={{ height: "120px" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={heroBg} alt="背景预览" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+            <span className="absolute bottom-2 left-2 text-xs text-white/80">本地图片预览</span>
+          </div>
+        )}
+
         <input
           type="text"
-          value={heroBg}
+          value={heroBg.startsWith("data:image") ? "[本地图片已上传]" : heroBg}
           onChange={(e) => setHeroBg(e.target.value)}
           placeholder="例如：#1e1b4b 或 linear-gradient(...) 或 https://..."
           className="w-full px-3 py-2 rounded-lg text-sm mb-3 focus:ring-2 focus:border-transparent"
@@ -328,10 +374,11 @@ function BackgroundTab() {
           </button>
         </div>
         <p className="text-xs mb-2" style={{ color: "var(--text-light)" }}>快速测试视频（点击即生效）：</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
           {[
-            { label: "🎬 海洋波浪 (MP4 测试流", url: "https://cdn.pixabay.com/video/2023/09/04/179922-859609392_tiny.mp4" },
+            { label: "🎬 海洋波浪", url: "https://cdn.pixabay.com/video/2023/09/04/179922-859609392_tiny.mp4" },
             { label: "🌊 海浪浪花", url: "https://cdn.pixabay.com/video/2020/05/25/39721-422954217_tiny.mp4" },
+            { label: "📺 B站示例视频", url: "https://www.bilibili.com/video/BV1x7oNBvEZs/" },
           ].map((p) => (
             <button
               key={p.label}
@@ -339,16 +386,20 @@ function BackgroundTab() {
               onClick={() => { setVideoBg(p.url); handleVideoBg(p.url); }}
               className={`text-left px-3 py-2 rounded-lg text-xs transition-colors border ${
                 videoBg === p.url
-                  ? "bg-purple-50/30 border-purple-400 text-purple-700"
-                  : "bg-gray-50/30 border-gray-200/30 text-gray-700 hover:bg-gray-100/30"
+                  ? "border-purple-400"
+                  : "border-gray-200/30 hover:border-gray-300/50"
               }`}
+              style={videoBg === p.url ? { color: "var(--primary)", background: "var(--primary-light)" } : { color: "var(--text-gray)", background: "var(--bg-glass)" }}
             >
               {p.label}
             </button>
           ))}
         </div>
-        <p className="text-xs mt-3" style={{ color: "var(--text-light)" }}>
-          💡 视频背景显示在页面顶部 Hero 区域（仅用于视觉效果，视频需支持自动循环静音播放
+        <p className="text-xs" style={{ color: "var(--text-light)" }}>
+          💡 支持 MP4/WebM 视频链接，或 B站视频链接（如 https://www.bilibili.com/video/BV1x7oNBvEZs/）
+        </p>
+        <p className="text-xs mt-1" style={{ color: "var(--text-light)" }}>
+          视频背景显示在页面顶部 Hero 区域，自动循环静音播放
         </p>
       </section>
     </div>
