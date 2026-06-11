@@ -7,12 +7,12 @@ import { useToast } from "@/components/ui/toast";
 import { buildReport, getReportYears, type ReportData } from "@/lib/report";
 
 const SLIDE_BGS = [
-  "linear-gradient(135deg, #E8F4FF, #D4ECFF)",
-  "linear-gradient(135deg, #FFF7ED, #FFEDD5)",
-  "linear-gradient(135deg, #ECFDF5, #D1FAE5)",
-  "linear-gradient(135deg, #FDF2F8, #FCE7F3)",
-  "linear-gradient(135deg, #ECFEFF, #CFFAFE)",
-  "linear-gradient(135deg, #F5F3FF, #EDE9FE)",
+  "linear-gradient(135deg, #f3e8ff, #e9d5ff)",
+  "linear-gradient(135deg, #fdf4ff, #fae8ff)",
+  "linear-gradient(135deg, #fff1f2, #ffe4e6)",
+  "linear-gradient(135deg, #f0f9ff, #e0f2fe)",
+  "linear-gradient(135deg, #faf5ff, #f3e8ff)",
+  "linear-gradient(135deg, #fff0f5, #fce7f3)",
 ] as const;
 
 const BAR_COLORS = [
@@ -43,7 +43,7 @@ function Slide({
 
 function YearBadge({ text }: { text: string }) {
   return (
-    <span className="inline-block px-6 py-1 rounded-full bg-gradient-to-r from-[#52B6FF] to-[#94D8FF] text-white font-bold text-sm mb-6">
+    <span className="inline-block px-6 py-1 rounded-full text-white font-bold text-sm mb-6" style={{ background: "linear-gradient(135deg, var(--primary) 0%, var(--accent-pink) 100%)" }}>
       {text}
     </span>
   );
@@ -227,12 +227,13 @@ export function ReportClient() {
 
   return (
     <>
-      <section className="bg-gradient-to-br from-[#52B6FF15] to-[#94D8FF15] py-6">
+      <section className="anime-hero py-6">
         <div className="container mx-auto px-4 text-center">
-          <div className="inline-flex items-center gap-3 bg-white rounded-full px-5 py-2 shadow-md">
-            <Calendar className="w-5 h-5 text-[#52B6FF]" />
+          <div className="inline-flex items-center gap-3 rounded-full px-5 py-2 shadow-md glass-card">
+            <Calendar className="w-5 h-5" style={{ color: "var(--primary)" }} />
             <select
-              className="text-lg font-bold bg-transparent border-none outline-none cursor-pointer text-gray-800"
+              className="text-lg font-bold bg-transparent border-none outline-none cursor-pointer"
+              style={{ color: "var(--text-dark)" }}
               value={year ?? ""}
               onChange={(e) => setYear(e.target.value ? Number(e.target.value) : null)}
             >
@@ -268,10 +269,10 @@ export function ReportClient() {
       {!report ? (
         <section className="py-20">
           <div className="container mx-auto px-4 text-center">
-            <Sparkles className="w-20 h-20 text-gray-300 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">年度游戏报告</h2>
-            <p className="text-gray-500 mb-6">选择年份，生成专属的年度游戏报告 ✨</p>
-            <p className="text-gray-400 text-sm">如同Spotify Wrapped，回顾你的游戏旅程</p>
+            <Sparkles className="w-20 h-20 mx-auto mb-4" style={{ color: "var(--text-light)" }} />
+            <h2 className="text-2xl font-bold mb-2" style={{ color: "var(--text-dark)" }}>年度游戏报告</h2>
+            <p className="mb-6" style={{ color: "var(--text-gray)" }}>选择年份，生成专属的年度游戏报告 ✨</p>
+            <p className="text-sm" style={{ color: "var(--text-light)" }}>如同Spotify Wrapped，回顾你的游戏旅程</p>
           </div>
         </section>
       ) : (
@@ -284,13 +285,15 @@ export function ReportClient() {
           </div>
 
           <button
-            className="hidden sm:flex fixed top-1/2 -translate-y-1/2 left-4 w-10 h-10 rounded-full bg-white border border-gray-200 z-50 items-center justify-center shadow text-gray-500 hover:text-[#52B6FF]"
+            className="hidden sm:flex fixed top-1/2 -translate-y-1/2 left-4 w-10 h-10 rounded-full border z-50 items-center justify-center shadow hover:text-purple-500"
+            style={{ background: "var(--bg-glass)", borderColor: "var(--border-glass)", color: "var(--text-gray)" }}
             onClick={() => go(currentSlide - 1)}
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
-            className="hidden sm:flex fixed top-1/2 -translate-y-1/2 right-4 w-10 h-10 rounded-full bg-white border border-gray-200 z-50 items-center justify-center shadow text-gray-500 hover:text-[#52B6FF]"
+            className="hidden sm:flex fixed top-1/2 -translate-y-1/2 right-4 w-10 h-10 rounded-full border z-50 items-center justify-center shadow hover:text-purple-500"
+            style={{ background: "var(--bg-glass)", borderColor: "var(--border-glass)", color: "var(--text-gray)" }}
             onClick={() => go(currentSlide + 1)}
           >
             <ChevronRight className="w-5 h-5" />
@@ -300,7 +303,8 @@ export function ReportClient() {
             {slides.map((_, i) => (
               <button
                 key={i}
-                className={`w-2.5 h-2.5 rounded-full transition-all ${i === currentSlide ? "bg-[#52B6FF] scale-125" : "bg-gray-300"}`}
+                className={`w-2.5 h-2.5 rounded-full transition-all ${i === currentSlide ? "scale-125" : ""}`}
+                style={i === currentSlide ? { background: "var(--primary)" } : { background: "var(--text-light)" }}
                 onClick={() => go(i)}
                 aria-label={`跳转到第 ${i + 1} 页`}
               />
@@ -314,9 +318,9 @@ export function ReportClient() {
 
 function MiniCard({ value, label }: { value: string; label: string }) {
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm text-center">
-      <div className="text-3xl font-extrabold text-gray-800">{value}</div>
-      <div className="text-xs text-gray-500 mt-1">{label}</div>
+    <div className="glass-card-strong rounded-2xl p-5 text-center">
+      <div className="text-3xl font-extrabold" style={{ color: "var(--text-dark)" }}>{value}</div>
+      <div className="text-xs mt-1" style={{ color: "var(--text-gray)" }}>{label}</div>
     </div>
   );
 }

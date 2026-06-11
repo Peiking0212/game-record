@@ -115,12 +115,12 @@ export function GamesClient() {
 
   return (
     <>
-      <section className="bg-gradient-to-br from-blue-50 to-cyan-100 py-16">
+      <section className="anime-hero py-16">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 gradient-text">
             我的游戏收藏
           </h1>
-          <p className="text-xl text-gray-700 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl mb-8 max-w-2xl mx-auto" style={{ color: "var(--text-dark)" }}>
             记录和管理玩过的每一款游戏，追踪游戏进度与成就
           </p>
           <button
@@ -134,13 +134,14 @@ export function GamesClient() {
         </div>
       </section>
 
-      <section className="py-16 bg-white">
+      <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto mb-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
+            <div className="glass-card p-4">
               <label
                 htmlFor="search"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium mb-2"
+                style={{ color: "var(--text-gray)" }}
               >
                 搜索游戏
               </label>
@@ -148,25 +149,28 @@ export function GamesClient() {
                 <input
                   id="search"
                   type="text"
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2 rounded-lg focus:ring-2 focus:border-transparent"
+                  style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)" }}
                   placeholder="输入游戏名称..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
-                <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "var(--text-light)" }} />
               </div>
             </div>
 
-            <div>
+            <div className="glass-card p-4">
               <label
                 htmlFor="status-filter"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium mb-2"
+                style={{ color: "var(--text-gray)" }}
               >
                 游戏状态
               </label>
               <select
                 id="status-filter"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 rounded-lg focus:ring-2 focus:border-transparent"
+                style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)" }}
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
@@ -179,16 +183,18 @@ export function GamesClient() {
               </select>
             </div>
 
-            <div>
+            <div className="glass-card p-4">
               <label
                 htmlFor="type-filter"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium mb-2"
+                style={{ color: "var(--text-gray)" }}
               >
                 游戏类型
               </label>
               <select
                 id="type-filter"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 rounded-lg focus:ring-2 focus:border-transparent"
+                style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)" }}
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
               >
@@ -206,12 +212,12 @@ export function GamesClient() {
 
           <div className="max-w-6xl mx-auto">
             {filtered.length === 0 ? (
-              <div className="text-center py-16">
-                <Gamepad2 className="w-20 h-20 text-gray-300 mx-auto mb-6" />
-                <h3 className="text-2xl font-bold text-gray-700 mb-4">
+              <div className="text-center py-16 glass-card">
+                <Gamepad2 className="w-20 h-20 mx-auto mb-6" style={{ color: "var(--text-light)" }} />
+                <h3 className="text-2xl font-bold mb-4" style={{ color: "var(--text-dark)" }}>
                   暂无游戏
                 </h3>
-                <p className="text-gray-600 mb-8">
+                <p className="mb-8" style={{ color: "var(--text-gray)" }}>
                   点击「添加新游戏」按钮开始记录你的游戏之旅
                 </p>
                 <button
@@ -245,10 +251,11 @@ export function GamesClient() {
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-xl font-bold text-gray-800">最近添加的游戏</h2>
+              <h2 className="text-xl font-bold" style={{ color: "var(--text-dark)" }}>最近添加的游戏</h2>
               <Link
                 href="/achievements"
-                className="text-sm text-blue-500 hover:text-blue-700 transition-colors"
+                className="text-sm transition-colors"
+                style={{ color: "var(--primary)" }}
               >
                 查看全部 →
               </Link>

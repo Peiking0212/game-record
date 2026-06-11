@@ -53,9 +53,9 @@ export function AuthForm() {
   return (
     <div className="container mx-auto px-4 py-16 max-w-md">
       <h1 className="text-3xl font-bold text-center mb-8 gradient-text">账号登录</h1>
-      <form onSubmit={onSubmit} className="space-y-4 card p-6">
+      <form onSubmit={onSubmit} className="space-y-4 glass-card-strong p-6">
         <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="email">
+          <label className="block text-sm font-medium mb-1" htmlFor="email" style={{ color: "var(--text-gray)" }}>
             邮箱
           </label>
           <input
@@ -73,7 +73,7 @@ export function AuthForm() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1" htmlFor="password">
+          <label className="block text-sm font-medium mb-1" htmlFor="password" style={{ color: "var(--text-gray)" }}>
             密码
           </label>
           <input

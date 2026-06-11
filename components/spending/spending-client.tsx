@@ -315,18 +315,19 @@ export function SpendingClient() {
 
   return (
     <>
-      <section className="bg-gradient-to-br from-[#52B6FF15] to-[#94D8FF15] py-14">
+      <section className="anime-hero py-14">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 gradient-text">
             消费记录
           </h1>
-          <p className="text-lg text-gray-600 mb-6 max-w-xl mx-auto">
+          <p className="text-lg mb-6 max-w-xl mx-auto" style={{ color: "var(--text-dark)" }}>
             记录你的游戏开销，理性消费
           </p>
-          <div className="inline-flex items-center gap-3 bg-white rounded-full px-5 py-2 shadow-md">
-            <Calendar className="w-5 h-5 text-[#52B6FF]" />
+          <div className="inline-flex items-center gap-3 rounded-full px-5 py-2 shadow-md glass-card">
+            <Calendar className="w-5 h-5" style={{ color: "var(--primary)" }} />
             <select
-              className="text-base font-bold bg-transparent border-none outline-none cursor-pointer text-gray-800"
+              className="text-base font-bold bg-transparent border-none outline-none cursor-pointer"
+              style={{ color: "var(--text-dark)" }}
               value={year}
               onChange={(e) => setYear(e.target.value)}
             >
@@ -341,11 +342,11 @@ export function SpendingClient() {
         </div>
       </section>
 
-      <section className="py-10 bg-white">
+      <section className="py-10">
         <div className="container mx-auto px-4 max-w-6xl">
-          <div className="chart-card">
-            <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2 mb-6">
-              <PlusCircle className="w-6 h-6 text-[#52B6FF]" />
+          <div className="glass-card-strong p-6">
+            <h2 className="text-2xl font-bold flex items-center gap-2 mb-6" style={{ color: "var(--text-dark)" }}>
+              <PlusCircle className="w-6 h-6" style={{ color: "var(--primary)" }} />
               添加消费记录
             </h2>
             <form className="space-y-5" onSubmit={onAddSubmit}>
@@ -372,7 +373,7 @@ export function SpendingClient() {
         </div>
       </section>
 
-      <section className="py-10 bg-gray-50">
+      <section className="py-10">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
             <StatCard title="总开销" value={fmtMoney(stats.total)} />
@@ -387,20 +388,20 @@ export function SpendingClient() {
         </div>
       </section>
 
-      <section className="py-10 bg-white">
+      <section className="py-10">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-              <List className="w-6 h-6 text-[#52B6FF]" />
+            <h2 className="text-2xl font-bold flex items-center gap-2" style={{ color: "var(--text-dark)" }}>
+              <List className="w-6 h-6" style={{ color: "var(--primary)" }} />
               消费记录列表
             </h2>
           </div>
 
           {filtered.length === 0 ? (
-            <div className="text-center py-16">
-              <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-gray-700 mb-2">暂无消费记录</h3>
-              <p className="text-gray-500">在上方表单添加你的第一条消费记录吧</p>
+            <div className="text-center py-16 glass-card">
+              <ShoppingCart className="w-16 h-16 mx-auto mb-4" style={{ color: "var(--text-light)" }} />
+              <h3 className="text-xl font-bold mb-2" style={{ color: "var(--text-dark)" }}>暂无消费记录</h3>
+              <p style={{ color: "var(--text-gray)" }}>在上方表单添加你的第一条消费记录吧</p>
             </div>
           ) : (
             <div className="spending-table-wrap overflow-x-auto">
@@ -434,19 +435,21 @@ export function SpendingClient() {
                         {r.recordType === "recharge" && r.gameId != null ? (
                           <a
                             href={gameDetailPath(r.gameId)}
-                            className="text-[#52B6FF] hover:underline font-medium"
+                            className="hover:underline font-medium"
+                            style={{ color: "var(--primary)" }}
                           >
                             {r.game}
                           </a>
                         ) : r.recordType === "purchase" && r.wishlistId != null ? (
                           <a
                             href="/wishlist"
-                            className="text-[#52B6FF] hover:underline font-medium"
+                            className="hover:underline font-medium"
+                            style={{ color: "var(--primary)" }}
                           >
                             {r.game}
                           </a>
                         ) : (
-                          <span className="font-medium text-gray-800">{r.game}</span>
+                          <span className="font-medium" style={{ color: "var(--text-dark)" }}>{r.game}</span>
                         )}
                       </td>
                       <td>
@@ -461,7 +464,7 @@ export function SpendingClient() {
                         </span>
                       </td>
                       <td>
-                        <span className="text-gray-600 text-sm">{r.note || "-"}</span>
+                        <span className="text-sm" style={{ color: "var(--text-gray)" }}>{r.note || "-"}</span>
                       </td>
                       <td className="space-x-1 whitespace-nowrap">
                         <button

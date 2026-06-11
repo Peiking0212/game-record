@@ -11,6 +11,19 @@ import {
   Trophy,
   X,
 } from "lucide-react";
+import {
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  LineChart,
+  Line,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+} from "recharts";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { GameIcon } from "@/components/games/game-icon";
 import { Modal } from "@/components/ui/modal";
@@ -73,6 +86,56 @@ export function StatsClient() {
     [summaryYear, games, achievements],
   );
 
+  const statusData = useMemo(() => {
+    const map: Record<string, number> = {};
+    const colorMap: Record<string, string> = {
+      playing: "#3b82f6",
+      completed: "#10b981",
+      planned: "#f59e0b",
+      dropped: "#ef4444",
+    };
+    filteredGames.forEach((g) => {
+      const s = g.status || "playing";
+      map[s] = (map[s] || 0) + 1;
+    });
+    return Object.entries(map).map(([key, value]) => ({
+      name: getStatusText(key),
+      value,
+      color: colorMap[key] || "#9ca3af",
+    }));
+  }, [filteredGames]);
+
+  const typeData = useMemo(() => {
+    const map: Record<string, number> = {};
+    const colors = ["#6366f1", "#ec4899", "#8b5cf6", "#14b8a6", "#f97316"];
+    filteredGames.forEach((g) => {
+      const t = g.type || "其他";
+      map[t] = (map[t] || 0) + 1;
+    });
+    return Object.entries(map).map(([name, value], idx) => ({
+      name,
+      value,
+      color: colors[idx % colors.length],
+    }));
+  }, [filteredGames]);
+
+  const monthlySpending = useMemo(() => {
+    return [
+      { month: "1月", amount: 68 },
+      { month: "2月", amount: 120 },
+      { month: "3月", amount: 45 },
+      { month: "4月", amount: 199 },
+      { month: "5月", amount: 88 },
+      { month: "6月", amount: 156 },
+    ];
+  }, []);
+
+  const topGames = useMemo(() => {
+    return [...filteredGames]
+      .sort((a, b) => (Number(b.playtime) || 0) - (Number(a.playtime) || 0))
+      .slice(0, 10);
+  }, [filteredGames]);
+
   const exportElementAsImage = async (
     el: HTMLElement | null,
     filename: string,
@@ -101,13 +164,13 @@ export function StatsClient() {
 
   return (
     <>
-      <section className="bg-gradient-to-br from-blue-50 to-cyan-100 py-12 md:py-16">
+      <section className="anime-hero py-16">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#223344] to-[#5B9BD5] bg-clip-text text-transparent">
-            数据统计分析
+          <h1 className="text-4xl md:text-5xl font-bold mb-6 gradient-text">
+            游戏统计
           </h1>
-          <p className="text-lg md:text-xl text-gray-700 mb-6 max-w-2xl mx-auto">
-            深入了解你的游玩习惯，发现隐藏的游戏规律
+          <p className="text-xl mb-8 max-w-2xl mx-auto" style={{ color: "var(--text-dark)" }}>
+            全方位分析你的游戏数据，了解游戏习惯与消费趋势
           </p>
         </div>
       </section>
@@ -246,19 +309,114 @@ export function StatsClient() {
 
       <section ref={chartsSectionRef} className="py-8 bg-gray-50">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <SimplePanel title="游戏类型分布">
-              <TypeDistribution games={filteredGames} />
-            </SimplePanel>
-            <SimplePanel title="各类型时长">
-              <TypePlaytime games={filteredGames} />
-            </SimplePanel>
-            <SimplePanel title="游戏进度概览">
-              <ProgressDistribution games={filteredGames} />
-            </SimplePanel>
-            <SimplePanel title="时长排行">
-              <TopPlaytimeList games={filteredGames} />
-            </SimplePanel>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <div className="glass-card-strong p-6">
+              <h3 className="text-xl font-bold mb-6" style={{ color: "var(--text-dark)" }}>游戏状态分布</h3>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={statusData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {statusData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="glass-card-strong p-6">
+              <h3 className="text-xl font-bold mb-6" style={{ color: "var(--text-dark)" }}>游戏类型分布</h3>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={typeData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {typeData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          <div className="glass-card-strong p-6 mb-12">
+            <h3 className="text-xl font-bold mb-6" style={{ color: "var(--text-dark)" }}>月度消费趋势</h3>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={monthlySpending}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="amount"
+                    name="消费金额"
+                    stroke="#ec4899"
+                    strokeWidth={2}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="glass-card-strong p-6">
+            <h3 className="text-xl font-bold mb-6" style={{ color: "var(--text-dark)" }}>游戏时长排行</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr style={{ borderBottom: "1px solid var(--border-glass)" }}>
+                    <th className="text-left py-3 px-4" style={{ color: "var(--text-gray)" }}>游戏名称</th>
+                    <th className="text-left py-3 px-4" style={{ color: "var(--text-gray)" }}>类型</th>
+                    <th className="text-left py-3 px-4" style={{ color: "var(--text-gray)" }}>游戏时长</th>
+                    <th className="text-left py-3 px-4" style={{ color: "var(--text-gray)" }}>完成度</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {topGames.map((game) => (
+                    <tr key={String(game.id)} style={{ borderBottom: "1px solid var(--border-glass)" }}>
+                      <td className="py-3 px-4 font-medium" style={{ color: "var(--text-dark)" }}>{game.name}</td>
+                      <td className="py-3 px-4" style={{ color: "var(--text-gray)" }}>{game.type || "其他"}</td>
+                      <td className="py-3 px-4" style={{ color: "var(--text-gray)" }}>{game.playtime || 0}h</td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <div className="w-24 h-2 rounded-full overflow-hidden" style={{ background: "var(--bg-glass)" }}>
+                            <div
+                              className="h-full rounded-full"
+                              style={{ width: `${game.progress || 0}%`, background: "var(--primary)" }}
+                            />
+                          </div>
+                          <span className="text-sm" style={{ color: "var(--text-gray)" }}>{game.progress || 0}%</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>

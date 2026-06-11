@@ -56,8 +56,8 @@ function AppearanceTab() {
   return (
     <div className="space-y-6">
       {/* 主题模式 */}
-      <section className="bg-white rounded-xl border border-gray-100 p-5">
-        <h3 className="text-base font-semibold text-gray-700 mb-3">主题模式</h3>
+      <section className="glass-card-strong p-5">
+        <h3 className="text-base font-semibold mb-3" style={{ color: "var(--text-dark)" }}>主题模式</h3>
         <div className="grid grid-cols-3 gap-3">
           {[
             { value: "light", label: "浅色", desc: "明亮清爽" },
@@ -75,9 +75,10 @@ function AppearanceTab() {
               }}
               className={`p-3 rounded-lg border-2 text-center transition-all ${
                 theme === opt.value
-                  ? "border-blue-500 bg-blue-50 text-blue-700"
-                  : "border-gray-200 hover:border-gray-300 text-gray-600"
+                  ? "border-purple-400 bg-purple-50/30 text-purple-700"
+                  : "border-gray-200/30 hover:border-gray-300/50 text-gray-600"
               }`}
+              style={theme === opt.value ? { color: "var(--primary)", borderColor: "var(--primary)" } : { color: "var(--text-gray)" }}
             >
               <div className="font-medium text-sm">{opt.label}</div>
               <div className="text-xs mt-1 opacity-70">{opt.desc}</div>
@@ -87,8 +88,8 @@ function AppearanceTab() {
       </section>
 
       {/* 卡片样式 */}
-      <section className="bg-white rounded-xl border border-gray-100 p-5">
-        <h3 className="text-base font-semibold text-gray-700 mb-3">卡片样式</h3>
+      <section className="glass-card-strong p-5">
+        <h3 className="text-base font-semibold mb-3" style={{ color: "var(--text-dark)" }}>卡片样式</h3>
         <div className="grid grid-cols-3 gap-3">
           {[
             { value: "default", label: "默认" },
@@ -101,9 +102,10 @@ function AppearanceTab() {
               onClick={() => { setCardStyle(opt.value); saveSettings({ cardStyle: opt.value }); }}
               className={`p-3 rounded-lg border-2 text-center transition-all ${
                 cardStyle === opt.value
-                  ? "border-blue-500 bg-blue-50 text-blue-700"
-                  : "border-gray-200 hover:border-gray-300 text-gray-600"
+                  ? "border-purple-400 bg-purple-50/30"
+                  : "border-gray-200/30 hover:border-gray-300/50"
               }`}
+              style={cardStyle === opt.value ? { color: "var(--primary)", borderColor: "var(--primary)" } : { color: "var(--text-gray)" }}
             >
               <div className="font-medium text-sm">{opt.label}</div>
             </button>
@@ -112,8 +114,8 @@ function AppearanceTab() {
       </section>
 
       {/* 动画速度 */}
-      <section className="bg-white rounded-xl border border-gray-100 p-5">
-        <h3 className="text-base font-semibold text-gray-700 mb-3">动画速度</h3>
+      <section className="glass-card-strong p-5">
+        <h3 className="text-base font-semibold mb-3" style={{ color: "var(--text-dark)" }}>动画速度</h3>
         <div className="grid grid-cols-3 gap-3">
           {[
             { value: "slow", label: "缓慢" },
@@ -126,9 +128,10 @@ function AppearanceTab() {
               onClick={() => { setAnimSpeed(opt.value); saveSettings({ animSpeed: opt.value }); }}
               className={`p-3 rounded-lg border-2 text-center transition-all ${
                 animSpeed === opt.value
-                  ? "border-blue-500 bg-blue-50 text-blue-700"
-                  : "border-gray-200 hover:border-gray-300 text-gray-600"
+                  ? "border-purple-400 bg-purple-50/30"
+                  : "border-gray-200/30 hover:border-gray-300/50"
               }`}
+              style={animSpeed === opt.value ? { color: "var(--primary)", borderColor: "var(--primary)" } : { color: "var(--text-gray)" }}
             >
               <div className="font-medium text-sm">{opt.label}</div>
             </button>
@@ -137,8 +140,8 @@ function AppearanceTab() {
       </section>
 
       {/* 悬浮动效 */}
-      <section className="bg-white rounded-xl border border-gray-100 p-5">
-        <h3 className="text-base font-semibold text-gray-700 mb-3">悬浮动效</h3>
+      <section className="glass-card-strong p-5">
+        <h3 className="text-base font-semibold mb-3" style={{ color: "var(--text-dark)" }}>悬浮动效</h3>
         <div className="grid grid-cols-3 gap-3">
           {[
             { value: "subtle", label: "细微" },
@@ -151,9 +154,10 @@ function AppearanceTab() {
               onClick={() => { setHoverEffect(opt.value); saveSettings({ hoverEffect: opt.value }); }}
               className={`p-3 rounded-lg border-2 text-center transition-all ${
                 hoverEffect === opt.value
-                  ? "border-blue-500 bg-blue-50 text-blue-700"
-                  : "border-gray-200 hover:border-gray-300 text-gray-600"
+                  ? "border-purple-400 bg-purple-50/30"
+                  : "border-gray-200/30 hover:border-gray-300/50"
               }`}
+              style={hoverEffect === opt.value ? { color: "var(--primary)", borderColor: "var(--primary)" } : { color: "var(--text-gray)" }}
             >
               <div className="font-medium text-sm">{opt.label}</div>
             </button>
@@ -225,9 +229,9 @@ function BackgroundTab() {
   return (
     <div className="space-y-6">
       {/* Hero 背景 */}
-      <section className="bg-white rounded-xl border border-gray-100 p-5">
-        <h3 className="text-base font-semibold text-gray-700 mb-3">Hero 区域背景</h3>
-        <p className="text-xs text-gray-400 mb-3">
+      <section className="glass-card-strong p-5">
+        <h3 className="text-base font-semibold mb-3" style={{ color: "var(--text-dark)" }}>Hero 区域背景</h3>
+        <p className="text-xs mb-3" style={{ color: "var(--text-light)" }}>
           支持：纯色（如 #1e1b4b）、渐变（如 linear-gradient(...)）、图片 URL
         </p>
         <input
@@ -235,26 +239,27 @@ function BackgroundTab() {
           value={heroBg}
           onChange={(e) => setHeroBg(e.target.value)}
           placeholder="例如：#1e1b4b 或 linear-gradient(...) 或 https://..."
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 rounded-lg text-sm mb-3 focus:ring-2 focus:border-transparent"
+          style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)" }}
         />
         <div className="flex gap-2">
           <button
             type="button"
             onClick={() => handleHeroBgChange(heroBg)}
-            className="px-4 py-1.5 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition-colors"
+            className="btn-primary px-4 py-1.5 rounded-lg text-sm"
           >
             保存
           </button>
           <button
             type="button"
             onClick={clearBackground}
-            className="px-4 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200 transition-colors"
+            className="btn-secondary px-4 py-1.5 rounded-lg text-sm"
           >
             恢复默认
           </button>
         </div>
         <div className="mt-4">
-          <p className="text-xs text-gray-400 mb-2">快速预设（点击即生效）</p>
+          <p className="text-xs mb-2" style={{ color: "var(--text-light)" }}>快速预设（点击即生效）</p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {presets.map((p) => {
               const isSelected = heroBg === p.bg;
@@ -265,7 +270,7 @@ function BackgroundTab() {
                   onClick={() => { setHeroBg(p.bg); handleHeroBgChange(p.bg); }}
                   className={`h-16 rounded-lg overflow-hidden transition-all flex items-center justify-center text-white text-sm font-semibold shadow-sm hover:shadow-md ${
                     isSelected
-                      ? "ring-2 ring-blue-500 ring-offset-2"
+                      ? "ring-2 ring-purple-400 ring-offset-2"
                       : "border-2 border-transparent hover:border-gray-300"
                   }`}
                   style={{ background: p.bg, textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}
@@ -279,49 +284,50 @@ function BackgroundTab() {
       </section>
 
       {/* 自动时间背景 */}
-      <section className="bg-white rounded-xl border border-gray-100 p-5">
-        <h3 className="text-base font-semibold text-gray-700 mb-3">自动时间背景</h3>
+      <section className="glass-card-strong p-5">
+        <h3 className="text-base font-semibold mb-3" style={{ color: "var(--text-dark)" }}>自动时间背景</h3>
         <label className="flex items-center gap-3 cursor-pointer">
           <input
             type="checkbox"
             checked={autoTimeBg}
             onChange={(e) => handleAutoTimeBg(e.target.checked)}
-            className="w-4 h-4 accent-blue-500"
+            className="w-4 h-4 accent-purple-500"
           />
-          <span className="text-gray-600 text-sm">根据时间和季节自动切换背景</span>
+          <span className="text-sm" style={{ color: "var(--text-gray)" }}>根据时间和季节自动切换背景</span>
         </label>
-        <p className="text-xs text-gray-400 mt-2">
+        <p className="text-xs mt-2" style={{ color: "var(--text-light)" }}>
           开启后，背景会根据早晨、上午、下午、黄昏、夜间及春夏秋冬自动变化
         </p>
       </section>
 
       {/* 视频背景 */}
-      <section className="bg-white rounded-xl border border-gray-100 p-5">
-        <h3 className="text-base font-semibold text-gray-700 mb-3">视频背景</h3>
+      <section className="glass-card-strong p-5">
+        <h3 className="text-base font-semibold mb-3" style={{ color: "var(--text-dark)" }}>视频背景</h3>
         <input
           type="text"
           value={videoBg}
           onChange={(e) => setVideoBg(e.target.value)}
           placeholder="输入视频 URL（mp4/webm，需支持 CORS）"
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 rounded-lg text-sm mb-3 focus:ring-2 focus:border-transparent"
+          style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)" }}
         />
         <div className="flex gap-2 mb-3">
           <button
             type="button"
             onClick={() => handleVideoBg(videoBg)}
-            className="px-4 py-1.5 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition-colors"
+            className="btn-primary px-4 py-1.5 rounded-lg text-sm"
           >
             保存
           </button>
           <button
             type="button"
             onClick={() => handleVideoBg("")}
-            className="px-4 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200 transition-colors"
+            className="btn-secondary px-4 py-1.5 rounded-lg text-sm"
           >
             清除
           </button>
         </div>
-        <p className="text-xs text-gray-400 mb-2">快速测试视频（点击即生效）：</p>
+        <p className="text-xs mb-2" style={{ color: "var(--text-light)" }}>快速测试视频（点击即生效）：</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {[
             { label: "🎬 海洋波浪 (MP4 测试流", url: "https://cdn.pixabay.com/video/2023/09/04/179922-859609392_tiny.mp4" },
@@ -333,15 +339,15 @@ function BackgroundTab() {
               onClick={() => { setVideoBg(p.url); handleVideoBg(p.url); }}
               className={`text-left px-3 py-2 rounded-lg text-xs transition-colors border ${
                 videoBg === p.url
-                  ? "bg-blue-50 border-blue-400 text-blue-700"
-                  : "bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100"
+                  ? "bg-purple-50/30 border-purple-400 text-purple-700"
+                  : "bg-gray-50/30 border-gray-200/30 text-gray-700 hover:bg-gray-100/30"
               }`}
             >
               {p.label}
             </button>
           ))}
         </div>
-        <p className="text-xs text-gray-400 mt-3">
+        <p className="text-xs mt-3" style={{ color: "var(--text-light)" }}>
           💡 视频背景显示在页面顶部 Hero 区域（仅用于视觉效果，视频需支持自动循环静音播放
         </p>
       </section>
@@ -394,50 +400,52 @@ function MascotTab() {
 
   return (
     <div className="space-y-6">
-      <section className="bg-white rounded-xl border border-gray-100 p-5">
-        <h3 className="text-base font-semibold text-gray-700 mb-3">看板娘开关</h3>
+      <section className="glass-card-strong p-5">
+        <h3 className="text-base font-semibold mb-3" style={{ color: "var(--text-dark)" }}>看板娘开关</h3>
         <label className="flex items-center gap-3 cursor-pointer">
           <input
             type="checkbox"
             checked={enabled}
             onChange={(e) => handleEnabled(e.target.checked)}
-            className="w-4 h-4 accent-blue-500"
+            className="w-4 h-4 accent-purple-500"
           />
-          <span className="text-gray-600 text-sm">在页面右下角显示看板娘</span>
+          <span className="text-sm" style={{ color: "var(--text-gray)" }}>在页面右下角显示看板娘</span>
         </label>
       </section>
 
-      <section className="bg-white rounded-xl border border-gray-100 p-5">
-        <h3 className="text-base font-semibold text-gray-700 mb-3">自定义台词</h3>
-        <p className="text-xs text-gray-400 mb-2">每行一句，随机显示</p>
+      <section className="glass-card-strong p-5">
+        <h3 className="text-base font-semibold mb-3" style={{ color: "var(--text-dark)" }}>自定义台词</h3>
+        <p className="text-xs mb-2" style={{ color: "var(--text-light)" }}>每行一句，随机显示</p>
         <textarea
           value={quotes}
           onChange={(e) => handleQuotes(e.target.value)}
-          className="w-full h-32 p-3 border border-gray-200 rounded-lg text-sm font-mono resize-y focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full h-32 p-3 rounded-lg text-sm font-mono resize-y focus:ring-2 focus:border-transparent"
+          style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)" }}
           placeholder="欢迎回来，今天玩什么游戏呀~"
         />
         <button
           type="button"
           onClick={handleSaveQuotes}
-          className="mt-2 px-4 py-1.5 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition-colors"
+          className="mt-2 btn-primary px-4 py-1.5 rounded-lg text-sm"
         >
           保存台词
         </button>
       </section>
 
-      <section className="bg-white rounded-xl border border-gray-100 p-5">
-        <h3 className="text-base font-semibold text-gray-700 mb-3">自定义图片</h3>
+      <section className="glass-card-strong p-5">
+        <h3 className="text-base font-semibold mb-3" style={{ color: "var(--text-dark)" }}>自定义图片</h3>
         <input
           type="text"
           value={customImage}
           onChange={(e) => setCustomImage(e.target.value)}
           placeholder="输入图片 URL（留空使用默认）"
-          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mb-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 rounded-lg text-sm mb-3 focus:ring-2 focus:border-transparent"
+          style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)" }}
         />
         <button
           type="button"
           onClick={() => handleCustomImage(customImage)}
-          className="px-4 py-1.5 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition-colors"
+          className="btn-primary px-4 py-1.5 rounded-lg text-sm"
         >
           保存
         </button>
@@ -481,36 +489,37 @@ function WishlistTab() {
   return (
     <div className="space-y-6">
       {/* 价格提醒总开关 */}
-      <section className="bg-white rounded-xl border border-gray-100 p-5">
-        <h3 className="text-base font-semibold text-gray-700 mb-3">价格提醒</h3>
+      <section className="glass-card-strong p-5">
+        <h3 className="text-base font-semibold mb-3" style={{ color: "var(--text-dark)" }}>价格提醒</h3>
         <label className="flex items-center gap-3 cursor-pointer">
           <input
             type="checkbox"
             checked={rules.enabled !== false}
             onChange={(e) => updateRules({ enabled: e.target.checked })}
-            className="w-4 h-4 accent-blue-500"
+            className="w-4 h-4 accent-purple-500"
           />
-          <span className="text-gray-600 text-sm">开启愿望单价格监控提醒</span>
+          <span className="text-sm" style={{ color: "var(--text-gray)" }}>开启愿望单价格监控提醒</span>
         </label>
       </section>
 
       {/* 折扣规则 */}
-      <section className="bg-white rounded-xl border border-gray-100 p-5">
-        <h3 className="text-base font-semibold text-gray-700 mb-3">折扣规则</h3>
+      <section className="glass-card-strong p-5">
+        <h3 className="text-base font-semibold mb-3" style={{ color: "var(--text-dark)" }}>折扣规则</h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-500 mb-1">最低折扣百分比（1-95%）</label>
+            <label className="block text-sm mb-1" style={{ color: "var(--text-gray)" }}>最低折扣百分比（1-95%）</label>
             <input
               type="number"
               min={1}
               max={95}
               value={rules.minDiscountPercent || 30}
               onChange={(e) => updateRules({ minDiscountPercent: Number(e.target.value) })}
-              className="w-32 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-32 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:border-transparent"
+              style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)" }}
             />
           </div>
           <div>
-            <label className="block text-sm text-gray-500 mb-1">偏好平台（逗号分隔）</label>
+            <label className="block text-sm mb-1" style={{ color: "var(--text-gray)" }}>偏好平台（逗号分隔）</label>
             <input
               type="text"
               value={(rules.preferredPlatforms as string[])?.join(", ") || ""}
@@ -518,7 +527,8 @@ function WishlistTab() {
                 preferredPlatforms: e.target.value.split(",").map((s) => s.trim()).filter(Boolean)
               })}
               placeholder="Steam, GOG, Epic"
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 rounded-lg text-sm focus:ring-2 focus:border-transparent"
+              style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)" }}
             />
           </div>
           <label className="flex items-center gap-3 cursor-pointer">
@@ -526,30 +536,31 @@ function WishlistTab() {
               type="checkbox"
               checked={rules.notifyOnlyNewLows === true}
               onChange={(e) => updateRules({ notifyOnlyNewLows: e.target.checked })}
-              className="w-4 h-4 accent-blue-500"
+              className="w-4 h-4 accent-purple-500"
             />
-            <span className="text-gray-600 text-sm">仅通知新史低价格</span>
+            <span className="text-sm" style={{ color: "var(--text-gray)" }}>仅通知新史低价格</span>
           </label>
         </div>
       </section>
 
       {/* 游戏别名映射 */}
-      <section className="bg-white rounded-xl border border-gray-100 p-5">
-        <h3 className="text-base font-semibold text-gray-700 mb-3">游戏别名 → Steam App ID</h3>
-        <p className="text-xs text-gray-400 mb-2">格式：游戏名 → Steam App ID</p>
+      <section className="glass-card-strong p-5">
+        <h3 className="text-base font-semibold mb-3" style={{ color: "var(--text-dark)" }}>游戏别名 → Steam App ID</h3>
+        <p className="text-xs mb-2" style={{ color: "var(--text-light)" }}>格式：游戏名 → Steam App ID</p>
         <div className="flex gap-2 mb-3">
           <input
             type="text"
             value={appIdInput}
             onChange={(e) => setAppIdInput(e.target.value)}
             placeholder="星露谷物语 -> 413150"
-            className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="flex-1 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:border-transparent"
+            style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)" }}
             onKeyDown={(e) => e.key === "Enter" && handleAddMapping()}
           />
           <button
             type="button"
             onClick={handleAddMapping}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition-colors"
+            className="btn-primary px-4 py-2 rounded-lg text-sm"
           >
             添加
           </button>
@@ -557,7 +568,7 @@ function WishlistTab() {
         {Object.keys(appIdMap).length > 0 && (
           <div className="space-y-1">
             {Object.entries(appIdMap).map(([name, id]) => (
-              <div key={name} className="flex items-center justify-between text-sm text-gray-600 bg-gray-50 px-3 py-1.5 rounded">
+              <div key={name} className="flex items-center justify-between text-sm px-3 py-1.5 rounded" style={{ color: "var(--text-gray)", background: "var(--bg-glass)" }}>
                 <span>{name}</span>
                 <span className="font-mono text-xs">Steam ID: {id}</span>
               </div>
@@ -648,17 +659,17 @@ function DataTab() {
   return (
     <div className="space-y-6">
       {/* 导入导出 */}
-      <section className="bg-white rounded-xl border border-gray-100 p-5">
-        <h3 className="text-base font-semibold text-gray-700 mb-3">数据备份</h3>
+      <section className="glass-card-strong p-5">
+        <h3 className="text-base font-semibold mb-3" style={{ color: "var(--text-dark)" }}>数据备份</h3>
         <div className="flex gap-3 flex-wrap">
           <button
             type="button"
             onClick={handleExport}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition-colors"
+            className="btn-primary px-4 py-2 rounded-lg text-sm"
           >
             导出全部数据
           </button>
-          <label className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200 transition-colors cursor-pointer">
+          <label className="btn-secondary px-4 py-2 rounded-lg text-sm cursor-pointer">
             导入数据
             <input
               type="file"
@@ -671,55 +682,58 @@ function DataTab() {
       </section>
 
       {/* 游戏数据 */}
-      <section className="bg-white rounded-xl border border-gray-100 p-5">
-        <h3 className="text-base font-semibold text-gray-700 mb-2">游戏收藏</h3>
+      <section className="glass-card-strong p-5">
+        <h3 className="text-base font-semibold mb-2" style={{ color: "var(--text-dark)" }}>游戏收藏</h3>
         <textarea
           value={gameData}
           onChange={(e) => handleDataChange(setGameData, (v) => { try { JSON.parse(v); return true; } catch { return false; } })(e.target.value)}
-          className="w-full h-48 p-3 border border-gray-200 rounded-lg text-sm font-mono resize-y focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full h-48 p-3 rounded-lg text-sm font-mono resize-y focus:ring-2 focus:border-transparent"
+          style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)" }}
           spellCheck={false}
         />
         {dataError && <p className="text-red-500 text-xs mt-1">{dataError}</p>}
         <button
           type="button"
           onClick={() => handleSave("games", gameData, "游戏数据")}
-          className="mt-2 px-4 py-1.5 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition-colors"
+          className="mt-2 btn-primary px-4 py-1.5 rounded-lg text-sm"
         >
           保存
         </button>
       </section>
 
       {/* 成就数据 */}
-      <section className="bg-white rounded-xl border border-gray-100 p-5">
-        <h3 className="text-base font-semibold text-gray-700 mb-2">成就系统</h3>
+      <section className="glass-card-strong p-5">
+        <h3 className="text-base font-semibold mb-2" style={{ color: "var(--text-dark)" }}>成就系统</h3>
         <textarea
           value={achievementsData}
           onChange={(e) => handleDataChange(setAchievementsData, (v) => { try { JSON.parse(v); return true; } catch { return false; } })(e.target.value)}
-          className="w-full h-40 p-3 border border-gray-200 rounded-lg text-sm font-mono resize-y focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full h-40 p-3 rounded-lg text-sm font-mono resize-y focus:ring-2 focus:border-transparent"
+          style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)" }}
           spellCheck={false}
         />
         <button
           type="button"
           onClick={() => handleSave("achievements", achievementsData, "成就数据")}
-          className="mt-2 px-4 py-1.5 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition-colors"
+          className="mt-2 btn-primary px-4 py-1.5 rounded-lg text-sm"
         >
           保存
         </button>
       </section>
 
       {/* 愿望单数据 */}
-      <section className="bg-white rounded-xl border border-gray-100 p-5">
-        <h3 className="text-base font-semibold text-gray-700 mb-2">愿望单</h3>
+      <section className="glass-card-strong p-5">
+        <h3 className="text-base font-semibold mb-2" style={{ color: "var(--text-dark)" }}>愿望单</h3>
         <textarea
           value={wishlistData}
           onChange={(e) => handleDataChange(setWishlistData, (v) => { try { JSON.parse(v); return true; } catch { return false; } })(e.target.value)}
-          className="w-full h-40 p-3 border border-gray-200 rounded-lg text-sm font-mono resize-y focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full h-40 p-3 rounded-lg text-sm font-mono resize-y focus:ring-2 focus:border-transparent"
+          style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)" }}
           spellCheck={false}
         />
         <button
           type="button"
           onClick={() => handleSave("game_record_wishlist", wishlistData, "愿望单数据")}
-          className="mt-2 px-4 py-1.5 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition-colors"
+          className="mt-2 btn-primary px-4 py-1.5 rounded-lg text-sm"
         >
           保存
         </button>
@@ -758,28 +772,29 @@ function AccountTab() {
 
   return (
     <div className="space-y-6">
-      <section className="bg-white rounded-xl border border-gray-100 p-5">
-        <h3 className="text-base font-semibold text-gray-700 mb-3">当前账户</h3>
+      <section className="glass-card-strong p-5">
+        <h3 className="text-base font-semibold mb-3" style={{ color: "var(--text-dark)" }}>当前账户</h3>
         {userEmail ? (
           <div className="space-y-3">
-            <div className="flex items-center gap-3 text-sm text-gray-600">
+            <div className="flex items-center gap-3 text-sm" style={{ color: "var(--text-gray)" }}>
               <span className="w-2 h-2 rounded-full bg-green-500"></span>
               已登录：{userEmail}
             </div>
             <button
               type="button"
               onClick={handleLogout}
-              className="px-4 py-2 bg-red-50 text-red-600 border border-red-200 rounded-lg text-sm hover:bg-red-100 transition-colors"
+              className="px-4 py-2 rounded-lg text-sm transition-colors"
+              style={{ background: "rgba(239,68,68,0.1)", color: "#ef4444", border: "1px solid rgba(239,68,68,0.2)" }}
             >
               退出登录
             </button>
           </div>
         ) : (
           <div className="space-y-3">
-            <p className="text-sm text-gray-500">未登录</p>
+            <p className="text-sm" style={{ color: "var(--text-gray)" }}>未登录</p>
             <a
               href="/auth"
-              className="inline-block px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition-colors"
+              className="inline-block btn-primary px-4 py-2 rounded-lg text-sm"
             >
               去登录
             </a>
@@ -787,31 +802,32 @@ function AccountTab() {
         )}
       </section>
 
-      <section className="bg-white rounded-xl border border-gray-100 p-5">
-        <h3 className="text-base font-semibold text-gray-700 mb-3">Steam 账号</h3>
+      <section className="glass-card-strong p-5">
+        <h3 className="text-base font-semibold mb-3" style={{ color: "var(--text-dark)" }}>Steam 账号</h3>
         <div className="flex gap-2">
           <input
             type="text"
             value={steamId}
             onChange={(e) => setSteamId(e.target.value)}
             placeholder="输入你的 Steam ID 或自定义 URL"
-            className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="flex-1 px-3 py-2 rounded-lg text-sm focus:ring-2 focus:border-transparent"
+            style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)" }}
           />
           <button
             type="button"
             onClick={handleSteamIdSave}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600 transition-colors"
+            className="btn-primary px-4 py-2 rounded-lg text-sm"
           >
             保存
           </button>
         </div>
-        <p className="text-xs text-gray-400 mt-2">用于 Steam 同步你的游戏库</p>
+        <p className="text-xs mt-2" style={{ color: "var(--text-light)" }}>用于 Steam 同步你的游戏库</p>
       </section>
 
-      <section className="bg-white rounded-xl border border-gray-100 p-5">
-        <h3 className="text-base font-semibold text-gray-700 mb-3">云端同步</h3>
-        <p className="text-sm text-gray-500 mb-2">登录后数据会自动同步到 Supabase 云端</p>
-        <div className="space-y-1 text-xs text-gray-400 font-mono">
+      <section className="glass-card-strong p-5">
+        <h3 className="text-base font-semibold mb-3" style={{ color: "var(--text-dark)" }}>云端同步</h3>
+        <p className="text-sm mb-2" style={{ color: "var(--text-gray)" }}>登录后数据会自动同步到 Supabase 云端</p>
+        <div className="space-y-1 text-xs font-mono" style={{ color: "var(--text-light)" }}>
           <p>Supabase: oxbyshstrvzshxpaztzg.supabase.co</p>
         </div>
       </section>
@@ -825,7 +841,7 @@ export default function SettingsPage() {
 
   return (
     <div className="container mx-auto px-4 py-10 max-w-3xl">
-      <h1 className="text-3xl font-bold mb-8 text-gray-800">设置</h1>
+      <h1 className="text-3xl font-bold mb-8 gradient-text">设置</h1>
 
       {/* 标签栏 */}
       <div className="flex gap-1 mb-6 overflow-x-auto pb-2">
@@ -836,9 +852,10 @@ export default function SettingsPage() {
             onClick={() => setActiveTab(tab.id)}
             className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
               activeTab === tab.id
-                ? "bg-blue-500 text-white shadow-sm"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                ? "text-white shadow-sm"
+                : "hover:bg-gray-200/30"
             }`}
+            style={activeTab === tab.id ? { background: "linear-gradient(135deg, var(--primary) 0%, var(--accent-pink) 100%)" } : { color: "var(--text-gray)", background: "var(--bg-glass)" }}
           >
             {tab.label}
           </button>
@@ -854,7 +871,7 @@ export default function SettingsPage() {
       {activeTab === "account" && <AccountTab />}
 
       {/* 关于 */}
-      <div className="mt-8 pt-6 border-t border-gray-100 text-center text-xs text-gray-400">
+      <div className="mt-8 pt-6 border-t text-center text-xs" style={{ borderColor: "var(--border-glass)", color: "var(--text-light)" }}>
         游戏记录 v2.0 · Next.js 15 + Supabase
       </div>
     </div>

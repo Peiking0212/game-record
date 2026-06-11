@@ -150,10 +150,10 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
   if (notFound || !hub) {
     return (
       <section className="py-24">
-        <div className="container mx-auto px-4 text-center max-w-lg">
-          <SearchX className="w-20 h-20 text-gray-300 mx-auto mb-6" />
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">未找到该游戏</h2>
-          <p className="text-gray-600 mb-8">{notFound}</p>
+        <div className="container mx-auto px-4 text-center max-w-lg glass-card p-8">
+          <SearchX className="w-20 h-20 mx-auto mb-6" style={{ color: "var(--text-light)" }} />
+          <h2 className="text-3xl font-bold mb-4" style={{ color: "var(--text-dark)" }}>未找到该游戏</h2>
+          <p className="mb-8" style={{ color: "var(--text-gray)" }}>{notFound}</p>
           <Link href="/games" className="btn-primary inline-flex items-center">
             <ArrowLeft className="w-5 h-5 mr-2" />
             返回游戏收藏
@@ -176,11 +176,12 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
 
   return (
     <div id="game-hub-content">
-      <section className="game-hub-hero bg-gradient-to-br from-blue-50 to-cyan-100 py-10 md:py-16">
+      <section className="game-hub-hero anime-hero py-10 md:py-16">
         <div className="container mx-auto px-4">
           <Link
             href="/games"
-            className="game-hub-back inline-flex items-center text-sm text-gray-600 hover:text-blue-600 mb-6"
+            className="game-hub-back inline-flex items-center text-sm mb-6"
+            style={{ color: "var(--text-gray)" }}
           >
             <ArrowLeft className="w-4 h-4 mr-1" />
             返回游戏收藏
@@ -204,10 +205,10 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
                   {getStatusText(game.status)}
                 </span>
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+              <h1 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: "var(--text-dark)" }}>
                 {game.name}
               </h1>
-              <p className="text-gray-600 mb-6 max-w-2xl">
+              <p className="mb-6 max-w-2xl" style={{ color: "var(--text-gray)" }}>
                 {game.description || "暂无描述"}
               </p>
               <div className="game-hub-stats-row">
@@ -219,7 +220,7 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
                 </div>
               </div>
               <div className="game-hub-progress-wrap mt-6">
-                <div className="flex justify-between text-sm text-gray-600 mb-2">
+                <div className="flex justify-between text-sm mb-2" style={{ color: "var(--text-gray)" }}>
                   <span>完成进度</span>
                   <span>{progress}%</span>
                 </div>
@@ -235,7 +236,7 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
         </div>
       </section>
 
-      <main className="py-12 bg-white">
+      <main className="py-12">
         <div className="container mx-auto px-4 max-w-6xl space-y-10">
           <section
             id="section-reviews"
@@ -400,7 +401,7 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
                   <div className="game-hub-spending-total">
                     <span>累计消费</span>
                     <strong>¥{spendingTotal.toFixed(2)}</strong>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm" style={{ color: "var(--text-gray)" }}>
                       {hub.spending.length} 条记录
                     </span>
                   </div>
@@ -453,7 +454,7 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div>
-                <h3 className="text-sm font-semibold text-gray-600 mb-2">资讯</h3>
+                <h3 className="text-sm font-semibold mb-2" style={{ color: "var(--text-gray)" }}>资讯</h3>
                 <div className="game-hub-list">
                   {hub.news.length === 0 ? (
                     <EmptySection message="暂无该游戏资讯" />
@@ -461,12 +462,12 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
                     hub.news.slice(0, 4).map((item, idx) => (
                       <article
                         key={`news-${idx}`}
-                        className="p-3 rounded-lg border border-gray-200 bg-white/70"
+                        className="p-3 rounded-lg glass-card"
                       >
-                        <h4 className="font-semibold text-gray-800">
+                        <h4 className="font-semibold" style={{ color: "var(--text-dark)" }}>
                           {item.title || "游戏资讯"}
                         </h4>
-                        <p className="text-sm text-gray-600 mt-1">
+                        <p className="text-sm mt-1" style={{ color: "var(--text-gray)" }}>
                           {item.summary || ""}
                         </p>
                       </article>
@@ -475,7 +476,7 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
                 </div>
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-gray-600 mb-2">折扣</h3>
+                <h3 className="text-sm font-semibold mb-2" style={{ color: "var(--text-gray)" }}>折扣</h3>
                 <div className="game-hub-list">
                   {hub.deals.length === 0 ? (
                     <EmptySection message="暂无该游戏折扣" />
@@ -483,19 +484,19 @@ export function GameDetailClient({ gameId: gameIdProp, gameNameQuery: nameProp }
                     hub.deals.slice(0, 4).map((item, idx) => (
                       <article
                         key={`deal-${idx}`}
-                        className="p-3 rounded-lg border border-gray-200 bg-white/70"
+                        className="p-3 rounded-lg glass-card"
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <strong className="text-gray-800">
+                          <strong style={{ color: "var(--text-dark)" }}>
                             {item.platform || "平台"}
                           </strong>
                           <span className="badge badge-green">
                             {String(item.discountPercent ?? 0)}% OFF
                           </span>
                         </div>
-                        <p className="text-sm text-gray-700 mt-2">
+                        <p className="text-sm mt-2" style={{ color: "var(--text-gray)" }}>
                           ¥{Number(item.currentPrice ?? 0).toFixed(2)}
-                          <span className="text-gray-400 line-through ml-1">
+                          <span className="line-through ml-1" style={{ color: "var(--text-light)" }}>
                             ¥{Number(item.originalPrice ?? 0).toFixed(2)}
                           </span>
                         </p>
