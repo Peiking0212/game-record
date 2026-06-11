@@ -64,7 +64,7 @@ export function WishlistEmailAlertsPanel({ signedIn, refreshKey }: Props) {
     return (
       <div
         id="wishlist-email-panel"
-        className="max-w-6xl mx-auto mb-8 p-5 rounded-xl border border-violet-100 bg-gradient-to-br from-violet-50/80 to-white"
+        className="max-w-6xl mx-auto mb-8 p-5 rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50/80 to-white"
       >
         <p className="text-sm text-gray-500">
           登录后可在目标价达标时接收邮件降价提醒（发送至账号注册邮箱）。
@@ -77,10 +77,10 @@ export function WishlistEmailAlertsPanel({ signedIn, refreshKey }: Props) {
     <div
       id="wishlist-email-panel"
       data-testid="wishlist-email-panel"
-      className="max-w-6xl mx-auto mb-8 p-5 rounded-xl border border-violet-100 bg-gradient-to-br from-violet-50/80 to-white"
+      className="max-w-6xl mx-auto mb-8 p-5 rounded-xl border border-blue-100 bg-gradient-to-br from-blue-50/80 to-white"
     >
       <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 mb-2">
-        <Mail className="w-5 h-5 text-violet-500" />
+        <Mail className="w-5 h-5 text-blue-500" />
         邮件降价提醒
       </h3>
       <p className="text-sm text-gray-600 mb-3">
@@ -106,7 +106,7 @@ export function WishlistEmailAlertsPanel({ signedIn, refreshKey }: Props) {
           {rows.map((row) => (
             <li
               key={row.id}
-              className="flex flex-wrap justify-between gap-2 py-2 border-b border-violet-100 last:border-0"
+              className="flex flex-wrap justify-between gap-2 py-2 border-b border-blue-100 last:border-0"
             >
               <span className="text-gray-800">
                 <span className="font-medium">{row.gameName}</span>

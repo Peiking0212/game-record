@@ -19,7 +19,7 @@ const BAR_COLORS = [
   "#52B6FF",
   "#f59e0b",
   "#10b981",
-  "#8b5cf6",
+  "#3b82f6",
   "#ec4899",
   "#06b6d4",
 ] as const;
@@ -285,14 +285,14 @@ export function ReportClient() {
           </div>
 
           <button
-            className="hidden sm:flex fixed top-1/2 -translate-y-1/2 left-4 w-10 h-10 rounded-full border z-50 items-center justify-center shadow hover:text-purple-500"
+            className="hidden sm:flex fixed top-1/2 -translate-y-1/2 left-4 w-10 h-10 rounded-full border z-50 items-center justify-center shadow hover:text-blue-500"
             style={{ background: "var(--bg-glass)", borderColor: "var(--border-glass)", color: "var(--text-gray)" }}
             onClick={() => go(currentSlide - 1)}
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
-            className="hidden sm:flex fixed top-1/2 -translate-y-1/2 right-4 w-10 h-10 rounded-full border z-50 items-center justify-center shadow hover:text-purple-500"
+            className="hidden sm:flex fixed top-1/2 -translate-y-1/2 right-4 w-10 h-10 rounded-full border z-50 items-center justify-center shadow hover:text-blue-500"
             style={{ background: "var(--bg-glass)", borderColor: "var(--border-glass)", color: "var(--text-gray)" }}
             onClick={() => go(currentSlide + 1)}
           >

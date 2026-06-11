@@ -7,10 +7,10 @@
    二次元动漫风格 - 全局变量
    ======================================== */
 :root {
-  /* 主色调 - 紫蓝梦幻 */
-  --primary: #8B5CF6;
-  --primary-hover: #7C3AED;
-  --primary-light: rgba(139, 92, 246, 0.15);
+  /* 主色调 - 蓝青梦幻 */
+  --primary: #3B82F6;
+  --primary-hover: #2563EB;
+  --primary-light: rgba(59, 130, 246, 0.15);
   --accent-pink: #EC4899;
   --accent-cyan: #06B6D4;
   --accent-blue: #6366F1;
@@ -24,17 +24,17 @@
   --bg-glass-strong: rgba(255, 255, 255, 0.72);
 
   /* 文字 */
-  --text-dark: #1e1b4b;
+  --text-dark: #0f172a;
   --text-gray: #6b7280;
   --text-light: #9ca3af;
-  --text-purple: #7c3aed;
+  --text-blue: #3B82F6;
 
   /* 边框 & 阴影 */
   --border-light: rgba(255, 255, 255, 0.5);
   --border-glass: rgba(255, 255, 255, 0.3);
-  --shadow-color: rgba(139, 92, 246, 0.08);
-  --shadow-hover: rgba(139, 92, 246, 0.15);
-  --shadow-elevated: rgba(139, 92, 246, 0.22);
+  --shadow-color: rgba(59, 130, 246, 0.08);
+  --shadow-hover: rgba(59, 130, 246, 0.15);
+  --shadow-elevated: rgba(59, 130, 246, 0.22);
 
   /* 状态色 */
   --success: #10b981;
@@ -44,47 +44,47 @@
   /* 其他 */
   --overlay-bg: rgba(15, 15, 30, 0.55);
   --input-bg: rgba(255, 255, 255, 0.6);
-  --input-border: rgba(139, 92, 246, 0.2);
-  --focus-ring: rgba(139, 92, 246, 0.25);
+  --input-border: rgba(59, 130, 246, 0.2);
+  --focus-ring: rgba(59, 130, 246, 0.25);
   --skeleton-from: #e0e7ff;
-  --skeleton-to: #ddd6fe;
+  --skeleton-to: #BFDBFE;
 }
 
 /* ========================================
    Dark Theme - 二次元暗色
    ======================================== */
 [data-theme="dark"] {
-  --primary: #A78BFA;
-  --primary-hover: #C4B5FD;
-  --primary-light: rgba(167, 139, 250, 0.15);
+  --primary: #60A5FA;
+  --primary-hover: #93C5FD;
+  --primary-light: rgba(96, 165, 250, 0.15);
   --accent-pink: #F472B6;
   --accent-cyan: #22D3EE;
   --accent-blue: #818CF8;
 
-  --bg-light: linear-gradient(135deg, #0f0a1a 0%, #1a1033 50%, #0d1b2a 100%);
-  --bg-white: rgba(30, 27, 75, 0.6);
-  --bg-card: rgba(30, 27, 75, 0.5);
-  --bg-card-hover: rgba(30, 27, 75, 0.7);
-  --bg-glass: rgba(30, 27, 75, 0.4);
-  --bg-glass-strong: rgba(30, 27, 75, 0.65);
+  --bg-light: linear-gradient(135deg, #0f0a1a 0%, #0c1a2e 50%, #0a1628 100%);
+  --bg-white: rgba(30, 41, 59, 0.6);
+  --bg-card: rgba(30, 58, 95, 0.5);
+  --bg-card-hover: rgba(30, 58, 95, 0.7);
+  --bg-glass: rgba(30, 58, 95, 0.4);
+  --bg-glass-strong: rgba(30, 58, 95, 0.65);
 
-  --text-dark: #f5f3ff;
-  --text-gray: #c4b5fd;
-  --text-light: #a78bfa;
-  --text-purple: #ddd6fe;
+  --text-dark: #f0f9ff;
+  --text-gray: #93C5FD;
+  --text-light: #60A5FA;
+  --text-blue: #BFDBFE;
 
-  --border-light: rgba(167, 139, 250, 0.15);
-  --border-glass: rgba(167, 139, 250, 0.1);
+  --border-light: rgba(96, 165, 250, 0.15);
+  --border-glass: rgba(96, 165, 250, 0.1);
   --shadow-color: rgba(0, 0, 0, 0.3);
-  --shadow-hover: rgba(139, 92, 246, 0.2);
-  --shadow-elevated: rgba(139, 92, 246, 0.3);
+  --shadow-hover: rgba(59, 130, 246, 0.2);
+  --shadow-elevated: rgba(59, 130, 246, 0.3);
 
   --overlay-bg: rgba(10, 5, 25, 0.75);
-  --input-bg: rgba(30, 27, 75, 0.5);
-  --input-border: rgba(167, 139, 250, 0.2);
-  --focus-ring: rgba(167, 139, 250, 0.3);
-  --skeleton-from: #312e81;
-  --skeleton-to: #1e1b4b;
+  --input-bg: rgba(30, 58, 95, 0.5);
+  --input-border: rgba(96, 165, 250, 0.2);
+  --focus-ring: rgba(96, 165, 250, 0.3);
+  --skeleton-from: #1e3a5f;
+  --skeleton-to: #0f172a;
 }
 
 /* ========================================
@@ -133,7 +133,7 @@ body {
 .anime-hero {
   position: relative;
   overflow: hidden;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+  background: linear-gradient(135deg, #667eea 0%, #2563EB 25%, #60A5FA 50%, #4facfe 75%, #00f2fe 100%);
   background-size: 400% 400%;
   animation: animeGradient 15s ease infinite;
 }
@@ -168,12 +168,12 @@ body {
   transition: all 0.3s ease;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.35);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.45);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.45);
   filter: brightness(1.1);
 }
 
@@ -219,7 +219,7 @@ body {
 .game-card:hover {
   box-shadow: 0 16px 40px var(--shadow-hover);
   transform: translateY(-6px) scale(1.01);
-  border-color: rgba(139, 92, 246, 0.3);
+  border-color: rgba(59, 130, 246, 0.3);
 }
 
 .game-card-link {
@@ -352,12 +352,12 @@ body {
   display: flex;
   justify-content: space-between;
   font-size: 13px;
-  color: #c4b5fd;
+  color: #93C5FD;
   padding: 0 12px;
 }
 
 .game-card-info-label {
-  color: #a78bfa;
+  color: #60A5FA;
 }
 
 /* 按钮 */
@@ -382,7 +382,7 @@ body {
 }
 
 .game-card-btn-primary {
-  background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+  background: linear-gradient(135deg, #3B82F6 0%, #EC4899 100%);
   color: #fff;
 }
 
@@ -423,8 +423,8 @@ body {
 }
 
 .stat-card-primary {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(236, 72, 153, 0.1) 100%);
-  border: 1px solid rgba(139, 92, 246, 0.2);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(236, 72, 153, 0.1) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .stat-icon {
@@ -435,7 +435,7 @@ body {
   align-items: center;
   justify-content: center;
   margin: 0 auto 1rem;
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2) 0%, rgba(236, 72, 153, 0.15) 100%);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(236, 72, 153, 0.15) 100%);
 }
 
 .stat-number {
@@ -492,10 +492,10 @@ body {
   letter-spacing: 0.02em;
 }
 
-.badge-purple {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(99, 102, 241, 0.1) 100%);
-  color: #8b5cf6;
-  border: 1px solid rgba(139, 92, 246, 0.2);
+.badge-blue {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(99, 102, 241, 0.1) 100%);
+  color: #3B82F6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
 }
 
 .badge-pink {
@@ -574,13 +574,13 @@ body {
 .filter-item:hover,
 .filter-item.active {
   transform: scale(1.1);
-  border-color: #8b5cf6;
+  border-color: #3B82F6;
 }
 .crop-handle {
   width: 12px;
   height: 12px;
   background: white;
-  border: 2px solid #8b5cf6;
+  border: 2px solid #3B82F6;
   border-radius: 50%;
   position: absolute;
   cursor: move;

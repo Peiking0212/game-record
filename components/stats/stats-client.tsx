@@ -107,7 +107,7 @@ export function StatsClient() {
 
   const typeData = useMemo(() => {
     const map: Record<string, number> = {};
-    const colors = ["#6366f1", "#ec4899", "#8b5cf6", "#14b8a6", "#f97316"];
+    const colors = ["#6366f1", "#ec4899", "#3b82f6", "#14b8a6", "#f97316"];
     filteredGames.forEach((g) => {
       const t = g.type || "其他";
       map[t] = (map[t] || 0) + 1;
@@ -299,7 +299,7 @@ export function StatsClient() {
             />
             <StatCard
               icon={<Trophy className="w-8 h-8" />}
-              iconClass="bg-purple-100 text-purple-500"
+              iconClass="bg-blue-100 text-blue-500"
               value={String(overview.achievements)}
               label="获得成就"
             />
@@ -750,7 +750,7 @@ function TopPlaytimeList({
             <div className="flex items-center gap-2 flex-1 max-w-xs">
               <div className="h-2 rounded-full bg-gray-100 flex-1 overflow-hidden">
                 <div
-                  className="h-full bg-purple-500 rounded-full"
+                  className="h-full bg-blue-500 rounded-full"
                   style={{ width: `${Math.round((hours / max) * 100)}%` }}
                 />
               </div>

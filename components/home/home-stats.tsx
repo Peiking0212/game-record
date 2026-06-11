@@ -43,14 +43,14 @@ export function HomeStats() {
           <div className="max-w-2xl mx-auto mb-8">
             <div className="stat-card stat-card-primary p-8">
               <div className="flex items-center justify-center gap-3 mb-4">
-                <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-gradient-to-br from-violet-500 to-pink-500">
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-gradient-to-br from-blue-500 to-pink-500">
                   <Clock className="w-7 h-7 text-white" />
                 </div>
               </div>
               <div className="stat-number text-5xl md:text-6xl">{stats.totalHours}h</div>
               <div className="stat-label text-lg mt-2">累计游戏时长</div>
               <div className="mt-4 flex justify-center gap-2">
-                <span className="badge badge-purple">{stats.totalGames} 款游戏</span>
+                <span className="badge badge-blue">{stats.totalGames} 款游戏</span>
                 <span className="badge badge-pink">{stats.avgRating} 平均评分</span>
               </div>
             </div>
@@ -59,7 +59,7 @@ export function HomeStats() {
           {/* 次数据卡片 - 小 */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
             <SubStatCard
-              icon={<Gamepad2 className="w-6 h-6 text-violet-500" />}
+              icon={<Gamepad2 className="w-6 h-6 text-blue-500" />}
               value={String(stats.totalGames)}
               label="收藏游戏"
             />
@@ -191,8 +191,8 @@ function GameCard({ game }: { game: GameRecord }) {
               unoptimized
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-violet-100 to-pink-100 flex items-center justify-center">
-              <Gamepad2 className="w-12 h-12 text-violet-300" />
+            <div className="w-full h-full bg-gradient-to-br from-blue-100 to-pink-100 flex items-center justify-center">
+              <Gamepad2 className="w-12 h-12 text-blue-300" />
             </div>
           )}
         </div>
@@ -206,7 +206,7 @@ function GameCard({ game }: { game: GameRecord }) {
           <div className="absolute bottom-3 left-3 right-3">
             <div className="h-1.5 bg-white/20 rounded-full overflow-hidden">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-violet-400 to-pink-400"
+                className="h-full rounded-full bg-gradient-to-r from-blue-400 to-pink-400"
                 style={{ width: `${progress}%` }}
               />
             </div>

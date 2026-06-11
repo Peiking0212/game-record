@@ -21,7 +21,7 @@ export type UserProfile = {
 export const TAG_BADGE_CLASSES = [
   "badge-blue",
   "badge-orange",
-  "badge-purple",
+  "badge-blue",
   "badge-green",
 ] as const;
 

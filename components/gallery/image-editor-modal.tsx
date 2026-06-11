@@ -38,7 +38,7 @@ const FILTERS: { id: FilterName; title: string; className?: string }[] = [
   { id: "sepia", title: "复古棕", className: "bg-gradient-to-br from-yellow-100 to-amber-200" },
   { id: "cool", title: "冷色调", className: "bg-gradient-to-br from-blue-200 to-cyan-300" },
   { id: "warm", title: "暖色调", className: "bg-gradient-to-br from-amber-100 to-orange-200" },
-  { id: "vintage", title: "旧时光", className: "bg-gradient-to-br from-pink-200 to-purple-300" },
+  { id: "vintage", title: "旧时光", className: "bg-gradient-to-br from-pink-200 to-blue-300" },
   { id: "vivid", title: "鲜亮", className: "bg-gradient-to-br from-green-200 to-teal-300" },
   { id: "bright", title: "高亮", className: "bg-gradient-to-br from-gray-300 to-white" },
 ];

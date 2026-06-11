@@ -34,7 +34,7 @@ import {
   type UserProfile,
 } from "@/lib/profile";
 
-const AVATAR_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Crect width='96' height='96' fill='%238B5CF6'/%3E%3C/svg%3E";
+const AVATAR_FALLBACK = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Crect width='96' height='96' fill='%233B82F6'/%3E%3C/svg%3E";
 
 function TagBadges({
   tags,
@@ -87,7 +87,7 @@ function PlayStyleBars({ playStyle }: { playStyle: PlayStyle }) {
               className="h-full rounded-full"
               style={{
                 width: `${playStyle[key]}%`,
-                background: "linear-gradient(90deg, #8B5CF6, #EC4899)",
+                background: "linear-gradient(90deg, #3B82F6, #EC4899)",
               }}
             />
           </div>
@@ -477,7 +477,7 @@ export function ProfileClient() {
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className="glass-card p-6 text-center">
                 <div className="flex justify-center mb-3">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-violet-500 to-pink-500">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-gradient-to-br from-blue-500 to-pink-500">
                     <Clock className="w-6 h-6 text-white" />
                   </div>
                 </div>
@@ -554,7 +554,7 @@ export function ProfileClient() {
 
               <div className="glass-card-strong p-6">
                 <h3 className="text-lg font-semibold mb-5 flex items-center" style={{ color: "var(--text-dark)" }}>
-                  <Settings className="w-5 h-5 text-violet-500 mr-2" />
+                  <Settings className="w-5 h-5 text-blue-500 mr-2" />
                   游玩风格
                 </h3>
                 <PlayStyleBars playStyle={playStyle} />

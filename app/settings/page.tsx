@@ -75,7 +75,7 @@ function AppearanceTab() {
               }}
               className={`p-3 rounded-lg border-2 text-center transition-all ${
                 theme === opt.value
-                  ? "border-purple-400 bg-purple-50/30 text-purple-700"
+                  ? "border-blue-400 bg-blue-50/30 text-blue-700"
                   : "border-gray-200/30 hover:border-gray-300/50 text-gray-600"
               }`}
               style={theme === opt.value ? { color: "var(--primary)", borderColor: "var(--primary)" } : { color: "var(--text-gray)" }}
@@ -102,7 +102,7 @@ function AppearanceTab() {
               onClick={() => { setCardStyle(opt.value); saveSettings({ cardStyle: opt.value }); }}
               className={`p-3 rounded-lg border-2 text-center transition-all ${
                 cardStyle === opt.value
-                  ? "border-purple-400 bg-purple-50/30"
+                  ? "border-blue-400 bg-blue-50/30"
                   : "border-gray-200/30 hover:border-gray-300/50"
               }`}
               style={cardStyle === opt.value ? { color: "var(--primary)", borderColor: "var(--primary)" } : { color: "var(--text-gray)" }}
@@ -128,7 +128,7 @@ function AppearanceTab() {
               onClick={() => { setAnimSpeed(opt.value); saveSettings({ animSpeed: opt.value }); }}
               className={`p-3 rounded-lg border-2 text-center transition-all ${
                 animSpeed === opt.value
-                  ? "border-purple-400 bg-purple-50/30"
+                  ? "border-blue-400 bg-blue-50/30"
                   : "border-gray-200/30 hover:border-gray-300/50"
               }`}
               style={animSpeed === opt.value ? { color: "var(--primary)", borderColor: "var(--primary)" } : { color: "var(--text-gray)" }}
@@ -154,7 +154,7 @@ function AppearanceTab() {
               onClick={() => { setHoverEffect(opt.value); saveSettings({ hoverEffect: opt.value }); }}
               className={`p-3 rounded-lg border-2 text-center transition-all ${
                 hoverEffect === opt.value
-                  ? "border-purple-400 bg-purple-50/30"
+                  ? "border-blue-400 bg-blue-50/30"
                   : "border-gray-200/30 hover:border-gray-300/50"
               }`}
               style={hoverEffect === opt.value ? { color: "var(--primary)", borderColor: "var(--primary)" } : { color: "var(--text-gray)" }}
@@ -214,9 +214,9 @@ function BackgroundTab() {
     { label: "深邃太空", bg: "#1e1b4b" },
     { label: "午夜蓝调", bg: "#1e3a5f" },
     { label: "森林之夜", bg: "#14532d" },
-    { label: "优雅深紫", bg: "#4c1d95" },
+    { label: "优雅深紫", bg: "#1e40af" },
     { label: "暖阳日落", bg: "linear-gradient(135deg, #ff6b6b 0%, #feca57 100%)" },
-    { label: "极光之舞", bg: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" },
+    { label: "极光之舞", bg: "linear-gradient(135deg, #667eea 0%, #2563EB 100%)" },
     { label: "海洋之风", bg: "linear-gradient(135deg, #0077b6 0%, #00b4d8 100%)" },
     { label: "清新薄荷", bg: "linear-gradient(135deg, #c7f9cc 0%, #a8e6cf 100%)" },
   ];
@@ -254,7 +254,7 @@ function BackgroundTab() {
 
         {/* 本地上传 */}
         <div className="mb-3">
-          <label className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed cursor-pointer transition-all hover:border-purple-400 hover:bg-purple-50/10"
+          <label className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed cursor-pointer transition-all hover:border-blue-400 hover:bg-blue-50/10"
             style={{ borderColor: "var(--border-glass)" }}
           >
             <input
@@ -316,7 +316,7 @@ function BackgroundTab() {
                   onClick={() => { setHeroBg(p.bg); handleHeroBgChange(p.bg); }}
                   className={`h-16 rounded-lg overflow-hidden transition-all flex items-center justify-center text-white text-sm font-semibold shadow-sm hover:shadow-md ${
                     isSelected
-                      ? "ring-2 ring-purple-400 ring-offset-2"
+                      ? "ring-2 ring-blue-400 ring-offset-2"
                       : "border-2 border-transparent hover:border-gray-300"
                   }`}
                   style={{ background: p.bg, textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}
@@ -337,7 +337,7 @@ function BackgroundTab() {
             type="checkbox"
             checked={autoTimeBg}
             onChange={(e) => handleAutoTimeBg(e.target.checked)}
-            className="w-4 h-4 accent-purple-500"
+            className="w-4 h-4 accent-blue-500"
           />
           <span className="text-sm" style={{ color: "var(--text-gray)" }}>根据时间和季节自动切换背景</span>
         </label>
@@ -386,7 +386,7 @@ function BackgroundTab() {
               onClick={() => { setVideoBg(p.url); handleVideoBg(p.url); }}
               className={`text-left px-3 py-2 rounded-lg text-xs transition-colors border ${
                 videoBg === p.url
-                  ? "border-purple-400"
+                  ? "border-blue-400"
                   : "border-gray-200/30 hover:border-gray-300/50"
               }`}
               style={videoBg === p.url ? { color: "var(--primary)", background: "var(--primary-light)" } : { color: "var(--text-gray)", background: "var(--bg-glass)" }}
@@ -458,7 +458,7 @@ function MascotTab() {
             type="checkbox"
             checked={enabled}
             onChange={(e) => handleEnabled(e.target.checked)}
-            className="w-4 h-4 accent-purple-500"
+            className="w-4 h-4 accent-blue-500"
           />
           <span className="text-sm" style={{ color: "var(--text-gray)" }}>在页面右下角显示看板娘</span>
         </label>
@@ -547,7 +547,7 @@ function WishlistTab() {
             type="checkbox"
             checked={rules.enabled !== false}
             onChange={(e) => updateRules({ enabled: e.target.checked })}
-            className="w-4 h-4 accent-purple-500"
+            className="w-4 h-4 accent-blue-500"
           />
           <span className="text-sm" style={{ color: "var(--text-gray)" }}>开启愿望单价格监控提醒</span>
         </label>
@@ -587,7 +587,7 @@ function WishlistTab() {
               type="checkbox"
               checked={rules.notifyOnlyNewLows === true}
               onChange={(e) => updateRules({ notifyOnlyNewLows: e.target.checked })}
-              className="w-4 h-4 accent-purple-500"
+              className="w-4 h-4 accent-blue-500"
             />
             <span className="text-sm" style={{ color: "var(--text-gray)" }}>仅通知新史低价格</span>
           </label>

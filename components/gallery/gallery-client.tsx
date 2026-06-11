@@ -350,7 +350,7 @@ export function GalleryClient() {
                         }}
                       />
                       {type === "video" && (
-                        <div className="absolute top-2 right-2 bg-purple-500 text-white p-1 rounded">
+                        <div className="absolute top-2 right-2 bg-blue-500 text-white p-1 rounded">
                           <Video className="w-4 h-4" />
                         </div>
                       )}

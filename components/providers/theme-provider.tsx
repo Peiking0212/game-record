@@ -162,51 +162,120 @@ function createVideoBackground(el: HTMLElement, videoUrl: string) {
   });
 }
 
-function applyBackground() {
+function applyGlobalBackground() {
   if (typeof window === "undefined") return;
-
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     const parsed = raw ? JSON.parse(raw) : {};
     const heroBg: string = parsed.heroBg || "";
-    const autoTimeBg: boolean =
-      localStorage.getItem("auto_time_bg") === "true";
+    const autoTimeBg: boolean = localStorage.getItem("auto_time_bg") === "true";
+    const videoBg: string = localStorage.getItem("site_video_bg") || "";
+
+    // Clear previous global background
+    const existingBg = document.getElementById("global-bg-container");
+    if (existingBg) existingBg.remove();
+
+    const body = document.body;
+    body.style.background = "";
+    body.style.backgroundImage = "";
+
+    if (videoBg) {
+      // Video background - create container for entire page
+      const container = document.createElement("div");
+      container.id = "global-bg-container";
+      container.style.cssText =
+        "position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;overflow:hidden;";
+
+      const bilibiliMatch = videoBg.match(/bilibili\.com\/video\/(BV[\w]+)/i) ||
+                            videoBg.match(/bilibili\.com\/video\/(av\d+)/i) ||
+                            videoBg.match(/BV[\w]+/i);
+
+      if (bilibiliMatch) {
+        const bvid = bilibiliMatch[1] || bilibiliMatch[0];
+        const iframe = document.createElement("iframe");
+        iframe.src = `https://player.bilibili.com/player.html?bvid=${bvid}&autoplay=1&muted=1&loop=1&danmaku=0&high_quality=1`;
+        iframe.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;border:none;";
+        iframe.allow = "autoplay; fullscreen";
+        container.appendChild(iframe);
+      } else {
+        const videoEl = document.createElement("video");
+        videoEl.autoplay = true;
+        videoEl.muted = true;
+        videoEl.loop = true;
+        videoEl.playsInline = true;
+        videoEl.src = videoBg;
+        videoEl.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;";
+        container.appendChild(videoEl);
+      }
+
+      const overlay = document.createElement("div");
+      overlay.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.4);";
+      container.appendChild(overlay);
+
+      body.appendChild(container);
+      return;
+    }
+
+    if (heroBg) {
+      const trimmed = heroBg.trim();
+      if (isGradientValue(trimmed)) {
+        body.style.background = trimmed;
+      } else if (isColorValue(trimmed)) {
+        body.style.background = trimmed;
+      } else if (isImageUrl(trimmed) || trimmed.startsWith("data:image")) {
+        // Global image background - cover entire page
+        const container = document.createElement("div");
+        container.id = "global-bg-container";
+        container.style.cssText =
+          "position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;background:url(" +
+          trimmed +
+          ") no-repeat center center fixed;background-size:cover;";
+
+        const overlay = document.createElement("div");
+        overlay.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(15,23,42,0.35);";
+        container.appendChild(overlay);
+
+        body.appendChild(container);
+      } else {
+        body.style.background = trimmed;
+      }
+      return;
+    }
+
+    if (autoTimeBg) {
+      body.style.background = getAutoTimeBackground();
+    }
+  } catch {
+    // ignore
+  }
+}
+
+function applyBackground() {
+  if (typeof window === "undefined") return;
+  // Apply global background first
+  applyGlobalBackground();
+
+  // Also apply to hero sections for compatibility
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    const heroBg: string = parsed.heroBg || "";
+    const autoTimeBg: boolean = localStorage.getItem("auto_time_bg") === "true";
     const videoBg: string = localStorage.getItem("site_video_bg") || "";
 
     const heroSections = document.querySelectorAll<HTMLElement>("[data-hero]");
-
     heroSections.forEach((el) => {
       clearHeroDecorations(el);
-
-      if (videoBg) {
-        createVideoBackground(el, videoBg);
-      } else if (autoTimeBg) {
-        el.style.background = getAutoTimeBackground();
-        el.style.color = hourIsDark() ? "#fff" : "inherit";
-      } else if (heroBg) {
-        const trimmed = heroBg.trim();
-        if (isGradientValue(trimmed)) {
-          el.style.background = trimmed;
-          el.style.color = "#fff";
-        } else if (isColorValue(trimmed)) {
-          el.style.background = trimmed;
-          el.style.color = "#fff";
-        } else if (isImageUrl(trimmed)) {
-          el.style.background =
-            "linear-gradient(rgba(15,23,42,0.35), rgba(15,23,42,0.55)), url(" +
-            trimmed +
-            ")";
-          el.style.backgroundSize = "cover";
-          el.style.backgroundPosition = "center";
-          el.style.color = "#fff";
-        } else {
-          el.style.background = trimmed;
-          el.style.color = "#fff";
-        }
+      if (!heroBg && !videoBg && !autoTimeBg) {
+        // No custom background, keep default anime-hero gradient
+        return;
       }
+      // When global bg is set, make hero transparent
+      el.style.background = "transparent";
+      el.style.color = "#fff";
     });
   } catch {
-    // 忽略错误
+    // ignore
   }
 }
 

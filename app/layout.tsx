@@ -26,7 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN" suppressHydrationWarning>
-      <body className="min-h-screen flex flex-col">
+      <body className="min-h-screen flex flex-col" style={{ background: "transparent" }}>
         <ThemeProvider>
           <ToastProvider>
             <MascotProvider>
