@@ -1,0 +1,234 @@
+/* Global readable glass layer for replaceable backgrounds. */
+:root {
+  --readable-glass: rgba(255, 255, 255, 0.6);
+  --readable-glass-strong: rgba(255, 255, 255, 0.76);
+  --readable-glass-border: rgba(255, 255, 255, 0.54);
+  --readable-glass-shadow: 0 18px 48px rgba(35, 78, 120, 0.14);
+}
+
+[data-theme="dark"] {
+  --readable-glass: rgba(15, 23, 42, 0.58);
+  --readable-glass-strong: rgba(15, 23, 42, 0.76);
+  --readable-glass-border: rgba(147, 197, 253, 0.24);
+  --readable-glass-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+}
+
+header.sticky,
+footer {
+  background: var(--readable-glass-strong) !important;
+  border-color: var(--readable-glass-border) !important;
+  backdrop-filter: blur(24px) saturate(170%);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  box-shadow: 0 10px 32px rgba(35, 78, 120, 0.12);
+}
+
+header.sticky {
+  border-bottom: 1px solid var(--readable-glass-border);
+}
+
+footer {
+  border-top: 1px solid var(--readable-glass-border);
+}
+
+.mobile-menu,
+#nav-more-menu {
+  background: var(--readable-glass-strong) !important;
+  border: 1px solid var(--readable-glass-border) !important;
+  backdrop-filter: blur(24px) saturate(170%);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+}
+
+header nav > a:first-child,
+main > .container.max-w-md,
+main [data-hero] > .container {
+  width: min(72rem, calc(100% - 2rem));
+  padding: clamp(1.25rem, 4vw, 2rem);
+  border: 1px solid var(--readable-glass-border);
+  border-radius: 8px;
+  background: var(--readable-glass);
+  backdrop-filter: blur(24px) saturate(170%);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  box-shadow: var(--readable-glass-shadow);
+}
+
+header nav > a:first-child {
+  width: auto;
+  padding: 0.5rem 0.75rem;
+}
+
+main > .container.max-w-md {
+  width: min(28rem, calc(100% - 2rem));
+}
+
+main [data-hero] .text-white,
+main [data-hero] .text-white\/70,
+main [data-hero] .text-white\/80,
+main [data-hero] .text-white\/90 {
+  color: var(--text-dark) !important;
+}
+
+main section.bg-white,
+main section.bg-gray-50,
+main section.bg-gray-100 {
+  background: transparent !important;
+  border-color: var(--readable-glass-border) !important;
+}
+
+main section.bg-white > .container,
+main section.bg-gray-50 > .container,
+main section.bg-gray-100 > .container,
+main section.sticky > .container > div,
+main section:not([data-hero]) > .container > h2,
+main section:not([data-hero]) > .container > p,
+main section:not([data-hero]) > .container > .flex:first-child,
+main section:not([data-hero]) > .container > .mb-6:first-child,
+main section:not([data-hero]) > .container > .max-w-6xl.grid,
+main section:not([data-hero]) > .container > .max-w-6xl > .flex:first-child,
+main section:not([data-hero]) > .container > .max-w-5xl > .flex:first-child,
+main section:not([data-hero]) > .container > .text-center:first-child,
+main section:not([data-hero]) > .container .text-center.py-16:not(.glass-card),
+main .overflow-x-auto:has(table) {
+  padding: 1rem;
+  border: 1px solid var(--readable-glass-border);
+  border-radius: 8px;
+  background: var(--readable-glass);
+  backdrop-filter: blur(22px) saturate(170%);
+  -webkit-backdrop-filter: blur(22px) saturate(170%);
+  box-shadow: 0 12px 34px rgba(35, 78, 120, 0.1);
+}
+
+main section:not([data-hero]) > .container > h2,
+main section:not([data-hero]) > .container > p {
+  display: table;
+  max-width: min(100%, 48rem);
+}
+
+main section:not([data-hero]) > .container > h2.text-center,
+main section:not([data-hero]) > .container > p.text-center {
+  margin-inline: auto;
+}
+
+main .bg-white,
+main .bg-gray-50,
+main .bg-gray-100 {
+  background-color: rgba(255, 255, 255, 0.62) !important;
+}
+
+[data-theme="dark"] main .bg-white,
+[data-theme="dark"] main .bg-gray-50,
+[data-theme="dark"] main .bg-gray-100 {
+  background-color: rgba(15, 23, 42, 0.62) !important;
+}
+
+main select,
+main input,
+main textarea {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border-color: rgba(82, 182, 255, 0.42) !important;
+}
+
+main .stat-card,
+main .review-card,
+main .wishlist-card,
+main .spending-card,
+main .chart-card,
+main .game-hub-section,
+main .game-hub-hero-info,
+main .game-hub-cover,
+main .game-hub-section-header,
+main .game-hub-spending-summary,
+main .game-hub-table,
+main .game-hub-empty,
+main .auth-form,
+main form.glass-card-strong {
+  border: 1px solid var(--readable-glass-border) !important;
+  background: var(--readable-glass-strong) !important;
+  backdrop-filter: blur(22px) saturate(170%);
+  -webkit-backdrop-filter: blur(22px) saturate(170%);
+}
+
+.recharts-default-legend {
+  display: inline-flex !important;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  justify-content: center;
+  padding: 0.5rem 0.75rem !important;
+  border: 1px solid var(--readable-glass-border);
+  border-radius: 8px;
+  background: var(--readable-glass);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+}
+
+main .export-btn,
+main .btn-secondary,
+main .nav-link,
+main .game-hub-section-link {
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+[data-theme="dark"] main .glass-card-strong button[style*="--primary"] {
+  color: var(--text-dark) !important;
+  background: rgba(96, 165, 250, 0.22) !important;
+  border-color: rgba(147, 197, 253, 0.92) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 8px 24px rgba(96, 165, 250, 0.16);
+}
+
+[data-theme="dark"] main .glass-card-strong button[style*="--primary"] .opacity-70 {
+  color: rgba(240, 249, 255, 0.86) !important;
+  opacity: 1 !important;
+}
+
+.mascot-container {
+  right: 1rem !important;
+  bottom: 5.5rem !important;
+  max-width: min(10rem, 30vw);
+}
+
+.mascot-character {
+  width: clamp(4.75rem, 12vw, 8.75rem);
+  height: clamp(4.75rem, 12vw, 8.75rem);
+}
+
+.mascot-character img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.mascot-toggle-btn {
+  right: 1rem !important;
+  bottom: 1rem !important;
+}
+
+@media (max-width: 767px) {
+  main [data-hero] > .container,
+  main section.bg-white > .container,
+  main section.bg-gray-50 > .container,
+  main section.bg-gray-100 > .container {
+    width: calc(100% - 1rem);
+    padding: 1rem;
+  }
+
+  main section:not([data-hero]) > .container > .flex:first-child {
+    align-items: stretch;
+  }
+
+  .mascot-container {
+    right: 0.75rem !important;
+    bottom: 4.75rem !important;
+    max-width: 5.5rem;
+  }
+
+  .mascot-character {
+    width: 5rem;
+    height: 5rem;
+  }
+
+  .mascot-speech {
+    display: none !important;
+  }
+}

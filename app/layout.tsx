@@ -5,6 +5,8 @@ import { MascotProvider } from "@/components/providers/mascot-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { ToastProvider } from "@/components/ui/toast";
 import "./globals.css";
+import "./gallery-ui.css";
+import "./global-glass.css";
 
 export const metadata: Metadata = {
   title: {
