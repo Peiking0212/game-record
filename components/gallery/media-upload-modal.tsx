@@ -28,21 +28,30 @@ export function MediaUploadModal({
   onConfirm,
 }: Props) {
   const typeName = uploadType === "image" ? "图片" : "视频";
+  const hasFiles = fileCount > 0;
 
   return (
     <Modal open={open} onClose={onClose} title="上传素材" maxWidth="md">
-      <div className="space-y-4">
-        <div className="p-3 bg-gray-50 rounded-lg text-sm text-gray-600">
-          <span>{typeName}</span>
-          <span className="mx-2">共</span>
-          <span>{fileCount}</span> 个文件
+      <div className="media-upload-panel">
+        <div className="media-upload-summary" aria-live="polite">
+          <div>
+            <span className="media-upload-kicker">
+              {uploadType === "image" ? "截图 / 插画" : "视频 / 片段"}
+            </span>
+            <p className="media-upload-count">
+              {hasFiles ? `已选择 ${fileCount} 个${typeName}` : "还没有选择文件"}
+            </p>
+          </div>
+          <span className="media-upload-badge">{typeName}</span>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+
+        <div className="media-upload-field">
+          <label className="media-upload-label" htmlFor="media-upload-game">
             关联所属游戏
           </label>
           <select
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            id="media-upload-game"
+            className="media-upload-select"
             value={gameId}
             onChange={(e) => onGameIdChange(e.target.value)}
           >
@@ -53,14 +62,21 @@ export function MediaUploadModal({
               </option>
             ))}
           </select>
-          <p className="text-xs text-gray-400 mt-1">
-            绑定游戏后可在对应游戏图库快速筛选
+          <p className="media-upload-help">
+            不确定归属时可以先不选；绑定游戏后会自动进入对应筛选。
           </p>
         </div>
+
+        {!hasFiles && (
+          <p className="media-upload-warning">
+            请先选择图片或视频文件，再确认上传。
+          </p>
+        )}
+
         <button
           type="button"
-          className="btn-primary w-full inline-flex items-center justify-center"
-          disabled={uploading || fileCount === 0}
+          className="btn-primary media-upload-submit"
+          disabled={uploading || !hasFiles}
           onClick={onConfirm}
         >
           <UploadCloud className="w-5 h-5 mr-2" />

@@ -5,7 +5,7 @@ import { loginAsTestUser } from "./helpers/auth";
 test.describe("Auth", () => {
   test("shows login form", async ({ page }) => {
     await page.goto("/auth");
-    await expect(page.getByRole("heading", { name: "账号" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "账号登录" })).toBeVisible();
     await expect(page.getByTestId("auth-email")).toBeVisible();
     await expect(page.getByTestId("auth-password")).toBeVisible();
   });
@@ -16,7 +16,7 @@ test.describe("Auth", () => {
 
     const ok = await loginAsTestUser(page);
     expect(ok).toBe(true);
-    await expect(page.getByRole("heading", { name: /欢迎来到我的游戏世界/ })).toBeVisible({
+    await expect(page.getByRole("heading", { name: /游戏时光\s*记录平台/ })).toBeVisible({
       timeout: 15000,
     });
   });

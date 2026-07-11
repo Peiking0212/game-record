@@ -16,7 +16,7 @@ test.describe("Gallery upload", () => {
 
   test("upload image opens confirm modal and completes", async ({ page }) => {
     await page.goto("/gallery");
-    await expect(page.getByRole("heading", { name: "游戏媒体库", level: 1 })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "游戏图库", level: 1 })).toBeVisible();
 
     const gameName = `E2E_Gallery_${Date.now()}`;
     await page.goto("/games");
@@ -31,7 +31,7 @@ test.describe("Gallery upload", () => {
     await page.goto("/gallery");
     await page.getByTestId("gallery-upload-image").click();
 
-    await page.locator('input[type="file"][accept="image/*"]').setInputFiles({
+    await page.locator('input[type="file"][accept="image/*"]').first().setInputFiles({
       name: "e2e-test.png",
       mimeType: "image/png",
       buffer: TINY_PNG,
@@ -39,10 +39,10 @@ test.describe("Gallery upload", () => {
 
     const uploadDialog = page.getByRole("dialog");
     await expect(
-      uploadDialog.getByRole("heading", { name: "确认上传" }),
+      uploadDialog.getByRole("heading", { name: "上传素材" }),
     ).toBeVisible();
     await uploadDialog.locator("select").selectOption({ label: gameName });
-    await uploadDialog.getByRole("button", { name: /确认上传/ }).click();
+    await uploadDialog.getByRole("button", { name: /上传素材/ }).click();
 
     await expect(
       page.getByText(/成功上传|已尝试存本机/).first(),

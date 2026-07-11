@@ -32,13 +32,13 @@ test.describe("Core user flows with edge cases", () => {
     await page.getByRole("button", { name: "添加评测" }).first().click();
     const reviewDialog = page.getByRole("dialog");
     await reviewDialog.locator("select").first().selectOption({ label: gameName });
-    await reviewDialog.getByPlaceholder("写下你的简短评价...").fill(reviewText);
+    await reviewDialog.locator("textarea").first().fill(reviewText);
     await reviewDialog.getByRole("button", { name: "保存" }).click();
     await expect(page.getByText(reviewText)).toBeVisible();
 
     await page.goto("/achievements");
-    await expect(page.getByRole("heading", { name: "成就系统" })).toBeVisible();
-    await page.getByRole("button", { name: "添加新成就" }).first().click();
+    await expect(page.getByRole("heading", { name: "成就殿堂" })).toBeVisible();
+    await page.getByRole("button", { name: "添加成就" }).first().click();
     const achievementDialog = page.getByRole("dialog");
     await achievementDialog.locator('input[type="text"]').first().fill(achievementTitle);
     await achievementDialog.locator("textarea").first().fill("完成复杂任务链路");
@@ -58,18 +58,18 @@ test.describe("Core user flows with edge cases", () => {
     await expect(page.getByText(gameName).first()).toBeVisible();
 
     await page.goto("/stats");
-    await expect(page.getByRole("heading", { name: "数据统计分析" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "游戏详细数据" })).toBeVisible();
-    await expect(page.getByRole("cell", { name: gameName })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "游戏统计" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "游戏明细数据" })).toBeVisible();
+    await expect(page.getByRole("cell", { name: gameName, exact: true })).toBeVisible();
 
     await page.goto("/report");
-    await expect(page.getByText("年度游戏报告")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "年度游戏报告", level: 2 })).toBeVisible();
     const yearSelect = page.locator("#report-year");
     const options = await yearSelect.locator("option").allTextContents();
     const target = options.find((t) => /\d{4}\s*年/.test(t));
     if (target) {
       await yearSelect.selectOption({ label: target.trim() });
-      await page.getByRole("button", { name: "生成报告 ✨" }).click();
+      await page.getByRole("button", { name: /生成报告/ }).click();
       await expect(page.getByText("年度回顾").first()).toBeVisible();
     }
   });
@@ -80,10 +80,10 @@ test.describe("Core user flows with edge cases", () => {
     const spendingForm = page.locator("form").first();
     await spendingForm.locator("select").nth(0).selectOption("purchase");
     await spendingForm.getByRole("button", { name: "添加记录" }).click();
-    await expect(page.getByText("请选择愿望单中的游戏")).toBeVisible();
+    await expect(page.getByText(/请选择愿望单[内中]的游戏/)).toBeVisible();
 
     await page.goto("/achievements");
-    await page.getByRole("button", { name: "添加新成就" }).first().click();
+    await page.getByRole("button", { name: "添加成就" }).first().click();
     const achievementDialog = page.getByRole("dialog");
     await achievementDialog.locator('input[type="text"]').first().fill("Edge Case Achievement");
     await achievementDialog.locator("textarea").first().fill("校验未选游戏拦截");
@@ -94,7 +94,7 @@ test.describe("Core user flows with edge cases", () => {
 
     await page.goto("/report");
     await page.locator("select").first().selectOption({ value: "" });
-    await page.getByRole("button", { name: "生成报告 ✨" }).click();
+    await page.getByRole("button", { name: /生成报告/ }).click();
     await expect(page.getByText("请先选择年份")).toBeVisible();
   });
 });
