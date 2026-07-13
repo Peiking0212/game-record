@@ -1,17 +1,57 @@
 "use client";
 
 import Link from "next/link";
-import { Gamepad2, User, Clock, Trophy, Star } from "lucide-react";
+import { Gamepad2, User, Clock, Trophy, Star, ShieldCheck } from "lucide-react";
 import { HomeStats } from "@/components/home/home-stats";
 import { useEffect, useState } from "react";
 import { getHomeStats } from "@/lib/game-data";
+import { tryCreateClient } from "@/lib/supabase/client";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 export default function HomePage() {
   const [stats, setStats] = useState<ReturnType<typeof getHomeStats> | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
 
   useEffect(() => {
     setStats(getHomeStats());
   }, []);
+
+  useEffect(() => {
+    let active = true;
+    const supabase = tryCreateClient();
+    if (!supabase) {
+      setAuthChecked(true);
+      return;
+    }
+
+    supabase.auth.getSession().then(({ data }) => {
+      if (!active) return;
+      const currentUser = data.session?.user ?? null;
+      setUser(currentUser);
+      setAuthChecked(true);
+      if (!currentUser) {
+        window.location.replace("/auth?return=/");
+      }
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (!authChecked) {
+    return (
+      <section className="py-24">
+        <div className="container mx-auto px-4 text-center">
+          <div className="glass-card-strong inline-block px-8 py-8 rounded-2xl">
+            <h1 className="text-3xl font-bold gradient-text mb-3">正在检查登录状态</h1>
+            <p style={{ color: "var(--text-gray)" }}>请稍等，正在进入你的游戏记录空间。</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <>
@@ -30,6 +70,15 @@ export default function HomePage() {
           <p className="text-lg md:text-xl text-white/70 mb-10 max-w-2xl mx-auto leading-relaxed">
             记录你的游戏旅程，收藏每一段精彩回忆
           </p>
+
+          {user && (
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card mb-8">
+              <ShieldCheck className="w-4 h-4" style={{ color: "var(--primary)" }} />
+              <span className="text-sm font-semibold" style={{ color: "var(--text-dark)" }}>
+                已登录：{user.email ?? "当前账号"}
+              </span>
+            </div>
+          )}
 
           {/* 核心数据预览 - 毛玻璃卡片 */}
           {stats && (

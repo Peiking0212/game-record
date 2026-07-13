@@ -158,6 +158,9 @@ export function SiteHeader() {
                       title={supabaseUser.email || "个人主页"}
                     >
                       <User className="w-5 h-5" />
+                      <span className="ml-2 max-w-[160px] truncate">
+                        {supabaseUser.email || "已登录"}
+                      </span>
                     </Link>
                     <Link href="/settings" className="nav-link" title="设置">
                       <Settings className="w-5 h-5" />
@@ -222,7 +225,7 @@ export function SiteHeader() {
                         className="nav-link py-2 px-4 rounded-lg flex items-center"
                       >
                         <User className="w-4 h-4 mr-2" />
-                        个人主页
+                        <span className="truncate">{supabaseUser.email || "已登录"}</span>
                       </Link>
                       <Link
                         href="/settings"

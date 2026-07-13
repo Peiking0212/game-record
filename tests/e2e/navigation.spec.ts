@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 const ROUTES: { path: string; heading: string | RegExp; level?: 1 | 2 }[] = [
-  { path: "/", heading: /游戏时光\s*记录平台/ },
+  { path: "/", heading: /账号登录/ },
   { path: "/games", heading: /我的游戏收藏/ },
   { path: "/gallery", heading: /游戏图库/ },
   { path: "/wishlist", heading: /游戏愿望单/ },
