@@ -7,6 +7,8 @@ import { ToastProvider } from "@/components/ui/toast";
 import "./globals.css";
 import "./gallery-ui.css";
 import "./global-glass.css";
+import "./header-responsive.css";
+import "./page-spacing.css";
 
 export const metadata: Metadata = {
   title: {
