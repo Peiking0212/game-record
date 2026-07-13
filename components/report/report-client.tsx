@@ -276,7 +276,7 @@ export function ReportClient() {
           </div>
         </section>
       ) : (
-        <section className="relative overflow-hidden min-h-[80vh]">
+        <section className="relative overflow-hidden min-h-[80vh] pb-14">
           <div
             className="flex transition-transform duration-700 ease-out"
             style={{ transform: `translateX(-${currentSlide * 100}%)` }}
@@ -285,21 +285,21 @@ export function ReportClient() {
           </div>
 
           <button
-            className="hidden sm:flex fixed top-1/2 -translate-y-1/2 left-4 w-10 h-10 rounded-full border z-50 items-center justify-center shadow hover:text-blue-500"
+            className="hidden sm:flex absolute top-1/2 -translate-y-1/2 left-4 w-10 h-10 rounded-full border z-20 items-center justify-center shadow hover:text-blue-500"
             style={{ background: "var(--bg-glass)", borderColor: "var(--border-glass)", color: "var(--text-gray)" }}
             onClick={() => go(currentSlide - 1)}
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
-            className="hidden sm:flex fixed top-1/2 -translate-y-1/2 right-4 w-10 h-10 rounded-full border z-50 items-center justify-center shadow hover:text-blue-500"
+            className="hidden sm:flex absolute top-1/2 -translate-y-1/2 right-4 w-10 h-10 rounded-full border z-20 items-center justify-center shadow hover:text-blue-500"
             style={{ background: "var(--bg-glass)", borderColor: "var(--border-glass)", color: "var(--text-gray)" }}
             onClick={() => go(currentSlide + 1)}
           >
             <ChevronRight className="w-5 h-5" />
           </button>
 
-          <div className="fixed bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-50">
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20 rounded-full px-3 py-2 glass-card">
             {slides.map((_, i) => (
               <button
                 key={i}

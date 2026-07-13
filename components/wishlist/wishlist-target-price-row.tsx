@@ -35,11 +35,11 @@ export function WishlistTargetPriceRow({
     tone: "idle" | "success" | "error";
   }>({ text: "", tone: "idle" });
 
-  if (!signedIn || !ctx) return null;
-
-  const gameId = resolveSupabaseGameId(item, ctx);
-  const alertRow = gameId ? ctx.alertsByGameId[String(gameId)] : undefined;
-  const priceRow = gameId ? ctx.pricesByGameId[String(gameId)] : undefined;
+  const gameId = ctx ? resolveSupabaseGameId(item, ctx) : undefined;
+  const alertRow =
+    ctx && gameId ? ctx.alertsByGameId[String(gameId)] : undefined;
+  const priceRow =
+    ctx && gameId ? ctx.pricesByGameId[String(gameId)] : undefined;
   const initialTarget =
     alertRow?.targetPrice != null
       ? String(alertRow.targetPrice)
@@ -54,6 +54,8 @@ export function WishlistTargetPriceRow({
     setTargetInput(initialTarget);
     setNotifyEmail(alertRow?.notifyEmail !== false);
   }, [initialTarget, item.id, alertRow?.notifyEmail]);
+
+  if (!signedIn || !ctx) return null;
 
   if (!gameId) {
     return (

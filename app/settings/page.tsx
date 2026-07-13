@@ -238,6 +238,27 @@ function BackgroundTab() {
     reader.readAsDataURL(file);
   }
 
+  function handleVideoUpload(file: File | undefined) {
+    if (!file) return;
+    if (!file.type.startsWith("video/")) {
+      showToast("请选择视频文件", "error");
+      return;
+    }
+    if (file.size > 4 * 1024 * 1024) {
+      showToast("视频过大，请导入 4MB 内的短视频；大文件建议使用 URL", "error");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      setVideoBg(dataUrl);
+      handleVideoBg(dataUrl);
+      showToast("本地视频已导入", "success");
+    };
+    reader.onerror = () => showToast("视频读取失败", "error");
+    reader.readAsDataURL(file);
+  }
+
   function clearBackground() {
     setHeroBg("");
     handleHeroBgChange("");
@@ -349,11 +370,36 @@ function BackgroundTab() {
       {/* 视频背景 */}
       <section className="glass-card-strong p-5">
         <h3 className="text-base font-semibold mb-3" style={{ color: "var(--text-dark)" }}>视频背景</h3>
+        <div className="mb-3">
+          <label
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed cursor-pointer transition-all hover:border-blue-400 hover:bg-blue-50/10"
+            style={{ borderColor: "var(--border-glass)" }}
+          >
+            <input
+              type="file"
+              accept="video/mp4,video/webm,video/*"
+              className="hidden"
+              onChange={(e) => {
+                handleVideoUpload(e.target.files?.[0]);
+                e.target.value = "";
+              }}
+            />
+            <svg className="w-5 h-5" style={{ color: "var(--primary)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <span className="text-sm" style={{ color: "var(--text-gray)" }}>导入本地视频（最大 4MB）</span>
+          </label>
+        </div>
+        {videoBg.startsWith("data:video") && (
+          <div className="mb-3 rounded-lg overflow-hidden border" style={{ borderColor: "var(--border-glass)" }}>
+            <video src={videoBg} className="w-full max-h-40 object-cover" muted loop playsInline controls />
+          </div>
+        )}
         <input
           type="text"
-          value={videoBg}
+          value={videoBg.startsWith("data:video") ? "" : videoBg}
           onChange={(e) => setVideoBg(e.target.value)}
-          placeholder="输入视频 URL（mp4/webm，需支持 CORS）"
+          placeholder={videoBg.startsWith("data:video") ? "本地视频已导入；输入 URL 可替换" : "输入视频 URL（mp4/webm，需支持 CORS）"}
           className="w-full px-3 py-2 rounded-lg text-sm mb-3 focus:ring-2 focus:border-transparent"
           style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)" }}
         />
@@ -449,6 +495,26 @@ function MascotTab() {
     showToast("看板娘图片已保存", "success");
   }
 
+  function handleMascotImageUpload(file: File | undefined) {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      showToast("请选择图片文件", "error");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      showToast("图片过大，请导入 2MB 内的图片", "error");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      handleCustomImage(dataUrl);
+      showToast("本地看板娘图片已导入", "success");
+    };
+    reader.onerror = () => showToast("图片读取失败", "error");
+    reader.readAsDataURL(file);
+  }
+
   return (
     <div className="space-y-6">
       <section className="glass-card-strong p-5">
@@ -485,21 +551,59 @@ function MascotTab() {
 
       <section className="glass-card-strong p-5">
         <h3 className="text-base font-semibold mb-3" style={{ color: "var(--text-dark)" }}>自定义图片</h3>
+        <div className="mb-3">
+          <label
+            className="flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-dashed cursor-pointer transition-all hover:border-blue-400 hover:bg-blue-50/10"
+            style={{ borderColor: "var(--border-glass)" }}
+          >
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                handleMascotImageUpload(e.target.files?.[0]);
+                e.target.value = "";
+              }}
+            />
+            <svg className="w-5 h-5" style={{ color: "var(--primary)" }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span className="text-sm" style={{ color: "var(--text-gray)" }}>导入本地图片（最大 2MB）</span>
+          </label>
+        </div>
+        {customImage && (
+          <div className="mb-3 flex items-center gap-3 rounded-lg border p-3" style={{ borderColor: "var(--border-glass)", background: "var(--bg-glass)" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={customImage} alt="看板娘预览" className="h-20 w-20 rounded-lg object-cover" />
+            <span className="text-sm" style={{ color: "var(--text-gray)" }}>
+              {customImage.startsWith("data:image") ? "本地图片已导入" : "URL 图片预览"}
+            </span>
+          </div>
+        )}
         <input
           type="text"
-          value={customImage}
+          value={customImage.startsWith("data:image") ? "" : customImage}
           onChange={(e) => setCustomImage(e.target.value)}
-          placeholder="输入图片 URL（留空使用默认）"
+          placeholder={customImage.startsWith("data:image") ? "本地图片已导入；输入 URL 可替换" : "输入图片 URL（留空使用默认）"}
           className="w-full px-3 py-2 rounded-lg text-sm mb-3 focus:ring-2 focus:border-transparent"
           style={{ background: "var(--input-bg)", border: "1px solid var(--input-border)" }}
         />
-        <button
-          type="button"
-          onClick={() => handleCustomImage(customImage)}
-          className="btn-primary px-4 py-1.5 rounded-lg text-sm"
-        >
-          保存
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => handleCustomImage(customImage)}
+            className="btn-primary px-4 py-1.5 rounded-lg text-sm"
+          >
+            保存
+          </button>
+          <button
+            type="button"
+            onClick={() => handleCustomImage("")}
+            className="btn-secondary px-4 py-1.5 rounded-lg text-sm"
+          >
+            清除
+          </button>
+        </div>
       </section>
     </div>
   );

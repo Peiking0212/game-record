@@ -56,7 +56,7 @@ test.describe("Wishlist cloud", () => {
 
   test("sync cloud catalog button visible when signed in", async ({ page }) => {
     await page.goto("/wishlist");
-    await expect(page.getByRole("button", { name: "同步云端目录" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "同步云端清单" })).toBeVisible();
   });
 
   test("mascot widget visible on wishlist", async ({ page }) => {
