@@ -1,0 +1,74 @@
+/* Keep the desktop header readable instead of shrinking Chinese labels vertically. */
+header.sticky > .container {
+  width: 100%;
+  max-width: none;
+}
+
+.desktop-nav {
+  min-width: 0;
+  gap: 0.25rem;
+}
+
+.desktop-nav > * {
+  margin-left: 0 !important;
+}
+
+.desktop-nav .nav-link {
+  flex-shrink: 0;
+  padding-inline: 0.625rem;
+  white-space: nowrap;
+}
+
+/* A full desktop navigation is too dense below laptop width. */
+@media (min-width: 768px) and (max-width: 1279.98px) {
+  .desktop-nav {
+    display: none;
+  }
+
+  .mobile-nav {
+    display: flex;
+  }
+}
+
+@media (min-width: 1280px) {
+  .desktop-nav {
+    display: flex;
+  }
+
+  .mobile-nav {
+    display: none;
+  }
+}
+
+/* Compact laptop layout: keep every destination visible on one line. */
+@media (min-width: 1280px) and (max-width: 1399.98px) {
+  header.sticky > .container {
+    padding-inline: 0.75rem;
+  }
+
+  header.sticky nav > a h1 {
+    font-size: 1.25rem;
+  }
+
+  .desktop-nav {
+    gap: 0;
+  }
+
+  .desktop-nav .nav-link {
+    padding-inline: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .desktop-nav .nav-link svg {
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.375rem;
+  }
+}
+
+/* The account icon already exposes the email through its title at this width. */
+@media (min-width: 1280px) and (max-width: 1399.98px) {
+  .desktop-nav > a[href="/profile"]:nth-last-child(3) span {
+    display: none;
+  }
+}

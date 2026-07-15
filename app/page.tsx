@@ -111,7 +111,7 @@ export default function HomePage() {
       </section>
 
       {/* ====== 统计数据概览 ====== */}
-      <section className="py-20">
+      <section className="py-20" data-home-content>
         <div className="container mx-auto px-4">
           <HomeStats />
         </div>

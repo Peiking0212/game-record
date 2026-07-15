@@ -1,0 +1,50 @@
+/* Shared vertical rhythm for migrated pages. */
+:root {
+  --page-section-space: clamp(2rem, 3vw, 2.75rem);
+  --page-hero-space: clamp(2.25rem, 3.5vw, 3rem);
+}
+
+main > section[class*="py-"]:not(.sticky) {
+  padding-block: var(--page-section-space) !important;
+}
+
+main > section[data-hero][class*="py-"] {
+  padding-block: var(--page-hero-space) !important;
+}
+
+/* HomeStats already owns its two sections; the page wrapper must stay neutral. */
+main > section[data-home-content][class*="py-"]:not(.sticky) {
+  padding-block: 0 !important;
+}
+
+main > section[data-home-content] > .container {
+  width: 100%;
+  max-width: none;
+  padding-inline: 0;
+}
+
+main > section[data-home-content] > .container > section[class*="py-"] {
+  padding-block: var(--page-section-space) !important;
+}
+
+/* Avoid a second full-width glass card around an existing section heading. */
+main section:not([data-hero]) > .container > .text-center:first-child {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+
+/* Empty states should remain clear without looking like an empty screen. */
+main .glass-card.text-center.py-16 {
+  padding-block: 3rem !important;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --page-section-space: 2rem;
+    --page-hero-space: 2.25rem;
+  }
+}
