@@ -1,13 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { tryCreateClient } from "@/lib/supabase/client";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 export function AuthForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = searchParams.get("return") || "/";
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -17,6 +16,7 @@ export function AuthForm() {
   const [loading, setLoading] = useState(false);
   const [checking, setChecking] = useState(true);
   const [currentUser, setCurrentUser] = useState<SupabaseUser | null>(null);
+  const target = returnTo.startsWith("/") ? returnTo : "/";
 
   useEffect(() => {
     let active = true;
@@ -32,9 +32,8 @@ export function AuthForm() {
       setCurrentUser(user);
       setChecking(false);
       if (user) {
-        const target = returnTo.startsWith("/") ? returnTo : "/";
         window.setTimeout(() => {
-          router.replace(target);
+          window.location.replace(target);
         }, 800);
       }
     });
@@ -42,13 +41,18 @@ export function AuthForm() {
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!active) return;
       setCurrentUser(session?.user ?? null);
+      if (session?.user) {
+        window.setTimeout(() => {
+          window.location.replace(target);
+        }, 250);
+      }
     });
 
     return () => {
       active = false;
       listener.subscription.unsubscribe();
     };
-  }, [returnTo, router]);
+  }, [target]);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -76,8 +80,7 @@ export function AuthForm() {
         });
         if (signInError) throw signInError;
       }
-      router.push(returnTo.startsWith("/") ? returnTo : "/");
-      router.refresh();
+      window.location.replace(target);
     } catch (err) {
       setError(err instanceof Error ? err.message : "登录请求异常");
     } finally {

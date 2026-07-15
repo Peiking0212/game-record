@@ -1,7 +1,7 @@
 import { spawn } from "node:child_process";
 
-const host = "127.0.0.1";
-const port = "3000";
+const host = process.env.E2E_HOST || "127.0.0.1";
+const port = process.env.E2E_PORT || "3000";
 const url = `http://${host}:${port}/auth`;
 
 function spawnProcess(command, args, options = {}) {
@@ -64,7 +64,7 @@ try {
   await waitForServer();
   const args = ["node_modules/@playwright/test/cli.js", "test", ...process.argv.slice(2)];
   const runner = spawnProcess(process.execPath, args, {
-    env: { PLAYWRIGHT_SKIP_WEB_SERVER: "1" },
+    env: { PLAYWRIGHT_SKIP_WEB_SERVER: "1", E2E_BASE_URL: `http://${host}:${port}` },
   });
   const result = await waitForExit(runner);
   exitCode = result.code ?? (result.signal ? 1 : 0);
